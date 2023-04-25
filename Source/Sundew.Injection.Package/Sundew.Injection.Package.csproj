@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+    <PackageId>Sundew.Injection</PackageId>
+    <PackageReadmeFile>docs/README.md</PackageReadmeFile>
+    <PackageIconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</PackageIconUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Description>Sundew.Injection is a dependency injection framework, that generates factories (Equivalent of a Container) at compile-time.</Description>
+    <PackageReleaseNotes>0.0 - Initial version.</PackageReleaseNotes>
+    <PackageTags>Sundew.Injection, analyzers</PackageTags>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
+
+    <Configurations>Debug;Release;DebugTests</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedFiles Include="$(GeneratedAssemblyInfoFile)" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\docs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Sundew.Packaging.Publish" Version="8.2.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sundew.Injection\Sundew.Injection.csproj" />
+    <ProjectReference Include="..\Sundew.Injection.CodeFixes\Sundew.Injection.CodeFixes.csproj" />
+    <ProjectReference Include="..\Sundew.Injection.Generator\Sundew.Injection.Generator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="tools\*.ps1" CopyToOutputDirectory="Always" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <Target Name="_AddAnalyzersToOutput">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="..\Sundew.Injection.Generator\$(OutputPath)Sundew*.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Remove="..\Sundew.Injection.Generator\$(OutputPath)Sundew*.m.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Remove="..\Sundew.Injection.Generator\$(OutputPath)Sundew.DiscriminatedUnions*.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Remove="..\Sundew.Injection.Generator\$(OutputPath)Sundew.Base*.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="$(OutputPath)\Sundew.Injection.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="$(OutputPath)Sundew.Injection.dll" PackagePath="lib/netstandard1.3" />
+    </ItemGroup>
+  </Target>
+
+</Project>

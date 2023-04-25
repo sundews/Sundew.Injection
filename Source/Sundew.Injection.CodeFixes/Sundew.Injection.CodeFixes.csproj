@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Sundew.Injection</RootNamespace>
+    <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <Configurations>Debug;Release;DebugTests</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.4.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Sundew.Packaging.Publish" Version="8.2.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sundew.Injection.Generator\Sundew.Injection.Generator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="CodeFixResources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="CodeFixResources.resx" />
+    <EmbeddedResource Update="CodeFixResources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="CodeFixResources.Designer.cs" />
+  </ItemGroup>
+
+</Project>

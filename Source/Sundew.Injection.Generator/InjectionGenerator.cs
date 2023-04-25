@@ -1,0 +1,56 @@
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="InjectionGenerator.cs" company="Hukano">
+// Copyright (c) Hukano. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Sundew.Injection.Generator;
+
+using Microsoft.CodeAnalysis;
+using Sundew.Base.Collections;
+using Sundew.Injection.Generator.Stages.CodeGenerationStage;
+using Sundew.Injection.Generator.Stages.CompilationDataStage;
+using Sundew.Injection.Generator.Stages.FactoryDataStage;
+using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
+using Sundew.Injection.Generator.Stages.OutputStage;
+using Sundew.Injection.Generator.Stages.SemanticModelStage;
+
+[Generator]
+public class InjectionGenerator : IIncrementalGenerator
+{
+    private readonly GeneratedCodeProvider generatedCodeProvider;
+
+    public InjectionGenerator()
+    {
+        this.generatedCodeProvider = new GeneratedCodeProvider(new FactorySourceTextGenerator());
+    }
+
+    public void Initialize(IncrementalGeneratorInitializationContext context)
+    {
+        var accessibleConstructorProvider = context.SyntaxProvider.SetupAccessibleConstructorStage();
+
+        var compilationInfoProvider = context.CompilationProvider.SetupCompilationInfoStage();
+
+        var (injectionDefinitionSuccessProvider, injectionDefinitionErrorProvider) = context.SyntaxProvider.SetupInjectionDefinitionStage().SegregateByResult();
+
+        context.RegisterSourceOutput(injectionDefinitionErrorProvider, (productionContext, error) => error.ForEach(productionContext.ReportDiagnostic));
+
+        var injectionTreeInputProvider = injectionDefinitionSuccessProvider
+            .Combine(compilationInfoProvider)
+            .Combine(accessibleConstructorProvider.Collect())
+            .Select((x, _) => (x.Left.Left, x.Left.Right, x.Right));
+
+        var (factoryDefinitionSuccessProvider, factoryDefinitionErrorProvider) = injectionTreeInputProvider.SetupFactoryDataStage().SegregateByResult();
+
+        var factoryDefinitionProvider = factoryDefinitionSuccessProvider.Combine(compilationInfoProvider);
+
+        context.RegisterSourceOutput(factoryDefinitionErrorProvider, (productionContext, error) => error.ForEach(productionContext.ReportDiagnostic));
+
+        var (codeGenerationSuccessProvider, codeGenerationErrorProvider) = this.generatedCodeProvider.SetupCodeGenerationStage(factoryDefinitionProvider).SegregateByResult();
+
+        codeGenerationSuccessProvider.SetupOutputResultStage(context);
+
+        context.RegisterSourceOutput(codeGenerationErrorProvider, (productionContext, error) => error.ForEach(productionContext.ReportDiagnostic));
+    }
+}

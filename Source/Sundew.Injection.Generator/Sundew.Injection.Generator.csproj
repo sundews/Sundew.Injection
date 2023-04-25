@@ -1,0 +1,84 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>11</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <NoWarn>$(NoWarn);SA1206;SA1633</NoWarn>
+    <DoILRepack>false</DoILRepack>
+    <Configurations>Debug;Release;DebugTests</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Update="Resources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="Resources.resx" />
+    <EmbeddedResource Update="Resources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="Resources.Designer.cs" />
+    <EmbeddedResource Include="Stages\ProvideDependenciesStage\Disposal\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ILRepack.Lib.MSBuild" Version="2.1.18" />
+    <PackageReference Include="PolySharp" Version="1.13.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Sundew.Packaging.Publish" Version="8.2.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sundew.Injection\Sundew.Injection.csproj" GeneratePathProperty="true" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Sundew.Injection.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Generator dependencies -->
+    <PackageReference Include="System.Collections.Immutable" Version="6.0.0" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Features" Version="4.4.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="4.4.0" />
+    <PackageReference Include="Sundew.Base.Collections" Version="10.0.2" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Primitives" Version="10.0.2" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Equality" Version="10.0.2" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Memory" Version="10.0.2" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Reporting" Version="10.0.2" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Text" Version="10.0.2" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.DiscriminatedUnions" Version="3.1.1" GeneratePathProperty="true" PrivateAssets="all" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <GetTargetPathDependsOn>$(GetTargetPathDependsOn)</GetTargetPathDependsOn>
+  </PropertyGroup>
+
+  <Target Name="GetDependencyTargetPaths">
+    <ItemGroup>
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGSundew_Base_Collections)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGSundew_Base_Primitives)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGSundew_Base_Equality)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGSundew_Base_Reporting)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGSundew_Base_Memory)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGSundew_Base_Text)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGSundew_DiscriminatedUnions)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGSystem_ValueTuple)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGSundew_Injection)\lib\netstandard1.3\*.dll" IncludeRuntimeDependency="false" />
+    </ItemGroup>
+  </Target>
+
+</Project>

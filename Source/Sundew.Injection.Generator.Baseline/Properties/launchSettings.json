@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Sundew.Injection.Generator": {
+      "commandName": "Project"
+    },
+    "Roslyn Component": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\Sundew.Injection.Demo\\Sundew.Injection.Demo.csproj"
+    }
+  }
+}
