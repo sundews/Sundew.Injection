@@ -19,11 +19,13 @@ using MethodImplementation = Sundew.Injection.Generator.Stages.CodeGenerationSta
 
 internal static class FactoryMethodHelper
 {
+    private const string OnCreate = "OnCreate";
+
     public static (ImmutableList<DeclaredMethodImplementation> FactoryMethods, InvocationExpressionBase CreationExpression)
         GenerateFactoryMethod(
             ImmutableList<DeclaredMethodImplementation> factoryMethods, DefiniteType targetType, ValueArray<DefiniteParameter> parameters, CreationSource creationSource, ImmutableList<Expression> creationArguments)
     {
-        var declaration = new MethodDeclaration(DeclaredAccessibility.Protected, true, "OnCreate" + NameHelper.GetFactoryMethodName(targetType.Name), parameters.Select(x => new ParameterDeclaration(x.Type, x.Name, null)).ToImmutableList(), targetType);
+        var declaration = new MethodDeclaration(DeclaredAccessibility.Protected, true, OnCreate + NameHelper.GetFactoryMethodName(targetType.Name), parameters.Select(x => new ParameterDeclaration(x.Type, x.Name, null)).ToImmutableList(), targetType);
         var existingFactoryMethod = factoryMethods.FirstOrDefault(x => x.Declaration == declaration);
         if (Equals(existingFactoryMethod.Declaration, default))
         {
