@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>11</LangVersion>
@@ -49,7 +49,7 @@
 
   <ItemGroup>
     <!-- Generator dependencies -->
-    <PackageReference Include="System.Collections.Immutable" Version="6.0.0" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="System.Collections.Immutable" Version="7.0.0" GeneratePathProperty="true" PrivateAssets="all" />
     <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" GeneratePathProperty="true" />
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
