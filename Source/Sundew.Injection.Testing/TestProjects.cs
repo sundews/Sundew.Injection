@@ -8,7 +8,7 @@ using AssemblyReference = Sundew.Testing.CodeAnalysis.AssemblyReference;
 
 public static class TestProjects
 {
-    public static Project AllFeatureSuccess = new Project(@"TestProjects\AllFeaturesSuccess");
+    public static Project AllFeatureSuccess = new Project(@"TestProjects/AllFeaturesSuccess");
 
     public class Project
     {
