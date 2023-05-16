@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="InjectionDefinitionProvider.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="InjectionDefinitionProvider.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -20,7 +20,9 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal static class InjectionDefinitionProvider
 {
-    public static IncrementalValuesProvider<R<InjectionDefinition, ValueList<Diagnostic>>> SetupInjectionDefinitionStage(this SyntaxValueProvider syntaxValueProvider)
+    public static
+        IncrementalValuesProvider<R<InjectionDefinition,
+            ValueList<Diagnostic>>> SetupInjectionDefinitionStage(this SyntaxValueProvider syntaxValueProvider)
     {
         return syntaxValueProvider.CreateSyntaxProvider(
             static (syntaxNode, _) => IsInjectionDeclaration(syntaxNode),
@@ -31,8 +33,8 @@ internal static class InjectionDefinitionProvider
     {
         try
         {
-            var compiletimeInjectionDefinitionBuilder = new CompiletimeInjectionDefinitionBuilder(string.Empty);
             var knownAnalysisTypes = new KnownAnalysisTypes(injectionDeclarationSemanticModel.Compilation);
+            var compiletimeInjectionDefinitionBuilder = new CompiletimeInjectionDefinitionBuilder(string.Empty);
             var typeFactory = new TypeFactory(knownAnalysisTypes);
             var injectionDeclarationVisitor = new InjectionDeclarationVisitor(injectionDeclarationSemanticModel, knownAnalysisTypes, compiletimeInjectionDefinitionBuilder, typeFactory, cancellationToken);
             injectionDeclarationVisitor.Visit(injectionDeclarationSemanticModel.SyntaxTree.GetRoot());
@@ -44,7 +46,7 @@ internal static class InjectionDefinitionProvider
         }
         catch (Exception e)
         {
-            return R.Error(ImmutableArray.Create(Diagnostic.Create(Diagnostics.UnknownError, default, e.Message)).ToValueList());
+            return R.Error(ImmutableArray.Create(Diagnostic.Create(Diagnostics.UnknownError, default, e.ToString())).ToValueList());
         }
     }
 

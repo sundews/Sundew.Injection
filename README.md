@@ -47,19 +47,19 @@ Generally, short-lived applications can benefit the most from Pure DI during sta
 | - Single instance per request                                   | A new instance will be created per call to the 'Create' method and thus be shared                                                      | Equivalent to single instance per request/resolve                            |
 | - New instance                                                  | A new instance is created every time it is requested                                                                                   | Equivalent to transient                                                      |
 | **Override 'new' in derived factory class**                     | Useful when wanting to replace an implementation with a different one.<br/>e.g. a mock without making explicitly part of the interface | Typically registrations can be overwritten                                   |
-| **Disposal of any (owned) IDisposables**                        | Disposal by disposing factory or explicit Dispose(TCreated) method                                                                     | Depends on DIC, some support only disposing singletons                       |
-| **Factories can depend on other generated factories**           | Currently, factories can be injection, but does not support calling the 'Create' method                                                | Supported by some DICs through child containers                              |
+| **Thread safety**                                               | Create methods can be called on multiple threads                                                                                       | Supported by most DICs                                                       |
+| **Initialization**                                              | Implement IInitializable or IAsyncInitializable in a type to perform initialization not suited for the ctor.                           | Support for similar functionality in some DICs                               |
+| **Disposal**                                                    | Disposal by disposing factory or explicit Dispose(TCreated) method                                                                     | Depends on DIC, some support only disposing singletons                       |
+| **Factories can depend on other generated factories**           | Currently, factories can be injected, but does not support calling the 'Create' method (planned)                                       | Supported by some DICs through child containers                              |
 | **Zero reflection**                                             | Improved performance<br/>Enable .NET Native/NativeAOT etc.                                                                             | Not supported by DICs                                                        |
 
 ## Not implemented yet:
-* Interception
-* Custom lifetime scope, to support implementing something like single instance per thread or per session
 * Calling child factory 'Create' methods
-* Generating documentation
-* Test error cases
 * Examples
-* Initialization
-* Thread safety
+* Test error cases
+* Generating documentation
+* Custom lifetime scope, to support implementing something like single instance per thread or per session
+* Interception
 * Test correctness of generated code
 
 ## Not supported DIC features
@@ -73,9 +73,9 @@ Although the output of Sundew.Injection resembles the Factory pattern more close
 
 With this, an instantiated Factory is conceptually similar to a configured DIC instance.
 
-## Definition of IDisposable ownership
+## Definition of IDisposable/IAsyncDisposable ownership
 
-An IDisposable object is considered owned by a factory in the following scenarios
+An IDisposable/IAsyncDisposable object is considered owned by a factory in the following scenarios
 1. It was instantiated by the factory
 2. It was created by a Func<> passed into the factory and creation was triggered by the factory.
 

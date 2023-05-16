@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FactoryMethodHelper.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="FactoryMethodHelper.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ internal static class FactoryMethodHelper
         var existingFactoryMethod = factoryMethods.FirstOrDefault(x => x.Declaration == declaration);
         if (Equals(existingFactoryMethod.Declaration, default))
         {
-            factoryMethods = factoryMethods.Add(new DeclaredMethodImplementation(declaration, new MethodImplementation(declaration.Parameters, ImmutableList<Declaration>.Empty, ImmutableList.Create<Statement>(new ReturnStatement(new CreationExpression(creationSource, declaration.Parameters.Select(x => new Identifier(x.Name)).ToImmutableArray()))), false)));
+            factoryMethods = factoryMethods.Add(new DeclaredMethodImplementation(declaration, new MethodImplementation(declaration.Parameters, ImmutableList<Declaration>.Empty, ImmutableList.Create<Statement>(new ReturnStatement(new CreationExpression(creationSource, declaration.Parameters.Select(x => new Identifier(x.Name)).ToImmutableArray()))))));
         }
 
         return (factoryMethods, new InvocationExpression(new MemberAccessExpression(Identifier.This, declaration.Name), creationArguments));

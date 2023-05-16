@@ -1,13 +1,12 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="InjectionTreeBuilder.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="InjectionTreeBuilder.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
 namespace Sundew.Injection.Generator.Stages.FactoryDataStage;
 
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -16,7 +15,6 @@ using Sundew.Base.Collections;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Base.Primitives.Computation;
 using Sundew.DiscriminatedUnions;
-using Sundew.Injection.Generator.Stages.CompilationDataStage;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Extensions;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Resolvers;
@@ -31,14 +29,12 @@ internal sealed class InjectionTreeBuilder
     private readonly BindingResolver bindingResolver;
     private readonly RequiredParametersInjectionResolver requiredParametersInjectionResolver;
     private readonly ScopeResolver scopeResolver;
-    private readonly CompilationData compilationData;
 
-    public InjectionTreeBuilder(BindingResolver bindingResolver, RequiredParametersInjectionResolver requiredParametersInjectionResolver, ScopeResolver scopeResolver, CompilationData compilationData)
+    public InjectionTreeBuilder(BindingResolver bindingResolver, RequiredParametersInjectionResolver requiredParametersInjectionResolver, ScopeResolver scopeResolver)
     {
         this.bindingResolver = bindingResolver;
         this.requiredParametersInjectionResolver = requiredParametersInjectionResolver;
         this.scopeResolver = scopeResolver;
-        this.compilationData = compilationData;
     }
 
     public R<InjectionTree, ImmutableList<InjectionStageError>> Build(Binding binding, CancellationToken cancellationToken)
@@ -49,13 +45,13 @@ internal sealed class InjectionTreeBuilder
         var injectionNodePair = this.GetInjectionNode(binding, null, Scope.NewInstance, O.None, factoryConstructorParameters, diagnostics, cancellationToken);
         if (diagnostics.IsEmpty())
         {
-            return R.Success(new InjectionTree(injectionNodePair.InjectionNode, injectionNodePair.ImplementDisposable, factoryConstructorParameters.ToImmutable()));
+            return R.Success(new InjectionTree(injectionNodePair.InjectionNode, injectionNodePair.NeedsLifecycleHandling, factoryConstructorParameters.ToImmutable()));
         }
 
         return R.Error(diagnostics.ToImmutable());
     }
 
-    private (InjectionNode InjectionNode, bool ImplementDisposable) GetInjectionNode(
+    private (InjectionNode InjectionNode, bool NeedsLifecycleHandling) GetInjectionNode(
         Binding binding,
         InjectionNode? parentInjectionNode,
         Scope parentScope,
@@ -65,21 +61,21 @@ internal sealed class InjectionTreeBuilder
         CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var constructorParameterCreationNodes = new List<InjectionNode>();
+        var constructorParameterCreationNodes = new RecordList<InjectionNode>();
 
         var scope = this.scopeResolver.ResolveScope(binding);
-        var implementIDisposable = binding.ImplementsIDisposable;
+        var needsLifecycleHandling = binding.HasLifecycle | binding.IsNewOverridable;
         var creationInjectionNode = this.CreateInjectionNode(
            binding.TargetType,
-           binding.CommonType,
+           binding.TargetReferenceType,
            scope,
            constructorParameterCreationNodes,
            CreationSource.From(binding.Method),
            parentInjectionNode,
            parentScope,
-           implementIDisposable,
+           needsLifecycleHandling,
            O.From(binding.IsNewOverridable, binding.Method.Parameters),
-           O.From(binding.IsInjectable, binding.CommonType).Combine(parameterOption, (type, parameter) => new ParameterNode(type, this.GetParameterSource(type, parameter, diagnostics), parameter.Name, parameter.TypeMetadata, scope == Scope.NewInstance, parentInjectionNode)),
+           O.From(binding.IsInjectable, binding.TargetReferenceType).Combine(parameterOption, (type, parameter) => new ParameterNode(type, this.GetParameterSource(type, parameter, diagnostics), parameter.Name, parameter.TypeMetadata, scope == Scope.NewInstance, parentInjectionNode?.Name)),
            diagnostics);
 
         foreach (var parameter in binding.Method.Parameters)
@@ -90,7 +86,7 @@ internal sealed class InjectionTreeBuilder
                 case SingleParameter singleParameter:
                     {
                         var injectionNodePair = this.GetInjectionNode(singleParameter.Binding, creationInjectionNode, scope, O.Some(parameter), factoryMethodParameters, diagnostics, cancellationToken);
-                        BooleanHelper.SetIfTrue(ref implementIDisposable, injectionNodePair.ImplementDisposable);
+                        BooleanHelper.SetIfTrue(ref needsLifecycleHandling, injectionNodePair.NeedsLifecycleHandling);
                         constructorParameterCreationNodes.Add(injectionNodePair.InjectionNode);
                         break;
                     }
@@ -98,11 +94,11 @@ internal sealed class InjectionTreeBuilder
                 case ArrayParameter arrayParameter:
                     {
                         var arrayScope = this.scopeResolver.ResolveScope(arrayParameter.ArrayType);
-                        var arrayConstructorParameterCreationNodes = new List<InjectionNode>();
+                        var arrayConstructorParameterCreationNodes = new RecordList<InjectionNode>();
                         var arrayInjectionNode = this.CreateInjectionNode(arrayParameter.ArrayType, arrayParameter.ArrayType, arrayScope, arrayConstructorParameterCreationNodes, CreationSource.ArrayCreation(arrayParameter.ArrayType.ElementType), creationInjectionNode, arrayScope, false, O.None, O.None, diagnostics);
                         var parameterInjectionNodePairs = arrayParameter.Bindings.Select(x => this.GetInjectionNode(x, arrayInjectionNode, arrayScope, O.Some(parameter), factoryMethodParameters, diagnostics, cancellationToken)).ToArray();
                         arrayConstructorParameterCreationNodes.AddRange(parameterInjectionNodePairs.Select(x => x.InjectionNode));
-                        BooleanHelper.SetIfTrue(ref implementIDisposable, parameterInjectionNodePairs.Any(x => x.ImplementDisposable));
+                        BooleanHelper.SetIfTrue(ref needsLifecycleHandling, parameterInjectionNodePairs.Any(x => x.NeedsLifecycleHandling));
                         constructorParameterCreationNodes.Add(arrayInjectionNode);
                         break;
                     }
@@ -117,7 +113,7 @@ internal sealed class InjectionTreeBuilder
             }
         }
 
-        return (creationInjectionNode, implementIDisposable);
+        return (creationInjectionNode, needsLifecycleHandling);
     }
 
     private InjectionNode CreateParameterInjectionNode(
@@ -133,12 +129,12 @@ internal sealed class InjectionTreeBuilder
         if (scope == Scope.SingleInstancePerFactory)
         {
             var factoryConstructorParameterInjectionNode =
-                new FactoryConstructorParameterInjectionNode(type, parameter.Name, parameterSource, parameter.TypeMetadata, injectionNode);
+                new FactoryConstructorParameterInjectionNode(type, parameter.Name, parameterSource, parameter.TypeMetadata, injectionNode.Name);
             factoryMethodParameters.Add(factoryConstructorParameterInjectionNode);
             return factoryConstructorParameterInjectionNode;
         }
 
-        return InjectionNode.FactoryMethodParameterInjectionNode(type, parameter.Name, parameterSource, parameter.TypeMetadata, !parameter.TypeMetadata.IsValueType && scope == Scope.NewInstance, injectionNode);
+        return InjectionNode.FactoryMethodParameterInjectionNode(type, parameter.Name, parameterSource, parameter.TypeMetadata, !parameter.TypeMetadata.IsValueType && scope == Scope.NewInstance, injectionNode.Name);
     }
 
     private ParameterSource GetParameterSource(DefiniteType type, DefiniteParameter parameter, ImmutableList<InjectionStageError>.Builder diagnostics)
@@ -164,13 +160,13 @@ internal sealed class InjectionTreeBuilder
 
     private InjectionNode CreateInjectionNode(
         DefiniteType targetType,
-        DefiniteType commonType,
+        DefiniteType targetReferenceType,
         Scope scope,
-        List<InjectionNode> parameterCreationNodes,
+        RecordList<InjectionNode> parameterCreationNodes,
         CreationSource creationSource,
         InjectionNode? parentInjectionNode,
         Scope parentScope,
-        bool implementsDisposable,
+        bool needsLifecycleHandling,
         O<ValueArray<DefiniteParameter>> overridableNewParametersOption,
         O<ParameterNode> parameterNodeOption,
         ImmutableList<InjectionStageError>.Builder diagnostics)
@@ -189,7 +185,7 @@ internal sealed class InjectionTreeBuilder
                             parentScope.ToString()));
                 }
 
-                return InjectionNode.NewInstanceInjectionNode(targetType, commonType, implementsDisposable, parameterCreationNodes, creationSource, parameterNodeOption, overridableNewParametersOption, parentInjectionNode);
+                return InjectionNode.NewInstanceInjectionNode(targetType, targetReferenceType, needsLifecycleHandling, parameterCreationNodes, creationSource, parameterNodeOption, overridableNewParametersOption, parentInjectionNode?.Name);
             case Scope.SingleInstancePerRequestScope:
                 if (parentScope == Scope.SingleInstancePerFactory || parentScope is Scope.SingleInstancePerFuncResultScope)
                 {
@@ -201,7 +197,7 @@ internal sealed class InjectionTreeBuilder
                             $"{Scope.SingleInstancePerFactory}, {nameof(Scope.SingleInstancePerFuncResultScope)}"));
                 }
 
-                return InjectionNode.SingleInstancePerRequestInjectionNode(targetType, commonType, implementsDisposable, parameterCreationNodes, creationSource, parameterNodeOption, overridableNewParametersOption, parentInjectionNode);
+                return InjectionNode.SingleInstancePerRequestInjectionNode(targetType, targetReferenceType, needsLifecycleHandling, parameterCreationNodes, creationSource, parameterNodeOption, overridableNewParametersOption, parentInjectionNode?.Name);
             case Scope.SingleInstancePerFuncResultScope:
                 if (parentScope == Scope.SingleInstancePerFactory)
                 {
@@ -212,9 +208,9 @@ internal sealed class InjectionTreeBuilder
                         Scope.SingleInstancePerFactory.ToString()));
                 }
 
-                return InjectionNode.SingleInstancePerFactoryInjectionNode(targetType, commonType, implementsDisposable, parameterCreationNodes, creationSource, parameterNodeOption, overridableNewParametersOption, parentInjectionNode);
+                return InjectionNode.SingleInstancePerFactoryInjectionNode(targetType, targetReferenceType, needsLifecycleHandling, parameterCreationNodes, creationSource, parameterNodeOption, overridableNewParametersOption, parentInjectionNode?.Name);
             case Scope.SingleInstancePerFactoryScope:
-                return InjectionNode.SingleInstancePerFactoryInjectionNode(targetType, commonType, implementsDisposable, parameterCreationNodes, creationSource, parameterNodeOption, overridableNewParametersOption, parentInjectionNode);
+                return InjectionNode.SingleInstancePerFactoryInjectionNode(targetType, targetReferenceType, needsLifecycleHandling, parameterCreationNodes, creationSource, parameterNodeOption, overridableNewParametersOption, parentInjectionNode?.Name);
             default:
                 throw new UnreachableCaseException(typeof(Scope));
         }

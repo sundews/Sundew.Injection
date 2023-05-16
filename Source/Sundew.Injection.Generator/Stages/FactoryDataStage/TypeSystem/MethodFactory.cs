@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MethodFactory.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="MethodFactory.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ public sealed class MethodFactory
             {
                 var resolveTypeResult = typeResolver.ResolveType(definiteTypeArgument.Type);
                 return resolveTypeResult.IsSuccess
-                    ? Item.Pass(new DefiniteParameter(new DefiniteArrayType(resolveTypeResult.Value), parameterName, new TypeMetadata(null, false, true, false)))
+                    ? Item.Pass(new DefiniteParameter(new DefiniteArrayType(resolveTypeResult.Value), parameterName, new TypeMetadata(null, true, false, false)))
                     : Item.Fail<DefiniteParameter, Symbol>(typeParameterArray);
             }
 

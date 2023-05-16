@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IInjectionBuilder.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="IInjectionBuilder.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -9,6 +9,8 @@ namespace Sundew.Injection
 {
     using System;
     using System.Linq.Expressions;
+    using Disposal.Interfaces;
+    using Initialization.Interfaces;
     using Sundew.Injection.Interception;
 
     public interface IInjectionBuilder
@@ -30,6 +32,34 @@ namespace Sundew.Injection
         /// </summary>
         /// <typeparam name="TProperties">The properties type.</typeparam>
         void AddParameterProperties<TProperties>();
+
+        /// <summary>
+        /// Configures usage of the default initialization reporter.
+        /// </summary>
+        /// <param name="isInjectable">Indicates whether instantiation can be overruled by passing a parameter.</param>
+        void UseDefaultInitializationReporter(bool isInjectable = false);
+
+        /// <summary>
+        /// Configures usage of the specified initialization reporter.
+        /// </summary>
+        /// <typeparam name="TInitializationReporter">The initialization reporter type.</typeparam>
+        /// <param name="isInjectable">Indicates whether instantiation can be overruled by passing a parameter.</param>
+        void UseInitializationReporter<TInitializationReporter>(bool isInjectable = false)
+            where TInitializationReporter : IInitializationReporter;
+
+        /// <summary>
+        /// Configures usage of the default disposal reporter.
+        /// </summary>
+        /// <param name="isInjectable">Indicates whether instantiation can be overruled by passing a parameter.</param>
+        void UseDefaultDisposalReporter(bool isInjectable = false);
+
+        /// <summary>
+        /// Configures usage of the specified disposal reporter.
+        /// </summary>
+        /// <typeparam name="TDisposalReporter">The disposal reporter type.</typeparam>
+        /// <param name="isInjectable">Indicates whether instantiation can be overruled by passing a parameter.</param>
+        void UseDisposalReporter<TDisposalReporter>(bool isInjectable = false)
+            where TDisposalReporter : IDisposalReporter;
 
         /// <summary>
         /// Adds an interceptor.

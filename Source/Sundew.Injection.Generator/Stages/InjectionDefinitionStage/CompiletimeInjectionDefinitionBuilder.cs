@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="CompiletimeInjectionDefinitionBuilder.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="CompiletimeInjectionDefinitionBuilder.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
             bindingList.Add(genericBinding);
         }
 
-        var genericBinding = new GenericBindingRegistration(implementation.Type, scope, genericMethod, implementation.TypeMetadata.ImplementsIDisposable, Accessibility.Internal, false);
+        var genericBinding = new GenericBindingRegistration(implementation.Type, scope, genericMethod, Accessibility.Internal, implementation.TypeMetadata.HasLifetime, false);
         AddBinding(implementation.Type.ToUnboundGenericType(), genericBinding);
         foreach (var @interface in interfaces)
         {
@@ -86,7 +86,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
 
         var commonType = interfaces.Length > 0 ? interfaces.Last().Type : implementation.Type;
 
-        var binding = new BindingRegistration(implementation.Type, commonType, scope ?? Scope.Auto, method, implementation.Metadata.ImplementsIDisposable, isInjectable, isNewOverridable);
+        var binding = new BindingRegistration(implementation.Type, commonType, scope ?? Scope.Auto, method, implementation.Metadata.HasLifetime, isInjectable, isNewOverridable);
         AddBinding(implementation.Type, binding);
         foreach (var @interface in interfaces)
         {

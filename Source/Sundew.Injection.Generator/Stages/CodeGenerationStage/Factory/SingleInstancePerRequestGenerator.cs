@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SingleInstancePerRequestGenerator.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="SingleInstancePerRequestGenerator.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -87,9 +87,9 @@ internal class SingleInstancePerRequestGenerator
                 var localDeclarationIdentifier = new Identifier(localDeclarationStatement.Name);
                 var localDeclarationAssignmentStatement = new ExpressionStatement(new AssignmentExpression(new Identifier(parameter.Name), localDeclarationIdentifier));
                 var trueStatements = ImmutableList.Create<Statement>(localDeclarationStatement);
-                if (singleInstancePerRequestInjectionNode.TargetImplementsDisposable)
+                if (singleInstancePerRequestInjectionNode.NeedsLifecycleHandling)
                 {
-                    var addInvocationStatement = new ExpressionStatement(new InvocationExpression(this.knownSyntax.LocalDisposingListSyntax.AddMethod, new Expression[] { localDeclarationIdentifier }));
+                    var addInvocationStatement = new ExpressionStatement(new InvocationExpression(this.knownSyntax.ChildLifetimeHandler.TryAddMethod, new Expression[] { localDeclarationIdentifier }));
                     trueStatements = trueStatements.Add(addInvocationStatement);
                 }
 
@@ -100,9 +100,9 @@ internal class SingleInstancePerRequestGenerator
             {
                 var assignmentStatement = new LocalDeclarationStatement(variableDeclaration.Name, creationExpression);
                 statements = statements.Add(assignmentStatement);
-                if (singleInstancePerRequestInjectionNode.TargetImplementsDisposable)
+                if (singleInstancePerRequestInjectionNode.NeedsLifecycleHandling)
                 {
-                    statements = statements.Add(new ExpressionStatement(new InvocationExpression(this.knownSyntax.LocalDisposingListSyntax.AddMethod, new Expression[] { targetIdentifier })));
+                    statements = statements.Add(new ExpressionStatement(new InvocationExpression(this.knownSyntax.ChildLifetimeHandler.TryAddMethod, new Expression[] { targetIdentifier })));
                 }
             }
         }
@@ -114,7 +114,6 @@ internal class SingleInstancePerRequestGenerator
                 Parameters = factoryMethodParameters,
                 Variables = variables,
                 Statements = statements,
-                RequiresDisposingList = factoryNode.CreateMethod.RequiresDisposingList || singleInstancePerRequestInjectionNode.TargetImplementsDisposable,
             },
             FactoryImplementation = factoryNode.FactoryImplementation with { FactoryMethods = factoryMethods },
             Arguments = ImmutableList.Create<Expression>(targetIdentifier),

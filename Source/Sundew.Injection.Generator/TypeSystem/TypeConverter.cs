@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TypeConverter.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="TypeConverter.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -154,7 +154,15 @@ public static class TypeConverter
 
     public static TypeMetadata GetTypeMetadata(ITypeSymbol typeSymbol, Method? defaultConstructor, IKnownInjectableTypes knownInjectableTypes)
     {
-        return new TypeMetadata(defaultConstructor, typeSymbol.CanBeAssignedTo(knownInjectableTypes.IDisposableTypeSymbol), typeSymbol.CanBeAssignedTo(knownInjectableTypes.IEnumerableTypeSymbol), typeSymbol.IsValueType);
+        return new TypeMetadata(defaultConstructor, typeSymbol.CanBeAssignedTo(knownInjectableTypes.IEnumerableTypeSymbol), HasLifecycle(typeSymbol, knownInjectableTypes), typeSymbol.IsValueType);
+    }
+
+    private static bool HasLifecycle(ITypeSymbol typeSymbol, IKnownInjectableTypes knownInjectableTypes)
+    {
+        return typeSymbol.CanBeAssignedTo(knownInjectableTypes.IAsyncDisposableTypeSymbol) ||
+               typeSymbol.CanBeAssignedTo(knownInjectableTypes.IDisposableTypeSymbol) ||
+               typeSymbol.CanBeAssignedTo(knownInjectableTypes.IAsyncInitializableTypeSymbol) ||
+               typeSymbol.CanBeAssignedTo(knownInjectableTypes.IInitializableTypeSymbol);
     }
 
     private static Type GetNamedOrBoundGenericType(INamedTypeSymbol namedTypeSymbol, IKnownInjectableTypes knownInjectableTypes)

@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="BindingResolver.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="BindingResolver.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ internal sealed class BindingResolver
 
         if (typeMetadata.DefaultConstructor != null)
         {
-            return this.bindingFactory.TryCreateSingleParameter(new BindingRegistration(type, type, Scope.Auto, typeMetadata.DefaultConstructor, typeMetadata.ImplementsIDisposable, false, false));
+            return this.bindingFactory.TryCreateSingleParameter(new BindingRegistration(type, type, Scope.Auto, typeMetadata.DefaultConstructor, typeMetadata.HasLifetime, false, false));
         }
 
         if (typeMetadata.ImplementsIEnumerable)
@@ -139,7 +139,7 @@ internal sealed class BindingResolver
             var createMethodResult = this.methodFactory.CreateMethod(factoryMethodRegistration.Method, factoryMethodName);
             if (createMethodResult.IsSuccess)
             {
-                var binding = new Binding(targetTypeResult.Value, targetTypeResult.Value, Scope.Auto, createMethodResult.Value, factoryMethodRegistration.Target.TypeMetadata.ImplementsIDisposable, false, factoryMethodRegistration.IsNewOverridable);
+                var binding = new Binding(targetTypeResult.Value, targetTypeResult.Value, Scope.Auto, createMethodResult.Value, factoryMethodRegistration.Target.TypeMetadata.HasLifetime, false, factoryMethodRegistration.IsNewOverridable);
                 return R.Success(new BindingRoot(binding, factoryMethodRegistration.Accessibility, returnTypeResult.Value));
             }
 

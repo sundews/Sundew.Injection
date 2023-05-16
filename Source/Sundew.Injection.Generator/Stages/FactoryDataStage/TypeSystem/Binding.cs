@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Binding.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="Binding.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -11,9 +11,9 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed record Binding(
     DefiniteType TargetType,
-    DefiniteType CommonType,
+    DefiniteType TargetReferenceType,
     Scope Scope,
     DefiniteMethod Method,
-    bool ImplementsIDisposable,
+    bool HasLifecycle,
     bool IsInjectable,
     bool IsNewOverridable);

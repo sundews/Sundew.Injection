@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="NameHelper.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="NameHelper.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -20,17 +20,27 @@ internal static class NameHelper
     /// <summary>
     /// Gets the name of the unique.
     /// </summary>
-    /// <param name="baseName">Name of the base.</param>
-    /// <param name="parentCreationNode">The parent creation node.</param>
+    /// <param name="injectionNode">The injection node.</param>
     /// <returns>The name string.</returns>
-    public static string GetUniqueName(string baseName, IInjectionNode? parentCreationNode)
+    public static string GetUniqueName(IInjectionNode injectionNode)
     {
-        if (parentCreationNode == null)
+        return GetUniqueName(injectionNode.Name, injectionNode.ParentName);
+    }
+
+    /// <summary>
+    /// Gets the name of the unique.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <param name="parentName">The parent name.</param>
+    /// <returns>The name string.</returns>
+    public static string GetUniqueName(string name, string? parentName)
+    {
+        if (parentName == null)
         {
-            return baseName.Uncapitalize();
+            return name.Uncapitalize();
         }
 
-        return $"{baseName}For{parentCreationNode.Name}".Uncapitalize();
+        return $"{name}For{parentName}".Uncapitalize();
     }
 
     public static string GetVariableNameForType(DefiniteType type)

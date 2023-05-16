@@ -5,4 +5,5 @@ public enum DeclaredAccessibility
     Public,
     Internal,
     Protected,
+    Private,
 }

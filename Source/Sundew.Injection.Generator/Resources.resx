@@ -67,7 +67,7 @@
           <xsd:element name="metadata">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="object" type="xsd:string" minOccurs="0" />
               </xsd:sequence>
               <xsd:attribute name="name" use="required" type="xsd:string" />
               <xsd:attribute name="type" type="xsd:string" />
@@ -84,7 +84,7 @@
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="object" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
                 <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
@@ -96,7 +96,7 @@
           <xsd:element name="resheader">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="object" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
               </xsd:sequence>
               <xsd:attribute name="name" type="xsd:string" use="required" />
             </xsd:complexType>
@@ -106,54 +106,54 @@
     </xsd:element>
   </xsd:schema>
   <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
+    <object>text/microsoft-resx</object>
   </resheader>
   <resheader name="version">
-    <value>2.0</value>
+    <object>2.0</object>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <object>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</object>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <object>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</object>
   </resheader>
   <data name="ResolveRequiredParameterErrorDescription" xml:space="preserve">
-    <value>Could not find exact match while resolving a required parameter.</value>
+    <object>Could not find exact match while resolving a required parameter.</object>
   </data>
   <data name="ResolveRequiredParameterErrorMessageFormat" xml:space="preserve">
-    <value>Cound not resolve exact match of parameter '{0}' '{1}' in type: '{3}'. Possible candicates are: '{4}'</value>
+    <object>Cound not resolve exact match of parameter '{0}' '{1}' in type: '{3}'. Possible candicates are: '{4}'</object>
   </data>
   <data name="ResolveRequiredParameterErrorTitle" xml:space="preserve">
-    <value>Failed to resolve required parameter by an exact match.</value>
+    <object>Failed to resolve required parameter by an exact match.</object>
   </data>
   <data name="ResolveTypeErrorDescription" xml:space="preserve">
-    <value>A type could not be resolved while generating a factory. Verify that it has a binding or that the type has an accessible constructor.</value>
+    <object>A type could not be resolved while generating a factory. Verify that it has a binding or that the type has an accessible constructor.</object>
   </data>
   <data name="ResolveTypeErrorMessageFormat" xml:space="preserve">
-    <value>Could not resolve the type: '{0}', while constructing '{1}'-</value>
+    <object>Could not resolve the type: '{0}', while constructing '{1}'-</object>
   </data>
   <data name="ResolveTypeErrorTitle" xml:space="preserve">
-    <value>Could not resolve type while generating factory.</value>
+    <object>Could not resolve type while generating factory.</object>
   </data>
   <data name="ScopeErrorDescription" xml:space="preserve">
-    <value>A scope error indicate that the scope of a binding is invalid. E.g. a SingleInstancePerFactory cannot inject a SingleInstancePerRequest.</value>
+    <object>A scope error indicate that the scope of a binding is invalid. E.g. a SingleInstancePerFactory cannot inject a SingleInstancePerRequest.</object>
   </data>
   <data name="ScopeErrorMessageFormat" xml:space="preserve">
-    <value>The scope '{0}' for the type '{1}' is invalid because the injection target '{2}' is registered as: '{3}'</value>
+    <object>The scope '{0}' for the type '{1}' is invalid because the injection target '{2}' is registered as: '{3}'</object>
   </data>
   <data name="ScopeErrorTitle" xml:space="preserve">
-    <value>A scope error occured while generating factory.</value>
+    <object>A scope error occured while generating factory.</object>
   </data>
   <data name="UnknownErrorDescription" xml:space="preserve">
-    <value>An unknown error has occured while running Sundew.Injection generator</value>
+    <object>An unknown error has occured while running Sundew.Injection generator</object>
     <comment>An optional longer localizable description of the diagnostic.</comment>
   </data>
   <data name="UnknownErrorMessageFormat" xml:space="preserve">
-    <value>An unknown error occured with the message: '{0}'</value>
+    <object>An unknown error occured with the message: '{0}'</object>
     <comment>The format-able message the diagnostic displays.</comment>
   </data>
   <data name="UnknownErrorTitle" xml:space="preserve">
-    <value>An unknown error has occured</value>
+    <object>An unknown error has occured</object>
     <comment>The title of the diagnostic.</comment>
   </data>
 </root>

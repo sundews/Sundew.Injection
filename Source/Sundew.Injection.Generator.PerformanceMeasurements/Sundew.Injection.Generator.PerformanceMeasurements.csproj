@@ -11,21 +11,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="stylecop.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
-    <PackageReference Include="InfluxDB.Client" Version="4.11.0" />
+    <PackageReference Include="InfluxDB.Client" Version="4.12.0" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="4.4.0" />
     <PackageReference Include="Sundew.Base.Primitives" Version="10.0.2">
       <Aliases>sundew</Aliases>
     </PackageReference>
     <PackageReference Include="Sundew.CommandLine" Version="10.0.2" />
+    <PackageReference Include="Sundew.Testing.CodeAnalysis" Version="0.0.0-u20230516-212605-ci" />
     <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
   </ItemGroup>
 

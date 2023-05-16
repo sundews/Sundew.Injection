@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="FactoryImplementation.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="FactoryImplementation.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -16,19 +16,18 @@ internal readonly record struct FactoryImplementation(
     ImmutableList<DeclaredMethodImplementation> CreateMethods,
     ImmutableList<DeclaredMethodImplementation> FactoryMethods,
     ImmutableList<DeclaredDisposeMethodImplementation> DisposeForMethodImplementations,
-    ImmutableList<Statement> DisposeMethodStatements)
+    ImmutableList<DeclaredMethodImplementation> PrivateCreateMethods)
 {
     public FactoryImplementation()
         : this(
             ImmutableList<FieldDeclaration>.Empty,
             new Constructor(
                 ImmutableList<ParameterDeclaration>.Empty,
-                ImmutableList<Statement>.Empty,
-                false),
+                ImmutableList<Statement>.Empty),
             ImmutableList<DeclaredMethodImplementation>.Empty,
             ImmutableList<DeclaredMethodImplementation>.Empty,
             ImmutableList<DeclaredDisposeMethodImplementation>.Empty,
-            ImmutableList<Statement>.Empty)
+            ImmutableList<DeclaredMethodImplementation>.Empty)
     {
     }
 }

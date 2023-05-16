@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="SingleInstancePerFactoryGenerator.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="SingleInstancePerFactoryGenerator.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ internal class SingleInstancePerFactoryGenerator
     public FactoryNode
        VisitSingleInstancePerFactory(
            SingleInstancePerFactoryInjectionNode singleInstancePerFactoryInjectionNode,
-           FactoryData factoryModel,
+           FactoryData factoryData,
            in FactoryImplementation factoryImplementation,
            in MethodImplementation method)
     {
@@ -43,7 +43,7 @@ internal class SingleInstancePerFactoryGenerator
             {
                 var factory = factoryNode.FactoryImplementation;
                 var factoryMethod = factoryNode.CreateMethod;
-                var result = this.injectionNodeEvaluator.Evaluate(nextCreationNode, factoryModel, in factory, in factoryMethod);
+                var result = this.injectionNodeEvaluator.Evaluate(nextCreationNode, factoryData, in factory, in factoryMethod);
                 return factoryNode with
                 {
                     FactoryImplementation = result.FactoryImplementation,
@@ -101,9 +101,9 @@ internal class SingleInstancePerFactoryGenerator
                 var localDeclarationIdentifier = new Identifier(localDeclarationStatement.Name);
                 var localDeclarationAssignmentStatement = new ExpressionStatement(new AssignmentExpression(targetMemberAccessExpression, localDeclarationIdentifier));
                 var trueStatements = ImmutableList.Create<Statement>(localDeclarationStatement);
-                if (singleInstancePerFactoryInjectionNode.TargetImplementsDisposable)
+                if (singleInstancePerFactoryInjectionNode.NeedsLifecycleHandling)
                 {
-                    var addInvocationStatement = new ExpressionStatement(new InvocationExpression(this.knownSyntax.FactoryConstructorDisposingListSyntax.AddMethod, new Expression[] { localDeclarationIdentifier }));
+                    var addInvocationStatement = new ExpressionStatement(new InvocationExpression(this.knownSyntax.SharedLifetimeHandler.TryAddMethod, new Expression[] { localDeclarationIdentifier }));
                     trueStatements = trueStatements.Add(addInvocationStatement);
                 }
 
@@ -115,12 +115,15 @@ internal class SingleInstancePerFactoryGenerator
             }
             else
             {
-                var assignmentStatement = new ExpressionStatement(new AssignmentExpression(targetMemberAccessExpression, creationExpression));
+                var assignmentStatement =
+                    new ExpressionStatement(new AssignmentExpression(targetMemberAccessExpression, creationExpression));
                 statements = statements.Add(assignmentStatement);
 
-                if (singleInstancePerFactoryInjectionNode.TargetImplementsDisposable)
+                if (singleInstancePerFactoryInjectionNode.NeedsLifecycleHandling)
                 {
-                    statements = statements.Add(new ExpressionStatement(new InvocationExpression(this.knownSyntax.FactoryConstructorDisposingListSyntax.AddMethod, new Expression[] { targetMemberAccessExpression })));
+                    statements = statements.Add(new ExpressionStatement(new InvocationExpression(
+                        this.knownSyntax.SharedLifetimeHandler.TryAddMethod,
+                        new Expression[] { targetMemberAccessExpression })));
                 }
             }
         }
@@ -133,7 +136,6 @@ internal class SingleInstancePerFactoryGenerator
                 Constructor = factoryNode.FactoryImplementation.Constructor with
                 {
                     Statements = statements,
-                    RequiresDisposableList = factoryNode.FactoryImplementation.Constructor.RequiresDisposableList || singleInstancePerFactoryInjectionNode.TargetImplementsDisposable,
                     Parameters = constructorParameters,
                 },
                 FactoryMethods = factoryMethods,

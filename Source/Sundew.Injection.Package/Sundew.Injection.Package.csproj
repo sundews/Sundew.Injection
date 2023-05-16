@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -7,7 +7,8 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
     <PackageId>Sundew.Injection</PackageId>
-    <PackageReadmeFile>docs/README.md</PackageReadmeFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <NuspecFile>Sundew.Injection.Package.nuspec</NuspecFile>
     <PackageIconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</PackageIconUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>Sundew.Injection is a dependency injection framework, that generates factories (Equivalent of a Container) at compile-time.</Description>
@@ -53,8 +54,17 @@
       <TfmSpecificPackageFile Remove="..\Sundew.Injection.Generator\$(OutputPath)Sundew.DiscriminatedUnions*.dll" PackagePath="analyzers/dotnet/cs" />
       <TfmSpecificPackageFile Remove="..\Sundew.Injection.Generator\$(OutputPath)Sundew.Base*.dll" PackagePath="analyzers/dotnet/cs" />
       <TfmSpecificPackageFile Include="$(OutputPath)\Sundew.Injection.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" />
-      <TfmSpecificPackageFile Include="$(OutputPath)Sundew.Injection.dll" PackagePath="lib/netstandard1.3" />
+      <TfmSpecificPackageFile Include="$(OutputPath)Sundew.Injection.dll" PackagePath="lib/netstandard2.0" />
     </ItemGroup>
+  </Target>
+
+  <Target Name="SetNuspecProperties" BeforeTargets="GenerateNuspec">
+    <PropertyGroup>
+      <NuspecProperties>$(NuspecProperties);company=$(Company);description=$(Description);copyright=$(Copyright);authors=$(Authors);version=$(PackageVersion)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);repositoryUrl=$(RepositoryUrl);releaseNotes=$(PackageReleaseNotes);repositoryType=$(RepositoryType);licenseExpression=$(PackageLicenseExpression);</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);targetFramework=$(TargetFramework);configuration=$(Configuration);projectDir=$(MSBuildProjectDirectory);outputPath=$(OutputPath)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);tags=$(PackageId), analyzers, Pure DI, Dependency Injection, Code generated factory pattern;iconUrl=$(PackageIconUrl);readmeFile=$(PackageReadmeFile);projectUrl=$(PackageProjectUrl)</NuspecProperties>
+    </PropertyGroup>
   </Target>
 
 </Project>

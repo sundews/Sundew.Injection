@@ -1,4 +1,4 @@
-﻿namespace Sundew.Injection.Generator.PerformanceTests;
+﻿namespace Sundew.Injection.Generator.PerformanceMeasurements;
 
 using System.Globalization;
 using System.Text;
@@ -6,7 +6,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Testing;
+using Sundew.Injection.Testing;
 
 [MemoryDiagnoser]
 [SimpleJob(RuntimeMoniker.Net48, baseline: true)]
@@ -16,12 +16,11 @@ using Testing;
 [RankColumn]
 public class InjectionGeneratorBenchmark
 {
-    private readonly CSharpCompilation compilation;
+    private readonly Compilation compilation;
 
     public InjectionGeneratorBenchmark()
     {
-        var project = new Testing.Project(DemoProjectInfo.FindDirectoryUpwards("AllFeaturesSuccess"), new Paths(DemoProjectInfo.FindDirectoryUpwards("Sundew.Injection")), "bin", "obj");
-        this.compilation = project.Compile();
+        this.compilation = TestProjects.AllFeatureSuccess.FromEntryAssembly.Value;
     }
 
     [Benchmark]

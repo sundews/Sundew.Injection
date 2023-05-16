@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="InjectionGeneratorFixture.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="InjectionGeneratorFixture.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -21,8 +21,7 @@ public class InjectionGeneratorFixture
     [Test]
     public Task VerifyGeneratedSources()
     {
-        var project = new Testing.Project(DemoProjectInfo.GetPath("AllFeaturesSuccess"), new Paths(DemoProjectInfo.GetPath("Sundew.Injection")), "bin", "obj");
-        var compilation = project.Compile();
+        var compilation = TestProjects.AllFeatureSuccess.FromCurrentDirectory.Value;
         GeneratorDriver generatorDriver = CSharpGeneratorDriver.Create(new InjectionGenerator());
 
         generatorDriver = generatorDriver.RunGenerators(compilation);

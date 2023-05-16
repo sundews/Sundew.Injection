@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata>
+    <id>Sundew.Injection</id>
+    <version>1.0.0</version>
+    <title></title>
+    <authors>$authors$</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <developmentDependency>true</developmentDependency>
+    <releaseNotes>$releaseNotes$</releaseNotes>
+    <projectUrl>$projectUrl$</projectUrl>
+    <iconUrl>$iconUrl$</iconUrl>
+    <license type="expression">$licenseExpression$</license>
+    <copyright>$copyright$</copyright>
+    <tags>$tags$</tags>
+    <repository type="$repositoryType$" url="$repositoryUrl$"></repository>
+    <dependencies>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="Microsoft.Bcl.AsyncInterfaces" version="6.0.0" exclude="Build,Analyzers" />
+        <dependency id="Initialization.Interfaces" version="1.0.1" exclude="Build,Analyzers" />
+        <dependency id="Disposal.Interfaces" version="1.0.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="$outputPath$Sundew.Injection.dll" target="analyzers\dotnet\cs\Sundew.Injection.dll" />
+    <file src="$outputPath$Sundew.Injection.CodeFixes.dll" target="analyzers\dotnet\cs\Sundew.Injection.CodeFixes.dll" />
+    <file src="$outputPath$Sundew.Injection.Generator.dll" target="analyzers\dotnet\cs\Sundew.Injection.Generator.dll" />
+    <file src="$outputPath$Sundew.Injection.dll" target="lib\netstandard2.0\Sundew.Injection.dll" />
+    <file src="..\..\$readmeFile$" target="docs\$readmeFile$" />
+    <file src="$outputPath$tools\install.ps1" target="tools\install.ps1" />
+    <file src="$outputPath$tools\uninstall.ps1" target="tools\uninstall.ps1" />
+  </files>
+</package>

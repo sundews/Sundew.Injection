@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="NewInstanceGenerator.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="NewInstanceGenerator.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -67,10 +67,10 @@ internal sealed class NewInstanceGenerator
             factoryMethods => (factoryMethods, new CreationExpression(newInstanceInjectionNode.CreationSource, factoryNode.Arguments)));
 
         var variableDeclarationOption = O.From(
-            newInstanceInjectionNode.TargetImplementsDisposable || newInstanceInjectionNode.ParameterNodeOption.HasValue,
+            newInstanceInjectionNode.NeedsLifecycleHandling || newInstanceInjectionNode.ParameterNodeOption.HasValue,
             () =>
             {
-                var variableName = NameHelper.GetUniqueName(newInstanceInjectionNode.Name, newInstanceInjectionNode.ParentInjectionNode);
+                var variableName = NameHelper.GetUniqueName(newInstanceInjectionNode);
                 return variables.GetOrAddUnique(
                     variableName,
                     commonType,
@@ -81,7 +81,7 @@ internal sealed class NewInstanceGenerator
         var factoryMethodParameters = factoryNode.CreateMethod.Parameters;
         if (newInstanceInjectionNode.ParameterNodeOption.HasValue)
         {
-            var (parameterDeclarations, wasAdded, parameter, argument) = ParameterHelper.VisitParameter(
+            var (parameterDeclarations, _, parameter, argument) = ParameterHelper.VisitParameter(
                 newInstanceInjectionNode.ParameterNodeOption.Value,
                 null,
                 factoryMethodParameters,
@@ -94,9 +94,9 @@ internal sealed class NewInstanceGenerator
             var localDeclarationStatement = new LocalDeclarationStatement(declaration.Name, new NullCoalescingOperatorExpression(argument, creationExpression));
             statements = statements.Add(localDeclarationStatement);
             var localDeclarationIdentifier = new Identifier(localDeclarationStatement.Name);
-            if (newInstanceInjectionNode.TargetImplementsDisposable)
+            if (newInstanceInjectionNode.NeedsLifecycleHandling)
             {
-                var addInvocationStatement = new ExpressionStatement(new InvocationExpression(this.knownSyntax.LocalDisposingListSyntax.AddMethod, new Expression[] { localDeclarationIdentifier }));
+                var addInvocationStatement = new ExpressionStatement(new InvocationExpression(this.knownSyntax.ChildLifetimeHandler.TryAddMethod, new Expression[] { localDeclarationIdentifier }));
                 statements = statements.Add(addInvocationStatement);
             }
 
@@ -114,7 +114,7 @@ internal sealed class NewInstanceGenerator
                 if (wasAdded)
                 {
                     statements = statements.Add(new LocalDeclarationStatement(variableIdentifier.Name, creationExpression))
-                        .Add(new ExpressionStatement(new InvocationExpression(this.knownSyntax.LocalDisposingListSyntax.AddMethod, new Expression[] { variableIdentifier })));
+                        .Add(new ExpressionStatement(new InvocationExpression(this.knownSyntax.ChildLifetimeHandler.TryAddMethod, new Expression[] { variableIdentifier })));
                 }
             }
             else
@@ -130,7 +130,6 @@ internal sealed class NewInstanceGenerator
                 Variables = variables,
                 Statements = statements,
                 Parameters = factoryMethodParameters,
-                RequiresDisposingList = factoryNode.CreateMethod.RequiresDisposingList || newInstanceInjectionNode.TargetImplementsDisposable,
             },
             Arguments = parentArguments,
             FactoryImplementation = factoryNode.FactoryImplementation with { FactoryMethods = factoryMethods },

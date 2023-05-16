@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="BindingFactory.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="BindingFactory.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ internal class BindingFactory
         }
 
         var resolvedTargetType = resolveTypeResult.Value;
-        var newBinding = new Binding(resolvedTargetType, commonTypeResult.Value, bindingRegistration.Scope, createMethodResult.Value, bindingRegistration.ImplementsIDisposable, bindingRegistration.IsInjectable, bindingRegistration.IsNewOverridable);
+        var newBinding = new Binding(resolvedTargetType, commonTypeResult.Value, bindingRegistration.Scope, createMethodResult.Value, bindingRegistration.HasLifecycle, bindingRegistration.IsInjectable, bindingRegistration.IsNewOverridable);
         var newResolvedBinding = ResolvedBinding.SingleParameter(newBinding);
         this.bindingsTypeRegistrar.Register(resolvedTargetType, returnType, new[] { newBinding });
         this.resolvedBindingTypeRegistrar.Register(resolvedTargetType, returnType, newResolvedBinding);
@@ -82,7 +82,7 @@ internal class BindingFactory
             targetType,
             genericBindingRegistration.Scope,
             methodResult.Value,
-            genericBindingRegistration.ImplementsIDisposable,
+            genericBindingRegistration.HasLifecycle,
             false,
             genericBindingRegistration.IsNewOverridable);
         var resolvedBinding = ResolvedBinding.SingleParameter(newBinding);
@@ -103,7 +103,7 @@ internal class BindingFactory
             var createMethodResult = this.methodFactory.CreateMethod(x.Method);
             if (createMethodResult.IsSuccess)
             {
-                var newBinding = new Binding(resolveTypResult.Value, elementType, x.Scope, createMethodResult.Value, x.ImplementsIDisposable, x.IsInjectable, x.IsNewOverridable);
+                var newBinding = new Binding(resolveTypResult.Value, elementType, x.Scope, createMethodResult.Value, x.HasLifecycle, x.IsInjectable, x.IsNewOverridable);
                 return Item.Pass(newBinding);
             }
 
@@ -134,10 +134,10 @@ internal class BindingFactory
         NamedType factoryType,
         NamedType? factoryInterfaceType,
         ImmutableList<FactoryConstructorParameterInjectionNode>.Builder factoryConstructorParameters,
-        bool implementsIDisposable)
+        bool hasLifetime)
     {
         var constructorMethod = new DefiniteMethod(factoryConstructorParameters.Distinct().Select(x => new DefiniteParameter(x.Type, x.Name, x.TypeMetadata)).ToImmutableArray(), factoryType.Name, factoryType, ImmutableArray<DefiniteTypeArgument>.Empty, true);
-        var binding = new Binding(factoryType, factoryType, Scope.Auto, constructorMethod, implementsIDisposable, false, false);
+        var binding = new Binding(factoryType, factoryType, Scope.Auto, constructorMethod, hasLifetime, false, false);
         var bindings = new[] { binding };
         this.bindingsTypeRegistrar.Register(factoryType, factoryInterfaceType, bindings);
         var resolvedBinding = ResolvedBinding.SingleParameter(binding);

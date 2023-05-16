@@ -9,7 +9,15 @@
           AfterTargets="PostBuildEvent" BeforeTargets="GenerateNuspec">
 
     <ItemGroup>
+      <RequiredFiles Include="$(OutputPath)**\Sundew.Injection.dll" />
+      <RequiredFiles Include="$(OutputPath)**\Initialization.Interfaces.dll" />
+      <RequiredFiles Include="$(OutputPath)**\Disposal.Interfaces.dll" />
+      <RequiredFiles Include="$(OutputPath)**\Microsoft.Bcl.AsyncInterfaces.dll" />
+      <RequiredFiles Include="$(OutputPath)**\Microsoft.Bcl.HashCode.dll" />
+      <DestinationFiles Include="@(RequiredFiles->'$(OutputPath)%(Filename)-Copy%(Extension)')"/>
+
       <InputAssemblies Include="$(OutputPath)**\Sundew*.dll" />
+      <InputAssemblies Include="@(RequiredFiles)" />
       <InputAssemblies Remove="$(OutputPath)**\*.m.dll" />
       <InputAssemblies Remove="$(OutputPath)**\$(AssemblyName).dll" />
     </ItemGroup>
@@ -18,6 +26,10 @@
       <MergedOutputFile>$(OutputPath)$(AssemblyName).m.dll</MergedOutputFile>
     </PropertyGroup>
 
+    <Copy SourceFiles="@(RequiredFiles)" DestinationFiles="@(DestinationFiles)" >
+      <Output PropertyName="CF" TaskParameter="CopiedFiles" />
+    </Copy>
+
     <ILRepack
       Parallel="true"
       Internalize="true"
@@ -25,6 +37,11 @@
       InternalizeExclude="$(AssemblyName)"
       TargetKind="Dll"
       LibraryPath="$(OutputPath)"
+      DebugInfo="true"
       OutputFile="$(MergedOutputFile)" />
+
+    <Move SourceFiles="@(DestinationFiles)" DestinationFiles="@(RequiredFiles)"  >
+      <Output PropertyName="MF" TaskParameter="MovedFiles" />
+    </Move>
   </Target>
 </Project>

@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MethodImplementation.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="MethodImplementation.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -13,15 +13,13 @@ using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.Syntax
 internal readonly record struct MethodImplementation(
     ImmutableList<ParameterDeclaration> Parameters,
     ImmutableList<Declaration> Variables,
-    ImmutableList<Statement> Statements,
-    bool RequiresDisposingList)
+    ImmutableList<Statement> Statements)
 {
     public MethodImplementation()
         : this(
             ImmutableList<ParameterDeclaration>.Empty,
             ImmutableList<Declaration>.Empty,
-            ImmutableList<Statement>.Empty,
-            false)
+            ImmutableList<Statement>.Empty)
     {
     }
 }

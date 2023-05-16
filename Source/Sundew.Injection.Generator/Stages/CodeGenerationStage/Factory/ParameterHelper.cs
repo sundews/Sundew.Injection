@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ParameterHelper.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="ParameterHelper.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -21,6 +21,8 @@ using Type = Sundew.Injection.Generator.TypeSystem.Type;
 
 internal static class ParameterHelper
 {
+    private const string Null = "null";
+
     public static (ImmutableList<ParameterDeclaration> Parameters, bool WasAdded, Parameter Parameter, Expression Argument) VisitParameter(
         IParameterNode parameterNode,
         string? expectedParameterName,
@@ -38,19 +40,15 @@ internal static class ParameterHelper
         };
     }
 
-    private static (string ParameterName, bool MustNameMatchForEquality) GetParameterName(string name, IInjectionNode? parentCreationNode, Inject inject)
+    private static (string ParameterName, bool MustNameMatchForEquality) GetParameterName(string name, string? parentName, Inject inject)
     {
-        switch (inject)
+        return inject switch
         {
-            case Inject.ByType:
-                return (name.Uncapitalize(), false);
-            case Inject.ByTypeAndName:
-                return (name.Uncapitalize(), true);
-            case Inject.Separately:
-                return (NameHelper.GetUniqueName(name, parentCreationNode), true); // check for conflict
-            default:
-                throw new ArgumentOutOfRangeException(nameof(inject), inject, $"Case not handled: {inject}");
-        }
+            Inject.ByType => (name.Uncapitalize(), false),
+            Inject.ByTypeAndName => (name.Uncapitalize(), true),
+            Inject.Separately => (NameHelper.GetUniqueName(name, parentName), true), // check for conflict
+            _ => throw new ArgumentOutOfRangeException(nameof(inject), inject, $"Case not handled: {inject}"),
+        };
     }
 
     private static (ImmutableList<ParameterDeclaration> Parameters, bool WasAdded, Parameter Parameter, Expression Argument) HandleDirect(
@@ -64,7 +62,7 @@ internal static class ParameterHelper
             CompilationData compilationData)
     {
         var parameterType = parameterNode.RequiresNewInstance ? compilationData.FuncType.ToDefiniteBoundGenericType(ImmutableArray.Create(new DefiniteTypeArgument(parameterNode.Type, parameterNode.TypeMetadata))) : parameterNode.Type;
-        var (parameterName, mustNameMatchForEquality) = GetParameterName(expectedParameterName.IsNullOrEmpty() ? parameterNode.Name : expectedParameterName, parameterNode.ParentInjectionNode, directParameter.Inject);
+        var (parameterName, mustNameMatchForEquality) = GetParameterName(expectedParameterName.IsNullOrEmpty() ? parameterNode.Name : expectedParameterName, parameterNode.ParentName, directParameter.Inject);
         var parameterDeclaration = additionalParameters.Find(x =>
             x.Type.Equals(parameterType) && x.Name == parameterName);
         var wasAdded = false;
@@ -74,7 +72,7 @@ internal static class ParameterHelper
                 parameterName,
                 parameterType,
                 (s, i) => s + i,
-                name => new ParameterDeclaration(parameterType, name, isOptional ? "null" : null));
+                name => new ParameterDeclaration(parameterType, name, isOptional ? Null : null));
             parameters = declarations;
             parameterDeclaration = declaration;
             wasAdded = wasDeclarationAdded;
@@ -85,7 +83,7 @@ internal static class ParameterHelper
         }
 
         var parameter = new Parameter(parameterType, parameterDeclaration.Name, mustNameMatchForEquality);
-        Expression argument = isMember ? new MemberAccessExpression(new Identifier("this"), parameter.Name) : new Identifier(parameter.Name);
+        Expression argument = isMember ? new MemberAccessExpression(Identifier.This, parameter.Name) : new Identifier(parameter.Name);
         if (parameterNode.RequiresNewInstance)
         {
             argument = new FuncInvocationExpression(argument, isOptional);
@@ -124,7 +122,7 @@ internal static class ParameterHelper
         var accessorName = propertyAccessorParameter.AccessorProperty.Name;
         var parameter = new Parameter(parameterDeclaration.Type, parameterDeclaration.Name, true);
         Expression argument = isMember
-            ? new MemberAccessExpression(new MemberAccessExpression(new Identifier("this"), variableName), accessorName) : new MemberAccessExpression(new Identifier(variableName), accessorName);
+            ? new MemberAccessExpression(new MemberAccessExpression(Identifier.This, variableName), accessorName) : new MemberAccessExpression(new Identifier(variableName), accessorName);
         if (parameterNode.RequiresNewInstance)
         {
             argument = new FuncInvocationExpression(argument, true);

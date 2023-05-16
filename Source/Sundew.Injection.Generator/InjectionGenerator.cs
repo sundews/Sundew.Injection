@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="InjectionGenerator.cs" company="Hukano">
-// Copyright (c) Hukano. All rights reserved.
+// <copyright file="InjectionGenerator.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
@@ -19,13 +19,6 @@ using Sundew.Injection.Generator.Stages.SemanticModelStage;
 [Generator]
 public class InjectionGenerator : IIncrementalGenerator
 {
-    private readonly GeneratedCodeProvider generatedCodeProvider;
-
-    public InjectionGenerator()
-    {
-        this.generatedCodeProvider = new GeneratedCodeProvider(new FactorySourceTextGenerator());
-    }
-
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var accessibleConstructorProvider = context.SyntaxProvider.SetupAccessibleConstructorStage();
@@ -47,7 +40,7 @@ public class InjectionGenerator : IIncrementalGenerator
 
         context.RegisterSourceOutput(factoryDefinitionErrorProvider, (productionContext, error) => error.ForEach(productionContext.ReportDiagnostic));
 
-        var (codeGenerationSuccessProvider, codeGenerationErrorProvider) = this.generatedCodeProvider.SetupCodeGenerationStage(factoryDefinitionProvider).SegregateByResult();
+        var (codeGenerationSuccessProvider, codeGenerationErrorProvider) = GeneratedCodeProvider.SetupCodeGenerationStage(factoryDefinitionProvider).SegregateByResult();
 
         codeGenerationSuccessProvider.SetupOutputResultStage(context);
 

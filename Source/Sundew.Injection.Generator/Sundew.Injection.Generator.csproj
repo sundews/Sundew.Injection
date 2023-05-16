@@ -15,7 +15,22 @@
   <ItemGroup>
     <Compile Update="Resources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="Resources.resx" />
     <EmbeddedResource Update="Resources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="Resources.Designer.cs" />
-    <EmbeddedResource Include="Stages\ProvideDependenciesStage\Disposal\*.cs" />
+    <GeneratorDependencies Include="..\Sundew.Injection.GeneratorDependencies\**\*.cs" />
+    <GeneratorDependencies Remove="**/obj/**/*.*;**/Properties/**/*.*" />
+    <Compile Remove="..\Sundew.Injection.GeneratorDependencies\LifetimeHandler.cs" />
+    <Compile Remove="..\Sundew.Injection.GeneratorDependencies\LifetimeHandler.cs" />
+    <Compile Remove="..\Sundew.Injection.GeneratorDependencies\ILifetimeHandler.cs" />
+    <Compile Remove="..\Sundew.Injection.GeneratorDependencies\ILifetimeHandler.cs" />
+    <Compile Include="@(GeneratorDependencies)">
+      <Link>Stages/ProvideDependenciesStage/%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+    <EmbeddedResource Remove="..\Sundew.Injection.GeneratorDependencies\LifetimeHandler.cs" />
+    <EmbeddedResource Remove="..\Sundew.Injection.GeneratorDependencies\LifetimeHandler.cs" />
+    <EmbeddedResource Remove="..\Sundew.Injection.GeneratorDependencies\ILifetimeHandler.cs" />
+    <EmbeddedResource Remove="..\Sundew.Injection.GeneratorDependencies\ILifetimeHandler.cs" />
+    <EmbeddedResource Include="@(GeneratorDependencies)">
+      <Link>Stages/ProvideDependenciesStage/%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -24,7 +39,7 @@
 
   <ItemGroup>
     <PackageReference Include="ILRepack.Lib.MSBuild" Version="2.1.18" />
-    <PackageReference Include="PolySharp" Version="1.13.1">
+    <PackageReference Include="PolySharp" Version="1.13.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -47,6 +62,9 @@
 
   <ItemGroup>
     <!-- Generator dependencies -->
+    <PackageReference Include="Initialization.Interfaces" Version="1.0.1-u20230516-210347-ci" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Disposal.Interfaces" Version="1.0.0-u20230516-210504-ci" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" version="6.0.0" GeneratePathProperty="true" PrivateAssets="all" />
     <PackageReference Include="System.Collections.Immutable" Version="6.0.0" GeneratePathProperty="true" PrivateAssets="all" />
     <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" GeneratePathProperty="true" />
@@ -78,6 +96,9 @@
       <TargetPathWithTargetPlatformMoniker Include="$(PKGSundew_DiscriminatedUnions)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
       <TargetPathWithTargetPlatformMoniker Include="$(PKGSystem_ValueTuple)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
       <TargetPathWithTargetPlatformMoniker Include="$(PKGSundew_Injection)\lib\netstandard1.3\*.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGSundew_Injection)\lib\netstandard1.3\*.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGInitialization_Interfaces_)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="true" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGDisposal_Interfaces_)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="true" />
     </ItemGroup>
   </Target>
 

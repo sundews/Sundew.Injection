@@ -1,27 +1,33 @@
 ﻿namespace Sundew.Injection.Generator.PerformanceTests;
 
 extern alias baseline;
+extern alias asyncinterfaces;
 using BaselineInjectionGenerator = baseline::Sundew.Injection.Generator.InjectionGenerator;
 
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Testing;
 using System.Globalization;
 using System.Text;
+using System;
+using Sundew.Injection.Testing;
+
+#if NET6_0_OR_GREATER
+#else
+using IAsyncDisposable = asyncinterfaces::System.IAsyncDisposable;
+#endif
 
 [MemoryDiagnoser]
 [SimpleJob(RuntimeMoniker.Net48, baseline: true)]
 [SimpleJob(RuntimeMoniker.Net70)]
 public class InjectionGeneratorBenchmark
 {
-    private readonly CSharpCompilation compilation;
+    private readonly Compilation compilation;
 
     public InjectionGeneratorBenchmark()
     {
-        var project = new Testing.Project(DemoProjectInfo.FindDirectoryUpwards("AllFeaturesSuccess"), new Paths(DemoProjectInfo.FindDirectoryUpwards("Sundew.Injection")), "bin", "obj");
-        this.compilation = project.Compile();
+       this.compilation = TestProjects.AllFeatureSuccess.FromEntryAssembly.Value;
     }
 
     [Benchmark(Baseline = true)]
@@ -29,7 +35,7 @@ public class InjectionGeneratorBenchmark
     {
         GeneratorDriver generatorDriver = CSharpGeneratorDriver.Create(new DependenciesGenerator(), new BaselineInjectionGenerator());
 
-        var driver = generatorDriver.RunGenerators(this.compilation);
+        var driver = generatorDriver.RunGenerators(this.compilation!);
         var result = driver.GetRunResult();
         if (result.Diagnostics.Any())
         {
@@ -49,8 +55,7 @@ public class InjectionGeneratorBenchmark
     public GeneratorDriverRunResult WorkInProgressGenerator()
     {
         GeneratorDriver generatorDriver = CSharpGeneratorDriver.Create(new DependenciesGenerator(), new InjectionGenerator());
-
-        var driver= generatorDriver.RunGenerators(this.compilation);
+        var driver = generatorDriver.RunGenerators(this.compilation!);
         var result = driver.GetRunResult();
         if (result.Diagnostics.Any())
         {
