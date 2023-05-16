@@ -17,7 +17,7 @@ internal abstract record InjectionStageError
 {
     public sealed record ResolveTypeError(BindingError BindingError, string ParentNode) : InjectionStageError;
 
-    public sealed record ResolveParameterError(Type BindingError, string ParentNode, ValueArray<ParameterSource> ParameterSources) : InjectionStageError;
+    public sealed record ResolveParameterError(Type Type, string ParentNode, ValueArray<ParameterSource> ParameterSources) : InjectionStageError;
 
     public sealed record ScopeError(DefiniteType DefiniteType, Scope Scope, string ParentNode, string ParentScope) : InjectionStageError;
 }

@@ -115,7 +115,7 @@ internal static class FactoryDataProvider
     {
         return injectionStageErrors switch
         {
-            InjectionStageError.ResolveParameterError resolveRequiredParameterError => Diagnostic.Create(Diagnostics.ResolveRequiredParameterError, Location.None, resolveRequiredParameterError.BindingError, resolveRequiredParameterError.ParentNode),
+            InjectionStageError.ResolveParameterError resolveRequiredParameterError => Diagnostic.Create(Diagnostics.ResolveRequiredParameterError, Location.None, resolveRequiredParameterError.Type, resolveRequiredParameterError.ParentNode),
             InjectionStageError.ScopeError scopeError => Diagnostic.Create(Diagnostics.ScopeError, Location.None, scopeError.DefiniteType.FullName, scopeError.Scope, scopeError.ParentNode, scopeError.ParentScope),
             InjectionStageError.ResolveTypeError resolveTypeError => Diagnostic.Create(Diagnostics.ResolveTypeError, Location.None, resolveTypeError.BindingError, resolveTypeError.ParentNode),
         };

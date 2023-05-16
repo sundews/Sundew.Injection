@@ -67,7 +67,7 @@
           <xsd:element name="metadata">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="object" type="xsd:string" minOccurs="0" />
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
               </xsd:sequence>
               <xsd:attribute name="name" use="required" type="xsd:string" />
               <xsd:attribute name="type" type="xsd:string" />
@@ -84,7 +84,7 @@
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="object" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
                 <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
               <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
@@ -96,7 +96,7 @@
           <xsd:element name="resheader">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="object" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
               </xsd:sequence>
               <xsd:attribute name="name" type="xsd:string" use="required" />
             </xsd:complexType>
@@ -106,54 +106,69 @@
     </xsd:element>
   </xsd:schema>
   <resheader name="resmimetype">
-    <object>text/microsoft-resx</object>
+    <value>text/microsoft-resx</value>
   </resheader>
   <resheader name="version">
-    <object>2.0</object>
+    <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <object>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</object>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <object>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</object>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ResolveRequiredParameterErrorDescription" xml:space="preserve">
-    <object>Could not find exact match while resolving a required parameter.</object>
+    <value>Occurs when a required parameter cannot be resolved</value>
   </data>
   <data name="ResolveRequiredParameterErrorMessageFormat" xml:space="preserve">
-    <object>Cound not resolve exact match of parameter '{0}' '{1}' in type: '{3}'. Possible candicates are: '{4}'</object>
+    <value>Could not resolve the type: {0} as a parameter for: {1} from the available parameter sources: {2}</value>
   </data>
   <data name="ResolveRequiredParameterErrorTitle" xml:space="preserve">
-    <object>Failed to resolve required parameter by an exact match.</object>
+    <value>Could not resolve required parameter</value>
   </data>
   <data name="ResolveTypeErrorDescription" xml:space="preserve">
-    <object>A type could not be resolved while generating a factory. Verify that it has a binding or that the type has an accessible constructor.</object>
+    <value>Occurs when type could not be resolved</value>
   </data>
   <data name="ResolveTypeErrorMessageFormat" xml:space="preserve">
-    <object>Could not resolve the type: '{0}', while constructing '{1}'-</object>
+    <value>Failed to resolve the type: {0}</value>
   </data>
   <data name="ResolveTypeErrorTitle" xml:space="preserve">
-    <object>Could not resolve type while generating factory.</object>
+    <value>Could not resolve type</value>
+  </data>
+  <data name="ResolveMethodDescription" xml:space="preserve">
+    <value>Occurs when failing to resolves a method and its parameters</value>
+  </data>
+  <data name="ResolveMethodMessageFormat" xml:space="preserve">
+    <value>Could not resolve the following parameters for type: {0} - parameters: {1}</value>
+  </data>
+  <data name="ResolveMethodErrorTitle" xml:space="preserve">
+    <value>Method could not be resolved</value>
+  </data>
+  <data name="ResolveGenericMethodDescription" xml:space="preserve">
+    <value>Occurs when failing to resolves a generic method and its parameters</value>
+  </data>
+  <data name="ResolveGenericMethodMessageFormat" xml:space="preserve">
+    <value>Could not resolve the following parameters for type: {0} - parameters: {1}</value>
+  </data>
+  <data name="ResolveGenericMethodErrorTitle" xml:space="preserve">
+    <value>Generic method could not be resolved</value>
   </data>
   <data name="ScopeErrorDescription" xml:space="preserve">
-    <object>A scope error indicate that the scope of a binding is invalid. E.g. a SingleInstancePerFactory cannot inject a SingleInstancePerRequest.</object>
+    <value>Occurs when a type is registered with an invalid lifetime scope </value>
   </data>
   <data name="ScopeErrorMessageFormat" xml:space="preserve">
-    <object>The scope '{0}' for the type '{1}' is invalid because the injection target '{2}' is registered as: '{3}'</object>
+    <value>The type: {0} with scope: {1} is invalid due to the parent: {2} with scope: {3}</value>
   </data>
   <data name="ScopeErrorTitle" xml:space="preserve">
-    <object>A scope error occured while generating factory.</object>
+    <value>Invalid lifetime scope</value>
   </data>
   <data name="UnknownErrorDescription" xml:space="preserve">
-    <object>An unknown error has occured while running Sundew.Injection generator</object>
-    <comment>An optional longer localizable description of the diagnostic.</comment>
+    <value>Used when an unknown error occurs</value>
   </data>
   <data name="UnknownErrorMessageFormat" xml:space="preserve">
-    <object>An unknown error occured with the message: '{0}'</object>
-    <comment>The format-able message the diagnostic displays.</comment>
+    <value>Unknown error: {0}</value>
   </data>
   <data name="UnknownErrorTitle" xml:space="preserve">
-    <object>An unknown error has occured</object>
-    <comment>The title of the diagnostic.</comment>
+    <value>Unknown error occured in Sundew.Injection.Generator</value>
   </data>
 </root>

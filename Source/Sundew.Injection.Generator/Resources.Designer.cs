@@ -61,7 +61,61 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not find exact match while resolving a required parameter..
+        ///   Looks up a localized string similar to Occurs when failing to resolves a generic method and its parameters.
+        /// </summary>
+        internal static string ResolveGenericMethodDescription {
+            get {
+                return ResourceManager.GetString("ResolveGenericMethodDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Generic method could not be resolved.
+        /// </summary>
+        internal static string ResolveGenericMethodErrorTitle {
+            get {
+                return ResourceManager.GetString("ResolveGenericMethodErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not resolve the following parameters for type: {0} - parameters: {1}.
+        /// </summary>
+        internal static string ResolveGenericMethodMessageFormat {
+            get {
+                return ResourceManager.GetString("ResolveGenericMethodMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Occurs when failing to resolves a method and its parameters.
+        /// </summary>
+        internal static string ResolveMethodDescription {
+            get {
+                return ResourceManager.GetString("ResolveMethodDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Method could not be resolved.
+        /// </summary>
+        internal static string ResolveMethodErrorTitle {
+            get {
+                return ResourceManager.GetString("ResolveMethodErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not resolve the following parameters for type: {0} - parameters: {1}.
+        /// </summary>
+        internal static string ResolveMethodMessageFormat {
+            get {
+                return ResourceManager.GetString("ResolveMethodMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Occurs when a required parameter cannot be resolved.
         /// </summary>
         internal static string ResolveRequiredParameterErrorDescription {
             get {
@@ -70,7 +124,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cound not resolve exact match of parameter &apos;{0}&apos; &apos;{1}&apos; in type: &apos;{3}&apos;. Possible candicates are: &apos;{4}&apos;.
+        ///   Looks up a localized string similar to Could not resolve the type: {0} as a parameter for: {1} from the available parameter sources: {2}.
         /// </summary>
         internal static string ResolveRequiredParameterErrorMessageFormat {
             get {
@@ -79,7 +133,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed to resolve required parameter by an exact match..
+        ///   Looks up a localized string similar to Could not resolve required parameter.
         /// </summary>
         internal static string ResolveRequiredParameterErrorTitle {
             get {
@@ -88,7 +142,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A type could not be resolved while generating a factory. Verify that it has a binding or that the type has an accessible constructor..
+        ///   Looks up a localized string similar to Occurs when type could not be resolved.
         /// </summary>
         internal static string ResolveTypeErrorDescription {
             get {
@@ -97,7 +151,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not resolve the type: &apos;{0}&apos;, while constructing &apos;{1}&apos;-.
+        ///   Looks up a localized string similar to Failed to resolve the type: {0}.
         /// </summary>
         internal static string ResolveTypeErrorMessageFormat {
             get {
@@ -106,7 +160,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not resolve type while generating factory..
+        ///   Looks up a localized string similar to Could not resolve type.
         /// </summary>
         internal static string ResolveTypeErrorTitle {
             get {
@@ -115,7 +169,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A scope error indicate that the scope of a binding is invalid. E.g. a SingleInstancePerFactory cannot inject a SingleInstancePerRequest..
+        ///   Looks up a localized string similar to Occurs when a type is registered with an invalid lifetime scope .
         /// </summary>
         internal static string ScopeErrorDescription {
             get {
@@ -124,7 +178,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The scope &apos;{0}&apos; for the type &apos;{1}&apos; is invalid because the injection target &apos;{2}&apos; is registered as: &apos;{3}&apos;.
+        ///   Looks up a localized string similar to The type: {0} with scope: {1} is invalid due to the parent: {2} with scope: {3}.
         /// </summary>
         internal static string ScopeErrorMessageFormat {
             get {
@@ -133,7 +187,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to A scope error occured while generating factory..
+        ///   Looks up a localized string similar to Invalid lifetime scope.
         /// </summary>
         internal static string ScopeErrorTitle {
             get {
@@ -142,7 +196,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An unknown error has occured while running Sundew.Injection generator.
+        ///   Looks up a localized string similar to Used when an unknown error occurs.
         /// </summary>
         internal static string UnknownErrorDescription {
             get {
@@ -151,7 +205,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An unknown error occured with the message: &apos;{0}&apos;.
+        ///   Looks up a localized string similar to Unknown error: {0}.
         /// </summary>
         internal static string UnknownErrorMessageFormat {
             get {
@@ -160,7 +214,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An unknown error has occured.
+        ///   Looks up a localized string similar to Unknown error occured in Sundew.Injection.Generator.
         /// </summary>
         internal static string UnknownErrorTitle {
             get {
