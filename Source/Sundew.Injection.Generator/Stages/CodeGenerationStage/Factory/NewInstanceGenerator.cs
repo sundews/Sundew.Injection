@@ -13,31 +13,25 @@ using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.Syntax;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Syntax;
-using Sundew.Injection.Generator.Stages.CompilationDataStage;
-using Sundew.Injection.Generator.Stages.FactoryDataStage;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 using MethodImplementation = Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.MethodImplementation;
 
 internal sealed class NewInstanceGenerator
 {
-    private readonly InjectionNodeEvaluator injectionNodeEvaluator;
-    private readonly CompilationData compilationData;
-    private readonly KnownSyntax knownSyntax;
+    private readonly GeneratorContext generatorContext;
+    private readonly GeneratorFeatures generatorFeatures;
 
     public NewInstanceGenerator(
-        InjectionNodeEvaluator injectionNodeEvaluator,
-        CompilationData compilationData,
-        KnownSyntax knownSyntax)
+        GeneratorFeatures generatorFeatures,
+        GeneratorContext generatorContext)
     {
-        this.injectionNodeEvaluator = injectionNodeEvaluator;
-        this.compilationData = compilationData;
-        this.knownSyntax = knownSyntax;
+        this.generatorContext = generatorContext;
+        this.generatorFeatures = generatorFeatures;
     }
 
     public FactoryNode
         VisitNewInstance(
             NewInstanceInjectionNode newInstanceInjectionNode,
-            FactoryData factoryModel,
             in FactoryImplementation factoryImplementation,
             in MethodImplementation createMethod)
     {
@@ -47,48 +41,49 @@ internal sealed class NewInstanceGenerator
             {
                 var factory = factoryNode.FactoryImplementation;
                 var factoryMethod = factoryNode.CreateMethod;
-                var result = this.injectionNodeEvaluator.Evaluate(nextCreationNode, factoryModel, in factory, in factoryMethod);
+                var result = this.generatorFeatures.InjectionNodeExpressionGenerator.Generate(nextCreationNode, in factory, in factoryMethod);
                 return factoryNode with
                 {
                     FactoryImplementation = result.FactoryImplementation,
                     CreateMethod = result.CreateMethod,
-                    Arguments = factoryNode.Arguments.AddRange(result.Arguments),
+                    DependeeArguments = factoryNode.DependeeArguments.AddRange(result.DependeeArguments),
                 };
             });
 
-        var parentArguments = ImmutableList.Create<Expression>();
-        var commonType = newInstanceInjectionNode.TargetReferenceType;
+        var dependeeArguments = ImmutableList.Create<Expression>();
+        var targetReferenceType = newInstanceInjectionNode.TargetReferenceType;
+
+        (var factoryMethods, var creationExpression, factoryNode) = newInstanceInjectionNode.OverridableNewParametersOption.Evaluate(
+            factoryNode.FactoryImplementation.FactoryMethods,
+            (creationParameters, factoryMethods) => this.generatorFeatures.OnCreateMethodGenerator.Generate(factoryMethods, targetReferenceType, creationParameters, newInstanceInjectionNode.CreationSource, factoryNode),
+            factoryMethods =>
+            {
+                var creationResult = this.generatorFeatures.CreationExpressionGenerator.Generate(in factoryNode, newInstanceInjectionNode.CreationSource, factoryNode.DependeeArguments);
+                return (factoryMethods, creationResult.CreationExpression, creationResult.FactoryNode);
+            });
 
         var variables = factoryNode.CreateMethod.Variables;
         var statements = factoryNode.CreateMethod.Statements;
-        var (factoryMethods, creationExpression) = newInstanceInjectionNode.OverridableNewParametersOption.Evaluate(
-            factoryNode.FactoryImplementation.FactoryMethods,
-            (methodParameters, factoryMethods) => FactoryMethodHelper.GenerateFactoryMethod(factoryMethods, commonType, methodParameters, newInstanceInjectionNode.CreationSource, factoryNode.Arguments),
-            factoryMethods => (factoryMethods, new CreationExpression(newInstanceInjectionNode.CreationSource, factoryNode.Arguments)));
-
         var variableDeclarationOption = O.From(
             newInstanceInjectionNode.NeedsLifecycleHandling || newInstanceInjectionNode.ParameterNodeOption.HasValue,
             () =>
             {
-                var variableName = NameHelper.GetUniqueName(newInstanceInjectionNode);
-                return variables.GetOrAddUnique(
+                var variableName = NameHelper.GetDependeeScopedName(newInstanceInjectionNode);
+                return variables.GetOrAdd(
                     variableName,
-                    commonType,
-                    (s, i) => s + i,
-                    name => new Declaration(commonType, name));
+                    targetReferenceType,
+                    name => new Declaration(targetReferenceType, name));
             });
 
         var factoryMethodParameters = factoryNode.CreateMethod.Parameters;
-        if (newInstanceInjectionNode.ParameterNodeOption.HasValue)
+        if (newInstanceInjectionNode.ParameterNodeOption.TryGetValue(out var parameterNode))
         {
-            var (parameterDeclarations, _, parameter, argument) = ParameterHelper.VisitParameter(
-                newInstanceInjectionNode.ParameterNodeOption.Value,
+            var (parameterDeclarations, _, parameter, argument, _) = ParameterHelper.VisitParameter(
+                parameterNode,
                 null,
                 factoryMethodParameters,
                 factoryImplementation.Constructor.Parameters,
-                false,
-                true,
-                this.compilationData);
+                this.generatorContext.CompilationData);
             var (newVariables, _, declaration) = variableDeclarationOption.Value;
             variables = newVariables;
             var localDeclarationStatement = new LocalDeclarationStatement(declaration.Name, new NullCoalescingOperatorExpression(argument, creationExpression));
@@ -96,11 +91,11 @@ internal sealed class NewInstanceGenerator
             var localDeclarationIdentifier = new Identifier(localDeclarationStatement.Name);
             if (newInstanceInjectionNode.NeedsLifecycleHandling)
             {
-                var addInvocationStatement = new ExpressionStatement(new InvocationExpression(this.knownSyntax.ChildLifetimeHandler.TryAddMethod, new Expression[] { localDeclarationIdentifier }));
+                var addInvocationStatement = new ExpressionStatement(new InvocationExpression(this.generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, new Expression[] { localDeclarationIdentifier }));
                 statements = statements.Add(addInvocationStatement);
             }
 
-            parentArguments = parentArguments.Add(localDeclarationIdentifier);
+            dependeeArguments = dependeeArguments.Add(localDeclarationIdentifier);
             factoryMethodParameters = parameterDeclarations;
         }
         else
@@ -110,16 +105,16 @@ internal sealed class NewInstanceGenerator
                 var (newVariables, wasAdded, declaration) = variableDeclarationOption.Value;
                 var variableIdentifier = new Identifier(declaration.Name);
                 variables = newVariables;
-                parentArguments = parentArguments.Add(variableIdentifier);
+                dependeeArguments = dependeeArguments.Add(variableIdentifier);
                 if (wasAdded)
                 {
                     statements = statements.Add(new LocalDeclarationStatement(variableIdentifier.Name, creationExpression))
-                        .Add(new ExpressionStatement(new InvocationExpression(this.knownSyntax.ChildLifetimeHandler.TryAddMethod, new Expression[] { variableIdentifier })));
+                        .Add(new ExpressionStatement(new InvocationExpression(this.generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, new Expression[] { variableIdentifier })));
                 }
             }
             else
             {
-                parentArguments = parentArguments.Add(creationExpression);
+                dependeeArguments = dependeeArguments.Add(creationExpression);
             }
         }
 
@@ -131,7 +126,7 @@ internal sealed class NewInstanceGenerator
                 Statements = statements,
                 Parameters = factoryMethodParameters,
             },
-            Arguments = parentArguments,
+            DependeeArguments = dependeeArguments,
             FactoryImplementation = factoryNode.FactoryImplementation with { FactoryMethods = factoryMethods },
         };
     }

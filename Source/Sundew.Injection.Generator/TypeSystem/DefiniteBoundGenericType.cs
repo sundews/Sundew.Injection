@@ -8,11 +8,15 @@
 namespace Sundew.Injection.Generator.TypeSystem;
 
 using Sundew.Base.Collections.Immutable;
+using Sundew.Base.Text;
 
-public sealed record DefiniteBoundGenericType(
+internal sealed record DefiniteBoundGenericType(
         string Name,
         string Namespace,
         string AssemblyName,
         ValueArray<TypeParameter> TypeParameters,
         ValueArray<DefiniteTypeArgument> TypeArguments)
-    : DefiniteType(Name, Namespace, AssemblyName);
+    : DefiniteType(Name, Namespace, AssemblyName)
+{
+    public override TypeId Id => new TypeId($"{this.AssemblyName}::{this.Namespace}.{this.Name}<{this.TypeArguments.JoinToString((builder, x) => builder.Append(x.Type.Id.Id), ", ")}>");
+}

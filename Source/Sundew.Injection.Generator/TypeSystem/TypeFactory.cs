@@ -12,7 +12,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
-public sealed class TypeFactory
+internal sealed class TypeFactory
 {
     private readonly IKnownInjectableTypes knownInjectableTypes;
 
@@ -50,7 +50,7 @@ public sealed class TypeFactory
 
     public GenericMethod GetGenericMethod(IMethodSymbol? methodSymbol)
     {
-        return methodSymbol != null ? new GenericMethod(methodSymbol.Parameters.Select(this.GetGenericParameter).ToImmutableArray(), methodSymbol.MetadataName, TypeConverter.GetContaineeType(methodSymbol), methodSymbol.MethodKind == MethodKind.Constructor) : default;
+        return methodSymbol != null ? new GenericMethod(methodSymbol.Parameters.Select(this.GetGenericParameter).ToImmutableArray(), methodSymbol.MetadataName, TypeConverter.GetContaineeType(methodSymbol), TypeConverter.GetMethodKind(methodSymbol, this.knownInjectableTypes)) : default;
     }
 
     public GenericParameter GetGenericParameter(IParameterSymbol parameterSymbol)
@@ -66,6 +66,6 @@ public sealed class TypeFactory
 
     private TypeMetadata GetTypeMetadata(ITypeSymbol typeSymbol, Method? defaultConstructor)
     {
-    return TypeConverter.GetTypeMetadata(typeSymbol, defaultConstructor, this.knownInjectableTypes);
+        return TypeConverter.GetTypeMetadata(typeSymbol, defaultConstructor, this.knownInjectableTypes);
     }
 }

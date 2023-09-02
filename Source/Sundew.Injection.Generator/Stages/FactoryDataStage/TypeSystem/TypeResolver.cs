@@ -14,7 +14,7 @@ using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Resolvers;
 using Sundew.Injection.Generator.TypeSystem;
 
-public sealed class TypeResolver
+internal sealed class TypeResolver
 {
     private readonly ICache<string, NamedType> typeRegistry;
 

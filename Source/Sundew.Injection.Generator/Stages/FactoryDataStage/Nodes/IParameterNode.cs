@@ -22,4 +22,8 @@ internal interface IParameterNode : IInjectionNode
     ParameterSource ParameterSource { get; }
 
     bool RequiresNewInstance { get; }
+
+    bool IsOptional { get; }
+
+    bool IsForConstructor { get; }
 }

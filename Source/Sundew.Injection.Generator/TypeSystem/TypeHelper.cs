@@ -7,27 +7,13 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-using System;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 
-public static class TypeHelper
+internal static class TypeHelper
 {
-    public static INamedTypeSymbol? TryGetTypeByAssemblyQualifiedMetadataName(this Compilation compilation, System.Type type)
-    {
-        return compilation.GetTypesByMetadataName(type.FullName).FirstOrDefault(x => x.ContainingAssembly.Name == type.Assembly.GetName().Name);
-    }
-
-    public static INamedTypeSymbol? TryGetTypeByAssemblyQualifiedMetadataName(this Compilation compilation, System.Type type, string assemblyName)
-    {
-        return compilation.GetTypesByMetadataName(type.FullName).FirstOrDefault(x => x.ContainingAssembly.Name == assemblyName);
-    }
-
-    public static INamedTypeSymbol GetTypeByAssemblyQualifiedMetadataName(this Compilation compilation, System.Type type)
-    {
-        return compilation.TryGetTypeByAssemblyQualifiedMetadataName(type) ?? throw new InvalidOperationException($"Type: {type} was not found in compilation");
-    }
+    private const string Dot = ".";
 
     public static string GetNamespace(INamespaceSymbol namespaceSymbol)
     {
@@ -39,7 +25,7 @@ public static class TypeHelper
             var nextNamespace = @namespace.ContainingNamespace;
             if (nextNamespace != null)
             {
-                stringBuilder.Insert(0, ".");
+                stringBuilder.Insert(0, Dot);
                 stringBuilder.Insert(0, @namespace.Name);
             }
 
@@ -53,7 +39,7 @@ public static class TypeHelper
     {
         if (typeSymbol is INamedTypeSymbol namedTypeSymbol)
         {
-            return namedTypeSymbol.Constructors.OrderByDescending(x => x.Parameters.Length).First();
+            return namedTypeSymbol.Constructors.OrderByDescending(x => x.Parameters.Length).First(x => !x.IsStatic && x.DeclaredAccessibility == Accessibility.Public);
         }
 
         return default!;

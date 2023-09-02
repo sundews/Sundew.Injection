@@ -2,8 +2,11 @@
 namespace AllFeaturesSuccess
 {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Sundew.Injection.Generator", "0.0.0.0")]
+    [global::Sundew.Injection.Factory]
     public class ResolveRootFactory : global::AllFeaturesSuccess.IResolveRootFactory
     {
+        private readonly global::Sundew.Injection.ILifecycleParameters lifecycleParameters;
+        private readonly global::Sundew.Injection.LifecycleHandler lifecycleHandler;
         private readonly global::AllFeaturesSuccess.RequiredInterface.IRequiredParameters requiredParameters;
         private readonly global::AllFeaturesSuccess.MultipleImplementations.IMultipleImplementation multipleImplementationA;
         private readonly global::AllFeaturesSuccess.MultipleImplementations.IMultipleImplementation multipleImplementationB;
@@ -18,7 +21,6 @@ namespace AllFeaturesSuccess
         private readonly global::AllFeaturesSuccess.OptionalInterface.OptionalParameters optionalParameters;
         private readonly string name;
         private readonly global::AllFeaturesSuccess.SingleInstancePerFactory.ImplementationSingleInstancePerFactory implementationSingleInstancePerFactory;
-        private readonly global::Sundew.Injection.LifecycleHandler lifecycleHandler;
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public ResolveRootFactory(
@@ -27,9 +29,24 @@ namespace AllFeaturesSuccess
             global::AllFeaturesSuccess.RequiredInterface.IInjectedByType injectedByType,
             global::AllFeaturesSuccess.RequiredInterface.IInjectedSeparately injectedSeparatelyForImplementationSingleInstancePerFactory,
             global::AllFeaturesSuccess.OptionalInterface.OptionalParameters optionalParameters,
-            string name)
+            string name,
+            global::Sundew.Injection.ILifecycleParameters? lifecycleParameters = null)
         {
-            this.lifecycleHandler = new global::Sundew.Injection.LifecycleHandler(false, null, null);
+            if (lifecycleParameters == null)
+            {
+                var ownedLifecycleParameters = new global::Sundew.Injection.LifecycleParameters(
+                    false,
+                    false,
+                    default(global::Initialization.Interfaces.IInitializationReporter),
+                    default(global::Disposal.Interfaces.IDisposalReporter));
+                this.lifecycleParameters = ownedLifecycleParameters;
+            }
+            else
+            {
+                this.lifecycleParameters = lifecycleParameters;
+            }
+
+            this.lifecycleHandler = new global::Sundew.Injection.LifecycleHandler(this.lifecycleParameters, this.lifecycleParameters);
             this.requiredParameters = requiredParameters;
             this.multipleImplementationA = new global::AllFeaturesSuccess.MultipleImplementations.MultipleImplementationA(this.requiredParameters.SecondSpecificallyNamedModuleParameter);
             this.lifecycleHandler.TryAdd(this.multipleImplementationA);
@@ -101,6 +118,7 @@ namespace AllFeaturesSuccess
         }
 
         [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [global::Sundew.Injection.CreateMethod]
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.IResolveRoot> CreateUninitialized(
             int[] defaultItems,
@@ -108,33 +126,42 @@ namespace AllFeaturesSuccess
             global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest? injectableSingleInstancePerRequest = null,
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null)
         {
-            var childLifetimeHandler = this.lifecycleHandler.CreateChildLifecycleHandler();
+            var childLifecycleHandler = this.lifecycleHandler.CreateChildLifecycleHandler();
             var immutableList = global::AllFeaturesSuccess.FactoryDeclaration.CreateList<int>(defaultItems);
             if (injectableSingleInstancePerRequest == null)
             {
                 var ownedInjectableSingleInstancePerRequest = new global::AllFeaturesSuccess.SingleInstancePerRequest.InjectableSingleInstancePerRequest(this.requiredParameters.SingleModuleRequiredCreateMethodParameter, immutableList);
-                childLifetimeHandler.TryAdd(ownedInjectableSingleInstancePerRequest);
+                childLifecycleHandler.TryAdd(ownedInjectableSingleInstancePerRequest);
                 injectableSingleInstancePerRequest = ownedInjectableSingleInstancePerRequest;
             }
 
             if (interfaceSegregation == null)
             {
                 var ownedInterfaceSegregationImplementation = new global::AllFeaturesSuccess.InterfaceSegregationBindings.InterfaceSegregationImplementation(injectableSingleInstancePerRequest);
-                childLifetimeHandler.TryAdd(ownedInterfaceSegregationImplementation);
+                childLifecycleHandler.TryAdd(ownedInterfaceSegregationImplementation);
                 interfaceSegregation = ownedInterfaceSegregationImplementation;
             }
 
             var selectConstructorForIntercepted = new global::AllFeaturesSuccess.ConstructorSelection.SelectConstructor(this.implementationSingleInstancePerFactory, injectableSingleInstancePerRequest, interfaceSegregation);
-            childLifetimeHandler.TryAdd(selectConstructorForIntercepted);
-            var newInstanceAndDisposableForResources = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable();
-            childLifetimeHandler.TryAdd(newInstanceAndDisposableForResources);
-            var newInstanceAndDisposableForIntercepted = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable();
-            childLifetimeHandler.TryAdd(newInstanceAndDisposableForIntercepted);
+            childLifecycleHandler.TryAdd(selectConstructorForIntercepted);
+            var newInstanceAndDisposableForResources = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional));
+            childLifecycleHandler.TryAdd(newInstanceAndDisposableForResources);
+            var newInstanceAndDisposableForIntercepted = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional));
+            childLifecycleHandler.TryAdd(newInstanceAndDisposableForIntercepted);
             var overrideableNewImplementationForIntercepted = this.OnCreateOverrideableNewImplementation(injectableSingleInstancePerRequest, this.injectableByInterface);
-            childLifetimeHandler.TryAdd(overrideableNewImplementationForIntercepted);
+            childLifecycleHandler.TryAdd(overrideableNewImplementationForIntercepted);
             var overrideableNewImplementationForResolveRoot = this.OnCreateOverrideableNewImplementation(injectableSingleInstancePerRequest, this.injectableByInterface);
-            childLifetimeHandler.TryAdd(overrideableNewImplementationForResolveRoot);
-            var resolveRoot = new global::AllFeaturesSuccess.ResolveRoot(new global::AllFeaturesSuccess.InterfaceImplementationBindings.Intercepted(
+            childLifecycleHandler.TryAdd(overrideableNewImplementationForResolveRoot);
+            var newInstanceAndDisposableForConstructedChild = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional));
+            childLifecycleHandler.TryAdd(newInstanceAndDisposableForConstructedChild);
+            var dependencyFactory = new DependencyFactory();
+            var dependencyConstructed = dependencyFactory.Create();
+            var dependencyForConstructedChild = dependencyConstructed.Object;
+            childLifecycleHandler.TryAdd(dependencyForConstructedChild);
+            var constructedChildForResolveRoot = new global::AllFeaturesSuccess.ChildFactory.ConstructedChild(newInstanceAndDisposableForConstructedChild, dependencyForConstructedChild);
+            childLifecycleHandler.TryAdd(constructedChildForResolveRoot);
+            var resolveRootResult = new global::AllFeaturesSuccess.ResolveRoot(
+                new global::AllFeaturesSuccess.InterfaceImplementationBindings.Intercepted(
                     global::AllFeaturesSuccess.FactoryDeclaration.CreateList<global::AllFeaturesSuccess.MultipleImplementations.IMultipleImplementation>(this.multipleImplementationArray),
                     global::AllFeaturesSuccess.FactoryDeclaration.CreateFeatureService1(
                         this.interfaceSingleInstancePerFactory,
@@ -144,9 +171,12 @@ namespace AllFeaturesSuccess
                     selectConstructorForIntercepted,
                     new global::AllFeaturesSuccess.UnboundType.Resources(newInstanceAndDisposableForResources),
                     newInstanceAndDisposableForIntercepted,
-                    overrideableNewImplementationForIntercepted), this.interfaceSingleInstancePerFactory, overrideableNewImplementationForResolveRoot);
-            this.lifecycleHandler.TryAdd(resolveRoot, childLifetimeHandler);
-            return new global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.IResolveRoot>(resolveRoot, childLifetimeHandler);
+                    overrideableNewImplementationForIntercepted),
+                this.interfaceSingleInstancePerFactory,
+                overrideableNewImplementationForResolveRoot,
+                constructedChildForResolveRoot);
+            this.lifecycleHandler.TryAdd(resolveRootResult, childLifecycleHandler);
+            return new global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.IResolveRoot>(resolveRootResult, childLifecycleHandler);
         }
 
         [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]

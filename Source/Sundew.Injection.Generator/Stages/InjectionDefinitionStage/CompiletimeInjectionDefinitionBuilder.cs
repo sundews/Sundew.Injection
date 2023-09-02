@@ -10,18 +10,16 @@ namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Sundew.Base.Collections.Immutable;
-using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefinitionBuilder
 {
-    private readonly Dictionary<Type, List<BindingRegistration>> bindingRegistrations = new();
+    private readonly Dictionary<TypeId, List<BindingRegistration>> bindingRegistrations = new();
 
     private readonly Dictionary<UnboundGenericType, List<GenericBindingRegistration>> genericBindingRegistrations = new();
 
-    private readonly Dictionary<Type, List<ParameterSource>> requiredParameters = new();
+    private readonly Dictionary<TypeId, List<ParameterSource>> requiredParameters = new();
 
     private readonly List<FactoryCreationDefinition> factoryDefinitions = new();
 
@@ -34,6 +32,11 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
 
     public Inject RequiredParameterInjection { get; set; }
 
+    public bool HasBinding(Type type)
+    {
+        return this.bindingRegistrations.ContainsKey(type.Id);
+    }
+
     public void AddParameter(Type parameterType, Inject inject = Inject.ByType)
     {
         this.AddParameterSource(parameterType, ParameterSource.DirectParameter(inject));
@@ -44,7 +47,36 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         this.AddParameterSource(parameterType, ParameterSource.PropertyAccessorParameter(accessorProperty));
     }
 
-    public void Bind(ImmutableArray<(UnboundGenericType Type, TypeMetadata TypeMetadata)> interfaces, (GenericType Type, TypeMetadata TypeMetadata) implementation, Scope scope, GenericMethod genericMethod)
+    public void Bind(
+        ImmutableArray<(Type Type, TypeMetadata TypeMetadata)> interfaces,
+        (Type Type, TypeMetadata TypeMetadata) target,
+        Method method,
+        Scope? scope = null,
+        bool isInjectable = false,
+        bool isNewOverridable = false)
+    {
+        void AddBinding(TypeId typeId, BindingRegistration binding)
+        {
+            if (!this.bindingRegistrations.TryGetValue(typeId, out var bindingList))
+            {
+                bindingList = new List<BindingRegistration>();
+                this.bindingRegistrations.Add(typeId, bindingList);
+            }
+
+            bindingList.Add(binding);
+        }
+
+        var targetReferencingType = interfaces.Length > 0 ? interfaces.Last().Type : target.Type;
+
+        var binding = new BindingRegistration(target.Type, targetReferencingType, scope ?? Scope.Auto, method, target.TypeMetadata.HasLifetime, isInjectable, isNewOverridable);
+        AddBinding(target.Type.Id, binding);
+        foreach (var @interface in interfaces)
+        {
+            AddBinding(@interface.Type.Id, binding);
+        }
+    }
+
+    public void BindGeneric(ImmutableArray<(UnboundGenericType Type, TypeMetadata TypeMetadata)> interfaces, (GenericType Type, TypeMetadata TypeMetadata) implementation, Scope scope, GenericMethod genericMethod)
     {
         void AddBinding(UnboundGenericType type, GenericBindingRegistration genericBinding)
         {
@@ -62,35 +94,6 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         foreach (var @interface in interfaces)
         {
             AddBinding(@interface.Type, genericBinding);
-        }
-    }
-
-    public void Bind(
-        ImmutableArray<(Type Type, TypeMetadata Metadata)> interfaces,
-        (Type Type, TypeMetadata Metadata) implementation,
-        Method method,
-        Scope? scope = null,
-        bool isInjectable = false,
-        bool isNewOverridable = false)
-    {
-        void AddBinding(Type type, BindingRegistration binding)
-        {
-            if (!this.bindingRegistrations.TryGetValue(type, out var bindingList))
-            {
-                bindingList = new List<BindingRegistration>();
-                this.bindingRegistrations.Add(type, bindingList);
-            }
-
-            bindingList.Add(binding);
-        }
-
-        var commonType = interfaces.Length > 0 ? interfaces.Last().Type : implementation.Type;
-
-        var binding = new BindingRegistration(implementation.Type, commonType, scope ?? Scope.Auto, method, implementation.Metadata.HasLifetime, isInjectable, isNewOverridable);
-        AddBinding(implementation.Type, binding);
-        foreach (var @interface in interfaces)
-        {
-            AddBinding(@interface.Type, binding);
         }
     }
 
@@ -117,10 +120,11 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
 
     private void AddParameterSource(Type parameterType, ParameterSource parameterSource)
     {
-        if (!this.requiredParameters.TryGetValue(parameterType, out var parameterSources))
+        var parameterTypeId = parameterType.Id;
+        if (!this.requiredParameters.TryGetValue(parameterTypeId, out var parameterSources))
         {
             parameterSources = new List<ParameterSource>();
-            this.requiredParameters.Add(parameterType, parameterSources);
+            this.requiredParameters.Add(parameterTypeId, parameterSources);
         }
 
         parameterSources.Add(parameterSource);

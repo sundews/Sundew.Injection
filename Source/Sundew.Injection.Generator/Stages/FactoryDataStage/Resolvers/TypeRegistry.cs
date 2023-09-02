@@ -11,20 +11,20 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Sundew.Injection.Generator.TypeSystem;
 
-public class TypeRegistry<TValue> : ICache<Type, TValue>, ITypeRegistrar<TValue>
+internal sealed class TypeRegistry<TValue> : ICache<TypeId, TValue>, ITypeRegistrar<TValue>
 {
-    private readonly Dictionary<Type, TValue> registry = new Dictionary<Type, TValue>();
+    private readonly Dictionary<TypeId, TValue> registry = new();
 
-    public void Register(Type targetType, Type? interfaceType, TValue value)
+    public void Register(TypeId targetType, TypeId? interfaceType, TValue value)
     {
         this.registry[targetType] = value;
-        if (interfaceType != null && targetType != interfaceType)
+        if (interfaceType.HasValue && targetType != interfaceType)
         {
-            this.registry[interfaceType] = value;
+            this.registry[interfaceType.Value] = value;
         }
     }
 
-    public bool TryGet(Type type, [NotNullWhen(true)] out TValue? value)
+    public bool TryGet(TypeId type, [NotNullWhen(true)] out TValue? value)
     {
         return this.registry.TryGetValue(type, out value);
     }

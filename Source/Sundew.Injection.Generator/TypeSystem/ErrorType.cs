@@ -7,4 +7,7 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-public sealed record ErrorType(string Name) : Type(Name);
+internal sealed record ErrorType(string Name) : Type(Name)
+{
+    public override TypeId Id => new TypeId("ErrorType: {this.Name}");
+}

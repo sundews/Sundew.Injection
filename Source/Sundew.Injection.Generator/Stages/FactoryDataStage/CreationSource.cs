@@ -7,24 +7,21 @@
 
 namespace Sundew.Injection.Generator.Stages.FactoryDataStage;
 
+using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 using Sundew.Injection.Generator.TypeSystem;
 
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record CreationSource
 {
-    public static CreationSource From(DefiniteMethod registrationMethod)
-    {
-        if (registrationMethod.IsConstructor)
-        {
-            return ConstructorCall(registrationMethod.ContainingType);
-        }
+    internal sealed record ArrayCreation(DefiniteType ElementType) : CreationSource;
 
-        return StaticMethodCall(registrationMethod.ContainingType, registrationMethod);
-    }
+    internal sealed record ConstructorCall(DefiniteType Type) : CreationSource;
+
+    internal sealed record StaticMethodCall(DefiniteType Type, DefiniteMethod Method) : CreationSource;
+
+    internal sealed record InstanceMethodCall(DefiniteType Type, DefiniteMethod Method, InjectionNode Instance, bool IsProperty) : CreationSource;
+
+    internal sealed record LiteralValue(string Literal) : CreationSource;
+
+    internal sealed record DefaultValue(DefiniteType DefiniteType) : CreationSource;
 }
-
-internal sealed record ArrayCreation(DefiniteType ElementType) : CreationSource;
-
-internal sealed record ConstructorCall(DefiniteType Type) : CreationSource;
-
-internal sealed record StaticMethodCall(DefiniteType Type, DefiniteMethod Method) : CreationSource;

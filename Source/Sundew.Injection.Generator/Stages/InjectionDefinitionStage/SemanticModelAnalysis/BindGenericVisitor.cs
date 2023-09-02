@@ -96,7 +96,7 @@ internal class BindGenericVisitor : CSharpSyntaxWalker
             }
         }
 
-        this.compiletimeInjectionDefinitionBuilder.Bind(interfaces, implementation, scope ?? Scope.Auto, actualMethod);
+        this.compiletimeInjectionDefinitionBuilder.BindGeneric(interfaces, implementation, scope ?? Scope.Auto, actualMethod);
     }
 
     private Scope GetScope(ArgumentSyntax argumentSyntax)

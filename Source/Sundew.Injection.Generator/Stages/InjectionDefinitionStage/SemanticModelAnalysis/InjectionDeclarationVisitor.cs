@@ -117,6 +117,9 @@ internal class InjectionDeclarationVisitor : CSharpSyntaxWalker
 
                 new CreateFactoryVisitor(this.semanticModel, this.typeFactory, this.knownAnalysisTypes, this.compiletimeInjectionDefinitionBuilder, methodSymbol).Visit(node);
                 break;
+            case nameof(IInjectionBuilder.BindFactory):
+                new BindFactoryVisitor(this.semanticModel, this.typeFactory, this.knownAnalysisTypes, this.compiletimeInjectionDefinitionBuilder, methodSymbol).Visit(node);
+                break;
         }
     }
 }

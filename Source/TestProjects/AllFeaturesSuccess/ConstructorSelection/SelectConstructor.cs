@@ -1,6 +1,7 @@
 ﻿namespace AllFeaturesSuccess.ConstructorSelection
 {
     using System;
+    using System.Threading.Tasks;
     using AllFeaturesSuccess.InterfaceSegregationBindings;
     using AllFeaturesSuccess.SingleInstancePerFactory;
     using AllFeaturesSuccess.SingleInstancePerRequest;
@@ -18,8 +19,9 @@
             this.interfaceSegregationA = interfaceSegregationA;
         }
 
-        public void Dispose()
+        public ValueTask DisposeAsync()
         {
+            return default;
         }
 
         public void PrintMe(int indent)

@@ -7,8 +7,10 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-public sealed record DefiniteArrayType(DefiniteType ElementType)
+internal sealed record DefiniteArrayType(DefiniteType ElementType)
     : DefiniteType(ElementType.Name, ElementType.Namespace, ElementType.AssemblyName)
 {
     public override string FullName => $"{this.Namespace}.{this.Name}";
+
+    public override TypeId Id => new TypeId($"{this.ElementType.Id}[]");
 }

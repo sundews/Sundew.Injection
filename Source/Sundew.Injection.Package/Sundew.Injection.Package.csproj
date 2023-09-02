@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeBuildOutput>true</IncludeBuildOutput>
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
@@ -15,7 +15,7 @@
     <PackageReleaseNotes>0.0 - Initial version.</PackageReleaseNotes>
     <PackageTags>Sundew.Injection, analyzers</PackageTags>
     <NoPackageAnalysis>true</NoPackageAnalysis>
-
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
 
     <Configurations>Debug;Release;DebugTests</Configurations>
@@ -31,6 +31,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" version="7.0.0" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Disposal.Interfaces" Version="1.0.0-u20230522-100738-local" />
+    <PackageReference Include="Initialization.Interfaces" Version="1.0.1-u20230522-100737-local" />
     <PackageReference Include="Sundew.Packaging.Publish" Version="8.2.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -50,11 +53,13 @@
   <Target Name="_AddAnalyzersToOutput">
     <ItemGroup>
       <TfmSpecificPackageFile Include="..\Sundew.Injection.Generator\$(OutputPath)Sundew*.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="..\Sundew.Injection.Generator\$(OutputPath)Initialization.Interfaces.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="..\Sundew.Injection.Generator\$(OutputPath)Disposal.Interfaces.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="..\Sundew.Injection.Generator\$(OutputPath)Microsoft.Bcl.AsyncInterfaces.dll" PackagePath="analyzers/dotnet/cs" />
       <TfmSpecificPackageFile Remove="..\Sundew.Injection.Generator\$(OutputPath)Sundew*.m.dll" PackagePath="analyzers/dotnet/cs" />
       <TfmSpecificPackageFile Remove="..\Sundew.Injection.Generator\$(OutputPath)Sundew.DiscriminatedUnions*.dll" PackagePath="analyzers/dotnet/cs" />
       <TfmSpecificPackageFile Remove="..\Sundew.Injection.Generator\$(OutputPath)Sundew.Base*.dll" PackagePath="analyzers/dotnet/cs" />
       <TfmSpecificPackageFile Include="$(OutputPath)\Sundew.Injection.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" />
-      <TfmSpecificPackageFile Include="$(OutputPath)Sundew.Injection.dll" PackagePath="lib/netstandard2.0" />
     </ItemGroup>
   </Target>
 

@@ -44,7 +44,7 @@ internal class AddParameterPropertiesVisitor : CSharpSyntaxWalker
             {
                 case SymbolKind.Method:
                     foreach (var accessorProperty in this.argumentTypeSymbol.GetMembers().OfType<IPropertySymbol>()
-                        .Where(x => x.GetMethod != null && x.DeclaredAccessibility == Accessibility.Public).Select(x =>
+                        .Where(x => !x.IsStatic && x.GetMethod != null && x.DeclaredAccessibility == Accessibility.Public).Select(x =>
                         {
                             var propertyType = this.typeFactory.CreateType(x.Type);
                             var resultType = propertyType;

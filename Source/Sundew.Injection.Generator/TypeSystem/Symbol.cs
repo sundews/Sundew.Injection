@@ -8,4 +8,4 @@
 namespace Sundew.Injection.Generator.TypeSystem;
 
 [DiscriminatedUnions.DiscriminatedUnion]
-public abstract partial record Symbol(string Name);
+internal abstract partial record Symbol(string Name);

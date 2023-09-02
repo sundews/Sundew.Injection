@@ -8,14 +8,7 @@
 namespace Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 
 [DiscriminatedUnions.DiscriminatedUnion]
-internal abstract partial record InjectionNode : IInjectionNode
+internal abstract partial record InjectionNode(string? DependeeName) : IInjectionNode
 {
-    protected InjectionNode(string? parentName)
-    {
-        this.ParentName = parentName;
-    }
-
     public abstract string Name { get; }
-
-    public string? ParentName { get; }
 }

@@ -221,5 +221,32 @@ namespace Sundew.Injection.Generator {
                 return ResourceManager.GetString("UnknownErrorTitle", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Occurs when an factory instance method is not supported.
+        /// </summary>
+        internal static string UnsupportedInstanceMethodErrorDescription {
+            get {
+                return ResourceManager.GetString("UnsupportedInstanceMethodErrorDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The instance method: {0} is not supported on the type: {1} for injecting into: {2}.
+        /// </summary>
+        internal static string UnsupportedInstanceMethodErrorMessageFormat {
+            get {
+                return ResourceManager.GetString("UnsupportedInstanceMethodErrorMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported instance method..
+        /// </summary>
+        internal static string UnsupportedInstanceMethodErrorTitle {
+            get {
+                return ResourceManager.GetString("UnsupportedInstanceMethodErrorTitle", resourceCulture);
+            }
+        }
     }
 }

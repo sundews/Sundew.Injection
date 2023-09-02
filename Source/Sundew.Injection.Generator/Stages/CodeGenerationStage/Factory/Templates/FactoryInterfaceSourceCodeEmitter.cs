@@ -25,7 +25,7 @@ internal static class FactoryInterfaceSourceCodeEmitter
             .AppendLine()
             .Append('{')
             .AppendLine()
-            .AppendTypeAttributes(indentation)
+            .AppendTypeAttributes(interfaceDeclaration.AttributeDeclarations, indentation)
             .Append(' ', indentation)
             .Append(accessibility.ToString().ToLowerInvariant())
             .Append(' ')

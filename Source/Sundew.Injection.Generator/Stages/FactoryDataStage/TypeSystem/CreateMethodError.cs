@@ -10,4 +10,4 @@ namespace Sundew.Injection.Generator.Stages.FactoryDataStage.TypeSystem;
 using System.Collections.Immutable;
 using Sundew.Injection.Generator.TypeSystem;
 
-public sealed record class CreateMethodError(Type? UnresolvedContainingType, ImmutableArray<Parameter> UnresolvedParameters) : BindingError;
+internal sealed record class CreateMethodError(Type? UnresolvedContainingType, ImmutableArray<Parameter> UnresolvedParameters) : BindingError;

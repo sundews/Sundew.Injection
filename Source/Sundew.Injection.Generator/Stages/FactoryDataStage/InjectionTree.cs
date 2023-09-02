@@ -7,7 +7,8 @@
 
 namespace Sundew.Injection.Generator.Stages.FactoryDataStage;
 
-using System.Collections.Immutable;
+using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
+using Sundew.Injection.Generator.Stages.FactoryDataStage.Resolvers;
 
-internal sealed record InjectionTree(InjectionNode Root, bool NeedsLifecycleHandling, ImmutableList<FactoryConstructorParameterInjectionNode> FactoryConstructorParameters);
+internal sealed record InjectionTree(InjectionNode Root, bool NeedsLifecycleHandling, ValueList<FactoryConstructorParameter> FactoryConstructorParameters);

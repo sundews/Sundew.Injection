@@ -1,4 +1,11 @@
-﻿namespace Sundew.Injection.Generator.TypeSystem;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="RecordList.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Sundew.Injection.Generator.TypeSystem;
 
 using System;
 using System.Collections;
@@ -6,7 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Sundew.Base.Equality;
 
-public sealed class RecordList<TItem> : IList<TItem>, IReadOnlyRecordList<TItem>, IEquatable<RecordList<TItem>>
+internal sealed class RecordList<TItem> : IList<TItem>, IReadOnlyRecordList<TItem>, IEquatable<RecordList<TItem>>
 {
     private readonly List<TItem> inner;
 

@@ -2,7 +2,8 @@
 namespace AllFeaturesSuccess
 {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Sundew.Injection.Generator", "0.0.0.0")]
-    public interface IResolveRootFactory : global::System.IDisposable, global::System.IAsyncDisposable
+    [global::Sundew.Injection.Factory]
+    public interface IResolveRootFactory : global::System.IDisposable, global::System.IAsyncDisposable, global::Sundew.Injection.IGeneratedFactory
     {
         global::AllFeaturesSuccess.IResolveRoot Create(
             int[] defaultItems,
@@ -17,6 +18,7 @@ namespace AllFeaturesSuccess
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null);
 
         [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+        [global::Sundew.Injection.CreateMethod]
         global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.IResolveRoot> CreateUninitialized(
             int[] defaultItems,
             global::System.Func<global::AllFeaturesSuccess.RequiredInterface.IRequiredService> requiredService,

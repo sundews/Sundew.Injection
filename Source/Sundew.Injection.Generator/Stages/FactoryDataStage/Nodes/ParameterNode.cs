@@ -1,6 +1,12 @@
-﻿namespace Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ParameterNode.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
-using System;
+namespace Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
+
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
@@ -10,25 +16,8 @@ internal record ParameterNode(
     string Name,
     TypeMetadata TypeMetadata,
     bool RequiresNewInstance,
-    string? ParentName) : IParameterNode
+    bool IsForConstructor,
+    string? DependeeName) : IParameterNode
 {
-    public virtual bool Equals(ParameterNode? other)
-    {
-        if (ReferenceEquals(null, other))
-        {
-            return false;
-        }
-
-        if (ReferenceEquals(this, other))
-        {
-            return true;
-        }
-
-        return this.Type.Equals(other.Type) && this.ParameterSource.Equals(other.ParameterSource) && this.Name == other.Name && this.TypeMetadata.Equals(other.TypeMetadata) && this.RequiresNewInstance == other.RequiresNewInstance;
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(this.Type, this.ParameterSource, this.Name, this.TypeMetadata, this.RequiresNewInstance);
-    }
+    public bool IsOptional => true;
 }

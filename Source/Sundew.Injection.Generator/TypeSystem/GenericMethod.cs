@@ -9,8 +9,8 @@ namespace Sundew.Injection.Generator.TypeSystem;
 
 using Sundew.Base.Collections.Immutable;
 
-public readonly record struct GenericMethod(
+internal readonly record struct GenericMethod(
     ValueArray<GenericParameter> Parameters,
     string Name,
     ContaineeType ContainedType,
-    bool IsConstructor);
+    MethodKind Kind);

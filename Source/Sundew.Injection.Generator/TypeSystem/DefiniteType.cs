@@ -10,7 +10,7 @@ namespace Sundew.Injection.Generator.TypeSystem;
 using Sundew.DiscriminatedUnions;
 
 [DiscriminatedUnion]
-public abstract partial record DefiniteType(string Name, string Namespace, string AssemblyName) : Type(Name)
+internal abstract partial record DefiniteType(string Name, string Namespace, string AssemblyName) : Type(Name)
 {
     public virtual string FullName => $"{this.Namespace}.{this.Name}";
 

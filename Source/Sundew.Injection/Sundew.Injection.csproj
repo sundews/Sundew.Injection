@@ -4,9 +4,9 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage)</TargetsForTfmSpecificContentInPackage>
-    <IsPackable>false</IsPackable>
+    <IsPackable>true</IsPackable>
     <!-- Avoid ID conflicts with the package project. -->
-    <PackageId>Sundew.Injection.Library</PackageId>
+    <PackageId>Sundew.Injection.Interface</PackageId>
     <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <Nullable>enable</Nullable>
     <Configurations>Debug;Release;DebugTests</Configurations>
@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Disposal.Interfaces" Version="1.0.0-u20230516-210504-ci" />
-    <PackageReference Include="Initialization.Interfaces" Version="1.0.1-u20230516-210347-ci" />
+    <PackageReference Include="Disposal.Interfaces" Version="1.0.0-u20230522-100738-local" />
+    <PackageReference Include="Initialization.Interfaces" Version="1.0.1-u20230522-100737-local" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -27,9 +27,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Collections.Concurrent" Version="4.3.0">
-      <Aliases></Aliases>
-    </PackageReference>
+    <PackageReference Include="System.Collections.Concurrent" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>

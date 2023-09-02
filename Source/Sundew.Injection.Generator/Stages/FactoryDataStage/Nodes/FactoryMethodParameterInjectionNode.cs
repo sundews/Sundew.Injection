@@ -7,49 +7,20 @@
 
 namespace Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 
-using System;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal sealed record FactoryMethodParameterInjectionNode : InjectionNode, IParameterNode, IEquatable<FactoryMethodParameterInjectionNode>
+internal sealed record FactoryMethodParameterInjectionNode(
+    DefiniteType Type,
+    string Name,
+    ParameterSource ParameterSource,
+    TypeMetadata TypeMetadata,
+    bool RequiresNewInstance,
+    string DependeeName) : InjectionNode(DependeeName), IParameterNode
 {
-    public FactoryMethodParameterInjectionNode(DefiniteType type, string name, ParameterSource parameterSource, TypeMetadata typeMetadata, bool requiresNewInstance, string parentName)
-        : base(parentName)
-    {
-        this.Type = type;
-        this.Name = name;
-        this.ParameterSource = parameterSource;
-        this.TypeMetadata = typeMetadata;
-        this.RequiresNewInstance = requiresNewInstance;
-    }
+    public override string Name { get; } = Name;
 
-    public DefiniteType Type { get; }
+    public bool IsOptional => false;
 
-    public override string Name { get; }
-
-    public ParameterSource ParameterSource { get; }
-
-    public TypeMetadata TypeMetadata { get; }
-
-    public bool RequiresNewInstance { get; }
-
-    public bool Equals(FactoryMethodParameterInjectionNode? other)
-    {
-        if (ReferenceEquals(null, other))
-        {
-            return false;
-        }
-
-        if (ReferenceEquals(this, other))
-        {
-            return true;
-        }
-
-        return this.Type.Equals(other.Type) && this.Name == other.Name && this.ParameterSource.Equals(other.ParameterSource) && this.TypeMetadata.Equals(other.TypeMetadata) && this.RequiresNewInstance == other.RequiresNewInstance;
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(this.Type, this.Name, this.ParameterSource, this.TypeMetadata, this.RequiresNewInstance);
-    }
+    public bool IsForConstructor => false;
 }

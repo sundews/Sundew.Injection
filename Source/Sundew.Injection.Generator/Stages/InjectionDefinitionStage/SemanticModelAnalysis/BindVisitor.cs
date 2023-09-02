@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Sundew.Injection.Generator.TypeSystem;
+using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
 
 internal class BindVisitor : CSharpSyntaxWalker
 {
@@ -93,7 +94,7 @@ internal class BindVisitor : CSharpSyntaxWalker
                 return;
             }
 
-            actualMethod = new Method(implementationType.TypeMetadata.DefaultConstructor.Parameters, implementationType.Type.Name, implementationType.Type, true);
+            actualMethod = new Method(implementationType.TypeMetadata.DefaultConstructor.Parameters, implementationType.Type.Name, implementationType.Type, MethodKind._Constructor);
         }
 
         this.compiletimeInjectionDefinitionBuilder.Bind(interfaceTypes, implementationType, actualMethod, scope, isInjectable, isNewOverridable);

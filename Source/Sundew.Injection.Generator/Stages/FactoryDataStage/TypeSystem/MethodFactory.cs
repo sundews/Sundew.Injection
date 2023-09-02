@@ -16,7 +16,7 @@ using Sundew.Base.Primitives.Computation;
 using Sundew.Base.Text;
 using Sundew.Injection.Generator.TypeSystem;
 
-public sealed class MethodFactory
+internal sealed class MethodFactory
 {
     private readonly TypeResolver typeResolver;
 
@@ -32,7 +32,7 @@ public sealed class MethodFactory
             var resolveTypeResult = typeResolver.ResolveType(arrayType.ElementType);
             if (resolveTypeResult.IsSuccess)
             {
-                return Item.Pass(new DefiniteParameter(new DefiniteArrayType(resolveTypeResult.Value), parameterName, typeMetadata));
+                return Item.Pass(new DefiniteParameter(new DefiniteArrayType(resolveTypeResult.Value), parameterName, typeMetadata, ParameterNecessity._Required));
             }
 
             return Item.Fail<DefiniteParameter, Symbol>(arrayType);
@@ -42,14 +42,14 @@ public sealed class MethodFactory
         {
             var resolveTypeResult = typeResolver.ResolveType(boundGenericType);
             return resolveTypeResult.IsSuccess
-                ? Item.Pass(new DefiniteParameter(resolveTypeResult.Value, parameterName, typeMetadata))
+                ? Item.Pass(new DefiniteParameter(resolveTypeResult.Value, parameterName, typeMetadata, ParameterNecessity._Required))
                 : Item.Fail<DefiniteParameter, Symbol>(boundGenericType);
         }
 
         static Item<DefiniteParameter, Symbol> LookupTypeParameter(TypeParameter typeParameter, string parameterName, Dictionary<TypeParameter, DefiniteTypeArgument> typeParameterDictionary)
         {
             return typeParameterDictionary.TryGetValue(typeParameter, out var definiteTypeArgument)
-                ? Item.Pass(new DefiniteParameter(definiteTypeArgument.Type, parameterName, definiteTypeArgument.TypeMetadata))
+                ? Item.Pass(new DefiniteParameter(definiteTypeArgument.Type, parameterName, definiteTypeArgument.TypeMetadata, ParameterNecessity._Required))
                 : Item.Fail<DefiniteParameter, Symbol>(typeParameter);
         }
 
@@ -59,7 +59,7 @@ public sealed class MethodFactory
             {
                 var resolveTypeResult = typeResolver.ResolveType(definiteTypeArgument.Type);
                 return resolveTypeResult.IsSuccess
-                    ? Item.Pass(new DefiniteParameter(new DefiniteArrayType(resolveTypeResult.Value), parameterName, new TypeMetadata(null, true, false, false)))
+                    ? Item.Pass(new DefiniteParameter(new DefiniteArrayType(resolveTypeResult.Value), parameterName, new TypeMetadata(null, true, false, false), ParameterNecessity._Required))
                     : Item.Fail<DefiniteParameter, Symbol>(typeParameterArray);
             }
 
@@ -75,13 +75,13 @@ public sealed class MethodFactory
                 return x.Type switch
                 {
                     ArrayType arrayType => TryGetDefiniteArray(arrayType, x.TypeMetadata, x.Name, this.typeResolver),
-                    NamedType namedType => Item.Pass(new DefiniteParameter(namedType, x.Name, x.TypeMetadata)),
+                    NamedType namedType => Item.Pass(new DefiniteParameter(namedType, x.Name, x.TypeMetadata, ParameterNecessity._Required)),
                     BoundGenericType boundGenericType => TryGetDefiniteBoundGenericType(boundGenericType, x.TypeMetadata, x.Name, this.typeResolver),
                     ErrorType errorType => Item.Fail<DefiniteParameter, Symbol>(errorType),
                     TypeParameter typeParameter => LookupTypeParameter(typeParameter, x.Name, typeParameterDictionary),
                     TypeParameterArray typeParameterArray => LookupTypeParameterArray(typeParameterArray, x.Name, typeParameterDictionary, this.typeResolver),
-                    DefiniteBoundGenericType definiteBoundGenericType => Item.Pass(new DefiniteParameter(definiteBoundGenericType, x.Name, x.TypeMetadata)),
-                    DefiniteArrayType definiteArrayType => Item.Pass(new DefiniteParameter(definiteArrayType, x.Name, x.TypeMetadata)),
+                    DefiniteBoundGenericType definiteBoundGenericType => Item.Pass(new DefiniteParameter(definiteBoundGenericType, x.Name, x.TypeMetadata, ParameterNecessity._Required)),
+                    DefiniteArrayType definiteArrayType => Item.Pass(new DefiniteParameter(definiteArrayType, x.Name, x.TypeMetadata, ParameterNecessity._Required)),
                 };
             });
 
@@ -101,13 +101,13 @@ public sealed class MethodFactory
             {
                 var resolveTypeResult = this.typeResolver.ResolveType(x.Type);
                 return resolveTypeResult.IsSuccess
-                    ? Item.Pass(new DefiniteParameter(resolveTypeResult.Value, x.Name, x.TypeMetadata))
+                    ? Item.Pass(new DefiniteParameter(resolveTypeResult.Value, x.Name, x.TypeMetadata, x.ParameterNecessity))
                     : Item.Fail();
             });
 
             return allOrFailed switch
             {
-                All<Parameter, DefiniteParameter> all => R.Success(new DefiniteMethod(all.Items.ToImmutableArray(), overrideMethodName.IsNullOrEmpty() ? method.Name : overrideMethodName, result.Value, ImmutableArray<DefiniteTypeArgument>.Empty, method.IsConstructor)),
+                All<Parameter, DefiniteParameter> all => R.Success(new DefiniteMethod(result.Value, overrideMethodName.IsNullOrEmpty() ? method.Name : overrideMethodName, all.Items.ToImmutableArray(), ImmutableArray<DefiniteTypeArgument>.Empty, method.Kind)),
                 Failed<Parameter, DefiniteParameter> failedItems => R.Error(new CreateMethodError(default, failedItems.Items.Select(x => x.Item).ToImmutableArray())),
             };
         }
@@ -117,7 +117,7 @@ public sealed class MethodFactory
 
     private static DefiniteMethod CreateMethod(GenericMethod genericMethod, ValueArray<DefiniteParameter> parameters, DefiniteBoundGenericType definiteBoundGenericType)
     {
-        return new DefiniteMethod(parameters, genericMethod.Name, GetDefiniteType(genericMethod.ContainedType, definiteBoundGenericType.TypeArguments), definiteBoundGenericType.TypeArguments, genericMethod.IsConstructor);
+        return new DefiniteMethod(GetDefiniteType(genericMethod.ContainedType, definiteBoundGenericType.TypeArguments), genericMethod.Name, parameters, definiteBoundGenericType.TypeArguments, genericMethod.Kind);
     }
 
     private static DefiniteType GetDefiniteType(ContaineeType containeeType, ValueArray<DefiniteTypeArgument> typeArguments)

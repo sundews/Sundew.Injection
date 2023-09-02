@@ -48,6 +48,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Injection.Testing", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Injection.GeneratorDependencies", "Sundew.Injection.GeneratorDependencies\Sundew.Injection.GeneratorDependencies.csproj", "{A28F8C05-648E-4999-B6B1-180CFB6E6C2A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllFeaturesSuccessDependency", "TestProjects\AllFeaturesSuccessDependency\AllFeaturesSuccessDependency.csproj", "{3A168BE4-80C2-49C2-89A2-3870CEABE9DB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -139,6 +141,12 @@ Global
 		{A28F8C05-648E-4999-B6B1-180CFB6E6C2A}.DebugTests|Any CPU.Build.0 = DebugTests|Any CPU
 		{A28F8C05-648E-4999-B6B1-180CFB6E6C2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A28F8C05-648E-4999-B6B1-180CFB6E6C2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A168BE4-80C2-49C2-89A2-3870CEABE9DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A168BE4-80C2-49C2-89A2-3870CEABE9DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A168BE4-80C2-49C2-89A2-3870CEABE9DB}.DebugTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A168BE4-80C2-49C2-89A2-3870CEABE9DB}.DebugTests|Any CPU.Build.0 = Debug|Any CPU
+		{3A168BE4-80C2-49C2-89A2-3870CEABE9DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A168BE4-80C2-49C2-89A2-3870CEABE9DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -153,6 +161,7 @@ Global
 		{78316FD7-F3B3-41A0-8E8C-9A34086D5A47} = {9E41F070-F91D-4526-A6C9-AB3F454D3A8A}
 		{203852C8-EAE8-45D1-96DC-8FD290C51F2F} = {9E41F070-F91D-4526-A6C9-AB3F454D3A8A}
 		{02472129-7EAE-4A4B-B98B-E04026D6DD30} = {2D0EABCE-E506-436E-8483-F598967B61AC}
+		{3A168BE4-80C2-49C2-89A2-3870CEABE9DB} = {9E41F070-F91D-4526-A6C9-AB3F454D3A8A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BC13742C-AB82-49EE-988E-1FF59BAF1BB2}

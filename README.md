@@ -42,25 +42,28 @@ Generally, short-lived applications can benefit the most from Pure DI during sta
 | - Required parameters (required interface)                      | Required parameters are explicitly part of the factory interface                                                                       | Same as above, although interface is not explicit                            |
 | - Required parameter from custom class                          | Specify a custom class that contains parameters, to control public interface                                                           | Same as above                                                                |
 | - Optional parameters                                           | Explicitly specifies a parameter, but in case of null the implementation is resovled                                                   | Depends on DICs, typically emulated though an empty multiple implementations |
+| - Optional arguments                                            | Parameters that are nullable or specifies a default, may have the default value passed as an argument                                  | Depends on DICs                                                              |
 | **Lifetime scopes**                                             | Used to declare the dependency graph e.g. how object communicate                                                                       | Supported by all DICs                                                        |
 | - Single instance per factory                                   | The same instance will be used throughout the factory lifetime                                                                         | Equivalent to singleton                                                      |
 | - Single instance per request                                   | A new instance will be created per call to the 'Create' method and thus be shared                                                      | Equivalent to single instance per request/resolve                            |
 | - New instance                                                  | A new instance is created every time it is requested                                                                                   | Equivalent to transient                                                      |
 | **Override 'new' in derived factory class**                     | Useful when wanting to replace an implementation with a different one.<br/>e.g. a mock without making explicitly part of the interface | Typically registrations can be overwritten                                   |
 | **Thread safety**                                               | Create methods can be called on multiple threads                                                                                       | Supported by most DICs                                                       |
-| **Initialization**                                              | Implement IInitializable or IAsyncInitializable in a type to perform initialization not suited for the ctor.                           | Support for similar functionality in some DICs                               |
-| **Disposal**                                                    | Disposal by disposing factory or explicit Dispose(TCreated) method                                                                     | Depends on DIC, some support only disposing singletons                       |
+| **Lifecycle**                                                   | Support for IInitializable/IAsyncInitializable and IDisposable/IAsyncDisposable                                                        | Depends on DIC, typically the equivalent can be achieved                     |
+| - Initialization                                                | Implement IInitializable or IAsyncInitializable in a type to perform initialization not suited for the ctor.                           | Support for similar functionality in some DICs                               |
+| - Disposal                                                      | Disposal by disposing factory or explicit Dispose(TCreated) method                                                                     | Depends on DIC, some support only disposing singletons                       |
 | **Factories can depend on other generated factories**           | Currently, factories can be injected, but does not support calling the 'Create' method (planned)                                       | Supported by some DICs through child containers                              |
 | **Zero reflection**                                             | Improved performance<br/>Enable .NET Native/NativeAOT etc.                                                                             | Not supported by DICs                                                        |
 
 ## Not implemented yet:
 * Calling child factory 'Create' methods
+* Injecting known types (IInitialization-/IDisposalReporter, parallelize etc.)
+* Generating documentation
 * Examples
 * Test error cases
-* Generating documentation
 * Custom lifetime scope, to support implementing something like single instance per thread or per session
-* Interception
 * Test correctness of generated code
+* Interception
 
 ## Not supported DIC features
 * No dynamic assembly loading such as a plug-in system -> Use an existing DI container/AssemblyLoadContext for the high-level plug-in loading and Sundew.Injection for the plug-ins themselves.

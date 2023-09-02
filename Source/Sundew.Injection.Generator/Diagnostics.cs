@@ -48,4 +48,13 @@ public static class Diagnostics
         DiagnosticSeverity.Error,
         true,
         Resources.ResolveTypeErrorDescription);
+
+    public static DiagnosticDescriptor UnsupportedInstanceMethodError { get; } = new(
+        "SI0005",
+        Resources.UnsupportedInstanceMethodErrorTitle,
+        Resources.UnsupportedInstanceMethodErrorMessageFormat,
+        CodeGeneration,
+        DiagnosticSeverity.Error,
+        true,
+        Resources.UnsupportedInstanceMethodErrorDescription);
 }

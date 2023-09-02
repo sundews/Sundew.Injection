@@ -9,4 +9,4 @@ namespace Sundew.Injection.Generator.TypeSystem;
 
 using Sundew.Base.Collections.Immutable;
 
-public readonly record struct GenericConstructor(ValueArray<GenericParameter> Parameters);
+internal readonly record struct GenericConstructor(ValueArray<GenericParameter> Parameters);

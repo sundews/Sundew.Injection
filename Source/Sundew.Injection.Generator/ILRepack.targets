@@ -10,14 +10,10 @@
 
     <ItemGroup>
       <RequiredFiles Include="$(OutputPath)**\Sundew.Injection.dll" />
-      <RequiredFiles Include="$(OutputPath)**\Initialization.Interfaces.dll" />
-      <RequiredFiles Include="$(OutputPath)**\Disposal.Interfaces.dll" />
-      <RequiredFiles Include="$(OutputPath)**\Microsoft.Bcl.AsyncInterfaces.dll" />
-      <RequiredFiles Include="$(OutputPath)**\Microsoft.Bcl.HashCode.dll" />
       <DestinationFiles Include="@(RequiredFiles->'$(OutputPath)%(Filename)-Copy%(Extension)')"/>
 
       <InputAssemblies Include="$(OutputPath)**\Sundew*.dll" />
-      <InputAssemblies Include="@(RequiredFiles)" />
+      <InputAssemblies Remove="@(RequiredFiles)" />
       <InputAssemblies Remove="$(OutputPath)**\*.m.dll" />
       <InputAssemblies Remove="$(OutputPath)**\$(AssemblyName).dll" />
     </ItemGroup>

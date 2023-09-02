@@ -15,9 +15,4 @@ using global::Initialization.Interfaces;
 /// </summary>
 public interface ILifecycleHandler : IInitializable, IAsyncInitializable, IDisposable, IAsyncDisposable
 {
-    /// <summary>
-    /// Tries to add the specified object to the lifecycle.
-    /// </summary>
-    /// <param name="constructed">The constructed object.</param>
-    void TryAdd(object constructed);
 }

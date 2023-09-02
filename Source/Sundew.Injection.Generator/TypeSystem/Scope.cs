@@ -1,9 +1,16 @@
-﻿namespace Sundew.Injection.Generator.TypeSystem;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Scope.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Sundew.Injection.Generator.TypeSystem;
 
 using Sundew.DiscriminatedUnions;
 
 [DiscriminatedUnion]
-public abstract record Scope
+internal abstract record Scope
 {
     [CaseType(typeof(AutoScope))]
     public static Scope Auto { get; } = new AutoScope();

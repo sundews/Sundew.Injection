@@ -34,10 +34,10 @@ public class CodeGenerationEqualityFixture
 
         var compilationData = CompilationDataProvider.GetCompilationData(compilation);
 
-        var factoryDataArray= FactoryDataProvider.GetFactoryData(injectionDefinition.Value, compilationData, CancellationToken.None);
+        var factoryDataArray = FactoryDataProvider.GetFactoryData(injectionDefinition.Value, compilationData, CancellationToken.None);
 
-        var lhs = factoryDataArray.Select(x => GeneratedCodeProvider.GetGeneratedOutput(x.Value, compilationData, CancellationToken.None));
-        var rhs = factoryDataArray.Select(x => GeneratedCodeProvider.GetGeneratedOutput(x.Value, compilationData, CancellationToken.None));
+        var lhs = factoryDataArray.Select(x => GeneratedCodeProvider.GetGeneratedOutput(x.Value!, compilationData, CancellationToken.None));
+        var rhs = factoryDataArray.Select(x => GeneratedCodeProvider.GetGeneratedOutput(x.Value!, compilationData, CancellationToken.None));
 
         lhs.Should().Equal(rhs);
     }

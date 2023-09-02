@@ -23,7 +23,7 @@ internal static class SourceCodeEmitterExtensions
     private const string GeneratedCodeAttribute = "global::System.CodeDom.Compiler.GeneratedCodeAttribute";
     private const string SundewInjectionGenerator = "Sundew.Injection.Generator";
 
-    public static StringBuilder AppendTypeAttributes(this StringBuilder stringBuilder, int indentation)
+    public static StringBuilder AppendTypeAttributes(this StringBuilder stringBuilder, IEnumerable<AttributeDeclaration> attributeDeclarations, int indentation)
     {
         stringBuilder
             .Append(' ', indentation)
@@ -36,6 +36,7 @@ internal static class SourceCodeEmitterExtensions
             .Append(')')
             .Append(']')
             .AppendLine();
+        stringBuilder.AppendItems(attributeDeclarations, (builder, declaration) => builder.Append(' ', indentation).AppendLine(declaration.Value));
         return stringBuilder;
     }
 

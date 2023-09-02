@@ -1,15 +1,17 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IHaveParameters.cs" company="Sundews">
+// <copyright file="IInitializationParameters.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
+namespace Sundew.Injection;
 
-using Sundew.Injection.Generator.TypeSystem;
+using Initialization.Interfaces;
 
-internal interface IHaveParameters : IInjectionNode
+public interface IInitializationParameters
 {
-    IReadOnlyRecordList<InjectionNode> Parameters { get; }
+    bool InitializeConcurrently { get; }
+
+    IInitializationReporter? InitializationReporter { get; }
 }

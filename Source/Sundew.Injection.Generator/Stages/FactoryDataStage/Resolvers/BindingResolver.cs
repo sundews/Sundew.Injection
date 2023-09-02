@@ -7,38 +7,49 @@
 
 namespace Sundew.Injection.Generator.Stages.FactoryDataStage.Resolvers;
 
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Base.Primitives.Computation;
 using Sundew.Base.Text;
-using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.TypeSystem;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
+using static Sundew.Injection.Generator.Stages.FactoryDataStage.Resolvers.ResolvedParameterSource;
 using Type = Sundew.Injection.Generator.TypeSystem.Type;
 
 internal sealed class BindingResolver
 {
+    private const string Create = "Create";
     private readonly TypeResolver typeResolver;
-    private readonly ValueDictionary<Type, ValueArray<BindingRegistration>> bindingRegistrations;
+    private readonly ValueDictionary<TypeId, ValueArray<BindingRegistration>> bindingRegistrations;
     private readonly ValueDictionary<UnboundGenericType, ValueArray<GenericBindingRegistration>> genericBindingRegistrations;
     private readonly MethodFactory methodFactory;
     private readonly BindingFactory bindingFactory;
-    private readonly ICache<Type, ResolvedBinding> resolvedBindingsCache;
-    private readonly ICache<Type, Binding[]> bindingsCache;
+    private readonly ICache<TypeId, ResolvedBinding> resolvedBindingsCache;
+    private readonly ICache<TypeId, Binding[]> bindingsCache;
+    private readonly RequiredParametersInjectionResolver requiredParametersInjectionResolver;
 
     internal BindingResolver(
-        ValueDictionary<Type, ValueArray<BindingRegistration>> bindingRegistrations,
-        ValueDictionary<UnboundGenericType, ValueArray<GenericBindingRegistration>> genericBindingRegistrations)
+        ValueDictionary<TypeId, ValueArray<BindingRegistration>> bindingRegistrations,
+        ValueDictionary<UnboundGenericType, ValueArray<GenericBindingRegistration>> genericBindingRegistrations,
+        RequiredParametersInjectionResolver requiredParametersInjectionResolver,
+        ImmutableArray<Binding> predefinedBindings)
     {
         this.bindingRegistrations = bindingRegistrations;
         this.genericBindingRegistrations = genericBindingRegistrations;
+        this.requiredParametersInjectionResolver = requiredParametersInjectionResolver;
         var typeRegistry = new NameRegistry<NamedType>();
         this.typeResolver = new TypeResolver(typeRegistry);
         this.methodFactory = new MethodFactory(this.typeResolver);
         var resolvedBindingRegistry = new TypeRegistry<ResolvedBinding>();
         var bindingsRegistry = new TypeRegistry<Binding[]>();
+        foreach (var predefinedBinding in predefinedBindings)
+        {
+            bindingsRegistry.Register(predefinedBinding.TargetType.Id, predefinedBinding.TargetReferenceType.Id, new[] { predefinedBinding });
+        }
+
         this.bindingFactory = new BindingFactory(this.typeResolver, this.methodFactory, typeRegistry, resolvedBindingRegistry, bindingsRegistry);
         this.resolvedBindingsCache = resolvedBindingRegistry;
         this.bindingsCache = bindingsRegistry;
@@ -46,22 +57,23 @@ internal sealed class BindingResolver
 
     public ResolvedBinding ResolveBinding(DefiniteParameter definiteParameter)
     {
-        if (this.resolvedBindingsCache.TryGet(definiteParameter.Type, out var cachedBinding))
+        if (this.resolvedBindingsCache.TryGet(definiteParameter.Type.Id, out var cachedBinding))
         {
             return cachedBinding;
         }
 
-        return ResolvedBinding.ExternalParameter(definiteParameter.Type, definiteParameter.TypeMetadata);
+        return this.ResolveParameter(definiteParameter.Type, definiteParameter.TypeMetadata, O.Some((definiteParameter.Name, definiteParameter.ParameterNecessity)));
     }
 
-    public ResolvedBinding ResolveBinding(Type type, TypeMetadata typeMetadata)
+    public ResolvedBinding ResolveBinding(Type type, TypeMetadata typeMetadata, O<(string Name, ParameterNecessity Necessity)> parameterOption)
     {
-        if (this.resolvedBindingsCache.TryGet(type, out var cachedBinding))
+        var typeId = type.Id;
+        if (this.resolvedBindingsCache.TryGet(typeId, out var cachedBinding))
         {
             return cachedBinding;
         }
 
-        if (this.bindingRegistrations.TryGetValue(type, out var foundBindingRegistrations))
+        if (this.bindingRegistrations.TryGetValue(typeId, out var foundBindingRegistrations))
         {
             var bindingRegistration = foundBindingRegistrations.First();
             return this.bindingFactory.TryCreateSingleParameter(bindingRegistration, type);
@@ -109,7 +121,7 @@ internal sealed class BindingResolver
                 var genericTypeDefinitionBinding = resolvedGenericBindings.First();
                 var selectedUnboundGenericType = genericTypeDefinitionBinding.TargetType;
                 var definiteBoundGenericTargetType = selectedUnboundGenericType.ToDefiniteBoundGenericType(definiteBoundGenericType2.TypeArguments);
-                if (!this.resolvedBindingsCache.TryGet(definiteBoundGenericTargetType, out var resolvedBinding))
+                if (!this.resolvedBindingsCache.TryGet(definiteBoundGenericTargetType.Id, out var resolvedBinding))
                 {
                     return this.bindingFactory.TryCreateGenericSingleParameter(type, definiteBoundGenericTargetType, genericTypeDefinitionBinding);
                 }
@@ -118,13 +130,13 @@ internal sealed class BindingResolver
             }
         }
 
-        var resolveTypeResultForExternalParameter = this.typeResolver.ResolveType(type);
-        if (resolveTypeResultForExternalParameter.IsSuccess)
+        var resolveTypeResultParameter = this.typeResolver.ResolveType(type);
+        if (resolveTypeResultParameter.IsSuccess)
         {
-            return ResolvedBinding.ExternalParameter(resolveTypeResultForExternalParameter.Value, typeMetadata);
+            return this.ResolveParameter(resolveTypeResultParameter.Value, typeMetadata, parameterOption);
         }
 
-        return ResolvedBinding.Error(new BindingError.FailedResolveError(ImmutableArray.Create(resolveTypeResultForExternalParameter.Error)));
+        return ResolvedBinding._Error(new BindingError.FailedResolveError(ImmutableArray.Create(resolveTypeResultParameter.Error)));
     }
 
     public R<BindingRoot, BindingError> CreateBindingRoot(FactoryMethodRegistration factoryMethodRegistration, bool useTargetTypeNameForCreateMethod)
@@ -134,7 +146,7 @@ internal sealed class BindingResolver
         if (returnTypeResult.IsSuccess && targetTypeResult.IsSuccess)
         {
             var factoryMethodName = factoryMethodRegistration.CreateMethodName.IsNullOrEmpty()
-                ? "Create" + (useTargetTypeNameForCreateMethod ? targetTypeResult.Value.Name : string.Empty)
+                ? Create + (useTargetTypeNameForCreateMethod ? targetTypeResult.Value.Name : string.Empty)
                 : factoryMethodRegistration.CreateMethodName;
             var createMethodResult = this.methodFactory.CreateMethod(factoryMethodRegistration.Method, factoryMethodName);
             if (createMethodResult.IsSuccess)
@@ -162,16 +174,16 @@ internal sealed class BindingResolver
 
     public (NamedType FactoryType, NamedType? InterfaceType) CreateFactoryBinding(
         FactoryCreationDefinition factoryCreationDefinition,
-        FactoryMethodData fallbackFactoryMethodData,
-        ImmutableList<FactoryConstructorParameterInjectionNode>.Builder factoryConstructorParameters,
+        NamedType fallbackFactoryType,
+        ImmutableList<FactoryConstructorParameter>.Builder factoryConstructorParameters,
         bool implementsIDisposable,
         string assemblyName)
     {
         var (classTypeName, interfaceTypeName, factoryNamespace) = FactoryNameHelper.GetFactoryNames(
             factoryCreationDefinition.FactoryClassNamespace,
             factoryCreationDefinition.FactoryClassName,
-            fallbackFactoryMethodData.Target.Type.Namespace,
-            fallbackFactoryMethodData.Return.Type.Name);
+            fallbackFactoryType.Namespace,
+            fallbackFactoryType.Name);
 
         var factoryType = new NamedType(
             classTypeName,
@@ -193,19 +205,46 @@ internal sealed class BindingResolver
         var elementTypeLookupResult = this.typeResolver.ResolveType(firstTypeArgumentType);
         if (!elementTypeLookupResult.IsSuccess)
         {
-            return ResolvedBinding.Error(new BindingError.FailedResolveError(elementTypeLookupResult.Error));
+            return ResolvedBinding._Error(new BindingError.FailedResolveError(elementTypeLookupResult.Error));
         }
 
-        if (this.bindingsCache.TryGet(firstTypeArgumentType, out var bindings))
+        var firstTypeArgumentTypeId = firstTypeArgumentType.Id;
+        if (this.bindingsCache.TryGet(firstTypeArgumentTypeId, out var bindings))
         {
             return this.bindingFactory.CreateArrayParameter(parameterType, elementTypeLookupResult.Value, bindings);
         }
 
-        if (this.bindingRegistrations.TryGetValue(firstTypeArgumentType, out var resolvedBindingRegistrationsForArray))
+        if (this.bindingRegistrations.TryGetValue(firstTypeArgumentTypeId, out var resolvedBindingRegistrationsForArray))
         {
             return this.bindingFactory.TryCreateArrayParameter(parameterType, elementTypeLookupResult.Value, resolvedBindingRegistrationsForArray);
         }
 
         return null;
+    }
+
+    private ResolvedBinding ResolveParameter(DefiniteType definiteType, TypeMetadata typeMetadata, O<(string Name, ParameterNecessity Necessity)> parameterOption)
+    {
+        if (!parameterOption.HasValue)
+        {
+            return ResolvedBinding.ExternalParameter(definiteType, typeMetadata, ParameterSource.DirectParameter(this.requiredParametersInjectionResolver.Inject));
+        }
+
+        return parameterOption.Value.Necessity switch
+        {
+            ParameterNecessity.Optional optional => EvaluateParameter(definiteType, typeMetadata, O.Some(optional)),
+            ParameterNecessity.Required => EvaluateParameter(definiteType, typeMetadata, O.None),
+        };
+
+        ResolvedBinding EvaluateParameter(DefiniteType definiteType, TypeMetadata typeMetadata, O<ParameterNecessity.Optional> optionalOption)
+        {
+            var parameterName = parameterOption.Value.Name;
+            var resolvedParameterSource = this.requiredParametersInjectionResolver.ResolveParameterSource(definiteType, parameterName);
+            return resolvedParameterSource switch
+            {
+                Found found => ResolvedBinding.ExternalParameter(definiteType, typeMetadata, found.ParameterSource),
+                NotFound notFound => optionalOption.HasValue ? ResolvedBinding.DefaultParameter(optionalOption.Value.DefaultValue, definiteType, typeMetadata) : ResolvedBinding.ExternalParameter(definiteType, typeMetadata, notFound.ProposedParameterSource),
+                NoExactMatch noExactMatch => optionalOption.HasValue ? ResolvedBinding.DefaultParameter(optionalOption.Value.DefaultValue, definiteType, typeMetadata) : ResolvedBinding._ParameterError(definiteType, parameterName, noExactMatch.ParameterSources),
+            };
+        }
     }
 }

@@ -26,7 +26,7 @@ namespace Sundew.Injection.Disposal
     internal sealed class DisposingList<TDisposable> : IDisposable, IAsyncDisposable
     {
         private static readonly Task<bool> CompletedTrueTask = Task.FromResult(true);
-        private readonly bool parallelize;
+        private readonly bool disposeConcurrently;
         private readonly IDisposalReporter? disposalReporter;
         private IImmutableList<Disposer> disposers = ImmutableList<Disposer>.Empty;
 
@@ -41,11 +41,11 @@ namespace Sundew.Injection.Disposal
         /// <summary>
         /// Initializes a new instance of the <see cref="DisposingList{TItem}" /> class.
         /// </summary>
-        /// <param name="parallelize">if set to <c>true</c>  disposal will be parallelized.</param>
+        /// <param name="disposeConcurrently">if set to <c>true</c>  disposal will be executed concurrently.</param>
         /// <param name="disposalReporter">The disposal reporter.</param>
-        public DisposingList(bool parallelize, IDisposalReporter? disposalReporter = null)
+        public DisposingList(bool disposeConcurrently, IDisposalReporter? disposalReporter = null)
         {
-            this.parallelize = parallelize;
+            this.disposeConcurrently = disposeConcurrently;
             this.disposalReporter = disposalReporter;
         }
 
@@ -99,7 +99,7 @@ namespace Sundew.Injection.Disposal
         {
             var disposers = this.disposers;
             this.Clear();
-            if (this.parallelize)
+            if (this.disposeConcurrently)
             {
                 Parallel.ForEach(disposers, x => x.Dispose(this.disposalReporter));
             }
@@ -120,7 +120,7 @@ namespace Sundew.Injection.Disposal
         {
             var disposers = this.disposers;
             this.Clear();
-            if (this.parallelize)
+            if (this.disposeConcurrently)
             {
                 await Task.WhenAll(disposers.Select(x =>
                 {
@@ -143,7 +143,7 @@ namespace Sundew.Injection.Disposal
         }
 
         /// <summary>
-        /// Clear the initializing list.
+        /// Clear the disposal list.
         /// </summary>
         public void Clear()
         {

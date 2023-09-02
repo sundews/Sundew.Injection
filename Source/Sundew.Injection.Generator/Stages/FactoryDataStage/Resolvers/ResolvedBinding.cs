@@ -9,15 +9,16 @@ namespace Sundew.Injection.Generator.Stages.FactoryDataStage.Resolvers;
 
 using System.Collections.Generic;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.TypeSystem;
+using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record ResolvedBinding;
 
-internal sealed record Error(BindingError BindingError) : ResolvedBinding;
-
-internal sealed record ExternalParameter(DefiniteType Type, TypeMetadata TypeMetadata) : ResolvedBinding;
+internal sealed record ExternalParameter(DefiniteType Type, TypeMetadata TypeMetadata, ParameterSource ParameterSource) : ResolvedBinding;
 
 internal sealed record SingleParameter(Binding Binding) : ResolvedBinding;
+
+internal sealed record DefaultParameter(object? Literal, DefiniteType Type, TypeMetadata TypeMetadata) : ResolvedBinding;
 
 internal sealed record ArrayParameter(DefiniteArrayType ArrayType, IReadOnlyList<Binding> Bindings) : ResolvedBinding;

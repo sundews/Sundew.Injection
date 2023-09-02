@@ -17,9 +17,9 @@ using Sundew.Base.Collections.Immutable;
 using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.Stages.CompilationDataStage;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Extensions;
-using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Resolvers;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
+using Sundew.Injection.Generator.TypeSystem;
 
 internal static class FactoryDataProvider
 {
@@ -36,48 +36,73 @@ internal static class FactoryDataProvider
         {
             var requiredParametersInjectionResolver = new RequiredParametersInjectionResolver(
                 injectionDefinition.RequiredParameterInjection, injectionDefinition.RequiredParameters);
-            var bindingResolver = new BindingResolver(injectionDefinition.BindingRegistrations, injectionDefinition.GenericBindingRegistrations);
+            var bindingResolver = new BindingResolver(injectionDefinition.BindingRegistrations, injectionDefinition.GenericBindingRegistrations, requiredParametersInjectionResolver, ImmutableArray.Create(compilationData.LifecycleHandlerBinding));
             var scopeResolverBuilder = new ScopeResolverBuilder(bindingResolver);
             foreach (var factoryCreationDefinition in injectionDefinition.FactoryDefinitions)
             {
                 var useTargetTypeNameForCreateMethod =
                     factoryCreationDefinition.FactoryMethodRegistrations.Count > 1;
-                var factoryConstructorParameters = ImmutableList.CreateBuilder<FactoryConstructorParameterInjectionNode>();
+                var factoryConstructorParameters = ImmutableList.CreateBuilder<FactoryConstructorParameter>();
                 var needsLifecycleHandling = false;
-                var factoryMethodInfoResult = factoryCreationDefinition.FactoryMethodRegistrations.AllOrFailed(x =>
+                var factoryMethodRegistrationsResult = factoryCreationDefinition.FactoryMethodRegistrations.AllOrFailed(x =>
                 {
-                    var createBindingResult = bindingResolver.CreateBindingRoot(x, useTargetTypeNameForCreateMethod);
-                    if (!createBindingResult.IsSuccess)
+                    var createBindingResult = bindingResolver.CreateBindingRoot(x, useTargetTypeNameForCreateMethod)
+                        .WithError(bindingError => ImmutableList.Create<InjectionStageError>(
+                            new InjectionStageError.ResolveTypeError(bindingError, "root")));
+                    if (createBindingResult.TryGetError(out var bindingErrors))
                     {
-                        return Item.Fail<FactoryMethodData, ImmutableList<InjectionStageError>>(
-                            ImmutableList.Create<InjectionStageError>(
-                                new InjectionStageError.ResolveTypeError(createBindingResult.Error, "root")));
+                        return Item.Fail(bindingErrors).For<FactoryMethodData>();
                     }
 
                     var rootBinding = createBindingResult.Value.Binding;
-                    var bindingReturnType = createBindingResult.Value.ReturnType;
-                    var scopeResolver = scopeResolverBuilder.Build(rootBinding);
-                    var injectionTreeBuilder = new InjectionTreeBuilder(bindingResolver, requiredParametersInjectionResolver, scopeResolver);
-                    var injectionTreeResult = injectionTreeBuilder.Build(rootBinding, cancellationToken);
-                    if (!injectionTreeResult.IsSuccess)
+                    var scopeResolverResult = scopeResolverBuilder.Build(rootBinding);
+                    if (scopeResolverResult.TryGetError(out var scopeErrors))
                     {
-                        return Item.Fail<FactoryMethodData, ImmutableList<InjectionStageError>>(injectionTreeResult.Error);
+                        return Item.Fail(scopeErrors.Select(x =>
+                        {
+                            return x switch
+                            {
+                                ResolvedBindingError.Error error => new InjectionStageError.ResolveTypeError(error.BindingError, "root"),
+                                ResolvedBindingError.ParameterError parameterError => InjectionStageError._ResolveParameterError(parameterError.Type, parameterError.ParameterName, parameterError.ParameterSources),
+                            };
+                        }).ToImmutableList());
+                    }
+
+                    var injectionTreeBuilder = new InjectionTreeBuilder(bindingResolver, requiredParametersInjectionResolver, scopeResolverResult.Value);
+                    var injectionTreeResult = injectionTreeBuilder.Build(rootBinding, cancellationToken);
+                    if (injectionTreeResult.TryGetError(out var injectionErrors))
+                    {
+                        return Item.Fail(injectionErrors);
                     }
 
                     BooleanHelper.SetIfTrue(ref needsLifecycleHandling, injectionTreeResult.Value.NeedsLifecycleHandling);
                     factoryConstructorParameters.AddRange(injectionTreeResult.Value.FactoryConstructorParameters);
                     return Item.Pass(new FactoryMethodData(
                         rootBinding.Method.Name,
-                        (bindingReturnType, x.Return.TypeMetadata),
+                        (createBindingResult.Value.ReturnType, x.Return.TypeMetadata),
                         (rootBinding.TargetType, x.Target.TypeMetadata),
                         injectionTreeResult.Value.Root));
                 });
 
-                switch (factoryMethodInfoResult)
+                switch (factoryMethodRegistrationsResult)
                 {
                     case All<FactoryMethodRegistration, FactoryMethodData, ImmutableList<InjectionStageError>> all:
+                        var fallbackFactoryMethodData = all.First();
+                        var fallbackFactoryType = new NamedType(fallbackFactoryMethodData.Return.Type.Name, fallbackFactoryMethodData.Target.Type.Namespace, compilationData.AssemblyName);
+                        var (factoryType, factoryInterfaceType) = bindingResolver.CreateFactoryBinding(factoryCreationDefinition, fallbackFactoryType, factoryConstructorParameters, needsLifecycleHandling, compilationData.AssemblyName);
 
-                        var (factoryType, factoryInterfaceType) = bindingResolver.CreateFactoryBinding(factoryCreationDefinition, all.First(), factoryConstructorParameters, needsLifecycleHandling, compilationData.AssemblyName);
+                        var lifecycleInjectionNodeResult = TryCreateLifecycleInjectionNode(
+                            needsLifecycleHandling,
+                            compilationData,
+                            scopeResolverBuilder,
+                            bindingResolver,
+                            requiredParametersInjectionResolver,
+                            cancellationToken);
+                        if (lifecycleInjectionNodeResult.TryGetError(out var diagnostics))
+                        {
+                            factoryDefinitionResults.Add(R.Error(diagnostics.ToValueList()));
+                            break;
+                        }
 
                         var factoryDefinition = new FactoryData(
                             factoryType,
@@ -85,6 +110,7 @@ internal static class FactoryDataProvider
                             factoryCreationDefinition.GenerateInterface,
                             factoryCreationDefinition.Accessibility,
                             needsLifecycleHandling,
+                            lifecycleInjectionNodeResult.Value,
                             all.Items.ToImmutableArray());
 
                         factoryDefinitionResults.Add(R.Success(factoryDefinition));
@@ -111,13 +137,51 @@ internal static class FactoryDataProvider
         }
     }
 
+    private static R<O<InjectionTree>, ImmutableList<Diagnostic>> TryCreateLifecycleInjectionNode(
+        bool needsLifecycleHandling,
+        CompilationData compilationData,
+        ScopeResolverBuilder scopeResolverBuilder,
+        BindingResolver bindingResolver,
+        RequiredParametersInjectionResolver requiredParametersInjectionResolver,
+        CancellationToken cancellationToken)
+    {
+        if (needsLifecycleHandling)
+        {
+            var rootBinding = compilationData.LifecycleHandlerBinding;
+            var scopeResolverResult = scopeResolverBuilder.Build(rootBinding);
+            if (scopeResolverResult.TryGetError(out var bindingErrors))
+            {
+                return R.Error(bindingErrors.Select(x =>
+                {
+                    return x switch
+                    {
+                        ResolvedBindingError.Error error => new InjectionStageError.ResolveTypeError(error.BindingError, "root"),
+                        ResolvedBindingError.ParameterError parameterError => InjectionStageError._ResolveParameterError(parameterError.Type, parameterError.ParameterName, parameterError.ParameterSources),
+                    };
+                }).Select(GetDiagnostic).ToImmutableList());
+            }
+
+            var injectionTreeBuilder = new InjectionTreeBuilder(bindingResolver, requiredParametersInjectionResolver, scopeResolverResult.Value);
+            var injectionTreeResult = injectionTreeBuilder.Build(rootBinding, cancellationToken);
+            if (injectionTreeResult.TryGetError(out var injectionStageErrors))
+            {
+                return R.Error(injectionStageErrors.Select(GetDiagnostic).ToImmutableList());
+            }
+
+            return R.Success(O.Some(injectionTreeResult.Value));
+        }
+
+        return R.Success(O.None.For<InjectionTree>());
+    }
+
     private static Diagnostic GetDiagnostic(InjectionStageError injectionStageErrors)
     {
         return injectionStageErrors switch
         {
-            InjectionStageError.ResolveParameterError resolveRequiredParameterError => Diagnostic.Create(Diagnostics.ResolveRequiredParameterError, Location.None, resolveRequiredParameterError.Type, resolveRequiredParameterError.ParentNode),
-            InjectionStageError.ScopeError scopeError => Diagnostic.Create(Diagnostics.ScopeError, Location.None, scopeError.DefiniteType.FullName, scopeError.Scope, scopeError.ParentNode, scopeError.ParentScope),
-            InjectionStageError.ResolveTypeError resolveTypeError => Diagnostic.Create(Diagnostics.ResolveTypeError, Location.None, resolveTypeError.BindingError, resolveTypeError.ParentNode),
+            InjectionStageError.UnsupportedInstanceMethod unsupportedInstanceMethod => Diagnostic.Create(Diagnostics.UnsupportedInstanceMethodError, Location.None, unsupportedInstanceMethod.Type, unsupportedInstanceMethod.Type, unsupportedInstanceMethod.DependeeNodeName),
+            InjectionStageError.ResolveParameterError resolveRequiredParameterError => Diagnostic.Create(Diagnostics.ResolveRequiredParameterError, Location.None, resolveRequiredParameterError.Type, resolveRequiredParameterError.DependeeNodeName),
+            InjectionStageError.ScopeError scopeError => Diagnostic.Create(Diagnostics.ScopeError, Location.None, scopeError.DefiniteType.FullName, scopeError.Scope, scopeError.DependeeNodeName, scopeError.DependeeScope),
+            InjectionStageError.ResolveTypeError resolveTypeError => Diagnostic.Create(Diagnostics.ResolveTypeError, Location.None, resolveTypeError.BindingError, resolveTypeError.DependeeNodeName),
         };
     }
 }

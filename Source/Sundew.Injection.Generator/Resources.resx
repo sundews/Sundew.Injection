@@ -135,6 +135,15 @@
   <data name="ResolveTypeErrorTitle" xml:space="preserve">
     <value>Could not resolve type</value>
   </data>
+  <data name="UnsupportedInstanceMethodErrorDescription" xml:space="preserve">
+    <value>Occurs when an factory instance method is not supported</value>
+  </data>
+  <data name="UnsupportedInstanceMethodErrorMessageFormat" xml:space="preserve">
+    <value>The instance method: {0} is not supported on the type: {1} for injecting into: {2}</value>
+  </data>
+  <data name="UnsupportedInstanceMethodErrorTitle" xml:space="preserve">
+    <value>Unsupported instance method.</value>
+  </data>
   <data name="ResolveMethodDescription" xml:space="preserve">
     <value>Occurs when failing to resolves a method and its parameters</value>
   </data>

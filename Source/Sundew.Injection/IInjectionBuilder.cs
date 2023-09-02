@@ -252,6 +252,15 @@ namespace Sundew.Injection
             bool isNewOverridable = false)
             where TImplementation : TInterface1, TInterface2, TInterface3, TInterface4;
 
+        void BindFactory<TFactory>(
+            Func<ICreateMethodSelector<TFactory>, ICreateMethods<TFactory>> createMethods);
+
+        void BindFactory<TFactory>(
+            Expression<Func<TFactory, object>> createMethodSelector);
+
+        void BindFactory<TFactory>()
+            where TFactory : IGeneratedFactory;
+
         /// <summary>
         /// Configures interception for a given type.
         /// </summary>

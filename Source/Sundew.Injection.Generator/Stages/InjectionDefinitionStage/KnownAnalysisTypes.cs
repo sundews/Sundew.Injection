@@ -14,8 +14,6 @@ using Sundew.Injection.Generator.TypeSystem;
 
 public sealed class KnownAnalysisTypes : IKnownInjectableTypes
 {
-    private const string SundewInjection = "Sundew.Injection";
-
     public KnownAnalysisTypes(Compilation compilation)
     {
         this.IEnumerableTypeSymbol = compilation.GetTypeByMetadataName(typeof(IEnumerable).FullName) ?? throw new NotSupportedException("IEnumerable was not found");
@@ -27,17 +25,19 @@ public sealed class KnownAnalysisTypes : IKnownInjectableTypes
         this.IAsyncDisposableTypeSymbol = compilation.GetIAsyncDisposableTypeSymbol();
 
         this.InjectionDeclarationType =
-            compilation.TryGetTypeByAssemblyQualifiedMetadataName(typeof(IInjectionDeclaration), SundewInjection) ?? throw new NotSupportedException("IInjectionDeclaration was not found, Sundew.Injection must be referenced");
+            compilation.GetTypeByMetadataName(typeof(IInjectionDeclaration).FullName) ?? throw new NotSupportedException("IInjectionDeclaration was not found, Sundew.Injection must be referenced");
         this.InjectionBuilderType =
-            compilation.TryGetTypeByAssemblyQualifiedMetadataName(typeof(IInjectionBuilder), SundewInjection) ?? throw new NotSupportedException("IInjectionBuilder was not found, Sundew.Injection must be referenced");
+            compilation.GetTypeByMetadataName(typeof(IInjectionBuilder).FullName) ?? throw new NotSupportedException("IInjectionBuilder was not found, Sundew.Injection must be referenced");
 
         this.FactoryMethodSelectorTypeSymbol =
-            compilation.TryGetTypeByAssemblyQualifiedMetadataName(typeof(IFactoryMethodSelector), SundewInjection) ?? throw new NotSupportedException("IFactoryMethodSelector was not found, Sundew.Injection must be referenced");
+            compilation.GetTypeByMetadataName(typeof(IFactoryMethodSelector).FullName) ?? throw new NotSupportedException("IFactoryMethodSelector was not found, Sundew.Injection must be referenced");
 
         this.FuncTypeSymbol = compilation.GetFunc();
+
+        this.ConstructedTypeSymbol = compilation.GetConstructed();
     }
 
-    public INamedTypeSymbol FuncTypeSymbol { get; set; }
+    public INamedTypeSymbol FuncTypeSymbol { get; }
 
     public INamedTypeSymbol IEnumerableTypeSymbol { get; }
 
@@ -54,4 +54,6 @@ public sealed class KnownAnalysisTypes : IKnownInjectableTypes
     public INamedTypeSymbol InjectionBuilderType { get; }
 
     public INamedTypeSymbol FactoryMethodSelectorTypeSymbol { get; }
+
+    public INamedTypeSymbol ConstructedTypeSymbol { get; }
 }

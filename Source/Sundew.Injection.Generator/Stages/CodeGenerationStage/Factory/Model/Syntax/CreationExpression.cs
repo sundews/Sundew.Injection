@@ -7,15 +7,24 @@
 
 namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.Syntax;
 
-using System;
 using System.Collections.Generic;
-using CreationSource = Sundew.Injection.Generator.Stages.FactoryDataStage.CreationSource;
+using Sundew.Base.Collections.Immutable;
+using Sundew.Injection.Generator.TypeSystem;
 
-internal sealed record CreationExpression
-    (CreationSource CreationSource, IReadOnlyList<Expression> Arguments) : InvocationExpressionBase(Arguments)
+[DiscriminatedUnions.DiscriminatedUnion]
+internal abstract partial record CreationExpression(IReadOnlyList<Expression> Arguments) : InvocationExpressionBase(Arguments)
 {
-    public CreationExpression(CreationSource creationSource)
-        : this(creationSource, Array.Empty<Expression>())
-    {
-    }
+    public sealed record Array
+        (DefiniteType ElementType, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
+
+    public sealed record ConstructorCall
+        (DefiniteType Type, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
+
+    public sealed record StaticMethodCall
+        (DefiniteType Type, string Name, ValueArray<DefiniteTypeArgument> TypeArguments, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
+
+    public sealed record InstanceMethodCall
+        (Expression FactoryAccessExpression, string Name, ValueArray<DefiniteTypeArgument> TypeArguments, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
+
+    public sealed record DefaultValue(DefiniteType Type) : CreationExpression(System.Array.Empty<Expression>());
 }

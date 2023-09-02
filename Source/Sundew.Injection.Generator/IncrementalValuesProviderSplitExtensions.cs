@@ -14,9 +14,9 @@ internal static class IncrementalValuesProviderSplitExtensions
 {
     public static (IncrementalValuesProvider<TSuccess> SuccessProvider, IncrementalValuesProvider<TError> ErrorProvider) SegregateByResult<TSuccess, TError>(this IncrementalValuesProvider<R<TSuccess, TError>> resultProvider)
     {
-        var injectionDefinitionsProvider = resultProvider.Where(x => x.IsSuccess).Select((x, c) => x.Value);
+        var injectionDefinitionsProvider = resultProvider.Where(x => x.IsSuccess).Select((x, c) => x.Value!);
 
-        var injectionDefinitionErrorsProvider = resultProvider.Where(x => !x.IsSuccess).Select((x, c) => x.Error);
+        var injectionDefinitionErrorsProvider = resultProvider.Where(x => !x.IsSuccess).Select((x, c) => x.Error!);
 
         return (injectionDefinitionsProvider, injectionDefinitionErrorsProvider);
     }

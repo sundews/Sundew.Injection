@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Collections.Immutable;
+    using AllFeaturesSuccess.ChildFactory;
     using AllFeaturesSuccess.ConstructorSelection;
     using AllFeaturesSuccess.InterfaceImplementationBindings;
     using AllFeaturesSuccess.InterfaceSegregationBindings;
@@ -13,6 +14,7 @@
     using AllFeaturesSuccess.RequiredInterface;
     using AllFeaturesSuccess.SingleInstancePerFactory;
     using AllFeaturesSuccess.SingleInstancePerRequest;
+    using AllFeaturesSuccessDependency;
     using Sundew.Injection;
     using Sundew.Injection.Interception;
 
@@ -29,6 +31,7 @@
 
             injectionBuilder.BindGeneric<IEnumerable<object>, ImmutableList<object>>(Scope.Auto, () => CreateList<object>(default!));
 
+            injectionBuilder.Bind<IInitializationParameters, IDisposalParameters, ILifecycleParameters, LifecycleParameters>(isInjectable: true);
             injectionBuilder.Bind<IInjectableByInterface, InjectableByInterface>(isInjectable: true);
             injectionBuilder.Bind<IMultipleImplementation, MultipleImplementationA>();
             injectionBuilder.Bind<IMultipleImplementation, MultipleImplementationB>();
@@ -46,6 +49,10 @@
             injectionBuilder.AddInterceptor<IInterceptor>();
             injectionBuilder.Intercept<Intercepted>(Methods.Exclude, x => x.Title, x => x.Description, x => x.Link);
             injectionBuilder.Intercept<InjectableByInterface>();
+
+            injectionBuilder.CreateFactory<ConstructedChild>();
+
+            injectionBuilder.BindFactory<DependencyFactory>();
 
             injectionBuilder.CreateFactory(
                 factories => factories

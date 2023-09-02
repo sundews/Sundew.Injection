@@ -45,27 +45,29 @@ internal class BindingFactory
         var resolveTypeResult = this.typeResolver.ResolveType(bindingRegistration.TargetType);
         if (!resolveTypeResult.IsSuccess)
         {
-            return ResolvedBinding.Error(
+            return ResolvedBinding._Error(
                 new BindingError.FailedResolveError(resolveTypeResult.Error));
         }
 
         var createMethodResult = this.methodFactory.CreateMethod(bindingRegistration.Method);
         if (!createMethodResult.IsSuccess)
         {
-            return ResolvedBinding.Error(createMethodResult.Error);
+            return ResolvedBinding._Error(createMethodResult.Error);
         }
 
         var commonTypeResult = this.typeResolver.ResolveType(bindingRegistration.TargetReferencingType);
         if (!commonTypeResult.IsSuccess)
         {
-            return ResolvedBinding.Error(new BindingError.FailedResolveError(commonTypeResult.Error));
+            return ResolvedBinding._Error(new BindingError.FailedResolveError(commonTypeResult.Error));
         }
 
         var resolvedTargetType = resolveTypeResult.Value;
         var newBinding = new Binding(resolvedTargetType, commonTypeResult.Value, bindingRegistration.Scope, createMethodResult.Value, bindingRegistration.HasLifecycle, bindingRegistration.IsInjectable, bindingRegistration.IsNewOverridable);
         var newResolvedBinding = ResolvedBinding.SingleParameter(newBinding);
-        this.bindingsTypeRegistrar.Register(resolvedTargetType, returnType, new[] { newBinding });
-        this.resolvedBindingTypeRegistrar.Register(resolvedTargetType, returnType, newResolvedBinding);
+        var returnTypeId = returnType?.Id;
+        var resolvedTargetTypeId = resolvedTargetType.Id;
+        this.bindingsTypeRegistrar.Register(resolvedTargetTypeId, returnTypeId, new[] { newBinding });
+        this.resolvedBindingTypeRegistrar.Register(resolvedTargetTypeId, returnTypeId, newResolvedBinding);
         return newResolvedBinding;
     }
 
@@ -74,7 +76,7 @@ internal class BindingFactory
         var methodResult = this.methodFactory.CreateMethod(targetType, genericBindingRegistration.TargetType, genericBindingRegistration.Method);
         if (!methodResult.IsSuccess)
         {
-            return ResolvedBinding.Error(methodResult.Error);
+            return ResolvedBinding._Error(methodResult.Error);
         }
 
         var newBinding = new Binding(
@@ -86,7 +88,7 @@ internal class BindingFactory
             false,
             genericBindingRegistration.IsNewOverridable);
         var resolvedBinding = ResolvedBinding.SingleParameter(newBinding);
-        this.resolvedBindingTypeRegistrar.Register(targetType, interfaceType, resolvedBinding);
+        this.resolvedBindingTypeRegistrar.Register(targetType.Id, interfaceType.Id, resolvedBinding);
         return resolvedBinding;
     }
 
@@ -112,13 +114,13 @@ internal class BindingFactory
 
         if (createBindingsResult is All<BindingRegistration, Binding, BindingError> all)
         {
-            this.bindingsTypeRegistrar.Register(requestedArrayCompatibleType, null, all.Items);
+            this.bindingsTypeRegistrar.Register(requestedArrayCompatibleType.Id, null, all.Items);
             return this.CreateArrayParameter(requestedArrayCompatibleType, elementType, all.Items);
         }
 
         var failedItems = (Failed<BindingRegistration, Binding, BindingError>)createBindingsResult;
         {
-            return ResolvedBinding.Error(new BindingError.ResolveArrayElementsError(failedItems.Items.Select(x => x.Error).ToArray()));
+            return ResolvedBinding._Error(new BindingError.ResolveArrayElementsError(failedItems.Items.Select(x => x.Error).ToArray()));
         }
     }
 
@@ -126,22 +128,24 @@ internal class BindingFactory
     {
         var definiteArrayType = new DefiniteArrayType(definiteElementType);
         var arrayParameter = ResolvedBinding.ArrayParameter(definiteArrayType, bindings);
-        this.resolvedBindingTypeRegistrar.Register(definiteArrayType, requestedArrayCompatibleType, arrayParameter);
+        this.resolvedBindingTypeRegistrar.Register(definiteArrayType.Id, requestedArrayCompatibleType.Id, arrayParameter);
         return arrayParameter;
     }
 
     public ResolvedBinding CreateFactoryBinding(
         NamedType factoryType,
         NamedType? factoryInterfaceType,
-        ImmutableList<FactoryConstructorParameterInjectionNode>.Builder factoryConstructorParameters,
+        ImmutableList<FactoryConstructorParameter>.Builder factoryConstructorParameters,
         bool hasLifetime)
     {
-        var constructorMethod = new DefiniteMethod(factoryConstructorParameters.Distinct().Select(x => new DefiniteParameter(x.Type, x.Name, x.TypeMetadata)).ToImmutableArray(), factoryType.Name, factoryType, ImmutableArray<DefiniteTypeArgument>.Empty, true);
+        var constructorMethod = new DefiniteMethod(factoryType, factoryType.Name, factoryConstructorParameters.Distinct().Select(x => new DefiniteParameter(x.Type, x.Name, x.TypeMetadata, ParameterNecessity._Required)).ToImmutableArray(), ImmutableArray<DefiniteTypeArgument>.Empty, MethodKind._Constructor);
         var binding = new Binding(factoryType, factoryType, Scope.Auto, constructorMethod, hasLifetime, false, false);
         var bindings = new[] { binding };
-        this.bindingsTypeRegistrar.Register(factoryType, factoryInterfaceType, bindings);
+        var factoryInterfaceTypeId = factoryInterfaceType?.Id;
+        var factoryTypeId = factoryType.Id;
+        this.bindingsTypeRegistrar.Register(factoryTypeId, factoryInterfaceTypeId, bindings);
         var resolvedBinding = ResolvedBinding.SingleParameter(binding);
-        this.resolvedBindingTypeRegistrar.Register(factoryType, factoryInterfaceType, resolvedBinding);
+        this.resolvedBindingTypeRegistrar.Register(factoryTypeId, factoryInterfaceTypeId, resolvedBinding);
         this.nameTypeRegistrar.Register(factoryType.Name, factoryType);
         if (factoryInterfaceType != null)
         {

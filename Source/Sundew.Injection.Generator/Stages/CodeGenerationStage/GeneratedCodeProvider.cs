@@ -31,7 +31,7 @@ internal static class GeneratedCodeProvider
         try
         {
             var knownSyntax = new KnownSyntax(compilationData);
-            var factoryDeclarations = new FactorySyntaxGenerator(compilationData, knownSyntax, cancellationToken).Generate(factoryData);
+            var factoryDeclarations = new FactorySyntaxGenerator(compilationData, knownSyntax, factoryData, cancellationToken).Generate();
 
             var options = new Options(compilationData.AreNullableAnnotationsSupported);
             var classText = FactoryImplementationSourceCodeEmitter.GetFileContent(Sundew.Injection.Accessibility.Public, factoryDeclarations.ClassNamespaceDeclaration, options);

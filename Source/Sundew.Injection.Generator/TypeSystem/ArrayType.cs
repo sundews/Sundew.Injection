@@ -7,4 +7,7 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-public sealed record ArrayType(Type ElementType) : Type(ElementType.Name);
+internal sealed record ArrayType(Type ElementType) : Type(ElementType.Name)
+{
+    public override TypeId Id => new TypeId($"{this.ElementType.Id}[]");
+}

@@ -17,7 +17,7 @@ using global::Disposal.Interfaces;
 /// <summary>
 /// Abstract base class for wrapping <see cref="IDisposable"/>.
 /// </summary>
-public abstract class Disposer : IEquatable<Disposer>
+internal abstract class Disposer : IEquatable<Disposer>
 {
     /// <summary>
     /// Checks this instance for equality against the other.

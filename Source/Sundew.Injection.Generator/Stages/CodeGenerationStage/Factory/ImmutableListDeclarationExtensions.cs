@@ -56,15 +56,14 @@ internal static class ImmutableListDeclarationExtensions
     }
 
     public static (ImmutableList<TDeclaration> Declarations, bool WasAdded, TDeclaration Declaration)
-        GetOrAddUnique<TDeclaration>(
+        GetOrAdd<TDeclaration>(
             this ImmutableList<TDeclaration> declarations,
             string name,
             Type type,
-            Func<string, int, string> proposeNameFunc,
             Func<string, TDeclaration> createDeclarationFunc)
     where TDeclaration : struct, IDeclaration
     {
-        return declarations.PrivateEnsureDeclaration(name, type, 1, false, proposeNameFunc, createDeclarationFunc);
+        return declarations.PrivateEnsureDeclaration(name, type, 1, false, (s, _) => s, createDeclarationFunc);
     }
 
     private static (ImmutableList<TDeclaration> Declarations, bool WasAdded, TDeclaration Declaration)

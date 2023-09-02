@@ -11,7 +11,7 @@ using System;
 using Sundew.Base.Equality;
 using Sundew.Injection.Generator.TypeSystem;
 
-public class Parameter : IEquatable<Parameter>
+internal class Parameter : IEquatable<Parameter>
 {
     public Parameter(DefiniteType type, string name, bool mustNameMatchForEquality)
     {
