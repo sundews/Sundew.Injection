@@ -46,11 +46,9 @@ internal sealed class TypeResolver
                 : Item.Fail<DefiniteTypeArgument, FailedResolve>(result.Error);
         });
 
-        return result switch
-        {
-            All<TypeArgument, DefiniteTypeArgument, FailedResolve> all => R.Success<DefiniteType>(new DefiniteBoundGenericType(boundGenericType.Name, boundGenericType.Namespace, boundGenericType.AssemblyName, boundGenericType.TypeParameters, all.Items)),
-            Failed<TypeArgument, DefiniteTypeArgument, FailedResolve> failed => R.Error(new FailedResolve(boundGenericType, failed.Items.Select(x => x.Error).ToImmutableArray())),
-        };
+        return result.With(
+            all => DefiniteType.DefiniteBoundGenericType(boundGenericType.Name, boundGenericType.Namespace, boundGenericType.AssemblyName, boundGenericType.TypeParameters, all.Items),
+            failed => new FailedResolve(boundGenericType, failed.Items.Select(x => x.Error).ToImmutableArray()));
     }
 
     private R<DefiniteType, FailedResolve> ResolveArrayType(ArrayType arrayType)

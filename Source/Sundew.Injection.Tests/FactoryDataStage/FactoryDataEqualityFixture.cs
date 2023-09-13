@@ -31,7 +31,7 @@ public class FactoryDataEqualityFixture
             throw new AssertionFailedException($"InjectionDefinition should have been successful, but failed with errors: {injectionDefinition.Error.JoinToString((builder, item) => builder.Append(item), ", ")}");
         }
 
-        var compilationData = CompilationDataProvider.GetCompilationData(compilation);
+        var compilationData = CompilationDataProvider.GetCompilationData(compilation, CancellationToken.None).Value!;
 
         var lhs= FactoryDataProvider.GetFactoryData(injectionDefinition.Value, compilationData, CancellationToken.None);
         var rhs = FactoryDataProvider.GetFactoryData(injectionDefinition.Value, compilationData, CancellationToken.None);

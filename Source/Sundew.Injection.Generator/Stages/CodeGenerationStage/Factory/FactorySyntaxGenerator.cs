@@ -18,6 +18,7 @@ using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Templates;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Syntax;
 using Sundew.Injection.Generator.Stages.CompilationDataStage;
 using Sundew.Injection.Generator.Stages.FactoryDataStage;
+using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 using Sundew.Injection.Generator.TypeSystem;
 using InjectionNode = Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes.InjectionNode;
 using MethodImplementation = Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.MethodImplementation;
@@ -123,7 +124,7 @@ internal class FactorySyntaxGenerator
             injectionNode,
             in factoryImplementation,
             new MethodImplementation());
-
+        /*var t = Newtonsoft.Json.JsonConvert.SerializeObject(factoryNode, new Newtonsoft.Json.JsonSerializerSettings { DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.IgnoreAndPopulate });*/
         var targetTypeParameterName = NameHelper.GetIdentifierNameForType(factoryMethodData.Target.Type);
 
         var fields = factoryNode.FactoryImplementation.Fields;
@@ -144,7 +145,7 @@ internal class FactorySyntaxGenerator
         {
             factoryMethodStatements = factoryMethodStatements.Insert(0, this.knownSyntax.SharedLifecycleHandler.CreateChildLifecycleHandlerAndAssignVarStatement);
 
-            var constructedValueVariableName = injectionNode.Name.Uncapitalize() + Result;
+            var constructedValueVariableName = injectionNode.GetInjectionNodeName().Uncapitalize() + Result;
             var constructedValueIdentifier = new Identifier(constructedValueVariableName);
             factoryMethodStatements = factoryMethodStatements.Add(
                     new LocalDeclarationStatement(

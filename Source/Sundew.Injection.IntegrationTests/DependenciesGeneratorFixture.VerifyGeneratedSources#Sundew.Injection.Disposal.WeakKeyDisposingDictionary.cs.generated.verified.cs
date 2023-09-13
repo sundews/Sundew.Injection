@@ -1,4 +1,4 @@
-﻿//HintName: Sundew.Injection.Disposal.WeakKeyDisposingDictionary.cs
+﻿//HintName: Sundew.Injection.Disposal.WeakKeyDisposingDictionary.cs.generated.cs
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="WeakKeyDisposingDictionary.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.

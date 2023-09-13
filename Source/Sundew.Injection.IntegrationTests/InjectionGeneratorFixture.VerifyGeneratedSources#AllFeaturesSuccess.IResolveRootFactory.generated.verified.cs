@@ -1,7 +1,8 @@
-﻿//HintName: IResolveRootFactory.cs
+﻿//HintName: AllFeaturesSuccess.IResolveRootFactory.generated.cs
+#nullable enable
 namespace AllFeaturesSuccess
 {
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Sundew.Injection.Generator", "0.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Sundew.Injection.Generator", "0.1.0.0")]
     [global::Sundew.Injection.Factory]
     public interface IResolveRootFactory : global::System.IDisposable, global::System.IAsyncDisposable, global::Sundew.Injection.IGeneratedFactory
     {

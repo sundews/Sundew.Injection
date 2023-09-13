@@ -7,28 +7,24 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticModelAnalysis;
 
-using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Sundew.Base.Primitives;
+using Sundew.Base.Collections;
+using Sundew.Injection.Generator.Extensions;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal class BindGenericVisitor : CSharpSyntaxWalker
 {
-    private readonly SemanticModel semanticModel;
-    private readonly TypeFactory typeFactory;
-    private readonly CompiletimeInjectionDefinitionBuilder compiletimeInjectionDefinitionBuilder;
     private readonly IMethodSymbol methodSymbol;
+    private readonly AnalysisContext analysisContext;
 
-    public BindGenericVisitor(SemanticModel semanticModel, TypeFactory typeFactory, CompiletimeInjectionDefinitionBuilder compiletimeInjectionDefinitionBuilder, IMethodSymbol methodSymbol)
+    public BindGenericVisitor(IMethodSymbol methodSymbol, AnalysisContext analysisContext)
     {
-        this.semanticModel = semanticModel;
-        this.typeFactory = typeFactory;
-        this.compiletimeInjectionDefinitionBuilder = compiletimeInjectionDefinitionBuilder;
         this.methodSymbol = methodSymbol;
+        this.analysisContext = analysisContext;
     }
 
     public override void VisitArgumentList(ArgumentListSyntax node)
@@ -69,43 +65,57 @@ internal class BindGenericVisitor : CSharpSyntaxWalker
             }
         }
 
-        var interfaces = typeArguments.Take(typeArguments.Length - 1).Select(x =>
+        var interfaces = typeArguments.Take(typeArguments.Length - 1).AllOrFailed(x =>
         {
-            if (x is INamedTypeSymbol namedTypeSymbol)
+            if (x is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.IsGenericType)
             {
-                return this.typeFactory.GetUnboundGenericType(namedTypeSymbol.ConstructedFrom);
+                return Item.Pass(this.analysisContext.TypeFactory.GetUnboundGenericType(namedTypeSymbol.ConstructedFrom));
             }
 
-            throw new NotSupportedException("Must be generic");
-        }).ToImmutableArray();
+            return Item.Fail<(UnboundGenericType Type, TypeMetadata TypeMetadata), Diagnostic>(Diagnostic.Create(Diagnostics.OnlyGenericTypeSupportedError, default, x.ToDisplayString()));
+        });
+
+        var actualInterfaces = interfaces.Evaluate(out var all, out var failed)
+            ? all.Items.ToImmutableArray()
+            : failed.Items.Do(
+                errors => errors.ForEach(x => this.analysisContext.CompiletimeInjectionDefinitionBuilder.ReportDiagnostic(x.Error)),
+                ImmutableArray<(UnboundGenericType Type, TypeMetadata TypeMetadata)>.Empty);
 
         var last = typeArguments.Last();
-        if (last is not INamedTypeSymbol lastNamedTypeSymbol)
+        if (last is not INamedTypeSymbol lastNamedTypeSymbol || !lastNamedTypeSymbol.IsGenericType)
         {
-            throw new NotSupportedException("Must be generic");
+            this.analysisContext.CompiletimeInjectionDefinitionBuilder.ReportDiagnostic(Diagnostic.Create(Diagnostics.OnlyGenericTypeSupportedError, default, last.ToDisplayString()));
+            return;
         }
 
-        var implementation = this.typeFactory.GetGenericType(lastNamedTypeSymbol);
+        var implementation = this.analysisContext.TypeFactory.GetGenericType(lastNamedTypeSymbol);
         GenericMethod actualMethod = method.GetValueOrDefault();
         if (actualMethod == default)
         {
-            actualMethod = lastNamedTypeSymbol.IsInstantiable() ? this.typeFactory.GetGenericMethod(lastNamedTypeSymbol.Constructors.GetMethodWithMostParameters()) : default;
+            if (!lastNamedTypeSymbol.IsInstantiable())
+            {
+                this.analysisContext.CompiletimeInjectionDefinitionBuilder.ReportDiagnostic(Diagnostic.Create(Diagnostics.TypeNotInstantiableError, default, last.ToDisplayString()));
+                return;
+            }
+
+            actualMethod = this.analysisContext.TypeFactory.GetGenericMethod(lastNamedTypeSymbol.Constructors.GetMethodWithMostParameters());
             if (actualMethod == default)
             {
-                // Diagnostic no constructor to bind to!
+                this.analysisContext.CompiletimeInjectionDefinitionBuilder.ReportDiagnostic(Diagnostic.Create(Diagnostics.NoViableConstructorFoundError, default, last.ToDisplayString()));
+                return;
             }
         }
 
-        this.compiletimeInjectionDefinitionBuilder.BindGeneric(interfaces, implementation, scope ?? Scope.Auto, actualMethod);
+        this.analysisContext.CompiletimeInjectionDefinitionBuilder.BindGeneric(actualInterfaces, implementation, scope ?? Scope.Auto, actualMethod);
     }
 
     private Scope GetScope(ArgumentSyntax argumentSyntax)
     {
-        return ExpressionAnalysisHelper.GetScope(this.semanticModel, argumentSyntax, this.typeFactory);
+        return ExpressionAnalysisHelper.GetScope(this.analysisContext.SemanticModel, argumentSyntax, this.analysisContext.TypeFactory);
     }
 
     private GenericMethod? GetGenericMethod(ArgumentSyntax argumentSyntax)
     {
-        return ExpressionAnalysisHelper.GetGenericMethod(argumentSyntax, this.semanticModel, this.typeFactory);
+        return ExpressionAnalysisHelper.GetGenericMethod(argumentSyntax, this.analysisContext.SemanticModel, this.analysisContext.TypeFactory);
     }
 }

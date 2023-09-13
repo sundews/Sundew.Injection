@@ -15,17 +15,15 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal class AddFactoryMethodVisitor : CSharpSyntaxWalker
 {
-    private readonly SemanticModel semanticModel;
-    private readonly TypeFactory typeFactory;
     private readonly FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder;
     private readonly IMethodSymbol methodSymbol;
+    private readonly AnalysisContext analysisContext;
 
-    public AddFactoryMethodVisitor(SemanticModel semanticModel, TypeFactory typeFactory, FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder, IMethodSymbol methodSymbol)
+    public AddFactoryMethodVisitor(IMethodSymbol methodSymbol, FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder, AnalysisContext analysisContext)
     {
-        this.semanticModel = semanticModel;
-        this.typeFactory = typeFactory;
-        this.factoryMethodRegistrationBuilder = factoryMethodRegistrationBuilder;
         this.methodSymbol = methodSymbol;
+        this.factoryMethodRegistrationBuilder = factoryMethodRegistrationBuilder;
+        this.analysisContext = analysisContext;
     }
 
     public override void VisitInvocationExpression(InvocationExpressionSyntax node)
@@ -56,13 +54,13 @@ internal class AddFactoryMethodVisitor : CSharpSyntaxWalker
                         constructorSelector = this.GetMethod(argumentSyntax);
                         break;
                     case nameof(createMethodName):
-                        createMethodName = (string?)this.semanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
+                        createMethodName = (string?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
                         break;
                     case nameof(accessibility):
-                        accessibility = this.semanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value.ToEnumOrDefault(Injection.Accessibility.Public);
+                        accessibility = this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value.ToEnumOrDefault(Injection.Accessibility.Public);
                         break;
                     case nameof(isNewOverridable):
-                        isNewOverridable = (bool?)this.semanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value ?? true;
+                        isNewOverridable = (bool?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value ?? true;
                         break;
                 }
             }
@@ -74,13 +72,13 @@ internal class AddFactoryMethodVisitor : CSharpSyntaxWalker
                         constructorSelector = this.GetMethod(argumentSyntax);
                         break;
                     case 1:
-                        createMethodName = (string?)this.semanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
+                        createMethodName = (string?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
                         break;
                     case 2:
-                        accessibility = this.semanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value.ToEnumOrDefault(Injection.Accessibility.Public);
+                        accessibility = this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value.ToEnumOrDefault(Injection.Accessibility.Public);
                         break;
                     case 3:
-                        isNewOverridable = (bool?)this.semanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value ?? true;
+                        isNewOverridable = (bool?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value ?? true;
                         break;
                 }
 
@@ -93,6 +91,6 @@ internal class AddFactoryMethodVisitor : CSharpSyntaxWalker
 
     private Method? GetMethod(ArgumentSyntax argumentSyntax)
     {
-        return ExpressionAnalysisHelper.GetMethod(argumentSyntax, this.semanticModel, this.typeFactory);
+        return ExpressionAnalysisHelper.GetMethod(argumentSyntax, this.analysisContext.SemanticModel, this.analysisContext.TypeFactory);
     }
 }

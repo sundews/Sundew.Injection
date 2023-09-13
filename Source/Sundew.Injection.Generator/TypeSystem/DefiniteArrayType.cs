@@ -12,5 +12,5 @@ internal sealed record DefiniteArrayType(DefiniteType ElementType)
 {
     public override string FullName => $"{this.Namespace}.{this.Name}";
 
-    public override TypeId Id => new TypeId($"{this.ElementType.Id}[]");
+    public override TypeId Id => new($"{this.ElementType.Id}[]");
 }

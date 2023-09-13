@@ -22,9 +22,10 @@ internal static class NameHelper
     /// </summary>
     /// <param name="injectionNode">The injection node.</param>
     /// <returns>The name string.</returns>
-    public static string GetDependeeScopedName(IInjectionNode injectionNode)
+    public static string GetDependeeScopedName(NewInstanceInjectionNode injectionNode)
     {
-        return GetDependeeScopedName(injectionNode.Name, injectionNode.DependeeName);
+        var name = injectionNode.TargetType.GetDefiniteTypeName();
+        return GetDependeeScopedName(name, injectionNode.DependeeName);
     }
 
     /// <summary>

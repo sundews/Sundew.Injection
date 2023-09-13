@@ -1,4 +1,4 @@
-﻿//HintName: Sundew.Injection.Initialization.InitializingList.cs
+﻿//HintName: Sundew.Injection.Initialization.InitializingList.cs.generated.cs
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="InitializingList.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.

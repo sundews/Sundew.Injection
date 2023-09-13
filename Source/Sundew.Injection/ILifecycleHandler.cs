@@ -5,14 +5,17 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Injection;
+#nullable enable
 
-using System;
-using global::Initialization.Interfaces;
-
-/// <summary>
-/// Interface for handling the lifecycle of an object created by a factory.
-/// </summary>
-public interface ILifecycleHandler : IInitializable, IAsyncInitializable, IDisposable, IAsyncDisposable
+namespace Sundew.Injection
 {
+    using System;
+    using global::Initialization.Interfaces;
+
+    /// <summary>
+    /// Interface for handling the lifecycle of an object created by a factory.
+    /// </summary>
+    public interface ILifecycleHandler : IInitializable, IAsyncInitializable, IDisposable, IAsyncDisposable
+    {
+    }
 }

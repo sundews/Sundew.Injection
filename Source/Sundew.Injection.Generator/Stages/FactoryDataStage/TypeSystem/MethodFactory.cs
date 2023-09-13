@@ -85,11 +85,9 @@ internal sealed class MethodFactory
                 };
             });
 
-        return methodParameters switch
-        {
-            All<GenericParameter, DefiniteParameter, Symbol> all => R.Success(CreateMethod(genericMethod, all.Items.ToImmutableArray(), definiteBoundGenericType)),
-            Failed<GenericParameter, DefiniteParameter, Symbol> failed => R.Error(new CreateGenericMethodError(failed.Items.Select(x => (x.Item, x.Error)).ToImmutableArray())),
-        };
+        return methodParameters.With(
+            all => CreateMethod(genericMethod, all.Items.ToImmutableArray(), definiteBoundGenericType),
+            failed => new CreateGenericMethodError(failed.Items.Select(x => (x.Item, x.Error)).ToImmutableArray()));
     }
 
     public R<DefiniteMethod, CreateMethodError> CreateMethod(Method method, string? overrideMethodName = null)
@@ -105,11 +103,9 @@ internal sealed class MethodFactory
                     : Item.Fail();
             });
 
-            return allOrFailed switch
-            {
-                All<Parameter, DefiniteParameter> all => R.Success(new DefiniteMethod(result.Value, overrideMethodName.IsNullOrEmpty() ? method.Name : overrideMethodName, all.Items.ToImmutableArray(), ImmutableArray<DefiniteTypeArgument>.Empty, method.Kind)),
-                Failed<Parameter, DefiniteParameter> failedItems => R.Error(new CreateMethodError(default, failedItems.Items.Select(x => x.Item).ToImmutableArray())),
-            };
+            return allOrFailed.With(
+                all => new DefiniteMethod(result.Value, overrideMethodName.IsNullOrEmpty() ? method.Name : overrideMethodName, all.Items.ToImmutableArray(), ImmutableArray<DefiniteTypeArgument>.Empty, method.Kind),
+                failedItems => new CreateMethodError(default, failedItems.Items.Select(x => x.Item).ToImmutableArray()));
         }
 
         return R.Error(new CreateMethodError(method.ContainingType, default));

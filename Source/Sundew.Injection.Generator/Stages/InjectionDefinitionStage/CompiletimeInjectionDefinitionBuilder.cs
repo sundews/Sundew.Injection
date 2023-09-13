@@ -10,8 +10,11 @@ namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.CodeAnalysis;
 using Sundew.Base.Collections.Immutable;
+using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.TypeSystem;
+using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
 
 internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefinitionBuilder
 {
@@ -22,6 +25,8 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
     private readonly Dictionary<TypeId, List<ParameterSource>> requiredParameters = new();
 
     private readonly List<FactoryCreationDefinition> factoryDefinitions = new();
+
+    private readonly List<Diagnostic> diagnostics = new();
 
     public CompiletimeInjectionDefinitionBuilder(string defaultNamespace)
     {
@@ -89,7 +94,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
             bindingList.Add(genericBinding);
         }
 
-        var genericBinding = new GenericBindingRegistration(implementation.Type, scope, genericMethod, Accessibility.Internal, implementation.TypeMetadata.HasLifetime, false);
+        var genericBinding = new GenericBindingRegistration(implementation.Type, scope, genericMethod, Injection.Accessibility.Internal, implementation.TypeMetadata.HasLifetime, false);
         AddBinding(implementation.Type.ToUnboundGenericType(), genericBinding);
         foreach (var @interface in interfaces)
         {
@@ -107,15 +112,25 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         this.factoryDefinitions.Add(new FactoryCreationDefinition(factoryClassNamespace ?? this.DefaultNamespace, factoryClassName, generateInterface, factoryMethodRegistrationBuilder.Build(), accessibility));
     }
 
-    public InjectionDefinition Build()
+    public void ReportDiagnostic(Diagnostic diagnostic)
     {
-        return new InjectionDefinition(
+        this.diagnostics.Add(diagnostic);
+    }
+
+    public R<InjectionDefinition, ValueList<Diagnostic>> Build()
+    {
+        if (this.diagnostics.Any())
+        {
+            return R.Error((ValueList<Diagnostic>)this.diagnostics.ToImmutableList());
+        }
+
+        return R.Success(new InjectionDefinition(
             this.DefaultNamespace,
             this.RequiredParameterInjection,
             this.factoryDefinitions.ToImmutableArray(),
             this.bindingRegistrations.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray().ToValueArray()),
             this.genericBindingRegistrations.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray().ToValueArray()),
-            this.requiredParameters.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray().ToValueArray()));
+            this.requiredParameters.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray().ToValueArray())));
     }
 
     private void AddParameterSource(Type parameterType, ParameterSource parameterSource)

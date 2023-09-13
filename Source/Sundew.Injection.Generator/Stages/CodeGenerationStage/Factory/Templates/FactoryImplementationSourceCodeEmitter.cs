@@ -19,7 +19,14 @@ internal static class FactoryImplementationSourceCodeEmitter
     public static string GetFileContent(Accessibility accessibility, ClassDeclaration classDeclaration, Options options)
     {
         var indentation = 4;
-        var stringBuilder = new StringBuilder()
+        var stringBuilder = new StringBuilder();
+        if (options.AreNullableAnnotationsSupported)
+        {
+            stringBuilder.Append(SourceCodeEmitterExtensions.NullableEnable)
+                .AppendLine();
+        }
+
+        stringBuilder
             .Append(Trivia.Namespace)
             .Append(' ')
             .Append(classDeclaration.Type.Namespace)
@@ -27,6 +34,11 @@ internal static class FactoryImplementationSourceCodeEmitter
             .Append('{')
             .AppendLine()
             .AppendTypeAttributes(classDeclaration.AttributeDeclarations, indentation)
+            .Append(' ', indentation)
+            .Append('[')
+            .Append(SourceCodeEmitterExtensions.ExcludeFromCodeCoverage)
+            .Append(']')
+            .AppendLine()
             .Append(' ', indentation)
             .Append(accessibility.ToString().ToLowerInvariant())
             .Append(' ');
@@ -101,11 +113,6 @@ internal static class FactoryImplementationSourceCodeEmitter
     private static void AppendMethodImplementation(this StringBuilder stringBuilder, Member.MethodImplementation methodImplementation, Options options, int indentation)
     {
         stringBuilder.AppendAttributes(methodImplementation.MethodDeclaration.Attributes, indentation)
-            .Append(' ', indentation)
-            .Append('[')
-            .Append(SourceCodeEmitterExtensions.ExcludeFromCodeCoverage)
-            .Append(']')
-            .AppendLine()
             .Append(' ', indentation)
             .AppendAccessibility(methodImplementation.MethodDeclaration.Accessibility);
         if (methodImplementation.MethodDeclaration.IsAsync)

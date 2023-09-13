@@ -18,5 +18,5 @@ internal sealed record BoundGenericType(
         ValueArray<TypeArgument> TypeArguments)
     : Type(Name)
 {
-    public override TypeId Id => new TypeId($"{this.AssemblyName}::{this.Namespace}.{this.Name}<{this.TypeArguments.JoinToString((builder, x) => builder.Append(x.Type.Id.Id), ", ")}>");
+    public override TypeId Id => new($"{this.AssemblyName}::{this.Namespace}.{this.Name}<{this.TypeArguments.JoinToString((builder, x) => builder.Append(x.Type.Id.Id), ", ")}>");
 }

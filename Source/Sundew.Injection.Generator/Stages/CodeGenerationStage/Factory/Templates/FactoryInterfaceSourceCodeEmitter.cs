@@ -18,7 +18,14 @@ internal static class FactoryInterfaceSourceCodeEmitter
     public static string GetFileContent(Accessibility accessibility, InterfaceDeclaration interfaceDeclaration, Options options)
     {
         var indentation = 4;
-        var stringBuilder = new StringBuilder()
+        var stringBuilder = new StringBuilder();
+        if (options.AreNullableAnnotationsSupported)
+        {
+            stringBuilder.Append(SourceCodeEmitterExtensions.NullableEnable)
+                .AppendLine();
+        }
+
+        stringBuilder
             .Append(Trivia.Namespace)
             .Append(' ')
             .Append(interfaceDeclaration.Type.Namespace)

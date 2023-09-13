@@ -5,42 +5,37 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Injection;
+#nullable enable
 
-using Disposal.Interfaces;
-using Initialization.Interfaces;
-
-public sealed class LifecycleParameters : ILifecycleParameters
+namespace Sundew.Injection
 {
-    public LifecycleParameters(
-        bool initializeConcurrently = false,
-        bool disposeConcurrently = false,
-        IInitializationReporter? initializationReporter = default,
-        IDisposalReporter? disposalReporter = default)
+    using Disposal.Interfaces;
+    using Initialization.Interfaces;
+
+    public sealed class LifecycleParameters(bool initializeConcurrently = false,
+            bool disposeConcurrently = false,
+            IInitializationReporter? initializationReporter = default,
+            IDisposalReporter? disposalReporter = default)
+        : ILifecycleParameters
     {
-        this.InitializeConcurrently = initializeConcurrently;
-        this.DisposeConcurrently = disposeConcurrently;
-        this.InitializationReporter = initializationReporter;
-        this.DisposalReporter = disposalReporter;
-    }
+        public static LifecycleParameters Default { get; } = new();
 
-    public static LifecycleParameters Default { get; } = new LifecycleParameters(false, false, null, null);
+        public IInitializationParameters InitializationParameters => this;
 
-    public IInitializationParameters InitializationParameters => this;
+        public IDisposalParameters DisposalParameters => this;
 
-    public IDisposalParameters DisposalParameters => this;
+        public bool InitializeConcurrently { get; } = initializeConcurrently;
 
-    public bool InitializeConcurrently { get; }
+        public bool DisposeConcurrently { get; } = disposeConcurrently;
 
-    public bool DisposeConcurrently { get; }
+        public IInitializationReporter? InitializationReporter { get; } = initializationReporter;
 
-    public IInitializationReporter? InitializationReporter { get; }
+        public IDisposalReporter? DisposalReporter { get; } = disposalReporter;
 
-    public IDisposalReporter? DisposalReporter { get; }
-
-    public static LifecycleParameters Create<TLifecycleReporter>(TLifecycleReporter lifecycleReporter)
-        where TLifecycleReporter : IInitializationReporter, IDisposalReporter
-    {
-        return new LifecycleParameters(false, false, lifecycleReporter, lifecycleReporter);
+        public static LifecycleParameters Create<TLifecycleReporter>(TLifecycleReporter lifecycleReporter)
+            where TLifecycleReporter : IInitializationReporter, IDisposalReporter
+        {
+            return new LifecycleParameters(false, false, lifecycleReporter, lifecycleReporter);
+        }
     }
 }

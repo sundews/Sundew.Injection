@@ -1,4 +1,4 @@
-﻿//HintName: Sundew.Injection.WeakReferencing.TargetEqualityWeakReference.cs
+﻿//HintName: Sundew.Injection.WeakReferencing.TargetEqualityWeakReference.cs.generated.cs
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="TargetEqualityWeakReference.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.

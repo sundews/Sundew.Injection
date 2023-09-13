@@ -5,6 +5,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+#nullable enable
+
 namespace Sundew.Injection
 {
     using System;
@@ -12,9 +14,9 @@ namespace Sundew.Injection
 
     public interface ICreateMethodSelector<TFactory>
     {
-        ICreateMethods<TFactory> Add<TInterface, TImplementation>(Expression<Func<TFactory, TImplementation>> constructorSelector)
+        ICreateMethods<TFactory> Add<TInterface, TImplementation>(Expression<Func<TFactory, TImplementation>> factoryMethodSelector)
             where TImplementation : TInterface;
 
-        ICreateMethods<TFactory> Add<TImplementation>(Expression<Func<TFactory, TImplementation>> constructorSelector);
+        ICreateMethods<TFactory> Add<TImplementation>(Expression<Func<TFactory, TImplementation>> factoryMethodSelector);
     }
 }

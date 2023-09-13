@@ -43,6 +43,7 @@ internal sealed class InjectionTreeBuilder
         if (injectionModelResult.IsSuccess)
         {
             var injectionModel = injectionModelResult.Value;
+            /*var t = Newtonsoft.Json.JsonConvert.SerializeObject(injectionModel, new Newtonsoft.Json.JsonSerializerSettings { DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.IgnoreAndPopulate });*/
             return R.Success(new InjectionTree(injectionModel.InjectionNode, injectionModel.NeedsLifecycleHandling, injectionModel.FactoryConstructorParameters));
         }
 
@@ -62,7 +63,7 @@ internal sealed class InjectionTreeBuilder
 
         var scope = this.scopeResolver.ResolveScope(binding);
         var needsLifecycleHandling = binding.HasLifecycle | binding.IsNewOverridable;
-        var creationResult = this.GetCreationSource(binding, cancellationToken);
+        var creationResult = this.GetCreationSource(binding, dependeeInjectionNode, cancellationToken);
         if (!creationResult.IsSuccess)
         {
             return R.Error(creationResult.Error);
@@ -89,7 +90,7 @@ internal sealed class InjectionTreeBuilder
             dependeeScope,
             needsLifecycleHandling,
             O.From(binding.IsNewOverridable, binding.Method.Parameters),
-            O.From(binding.IsInjectable, binding.TargetReferenceType).Combine(parameterOption, (targetReferenceType, parameter) => new ParameterNode(targetReferenceType, this.GetParameterSource(targetReferenceType, parameter.Name, errors), parameter.Name, parameter.TypeMetadata, scope == Scope.NewInstance, scope == Scope.SingleInstancePerFactory, dependeeInjectionNode?.Name)));
+            O.From(binding.IsInjectable, binding.TargetReferenceType).Combine(parameterOption, (targetReferenceType, parameter) => new ParameterNode(targetReferenceType, this.GetParameterSource(targetReferenceType, parameter.Name, errors), parameter.Name, parameter.TypeMetadata, scope == Scope.NewInstance, scope == Scope.SingleInstancePerFactory, dependeeInjectionNode?.GetInjectionNodeName())));
 
         errors.TryAdd(scopeError);
 
@@ -136,7 +137,7 @@ internal sealed class InjectionTreeBuilder
                     }
 
                 case DefaultParameter defaultParameter:
-                    constructorParameterCreationNodes.Add(new NewInstanceInjectionNode(parameter.Type, parameter.Type, defaultParameter.TypeMetadata.HasLifetime && defaultParameter.TypeMetadata.IsValueType, new RecordList<InjectionNode>(), defaultParameter.Literal != null ? CreationSource._LiteralValue(defaultParameter.Literal.ToString()) : CreationSource._DefaultValue(defaultParameter.Type), O.None, O.None, creationInjectionNode.Name));
+                    constructorParameterCreationNodes.Add(new NewInstanceInjectionNode(parameter.Type, parameter.Type, defaultParameter.TypeMetadata.HasLifetime && defaultParameter.TypeMetadata.IsValueType, new RecordList<InjectionNode>(), defaultParameter.Literal != null ? CreationSource._LiteralValue(defaultParameter.Literal.ToString()) : CreationSource._DefaultValue(defaultParameter.Type), O.None, O.None, creationInjectionNode.GetInjectionNodeName()));
                     break;
 
                 case ExternalParameter externalParameter:
@@ -144,7 +145,7 @@ internal sealed class InjectionTreeBuilder
                     var externalParameterInjectionNode = this.CreateParameterInjectionNode(
                         externalParameter.Type,
                         (parameter.Name, parameter.TypeMetadata),
-                        creationInjectionNode.Name,
+                        creationInjectionNode.GetInjectionNodeName(),
                         externalParameterScope,
                         externalParameter.ParameterSource);
                     factoryConstructorParameters.TryAdd(externalParameterInjectionNode.FactoryConstructorParameterOption);
@@ -152,10 +153,10 @@ internal sealed class InjectionTreeBuilder
                     constructorParameterCreationNodes.Add(externalParameterInjectionNode.InjectionNode);
                     break;
                 case ResolvedBindingError.ParameterError parameterError:
-                    errors.Add(new InjectionStageError.ResolveParameterError(parameterError.Type, dependeeInjectionNode?.Name ?? Root, parameterError.ParameterSources));
+                    errors.Add(new InjectionStageError.ResolveParameterError(parameterError.Type, dependeeInjectionNode?.GetInjectionNodeName() ?? Root, parameterError.ParameterSources));
                     break;
                 case ResolvedBindingError.Error error:
-                    errors.Add(new InjectionStageError.ResolveTypeError(error.BindingError, dependeeInjectionNode?.Name ?? Root));
+                    errors.Add(new InjectionStageError.ResolveTypeError(error.BindingError, dependeeInjectionNode?.GetInjectionNodeName() ?? Root));
                     break;
             }
         }
@@ -165,6 +166,7 @@ internal sealed class InjectionTreeBuilder
 
     private R<CreationModel, ImmutableList<InjectionStageError>> GetCreationSource(
         Binding binding,
+        InjectionNode? dependeeInjectionNode,
         CancellationToken cancellationToken)
     {
         var bindingMethod = binding.Method;
@@ -186,7 +188,7 @@ internal sealed class InjectionTreeBuilder
                         return R.Success(new CreationModel(CreationSource._InstanceMethodCall(type, bindingMethod, requiredExternalInjectionNode.InjectionNode, instance.IsProperty), false, ImmutableList<FactoryConstructorParameter>.Empty.TryAdd(requiredExternalInjectionNode.FactoryConstructorParameterOption)));
                     case SingleParameter singleParameter:
                         var factoryScope = this.scopeResolver.ResolveScope(singleParameter.Binding);
-                        var injectionModelResult = this.GetInjectionModel(singleParameter.Binding, null, factoryScope, O.Some((singleParameter.Binding.TargetType, singleParameter.Binding.TargetType.Name, TypeMetadata: instance.ContainingTypeMetadata)), cancellationToken);
+                        var injectionModelResult = this.GetInjectionModel(singleParameter.Binding, dependeeInjectionNode, factoryScope, O.Some((singleParameter.Binding.TargetType, singleParameter.Binding.TargetType.Name, TypeMetadata: instance.ContainingTypeMetadata)), cancellationToken);
                         return injectionModelResult.WithValue(injectionModel =>
                             new CreationModel(CreationSource._InstanceMethodCall(bindingMethod.ContainingType, bindingMethod, injectionModel.InjectionNode, instance.IsProperty), injectionModel.NeedsLifecycleHandling, injectionModel.FactoryConstructorParameters));
                     case ArrayParameter arrayParameter:
@@ -268,12 +270,12 @@ internal sealed class InjectionTreeBuilder
                     creationSource,
                     parameterNodeOption,
                     overridableNewParametersOption,
-                    dependeeInjectionNode?.Name),
+                    dependeeInjectionNode?.GetInjectionNodeName()),
                 R.From(
                     dependeeScope != Scope.SingleInstancePerRequest &&
                     dependeeScope != Scope.SingleInstancePerFactory &&
                     dependeeScope is not Scope.SingleInstancePerFuncResultScope,
-                    () => InjectionStageError._ScopeError(targetType, Scope.NewInstance, dependeeInjectionNode?.Name ?? Root, dependeeScope.ToString()))),
+                    () => InjectionStageError._ScopeError(targetType, Scope.NewInstance, dependeeInjectionNode?.GetInjectionNodeName() ?? Root, dependeeScope.ToString()))),
             Scope.NewInstanceScope => (
                 InjectionNode.NewInstanceInjectionNode(
                     targetType,
@@ -283,12 +285,12 @@ internal sealed class InjectionTreeBuilder
                     creationSource,
                     parameterNodeOption,
                     overridableNewParametersOption,
-                    dependeeInjectionNode?.Name),
+                    dependeeInjectionNode?.GetInjectionNodeName()),
                 R.From(
                     dependeeScope != Scope.SingleInstancePerRequest &&
                     dependeeScope != Scope.SingleInstancePerFactory &&
                     dependeeScope is not Scope.SingleInstancePerFuncResultScope,
-                    () => InjectionStageError._ScopeError(targetType, Scope.NewInstance, dependeeInjectionNode?.Name ?? Root, dependeeScope.ToString()))),
+                    () => InjectionStageError._ScopeError(targetType, Scope.NewInstance, dependeeInjectionNode?.GetInjectionNodeName() ?? Root, dependeeScope.ToString()))),
             Scope.SingleInstancePerRequestScope => (
                 InjectionNode.SingleInstancePerRequestInjectionNode(
                     targetType,
@@ -298,11 +300,11 @@ internal sealed class InjectionTreeBuilder
                     creationSource,
                     parameterNodeOption,
                     overridableNewParametersOption,
-                    dependeeInjectionNode?.Name),
+                    dependeeInjectionNode?.GetInjectionNodeName()),
                 R.From(
                     dependeeScope != Scope.SingleInstancePerFactory &&
                     dependeeScope is not Scope.SingleInstancePerFuncResultScope,
-                    () => InjectionStageError._ScopeError(targetType, scope, dependeeInjectionNode?.Name ?? Root, $"{Scope.SingleInstancePerFactory}, {nameof(Scope.SingleInstancePerFuncResultScope)}"))),
+                    () => InjectionStageError._ScopeError(targetType, scope, dependeeInjectionNode?.GetInjectionNodeName() ?? Root, $"{Scope.SingleInstancePerFactory}, {nameof(Scope.SingleInstancePerFuncResultScope)}"))),
             Scope.SingleInstancePerFuncResultScope => (
                 InjectionNode.SingleInstancePerFactoryInjectionNode(
                     targetType,
@@ -312,10 +314,10 @@ internal sealed class InjectionTreeBuilder
                     creationSource,
                     parameterNodeOption,
                     overridableNewParametersOption,
-                    dependeeInjectionNode?.Name),
+                    dependeeInjectionNode?.GetInjectionNodeName()),
                 R.From(
                     dependeeScope == Scope.SingleInstancePerFactory,
-                    () => InjectionStageError._ScopeError(targetType, scope, dependeeInjectionNode?.Name ?? Root, Scope.SingleInstancePerFactory.ToString()))),
+                    () => InjectionStageError._ScopeError(targetType, scope, dependeeInjectionNode?.GetInjectionNodeName() ?? Root, Scope.SingleInstancePerFactory.ToString()))),
             Scope.SingleInstancePerFactoryScope => (
                 InjectionNode.SingleInstancePerFactoryInjectionNode(
                     targetType,
@@ -325,7 +327,7 @@ internal sealed class InjectionTreeBuilder
                     creationSource,
                     parameterNodeOption,
                     overridableNewParametersOption,
-                    dependeeInjectionNode?.Name),
+                    dependeeInjectionNode?.GetInjectionNodeName()),
                 R.Success()),
         };
     }

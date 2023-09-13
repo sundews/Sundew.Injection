@@ -16,28 +16,22 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal class AddParameterPropertiesVisitor : CSharpSyntaxWalker
 {
-    private readonly SemanticModel semanticModel;
-    private readonly TypeFactory typeFactory;
-    private readonly CompiletimeInjectionDefinitionBuilder compiletimeInjectionDefinitionBuilder;
-    private readonly KnownAnalysisTypes knownAnalysisTypes;
-    private readonly IMethodSymbol symbol;
+    private readonly AnalysisContext analysisContext;
+    private readonly IMethodSymbol methodSymbol;
     private readonly Type type;
     private readonly ITypeSymbol argumentTypeSymbol;
 
-    public AddParameterPropertiesVisitor(SemanticModel semanticModel, TypeFactory typeFactory, CompiletimeInjectionDefinitionBuilder compiletimeInjectionDefinitionBuilder, KnownAnalysisTypes knownAnalysisTypes, IMethodSymbol symbol)
+    public AddParameterPropertiesVisitor(IMethodSymbol methodSymbol, AnalysisContext analysisContext)
     {
-        this.semanticModel = semanticModel;
-        this.typeFactory = typeFactory;
-        this.compiletimeInjectionDefinitionBuilder = compiletimeInjectionDefinitionBuilder;
-        this.knownAnalysisTypes = knownAnalysisTypes;
-        this.symbol = symbol;
-        this.type = this.typeFactory.CreateType(symbol.TypeArguments.First()).Type;
-        this.argumentTypeSymbol = symbol.TypeArguments.First();
+        this.analysisContext = analysisContext;
+        this.methodSymbol = methodSymbol;
+        this.type = this.analysisContext.TypeFactory.CreateType(methodSymbol.TypeArguments.First()).Type;
+        this.argumentTypeSymbol = methodSymbol.TypeArguments.First();
     }
 
     public override void VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
     {
-        var symbolInfo = this.semanticModel.GetSymbolInfo(node);
+        var symbolInfo = this.analysisContext.SemanticModel.GetSymbolInfo(node);
         if (symbolInfo.Symbol != null)
         {
             switch (symbolInfo.Symbol.Kind)
@@ -46,22 +40,22 @@ internal class AddParameterPropertiesVisitor : CSharpSyntaxWalker
                     foreach (var accessorProperty in this.argumentTypeSymbol.GetMembers().OfType<IPropertySymbol>()
                         .Where(x => !x.IsStatic && x.GetMethod != null && x.DeclaredAccessibility == Accessibility.Public).Select(x =>
                         {
-                            var propertyType = this.typeFactory.CreateType(x.Type);
+                            var propertyType = this.analysisContext.TypeFactory.CreateType(x.Type);
                             var resultType = propertyType;
                             var registerBoth = false;
-                            if (x.Type is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.IsGenericType && SymbolEqualityComparer.Default.Equals(namedTypeSymbol.OriginalDefinition, this.knownAnalysisTypes.FuncTypeSymbol))
+                            if (x.Type is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.IsGenericType && SymbolEqualityComparer.Default.Equals(namedTypeSymbol.OriginalDefinition, this.analysisContext.KnownAnalysisTypes.FuncTypeSymbol))
                             {
                                 registerBoth = true;
-                                resultType = this.typeFactory.CreateType(namedTypeSymbol.TypeArguments.First());
+                                resultType = this.analysisContext.TypeFactory.CreateType(namedTypeSymbol.TypeArguments.First());
                             }
 
-                            return (registerBoth, Accessor: new AccessorProperty(this.typeFactory.CreateNamedType(x.ContainingType), resultType, propertyType, x.Name));
+                            return (registerBoth, Accessor: new AccessorProperty(this.analysisContext.TypeFactory.CreateNamedType(x.ContainingType), resultType, propertyType, x.Name));
                         }))
                     {
-                        this.compiletimeInjectionDefinitionBuilder.AddPropertyParameter(accessorProperty.Accessor.Property.Type, accessorProperty.Accessor);
+                        this.analysisContext.CompiletimeInjectionDefinitionBuilder.AddPropertyParameter(accessorProperty.Accessor.Property.Type, accessorProperty.Accessor);
                         if (accessorProperty.registerBoth)
                         {
-                            this.compiletimeInjectionDefinitionBuilder.AddPropertyParameter(accessorProperty.Accessor.Result.Type, accessorProperty.Accessor);
+                            this.analysisContext.CompiletimeInjectionDefinitionBuilder.AddPropertyParameter(accessorProperty.Accessor.Result.Type, accessorProperty.Accessor);
                         }
                     }
 

@@ -19,6 +19,7 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal static class SourceCodeEmitterExtensions
 {
+    public const string NullableEnable = "#nullable enable";
     public const string ExcludeFromCodeCoverage = "global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage";
     private const string GeneratedCodeAttribute = "global::System.CodeDom.Compiler.GeneratedCodeAttribute";
     private const string SundewInjectionGenerator = "Sundew.Injection.Generator";

@@ -61,6 +61,114 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string MultipleParametersNotSupportedForBindFactoryErrorDescription {
+            get {
+                return ResourceManager.GetString("MultipleParametersNotSupportedForBindFactoryErrorDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}.
+        /// </summary>
+        internal static string MultipleParametersNotSupportedForBindFactoryErrorMessageFormat {
+            get {
+                return ResourceManager.GetString("MultipleParametersNotSupportedForBindFactoryErrorMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ICreate.
+        /// </summary>
+        internal static string MultipleParametersNotSupportedForBindFactoryErrorTitle {
+            get {
+                return ResourceManager.GetString("MultipleParametersNotSupportedForBindFactoryErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Types without a viable constructor are not supported.
+        /// </summary>
+        internal static string NoViableConstructorFoundErrorDescription {
+            get {
+                return ResourceManager.GetString("NoViableConstructorFoundErrorDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The type {0} did not contain a viable constructor.
+        /// </summary>
+        internal static string NoViableConstructorFoundErrorMessageFormat {
+            get {
+                return ResourceManager.GetString("NoViableConstructorFoundErrorMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No viable constructor could be found.
+        /// </summary>
+        internal static string NoViableConstructorFoundErrorTitle {
+            get {
+                return ResourceManager.GetString("NoViableConstructorFoundErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Only generic types are supported.
+        /// </summary>
+        internal static string OnlyGenericTypeSupportedErrorDescription {
+            get {
+                return ResourceManager.GetString("OnlyGenericTypeSupportedErrorDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The type {0} is not a generic type.
+        /// </summary>
+        internal static string OnlyGenericTypeSupportedErrorMessageFormat {
+            get {
+                return ResourceManager.GetString("OnlyGenericTypeSupportedErrorMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type must be generic..
+        /// </summary>
+        internal static string OnlyGenericTypeSupportedErrorTitle {
+            get {
+                return ResourceManager.GetString("OnlyGenericTypeSupportedErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Some types are required for the code generator, when not found in the compilation, this error is reported.
+        /// </summary>
+        internal static string RequiredTypeNotFoundErrorDescription {
+            get {
+                return ResourceManager.GetString("RequiredTypeNotFoundErrorDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}.
+        /// </summary>
+        internal static string RequiredTypeNotFoundErrorMessageFormat {
+            get {
+                return ResourceManager.GetString("RequiredTypeNotFoundErrorMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A required type was not found in the compilation.
+        /// </summary>
+        internal static string RequiredTypeNotFoundErrorTitle {
+            get {
+                return ResourceManager.GetString("RequiredTypeNotFoundErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Occurs when failing to resolves a generic method and its parameters.
         /// </summary>
         internal static string ResolveGenericMethodDescription {
@@ -192,6 +300,33 @@ namespace Sundew.Injection.Generator {
         internal static string ScopeErrorTitle {
             get {
                 return ResourceManager.GetString("ScopeErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The type is either an abstract classes or a string, which cannot be instantiated.
+        /// </summary>
+        internal static string TypeNotInstantiableErrorDescription {
+            get {
+                return ResourceManager.GetString("TypeNotInstantiableErrorDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The type {0} cannot be instantiated.
+        /// </summary>
+        internal static string TypeNotInstantiableErrorMessageFormat {
+            get {
+                return ResourceManager.GetString("TypeNotInstantiableErrorMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type must be instantiable.
+        /// </summary>
+        internal static string TypeNotInstantiableErrorTitle {
+            get {
+                return ResourceManager.GetString("TypeNotInstantiableErrorTitle", resourceCulture);
             }
         }
         

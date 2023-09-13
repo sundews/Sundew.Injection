@@ -5,6 +5,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+#nullable enable
+
 namespace Sundew.Injection;
 
 using Initialization.Interfaces;

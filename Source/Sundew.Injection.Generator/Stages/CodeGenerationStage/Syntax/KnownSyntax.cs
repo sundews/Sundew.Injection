@@ -52,13 +52,13 @@ internal class KnownSyntax
 
     public string InitializeAsyncName => InitializeAsync;
 
-    public AttributeDeclaration EditorBrowsableAttribute { get; } = new AttributeDeclaration(
+    public AttributeDeclaration EditorBrowsableAttribute { get; } = new(
         "[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]");
 
-    public AttributeDeclaration FactoryAttribute { get; } = new AttributeDeclaration(
+    public AttributeDeclaration FactoryAttribute { get; } = new(
         "[global::Sundew.Injection.Factory]");
 
-    public AttributeDeclaration CreateMethodAttribute { get; } = new AttributeDeclaration(
+    public AttributeDeclaration CreateMethodAttribute { get; } = new(
         "[global::Sundew.Injection.CreateMethod]");
 
     public sealed record LifecycleHandlerSyntax(

@@ -32,7 +32,7 @@ public class CodeGenerationEqualityFixture
             throw new AssertionFailedException($"InjectionDefinition should have been successful, but failed with errors: {injectionDefinition.Error.JoinToString((builder, item) => builder.Append(item), ", ")}");
         }
 
-        var compilationData = CompilationDataProvider.GetCompilationData(compilation);
+        var compilationData = CompilationDataProvider.GetCompilationData(compilation, CancellationToken.None).Value!;
 
         var factoryDataArray = FactoryDataProvider.GetFactoryData(injectionDefinition.Value, compilationData, CancellationToken.None);
 

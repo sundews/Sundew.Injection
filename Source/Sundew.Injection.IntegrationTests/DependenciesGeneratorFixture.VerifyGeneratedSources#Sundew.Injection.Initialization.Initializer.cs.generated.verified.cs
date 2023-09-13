@@ -1,10 +1,12 @@
-﻿//HintName: Sundew.Injection.Initialization.Initializer.cs
+﻿//HintName: Sundew.Injection.Initialization.Initializer.cs.generated.cs
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Initializer.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
+
+#nullable enable
 
 namespace Sundew.Injection.Initialization;
 

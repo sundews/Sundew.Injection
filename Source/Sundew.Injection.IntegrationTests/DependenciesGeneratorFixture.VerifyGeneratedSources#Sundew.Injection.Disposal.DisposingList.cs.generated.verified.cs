@@ -1,4 +1,4 @@
-﻿//HintName: Sundew.Injection.Disposal.DisposingList.cs
+﻿//HintName: Sundew.Injection.Disposal.DisposingList.cs.generated.cs
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="DisposingList.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.

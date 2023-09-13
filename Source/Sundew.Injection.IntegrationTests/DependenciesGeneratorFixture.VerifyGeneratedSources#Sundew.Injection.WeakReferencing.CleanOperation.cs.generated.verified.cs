@@ -1,4 +1,4 @@
-﻿//HintName: Sundew.Injection.WeakReferencing.CleanOperation.cs
+﻿//HintName: Sundew.Injection.WeakReferencing.CleanOperation.cs.generated.cs
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="CleanOperation.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.

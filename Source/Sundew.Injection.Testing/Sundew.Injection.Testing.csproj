@@ -15,4 +15,9 @@
     <PackageReference Include="Sundew.Testing.CodeAnalysis" Version="0.0.0-u20230521-013600-ci" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Sundew.Injection\Sundew.Injection.csproj" />
+    <ProjectReference Include="..\TestProjects\AllFeaturesSuccessDependency\AllFeaturesSuccessDependency.csproj" />
+  </ItemGroup>
+
 </Project>

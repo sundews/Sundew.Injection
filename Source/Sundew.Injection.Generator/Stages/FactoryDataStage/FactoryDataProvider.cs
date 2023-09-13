@@ -84,42 +84,40 @@ internal static class FactoryDataProvider
                         injectionTreeResult.Value.Root));
                 });
 
-                switch (factoryMethodRegistrationsResult)
+                if (factoryMethodRegistrationsResult.Evaluate(out var all, out var failed))
                 {
-                    case All<FactoryMethodRegistration, FactoryMethodData, ImmutableList<InjectionStageError>> all:
-                        var fallbackFactoryMethodData = all.First();
-                        var fallbackFactoryType = new NamedType(fallbackFactoryMethodData.Return.Type.Name, fallbackFactoryMethodData.Target.Type.Namespace, compilationData.AssemblyName);
-                        var (factoryType, factoryInterfaceType) = bindingResolver.CreateFactoryBinding(factoryCreationDefinition, fallbackFactoryType, factoryConstructorParameters, needsLifecycleHandling, compilationData.AssemblyName);
+                    var fallbackFactoryMethodData = all.First();
+                    var fallbackFactoryType = new NamedType(fallbackFactoryMethodData.Return.Type.Name, fallbackFactoryMethodData.Target.Type.Namespace, compilationData.AssemblyName);
+                    var (factoryType, factoryInterfaceType) = bindingResolver.CreateFactoryBinding(factoryCreationDefinition, fallbackFactoryType, factoryConstructorParameters, needsLifecycleHandling, compilationData.AssemblyName);
 
-                        var lifecycleInjectionNodeResult = TryCreateLifecycleInjectionNode(
-                            needsLifecycleHandling,
-                            compilationData,
-                            scopeResolverBuilder,
-                            bindingResolver,
-                            requiredParametersInjectionResolver,
-                            cancellationToken);
-                        if (lifecycleInjectionNodeResult.TryGetError(out var diagnostics))
-                        {
-                            factoryDefinitionResults.Add(R.Error(diagnostics.ToValueList()));
-                            break;
-                        }
-
-                        var factoryDefinition = new FactoryData(
-                            factoryType,
-                            factoryInterfaceType,
-                            factoryCreationDefinition.GenerateInterface,
-                            factoryCreationDefinition.Accessibility,
-                            needsLifecycleHandling,
-                            lifecycleInjectionNodeResult.Value,
-                            all.Items.ToImmutableArray());
-
-                        factoryDefinitionResults.Add(R.Success(factoryDefinition));
+                    var lifecycleInjectionNodeResult = TryCreateLifecycleInjectionNode(
+                        needsLifecycleHandling,
+                        compilationData,
+                        scopeResolverBuilder,
+                        bindingResolver,
+                        requiredParametersInjectionResolver,
+                        cancellationToken);
+                    if (lifecycleInjectionNodeResult.TryGetError(out var diagnostics))
+                    {
+                        factoryDefinitionResults.Add(R.Error(diagnostics.ToValueList()));
                         break;
-                    case Failed<FactoryMethodRegistration, FactoryMethodData, ImmutableList<InjectionStageError>>
-                        failedItems:
-                        factoryDefinitionResults.Add(R.Error(failedItems.GetErrors().SelectMany(x => x)
+                    }
+
+                    var factoryDefinition = new FactoryData(
+                        factoryType,
+                        factoryInterfaceType,
+                        factoryCreationDefinition.GenerateInterface,
+                        factoryCreationDefinition.Accessibility,
+                        needsLifecycleHandling,
+                        lifecycleInjectionNodeResult.Value,
+                        all.Items.ToImmutableArray());
+
+                    factoryDefinitionResults.Add(R.Success(factoryDefinition));
+                }
+                else
+                {
+                        factoryDefinitionResults.Add(R.Error(failed.GetErrors().SelectMany(x => x)
                             .Select(GetDiagnostic).ToImmutableArray().ToValueList()));
-                        break;
                 }
             }
 

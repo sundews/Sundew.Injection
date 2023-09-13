@@ -46,7 +46,7 @@ internal sealed class CreationExpressionGenerator
         var factoryFactoryNode = this.generatorFeatures.InjectionNodeExpressionGenerator.Generate(instanceMethodCall.Instance, factoryNode.FactoryImplementation, factoryNode.CreateMethod);
         if (instanceMethodCall.IsProperty)
         {
-            return (factoryNode, InvocationExpressionBase.MemberAccessExpression(factoryFactoryNode.DependeeArguments.Single(), instanceMethodCall.Method.Name));
+            return (factoryFactoryNode, InvocationExpressionBase.MemberAccessExpression(factoryFactoryNode.DependeeArguments.Single(), instanceMethodCall.Method.Name));
         }
 
         return (factoryFactoryNode, CreationExpression._InstanceMethodCall(factoryFactoryNode.DependeeArguments.Single(), instanceMethodCall.Method.Name, instanceMethodCall.Method.TypeArguments, arguments));

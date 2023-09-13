@@ -17,14 +17,14 @@ public static class FactoryDependenciesProvider
 {
     public static void ProvideDependencies(this IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterPostInitializationOutput(context =>
+        context.RegisterPostInitializationOutput(async context =>
         {
             var interfaceResources = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(x => x.StartsWith(GetBaseNamespacePath()));
-            interfaceResources.ForEach(x =>
+            await interfaceResources.ForEachAsync(async x =>
             {
                 var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(x);
-                using StreamReader reader = new StreamReader(stream);
-                context.AddSource($"{typeof(IInjectionDeclaration).Namespace}.{x.Substring(typeof(FactoryDependenciesProvider).Namespace.Length + 1)}", reader.ReadToEnd());
+                using StreamReader reader = new(stream);
+                context.AddSource($"{typeof(IInjectionDeclaration).Namespace}.{x.Substring(typeof(FactoryDependenciesProvider).Namespace.Length + 1)}.generated", await reader.ReadToEndAsync());
             });
         });
     }

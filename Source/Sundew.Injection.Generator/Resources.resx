@@ -180,4 +180,49 @@
   <data name="UnknownErrorTitle" xml:space="preserve">
     <value>Unknown error occured in Sundew.Injection.Generator</value>
   </data>
+  <data name="NoViableConstructorFoundErrorDescription" xml:space="preserve">
+    <value>Types without a viable constructor are not supported</value>
+  </data>
+  <data name="NoViableConstructorFoundErrorMessageFormat" xml:space="preserve">
+    <value>The type {0} did not contain a viable constructor</value>
+  </data>
+  <data name="NoViableConstructorFoundErrorTitle" xml:space="preserve">
+    <value>No viable constructor could be found</value>
+  </data>
+  <data name="OnlyGenericTypeSupportedErrorDescription" xml:space="preserve">
+    <value>Only generic types are supported</value>
+  </data>
+  <data name="OnlyGenericTypeSupportedErrorMessageFormat" xml:space="preserve">
+    <value>The type {0} is not a generic type</value>
+  </data>
+  <data name="OnlyGenericTypeSupportedErrorTitle" xml:space="preserve">
+    <value>Type must be generic.</value>
+  </data>
+  <data name="TypeNotInstantiableErrorDescription" xml:space="preserve">
+    <value>The type is either an abstract classes or a string, which cannot be instantiated</value>
+  </data>
+  <data name="TypeNotInstantiableErrorMessageFormat" xml:space="preserve">
+    <value>The type {0} cannot be instantiated</value>
+  </data>
+  <data name="TypeNotInstantiableErrorTitle" xml:space="preserve">
+    <value>Type must be instantiable</value>
+  </data>
+  <data name="RequiredTypeNotFoundErrorDescription" xml:space="preserve">
+    <value>Some types are required for the code generator, when not found in the compilation, this error is reported</value>
+  </data>
+  <data name="RequiredTypeNotFoundErrorMessageFormat" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="RequiredTypeNotFoundErrorTitle" xml:space="preserve">
+    <value>A required type was not found in the compilation</value>
+  </data>
+  <data name="MultipleParametersNotSupportedForBindFactoryErrorDescription" xml:space="preserve">
+    <value />
+  </data>
+  <data name="MultipleParametersNotSupportedForBindFactoryErrorMessageFormat" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="MultipleParametersNotSupportedForBindFactoryErrorTitle" xml:space="preserve">
+    <value>ICreate</value>
+  </data>
 </root>

@@ -18,7 +18,7 @@
     <PackageReference Include="BenchmarkDotNet" Version="0.13.7" />
     <PackageReference Include="InfluxDB.Client" Version="4.13.0" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="4.4.0" />
-    <PackageReference Include="Sundew.Base.Primitives" Version="11.0.0-u20230601-091103-local">
+    <PackageReference Include="Sundew.Base.Primitives" Version="11.0.0-u20230908-145938-local">
       <Aliases>sundew</Aliases>
     </PackageReference>
     <PackageReference Include="Sundew.CommandLine" Version="10.0.2" />

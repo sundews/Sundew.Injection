@@ -23,7 +23,7 @@ internal static class OutputCodeGenerationProvider
         {
             foreach (var generatedOutput in generatedOutputs)
             {
-                sourceProductionContext.AddSource(generatedOutput.FileName, generatedOutput.Source);
+                sourceProductionContext.AddSource(generatedOutput.FileName + Generated, generatedOutput.Source);
             }
         });
     }

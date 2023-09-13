@@ -13,6 +13,4 @@ using Sundew.DiscriminatedUnions;
 internal abstract partial record DefiniteType(string Name, string Namespace, string AssemblyName) : Type(Name)
 {
     public virtual string FullName => $"{this.Namespace}.{this.Name}";
-
-    public string AssemblyQualifiedName => $"{this.FullName}, {this.AssemblyName}";
 }

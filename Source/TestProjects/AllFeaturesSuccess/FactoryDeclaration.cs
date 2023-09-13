@@ -53,6 +53,7 @@
             injectionBuilder.CreateFactory<ConstructedChild>();
 
             injectionBuilder.BindFactory<DependencyFactory>();
+            injectionBuilder.BindFactory<ManualDependencyFactory>(x => x.Create());
 
             injectionBuilder.CreateFactory(
                 factories => factories

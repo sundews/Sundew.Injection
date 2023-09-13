@@ -17,7 +17,7 @@ using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 internal static class TypeConverter
 {
     public static SymbolDisplayFormat NameQualifiedTypeFormat { get; } =
-        new SymbolDisplayFormat(
+        new(
             globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Included,
             typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypes,
             genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
@@ -28,10 +28,10 @@ internal static class TypeConverter
     {
         return typeSymbol switch
         {
-            IErrorTypeSymbol errorTypeSymbol => (new ErrorType(errorTypeSymbol.MetadataName), default),
-            IArrayTypeSymbol arrayTypeSymbol => (GetArrayOrTypeParameterArray(arrayTypeSymbol, knownInjectableTypes), default),
+            IErrorTypeSymbol errorTypeSymbol => (new ErrorType(errorTypeSymbol.MetadataName), ImmutableArray<IMethodSymbol>.Empty),
+            IArrayTypeSymbol arrayTypeSymbol => (GetArrayOrTypeParameterArray(arrayTypeSymbol, knownInjectableTypes), ImmutableArray<IMethodSymbol>.Empty),
             INamedTypeSymbol namedTypeSymbol => (GetNamedOrBoundGenericType(namedTypeSymbol, knownInjectableTypes), namedTypeSymbol.Constructors),
-            ITypeParameterSymbol typeParameterSymbol => (new TypeParameter(typeParameterSymbol.MetadataName), default),
+            ITypeParameterSymbol typeParameterSymbol => (new TypeParameter(typeParameterSymbol.MetadataName), ImmutableArray<IMethodSymbol>.Empty),
             _ => throw new System.NotSupportedException($"The type {typeSymbol} is currently not supported."),
         };
     }

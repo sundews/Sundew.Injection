@@ -33,12 +33,17 @@ internal static class InjectionDefinitionProvider
     {
         try
         {
-            var knownAnalysisTypes = new KnownAnalysisTypes(injectionDeclarationSemanticModel.Compilation);
+            var knownAnalysisTypesResult = KnownAnalysisTypes.Get(injectionDeclarationSemanticModel.Compilation);
+            if (!knownAnalysisTypesResult.Evaluate(out var knownAnalysisTypes, out var errors))
+            {
+                return R.Error(errors);
+            }
+
             var compiletimeInjectionDefinitionBuilder = new CompiletimeInjectionDefinitionBuilder(string.Empty);
             var typeFactory = new TypeFactory(knownAnalysisTypes);
-            var injectionDeclarationVisitor = new InjectionDeclarationVisitor(injectionDeclarationSemanticModel, knownAnalysisTypes, compiletimeInjectionDefinitionBuilder, typeFactory, cancellationToken);
+            var injectionDeclarationVisitor = new InjectionDeclarationVisitor(new AnalysisContext(injectionDeclarationSemanticModel, knownAnalysisTypes, typeFactory, compiletimeInjectionDefinitionBuilder), cancellationToken);
             injectionDeclarationVisitor.Visit(injectionDeclarationSemanticModel.SyntaxTree.GetRoot());
-            return R.Success(compiletimeInjectionDefinitionBuilder.Build());
+            return compiletimeInjectionDefinitionBuilder.Build();
         }
         catch (OperationCanceledException)
         {

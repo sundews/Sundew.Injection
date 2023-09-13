@@ -5,8 +5,11 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Injection;
+#nullable enable
 
-public interface ILifecycleParameters : IInitializationParameters, IDisposalParameters
+namespace Sundew.Injection
 {
+    public interface ILifecycleParameters : IInitializationParameters, IDisposalParameters
+    {
+    }
 }

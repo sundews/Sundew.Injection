@@ -12,8 +12,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using Sundew.Base.Collections;
 using Sundew.Base.Collections.Immutable;
-using Sundew.Base.Primitives.Computation;
-using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.TypeSystem;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
@@ -112,16 +110,13 @@ internal class BindingFactory
             return Item.Fail<Binding, BindingError>(createMethodResult.Error);
         });
 
-        if (createBindingsResult is All<BindingRegistration, Binding, BindingError> all)
+        if (createBindingsResult.Evaluate(out var all, out var failed))
         {
             this.bindingsTypeRegistrar.Register(requestedArrayCompatibleType.Id, null, all.Items);
             return this.CreateArrayParameter(requestedArrayCompatibleType, elementType, all.Items);
         }
 
-        var failedItems = (Failed<BindingRegistration, Binding, BindingError>)createBindingsResult;
-        {
-            return ResolvedBinding._Error(new BindingError.ResolveArrayElementsError(failedItems.Items.Select(x => x.Error).ToArray()));
-        }
+        return ResolvedBinding._Error(new BindingError.ResolveArrayElementsError(failed.Items.Select(x => x.Error).ToArray()));
     }
 
     public ResolvedBinding CreateArrayParameter(Type requestedArrayCompatibleType, DefiniteType definiteElementType, IReadOnlyList<Binding> bindings)

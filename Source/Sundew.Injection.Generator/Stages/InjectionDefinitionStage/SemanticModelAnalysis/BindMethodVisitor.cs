@@ -7,18 +7,19 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticModelAnalysis;
 
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-internal class FactoryMethodVisitor : CSharpSyntaxWalker
+internal class BindMethodVisitor : CSharpSyntaxWalker
 {
-    private readonly FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder;
+    private readonly ITypeSymbol factoryTypeSymbol;
     private readonly AnalysisContext analysisContext;
 
-    public FactoryMethodVisitor(FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder, AnalysisContext analysisContext)
+    public BindMethodVisitor(ITypeSymbol factoryTypeSymbol, AnalysisContext analysisContext)
     {
-        this.factoryMethodRegistrationBuilder = factoryMethodRegistrationBuilder;
+        this.factoryTypeSymbol = factoryTypeSymbol;
         this.analysisContext = analysisContext;
     }
 
@@ -33,7 +34,7 @@ internal class FactoryMethodVisitor : CSharpSyntaxWalker
         else if (symbolInfo.CandidateReason == CandidateReason.OverloadResolutionFailure &&
                  symbolInfo.CandidateSymbols.Length == 1)
         {
-            if (symbolInfo.CandidateSymbols[0] is IMethodSymbol methodSymbol2 && SymbolEqualityComparer.Default.Equals(methodSymbol2.ContainingType, this.analysisContext.KnownAnalysisTypes.FactoryMethodSelectorTypeSymbol))
+            if (symbolInfo.CandidateSymbols[0] is IMethodSymbol methodSymbol2)
             {
                 this.VisitBuilderCall(node, methodSymbol2);
             }
@@ -42,11 +43,17 @@ internal class FactoryMethodVisitor : CSharpSyntaxWalker
 
     private void VisitBuilderCall(InvocationExpressionSyntax node, IMethodSymbol methodSymbol)
     {
-        switch (methodSymbol.Name)
+        var factoryType = this.analysisContext.TypeFactory.CreateType(this.factoryTypeSymbol);
+        if (methodSymbol.Name == nameof(ICreateMethodSelector<object>.Add) && SymbolEqualityComparer.Default.Equals(methodSymbol.ContainingType, this.analysisContext.KnownAnalysisTypes.CreateMethodSelectorTypeSymbol))
         {
-            case nameof(IFactoryMethodSelector.Add):
-                new AddFactoryMethodVisitor(methodSymbol, this.factoryMethodRegistrationBuilder, this.analysisContext).Visit(node);
-                break;
+            var addCreateMethodVisitor = new AddCreateMethodVisitor(methodSymbol, this.analysisContext);
+            addCreateMethodVisitor.Visit(node);
+            this.analysisContext.BindFactory(factoryType, addCreateMethodVisitor.CreateMethods);
+        }
+        else if (SymbolEqualityComparer.Default.Equals(methodSymbol.ContainingType, this.factoryTypeSymbol))
+        {
+            var createMethods = ImmutableArray.Create((Method: this.analysisContext.TypeFactory.CreateMethod(methodSymbol), ReturnType: methodSymbol.ReturnType));
+            this.analysisContext.BindFactory(factoryType, createMethods);
         }
     }
 }
