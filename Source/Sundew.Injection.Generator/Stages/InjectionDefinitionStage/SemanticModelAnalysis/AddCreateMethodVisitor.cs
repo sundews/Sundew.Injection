@@ -35,9 +35,6 @@ internal class AddCreateMethodVisitor : CSharpSyntaxWalker
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
         base.VisitArgumentList(node);
-        var typeArguments = this.methodSymbol.TypeArguments;
-        var interfaceType = typeArguments[0];
-        var implementationType = typeArguments.Length == 2 ? typeArguments[1] : interfaceType;
         var parameters = this.methodSymbol.Parameters;
         var i = 0;
         var factoryMethodSelector = (Method?)parameters[i++].ExplicitDefaultValue;

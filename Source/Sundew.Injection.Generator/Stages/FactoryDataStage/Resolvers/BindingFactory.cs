@@ -110,7 +110,7 @@ internal class BindingFactory
             return Item.Fail<Binding, BindingError>(createMethodResult.Error);
         });
 
-        if (createBindingsResult.Evaluate(out var all, out var failed))
+        if (createBindingsResult.TryGet(out var all, out var failed))
         {
             this.bindingsTypeRegistrar.Register(requestedArrayCompatibleType.Id, null, all.Items);
             return this.CreateArrayParameter(requestedArrayCompatibleType, elementType, all.Items);

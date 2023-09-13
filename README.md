@@ -22,6 +22,12 @@ Generally, short-lived applications can benefit the most from Pure DI during sta
 4. Use CreateFactory for the code generator to implement the factory class
 5. Use the generated factory in the application
 
+## Documentation
+
+## Examples
+
+* See the [FactoryDeclaration](https://github.com/sundews/Sundew.Injection/blob/master/Source/TestProjects/AllFeaturesSuccess/FactoryDeclaration.cs) where nearly all features are used.
+
 ## Features
 
 | Features                                                        | Usage                                                                                                                                  | Comparison to DIC                                                            |
@@ -88,7 +94,6 @@ An IDisposable/IAsyncDisposable object is considered owned by a factory in the f
 
 ## Not implemented yet:
 * Generating documentation
-* Examples
 * Test error cases
 * Custom lifetime scope, to support implementing something like single instance per thread or per session
 * Test correctness of generated code

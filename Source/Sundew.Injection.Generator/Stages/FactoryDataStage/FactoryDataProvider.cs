@@ -84,7 +84,7 @@ internal static class FactoryDataProvider
                         injectionTreeResult.Value.Root));
                 });
 
-                if (factoryMethodRegistrationsResult.Evaluate(out var all, out var failed))
+                if (factoryMethodRegistrationsResult.TryGet(out var all, out var failed))
                 {
                     var fallbackFactoryMethodData = all.First();
                     var fallbackFactoryType = new NamedType(fallbackFactoryMethodData.Return.Type.Name, fallbackFactoryMethodData.Target.Type.Namespace, compilationData.AssemblyName);

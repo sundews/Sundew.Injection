@@ -34,7 +34,7 @@ internal static class InjectionDefinitionProvider
         try
         {
             var knownAnalysisTypesResult = KnownAnalysisTypes.Get(injectionDeclarationSemanticModel.Compilation);
-            if (!knownAnalysisTypesResult.Evaluate(out var knownAnalysisTypes, out var errors))
+            if (!knownAnalysisTypesResult.TryGet(out var knownAnalysisTypes, out var errors))
             {
                 return R.Error(errors);
             }

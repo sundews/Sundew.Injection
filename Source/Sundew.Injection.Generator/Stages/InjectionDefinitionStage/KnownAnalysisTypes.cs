@@ -82,7 +82,7 @@ public sealed class KnownAnalysisTypes : IKnownInjectableTypes
             compilation.GetConstructed(),
         }.AllOrFailed();
 
-        if (requiredTypes.Evaluate(out var all, out var errors))
+        if (requiredTypes.TryGet(out var all, out var errors))
         {
             var index = 0;
             return R.Success(new KnownAnalysisTypes(

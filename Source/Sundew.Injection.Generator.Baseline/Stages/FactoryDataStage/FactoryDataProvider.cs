@@ -72,7 +72,7 @@ internal static class FactoryDataProvider
                             injectionTreeResult.Value.Root));
                     });
 
-                    if (factoryMethodInfoResult.Evaluate(out var all, out var failed))
+                    if (factoryMethodInfoResult.TryGet(out var all, out var failed))
                     {
                         var (factoryType, factoryInterfaceType) = bindingResolver.CreateFactoryBinding(factoryCreationDefinition, all.First(), factoryConstructorParameters, implementDisposable, compilationData.AssemblyName);
 

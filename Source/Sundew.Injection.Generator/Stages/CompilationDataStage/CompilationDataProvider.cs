@@ -48,7 +48,7 @@ internal static class CompilationDataProvider
         }.AllOrFailed();
 
         cancellationToken.ThrowIfCancellationRequested();
-        if (requiredTypeSymbols.Evaluate(out var all, out var errors))
+        if (requiredTypeSymbols.TryGet(out var all, out var errors))
         {
             var index = 0;
             var iInitializableType = CreateNamedType(all[index++]);

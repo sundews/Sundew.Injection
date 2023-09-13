@@ -75,7 +75,7 @@ internal class BindGenericVisitor : CSharpSyntaxWalker
             return Item.Fail<(UnboundGenericType Type, TypeMetadata TypeMetadata), Diagnostic>(Diagnostic.Create(Diagnostics.OnlyGenericTypeSupportedError, default, x.ToDisplayString()));
         });
 
-        var actualInterfaces = interfaces.Evaluate(out var all, out var failed)
+        var actualInterfaces = interfaces.TryGet(out var all, out var failed)
             ? all.Items.ToImmutableArray()
             : failed.Items.Do(
                 errors => errors.ForEach(x => this.analysisContext.CompiletimeInjectionDefinitionBuilder.ReportDiagnostic(x.Error)),

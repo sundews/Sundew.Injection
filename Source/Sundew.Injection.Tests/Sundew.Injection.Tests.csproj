@@ -12,8 +12,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" version="7.0.0" />
-    <PackageReference Include="Disposal.Interfaces" Version="1.0.0-u20230522-100738-local" />
-    <PackageReference Include="Initialization.Interfaces" Version="1.0.1-u20230522-100737-local" />
+    <PackageReference Include="Disposal.Interfaces" Version="1.0.0" />
+    <PackageReference Include="Initialization.Interfaces" Version="1.0.1" />
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="4.4.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
@@ -27,11 +27,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Base.Collections" Version="11.0.0-u20230908-145938-local">
+    <PackageReference Include="Sundew.Base.Collections" Version="11.0.0-u20230913-225400-ci">
       <Aliases>sbc</Aliases>
     </PackageReference>
-    <PackageReference Include="Sundew.Base.Primitives" Version="11.0.0-u20230908-145938-local" />
-    <PackageReference Include="Sundew.Base.Text" Version="11.0.0-u20230908-145938-local">
+    <PackageReference Include="Sundew.Base.Primitives" Version="11.0.0-u20230913-225400-ci" />
+    <PackageReference Include="Sundew.Base.Text" Version="11.0.0-u20230913-225400-ci">
       <Aliases>sbt</Aliases>
     </PackageReference>
     <PackageReference Include="Sundew.Testing.CodeAnalysis" Version="0.0.0-u20230521-013600-ci" />
