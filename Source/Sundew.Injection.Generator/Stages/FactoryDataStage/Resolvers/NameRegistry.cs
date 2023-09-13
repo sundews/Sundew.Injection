@@ -12,7 +12,7 @@ using System.Diagnostics.CodeAnalysis;
 
 public class NameRegistry<TValue> : ICache<string, TValue>, INameRegistrar<TValue>
 {
-    private readonly Dictionary<string, TValue> registry = new Dictionary<string, TValue>();
+    private readonly Dictionary<string, TValue> registry = new();
 
     public void Register(string name, TValue value)
     {

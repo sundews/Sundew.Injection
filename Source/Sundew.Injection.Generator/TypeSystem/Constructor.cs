@@ -9,4 +9,4 @@ namespace Sundew.Injection.Generator.TypeSystem;
 
 using Sundew.Base.Collections.Immutable;
 
-public sealed record class Constructor(ValueArray<Parameter> Parameters);
+internal sealed record class Constructor(ValueArray<Parameter> Parameters);

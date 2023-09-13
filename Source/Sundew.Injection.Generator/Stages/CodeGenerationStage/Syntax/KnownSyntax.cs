@@ -9,44 +9,42 @@ namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Syntax;
 
 using System;
 using System.Collections.Immutable;
-using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.Syntax;
 using Sundew.Injection.Generator.Stages.CompilationDataStage;
-using Sundew.Injection.Generator.Stages.FactoryDataStage;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal class KnownSyntax
 {
-    internal const string LifetimeHandlerName = "lifecycleHandler";
-    internal const string ChildLifetimeHandlerName = "childLifetimeHandler";
-    private const string CreateChildLifetimeHandler = "CreateChildLifecycleHandler";
+    internal const string LifecycleHandlerName = "lifecycleHandler";
+    internal const string ChildLifecycleHandlerName = "childLifecycleHandler";
+    private const string CreateChildLifecycleHandler = "CreateChildLifecycleHandler";
     private const string TryAdd = "TryAdd";
     private const string InitializeAsync = "InitializeAsync";
     private const string Dispose = "Dispose";
     private const string DisposeAsync = "DisposeAsync";
-    private readonly Lazy<LifetimeHandlerSyntax> lifetimeHandler;
-    private readonly Lazy<LifetimeHandlerSyntax> childLifetimeHandler;
+    private readonly Lazy<LifecycleHandlerSyntax> lifecycleHandler;
+    private readonly Lazy<LifecycleHandlerSyntax> childLifecycleHandler;
 
     public KnownSyntax(CompilationData compilationData)
     {
-        this.lifetimeHandler = new Lazy<LifetimeHandlerSyntax>(() =>
+        this.lifecycleHandler = new Lazy<LifecycleHandlerSyntax>(() =>
         {
             var memberAccessExpression = new MemberAccessExpression(
                 Identifier.This,
-                LifetimeHandlerName);
-            return new LifetimeHandlerSyntax(compilationData.LifetimeHandlerType, compilationData.LifetimeHandlerType, memberAccessExpression, LifetimeHandlerName);
+                LifecycleHandlerName);
+            return new LifecycleHandlerSyntax(compilationData.LifecycleHandlerBinding.TargetType, compilationData.LifecycleHandlerBinding.TargetType, memberAccessExpression, LifecycleHandlerName);
         });
 
-        this.childLifetimeHandler = new Lazy<LifetimeHandlerSyntax>(() =>
+        this.childLifecycleHandler = new Lazy<LifecycleHandlerSyntax>(() =>
         {
-            var memberAccessExpression = new Identifier(ChildLifetimeHandlerName);
-            return new LifetimeHandlerSyntax(compilationData.ILifetimeHandlerType, compilationData.LifetimeHandlerType, memberAccessExpression, ChildLifetimeHandlerName);
+            var memberAccessExpression = new Identifier(ChildLifecycleHandlerName);
+            return new LifecycleHandlerSyntax(compilationData.LifecycleHandlerBinding.TargetReferenceType, compilationData.LifecycleHandlerBinding.TargetReferenceType, memberAccessExpression, ChildLifecycleHandlerName);
         });
     }
 
-    public LifetimeHandlerSyntax SharedLifetimeHandler => this.lifetimeHandler.Value;
+    public LifecycleHandlerSyntax SharedLifecycleHandler => this.lifecycleHandler.Value;
 
-    public LifetimeHandlerSyntax ChildLifetimeHandler => this.childLifetimeHandler.Value;
+    public LifecycleHandlerSyntax ChildLifecycleHandler => this.childLifecycleHandler.Value;
 
     public string DisposeName => Dispose;
 
@@ -54,15 +52,21 @@ internal class KnownSyntax
 
     public string InitializeAsyncName => InitializeAsync;
 
-    public AttributeDeclaration EditorBrowsableAttribute { get; } = new AttributeDeclaration(
+    public AttributeDeclaration EditorBrowsableAttribute { get; } = new(
         "[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]");
 
-    public sealed record LifetimeHandlerSyntax(
+    public AttributeDeclaration FactoryAttribute { get; } = new(
+        "[global::Sundew.Injection.Factory]");
+
+    public AttributeDeclaration CreateMethodAttribute { get; } = new(
+        "[global::Sundew.Injection.CreateMethod]");
+
+    public sealed record LifecycleHandlerSyntax(
         string AccessorName,
-        NamedType Type,
+        DefiniteType Type,
         Expression Access,
-        ExpressionStatement CreateLifetimeHandlerAndAssignFieldStatement,
-        LocalDeclarationStatement CreateChildLifetimeHandlerAndAssignVarStatement,
+        ExpressionStatement CreateLifecycleHandlerAndAssignFieldStatement,
+        LocalDeclarationStatement CreateChildLifecycleHandlerAndAssignVarStatement,
         MemberAccessExpression TryAddMethod,
         MemberAccessExpression InitializeMethod,
         AwaitExpression InitializeAsyncMethodCall,
@@ -70,19 +74,18 @@ internal class KnownSyntax
         MemberAccessExpression DisposeAsyncMethod)
     {
         private const string Initialize = "Initialize";
-        private const string False = "false";
         private const string ConfigureAwait = "ConfigureAwait";
 
-        public LifetimeHandlerSyntax(NamedType lifetimeHandlerType, NamedType createdLifetimeHandlerType, Expression lifetimeHandlerAccess, string accessorName)
+        public LifecycleHandlerSyntax(DefiniteType lifetimeHandlerType, DefiniteType createdLifetimeHandlerType, Expression lifetimeHandlerAccess, string accessorName)
             : this(
                 accessorName,
                 lifetimeHandlerType,
                 lifetimeHandlerAccess,
-                new ExpressionStatement(new AssignmentExpression(lifetimeHandlerAccess, new CreationExpression(CreationSource.ConstructorCall(createdLifetimeHandlerType), ImmutableList.Create(new Identifier(False), Identifier.Null, Identifier.Null)))),
-                new LocalDeclarationStatement(ChildLifetimeHandlerName, new InvocationExpression(new MemberAccessExpression(lifetimeHandlerAccess, CreateChildLifetimeHandler))),
+                new ExpressionStatement(new AssignmentExpression(lifetimeHandlerAccess, CreationExpression._ConstructorCall(createdLifetimeHandlerType, ImmutableList.Create(Literal.False, Literal.False, Literal.Null, Literal.Null)))),
+                new LocalDeclarationStatement(ChildLifecycleHandlerName, new InvocationExpression(new MemberAccessExpression(lifetimeHandlerAccess, CreateChildLifecycleHandler))),
                 new MemberAccessExpression(lifetimeHandlerAccess, TryAdd),
                 new MemberAccessExpression(lifetimeHandlerAccess, Initialize),
-                new AwaitExpression(new InvocationExpression(new MemberAccessExpression(new InvocationExpression(new MemberAccessExpression(lifetimeHandlerAccess, InitializeAsync)), ConfigureAwait), new Expression[] { new Identifier(False) })),
+                new AwaitExpression(new InvocationExpression(new MemberAccessExpression(new InvocationExpression(new MemberAccessExpression(lifetimeHandlerAccess, InitializeAsync)), ConfigureAwait), new Expression[] { Literal.False })),
                 new MemberAccessExpression(lifetimeHandlerAccess, Dispose),
                 new MemberAccessExpression(lifetimeHandlerAccess, DisposeAsync))
         {

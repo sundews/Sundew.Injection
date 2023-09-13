@@ -13,6 +13,8 @@ using Sundew.Injection.Generator.Stages.CodeGenerationStage;
 
 internal static class OutputCodeGenerationProvider
 {
+    private const string Generated = ".generated";
+
     public static void SetupOutputResultStage(
         this IncrementalValuesProvider<ValueArray<GeneratedOutput>> generatedCodeProvider,
         IncrementalGeneratorInitializationContext incrementalGeneratorInitializationContext)
@@ -21,7 +23,7 @@ internal static class OutputCodeGenerationProvider
         {
             foreach (var generatedOutput in generatedOutputs)
             {
-                sourceProductionContext.AddSource(generatedOutput.FileName, generatedOutput.Source);
+                sourceProductionContext.AddSource(generatedOutput.FileName + Generated, generatedOutput.Source);
             }
         });
     }

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Type.cs" company="Sundews">
+// <copyright file="Kind.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -12,15 +12,15 @@ using System.Collections.Immutable;
 using Sundew.Injection.Generator.TypeSystem;
 
 [DiscriminatedUnions.DiscriminatedUnion]
-public abstract record BindingError
+internal abstract record BindingError
 {
     [DiscriminatedUnions.CaseType(typeof(CreateMethodError))]
-    public static BindingError CreateMethodError(Type? unresolvedContainingType, ImmutableArray<Parameter> unresolvedParameters) => new CreateMethodError(unresolvedContainingType, unresolvedParameters);
+    internal static BindingError CreateMethodError(Type? unresolvedContainingType, ImmutableArray<Parameter> unresolvedParameters) => new CreateMethodError(unresolvedContainingType, unresolvedParameters);
 
     [Sundew.DiscriminatedUnions.CaseTypeAttribute(typeof(CreateGenericMethodError))]
-    public static BindingError CreateGenericMethodError(ImmutableArray<(GenericParameter TargetParameter, Symbol UnresolvedSymbol)> failedParameters) => new CreateGenericMethodError(failedParameters);
+    internal static BindingError CreateGenericMethodError(ImmutableArray<(GenericParameter TargetParameter, Symbol UnresolvedSymbol)> failedParameters) => new CreateGenericMethodError(failedParameters);
 
-    public sealed record FailedResolveError(ImmutableArray<FailedResolve> FailedResolves) : BindingError
+    internal sealed record FailedResolveError(ImmutableArray<FailedResolve> FailedResolves) : BindingError
     {
         public FailedResolveError(FailedResolve failedResolve)
             : this(ImmutableArray.Create(failedResolve))
@@ -28,9 +28,9 @@ public abstract record BindingError
         }
     }
 
-    public sealed record ResolveDefiniteParameterError(DefiniteParameter DefiniteParameter) : BindingError;
+    internal sealed record ResolveDefiniteParameterError(DefiniteParameter DefiniteParameter) : BindingError;
 
-    public sealed record NoViableConstructorFoundForType(Type Type) : BindingError;
+    internal sealed record NoViableConstructorFoundForType(Type Type) : BindingError;
 
-    public sealed record ResolveArrayElementsError(IReadOnlyList<BindingError> ElementsBindingError) : BindingError;
+    internal sealed record ResolveArrayElementsError(IReadOnlyList<BindingError> ElementsBindingError) : BindingError;
 }

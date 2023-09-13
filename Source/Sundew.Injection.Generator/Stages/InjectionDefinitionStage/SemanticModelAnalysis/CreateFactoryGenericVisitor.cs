@@ -13,30 +13,23 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Sundew.Base.Primitives;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
-using Sundew.Injection.Generator.TypeSystem;
 
 internal class CreateFactoryGenericVisitor : CSharpSyntaxWalker
 {
-    private readonly SemanticModel semanticModel;
-    private readonly TypeFactory typeFactory;
-    private readonly KnownAnalysisTypes knownAnalysisTypes;
-    private readonly CompiletimeInjectionDefinitionBuilder compiletimeInjectionDefinitionBuilder;
     private readonly IMethodSymbol methodSymbol;
+    private readonly AnalysisContext analysisContext;
 
-    public CreateFactoryGenericVisitor(SemanticModel semanticModel, TypeFactory typeFactory, KnownAnalysisTypes knownAnalysisTypes, CompiletimeInjectionDefinitionBuilder compiletimeInjectionDefinitionBuilder, IMethodSymbol methodSymbol)
+    public CreateFactoryGenericVisitor(IMethodSymbol methodSymbol, AnalysisContext analysisContext)
     {
-        this.semanticModel = semanticModel;
-        this.typeFactory = typeFactory;
-        this.knownAnalysisTypes = knownAnalysisTypes;
-        this.compiletimeInjectionDefinitionBuilder = compiletimeInjectionDefinitionBuilder;
         this.methodSymbol = methodSymbol;
+        this.analysisContext = analysisContext;
     }
 
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
         var typeArguments = this.methodSymbol.TypeArguments;
         var parameters = this.methodSymbol.Parameters;
-        var factoryMethods = new FactoryMethodRegistrationBuilder(this.typeFactory);
+        var factoryMethods = new FactoryMethodRegistrationBuilder(this.analysisContext.TypeFactory);
         var i = 0;
         var factoryName = (string?)parameters[i++].ExplicitDefaultValue;
         var generateInterface = (bool?)parameters[i++].ExplicitDefaultValue ?? true;
@@ -50,16 +43,16 @@ internal class CreateFactoryGenericVisitor : CSharpSyntaxWalker
                 switch (argumentSyntax.NameColon.Name.ToString())
                 {
                     case nameof(@namespace):
-                        @namespace = (string?)this.semanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
+                        @namespace = (string?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
                         break;
                     case nameof(factoryName):
-                        factoryName = (string?)this.semanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
+                        factoryName = (string?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
                         break;
                     case nameof(generateInterface):
-                        generateInterface = (bool?)this.semanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value ?? true;
+                        generateInterface = (bool?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value ?? true;
                         break;
                     case nameof(accessibility):
-                        accessibility = this.semanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value.ToEnumOrDefault(Injection.Accessibility.Public);
+                        accessibility = this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value.ToEnumOrDefault(Injection.Accessibility.Public);
                         break;
                 }
             }
@@ -68,16 +61,16 @@ internal class CreateFactoryGenericVisitor : CSharpSyntaxWalker
                 switch (argumentIndex)
                 {
                     case 0:
-                        factoryName = (string?)this.semanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
+                        factoryName = (string?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
                         break;
                     case 1:
-                        generateInterface = (bool?)this.semanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value ?? true;
+                        generateInterface = (bool?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value ?? true;
                         break;
                     case 2:
-                        accessibility = this.semanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value.ToEnumOrDefault(Injection.Accessibility.Public);
+                        accessibility = this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value.ToEnumOrDefault(Injection.Accessibility.Public);
                         break;
                     case 3:
-                        @namespace = (string?)this.semanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
+                        @namespace = (string?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
                         break;
                 }
 
@@ -88,12 +81,12 @@ internal class CreateFactoryGenericVisitor : CSharpSyntaxWalker
         var implementationType = typeArguments.Last();
         factoryMethods.Add(implementationType, implementationType, null, null, accessibility, false);
 
-        this.compiletimeInjectionDefinitionBuilder.CreateFactory(factoryMethods, @namespace, factoryName, generateInterface, accessibility);
+        this.analysisContext.CompiletimeInjectionDefinitionBuilder.CreateFactory(factoryMethods, @namespace, factoryName, generateInterface, accessibility);
     }
 
     public override void VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
     {
-        var symbolInfo = this.semanticModel.GetSymbolInfo(node);
+        var symbolInfo = this.analysisContext.SemanticModel.GetSymbolInfo(node);
         if (symbolInfo.Symbol != null)
         {
             switch (symbolInfo.Symbol.Kind)

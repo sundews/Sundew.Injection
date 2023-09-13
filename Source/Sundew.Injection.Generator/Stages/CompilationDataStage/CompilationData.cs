@@ -7,18 +7,17 @@
 
 namespace Sundew.Injection.Generator.Stages.CompilationDataStage;
 
+using Sundew.Injection.Generator.Stages.FactoryDataStage.TypeSystem;
 using Sundew.Injection.Generator.TypeSystem;
 
-public sealed record CompilationData(
+internal sealed record CompilationData(
     bool AreNullableAnnotationsSupported,
     NamedType IInitializableType,
     NamedType IAsyncInitializableType,
     NamedType IDisposableType,
     NamedType IAsyncDisposableType,
-    DefiniteBoundGenericType DisposableListType,
-    GenericType WeakKeyDisposingDictionary,
-    NamedType ILifetimeHandlerType,
-    NamedType LifetimeHandlerType,
+    Binding LifecycleHandlerBinding,
+    NamedType IGeneratedFactoryType,
     GenericType ConstructedType,
     NamedType VoidType,
     NamedType ValueTaskType,

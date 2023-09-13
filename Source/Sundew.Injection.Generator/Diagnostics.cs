@@ -48,4 +48,58 @@ public static class Diagnostics
         DiagnosticSeverity.Error,
         true,
         Resources.ResolveTypeErrorDescription);
+
+    public static DiagnosticDescriptor UnsupportedInstanceMethodError { get; } = new(
+        "SI0005",
+        Resources.UnsupportedInstanceMethodErrorTitle,
+        Resources.UnsupportedInstanceMethodErrorMessageFormat,
+        CodeGeneration,
+        DiagnosticSeverity.Error,
+        true,
+        Resources.UnsupportedInstanceMethodErrorDescription);
+
+    public static DiagnosticDescriptor OnlyGenericTypeSupportedError { get; } = new(
+        "SI0006",
+        Resources.OnlyGenericTypeSupportedErrorTitle,
+        Resources.OnlyGenericTypeSupportedErrorMessageFormat,
+        CodeGeneration,
+        DiagnosticSeverity.Error,
+        true,
+        Resources.OnlyGenericTypeSupportedErrorDescription);
+
+    public static DiagnosticDescriptor TypeNotInstantiableError { get; } = new(
+        "SI0007",
+        Resources.TypeNotInstantiableErrorTitle,
+        Resources.TypeNotInstantiableErrorMessageFormat,
+        CodeGeneration,
+        DiagnosticSeverity.Error,
+        true,
+        Resources.TypeNotInstantiableErrorDescription);
+
+    public static DiagnosticDescriptor NoViableConstructorFoundError { get; } = new(
+        "SI0008",
+        Resources.NoViableConstructorFoundErrorTitle,
+        Resources.NoViableConstructorFoundErrorMessageFormat,
+        CodeGeneration,
+        DiagnosticSeverity.Error,
+        true,
+        Resources.NoViableConstructorFoundErrorDescription);
+
+    public static DiagnosticDescriptor RequiredTypeNotFoundError { get; } = new(
+        "SI0009",
+        Resources.RequiredTypeNotFoundErrorTitle,
+        Resources.RequiredTypeNotFoundErrorMessageFormat,
+        CodeGeneration,
+        DiagnosticSeverity.Error,
+        true,
+        Resources.RequiredTypeNotFoundErrorDescription);
+
+    public static DiagnosticDescriptor MultipleParametersNotSupportedForBindFactoryError { get; } = new(
+        "SI0009",
+        Resources.MultipleParametersNotSupportedForBindFactoryErrorTitle,
+        Resources.MultipleParametersNotSupportedForBindFactoryErrorMessageFormat,
+        CodeGeneration,
+        DiagnosticSeverity.Error,
+        true,
+        Resources.MultipleParametersNotSupportedForBindFactoryErrorDescription);
 }

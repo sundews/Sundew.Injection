@@ -9,7 +9,7 @@ namespace Sundew.Injection.Generator.TypeSystem;
 
 using Microsoft.CodeAnalysis;
 
-public interface IKnownInjectableTypes
+internal interface IKnownInjectableTypes
 {
     INamedTypeSymbol IEnumerableTypeSymbol { get; }
 

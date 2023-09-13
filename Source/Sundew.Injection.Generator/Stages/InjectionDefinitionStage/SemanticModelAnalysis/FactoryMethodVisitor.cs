@@ -10,29 +10,22 @@ namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticMod
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Sundew.Injection.Generator.TypeSystem;
 
 internal class FactoryMethodVisitor : CSharpSyntaxWalker
 {
-    private readonly SemanticModel semanticModel;
-    private readonly TypeFactory typeFactory;
-    private readonly CompiletimeInjectionDefinitionBuilder compiletimeInjectionDefinitionBuilder;
     private readonly FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder;
-    private readonly INamedTypeSymbol factoryMethodSelectorTypeSymbol;
+    private readonly AnalysisContext analysisContext;
 
-    public FactoryMethodVisitor(SemanticModel semanticModel, TypeFactory typeFactory, INamedTypeSymbol factoryMethodSelectorTypeSymbol, CompiletimeInjectionDefinitionBuilder compiletimeInjectionDefinitionBuilder, FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder)
+    public FactoryMethodVisitor(FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder, AnalysisContext analysisContext)
     {
-        this.semanticModel = semanticModel;
-        this.typeFactory = typeFactory;
-        this.compiletimeInjectionDefinitionBuilder = compiletimeInjectionDefinitionBuilder;
         this.factoryMethodRegistrationBuilder = factoryMethodRegistrationBuilder;
-        this.factoryMethodSelectorTypeSymbol = factoryMethodSelectorTypeSymbol;
+        this.analysisContext = analysisContext;
     }
 
     public override void VisitInvocationExpression(InvocationExpressionSyntax node)
     {
         base.VisitInvocationExpression(node);
-        var symbolInfo = this.semanticModel.GetSymbolInfo(node);
+        var symbolInfo = this.analysisContext.SemanticModel.GetSymbolInfo(node);
         if (symbolInfo.Symbol is IMethodSymbol methodSymbol)
         {
             this.VisitBuilderCall(node, methodSymbol);
@@ -40,7 +33,7 @@ internal class FactoryMethodVisitor : CSharpSyntaxWalker
         else if (symbolInfo.CandidateReason == CandidateReason.OverloadResolutionFailure &&
                  symbolInfo.CandidateSymbols.Length == 1)
         {
-            if (symbolInfo.CandidateSymbols[0] is IMethodSymbol methodSymbol2 && SymbolEqualityComparer.Default.Equals(methodSymbol2.ContainingType, this.factoryMethodSelectorTypeSymbol))
+            if (symbolInfo.CandidateSymbols[0] is IMethodSymbol methodSymbol2 && SymbolEqualityComparer.Default.Equals(methodSymbol2.ContainingType, this.analysisContext.KnownAnalysisTypes.FactoryMethodSelectorTypeSymbol))
             {
                 this.VisitBuilderCall(node, methodSymbol2);
             }
@@ -52,7 +45,7 @@ internal class FactoryMethodVisitor : CSharpSyntaxWalker
         switch (methodSymbol.Name)
         {
             case nameof(IFactoryMethodSelector.Add):
-                new AddFactoryMethodVisitor(this.semanticModel, this.typeFactory, this.factoryMethodRegistrationBuilder, methodSymbol).Visit(node);
+                new AddFactoryMethodVisitor(methodSymbol, this.factoryMethodRegistrationBuilder, this.analysisContext).Visit(node);
                 break;
         }
     }

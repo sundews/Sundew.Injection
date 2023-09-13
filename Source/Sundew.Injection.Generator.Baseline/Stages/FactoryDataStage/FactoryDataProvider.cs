@@ -20,6 +20,7 @@ using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Resolvers;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
+using static Sundew.Base.Collections.Item;
 
 internal static class FactoryDataProvider
 {
@@ -71,24 +72,22 @@ internal static class FactoryDataProvider
                             injectionTreeResult.Value.Root));
                     });
 
-                    switch (factoryMethodInfoResult)
+                    if (factoryMethodInfoResult.TryGet(out var all, out var failed))
                     {
-                        case All<FactoryMethodRegistration, FactoryMethodData, ImmutableList<InjectionStageError>> all:
+                        var (factoryType, factoryInterfaceType) = bindingResolver.CreateFactoryBinding(factoryCreationDefinition, all.First(), factoryConstructorParameters, implementDisposable, compilationData.AssemblyName);
 
-                            var (factoryType, factoryInterfaceType) = bindingResolver.CreateFactoryBinding(factoryCreationDefinition, all.First(), factoryConstructorParameters, implementDisposable, compilationData.AssemblyName);
+                        var factoryDefinition = new FactoryData(
+                            factoryType,
+                            factoryInterfaceType,
+                            factoryCreationDefinition.GenerateInterface,
+                            factoryCreationDefinition.Accessibility,
+                            all.Items.ToImmutableArray());
 
-                            var factoryDefinition = new FactoryData(
-                                factoryType,
-                                factoryInterfaceType,
-                                factoryCreationDefinition.GenerateInterface,
-                                factoryCreationDefinition.Accessibility,
-                                all.Items.ToImmutableArray());
-
-                            factoryDefinitionResults.Add(R.Success(factoryDefinition));
-                            break;
-                        case Failed<FactoryMethodRegistration, FactoryMethodData, ImmutableList<InjectionStageError>> failedItems:
-                            factoryDefinitionResults.Add(R.Error(failedItems.GetErrors().SelectMany(x => x).Select(GetDiagnostic).ToImmutableArray().ToValueList()));
-                            break;
+                        factoryDefinitionResults.Add(R.Success(factoryDefinition));
+                    }
+                    else
+                    {
+                        factoryDefinitionResults.Add(R.Error(failed.GetErrors().SelectMany(x => x).Select(GetDiagnostic).ToImmutableArray().ToValueList()));
                     }
                 }
 

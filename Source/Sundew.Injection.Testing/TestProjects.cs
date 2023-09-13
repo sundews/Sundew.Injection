@@ -21,6 +21,7 @@ public static class TestProjects
                     null,
                     new Paths("bin", "obj"),
                     new References(
+                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("AllFeaturesSuccessDependency.dll")),
                         new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Sundew.Injection.dll")),
                         new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Microsoft.Bcl.AsyncInterfaces.dll")),
                         new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Initialization.Interfaces.dll")),
@@ -35,6 +36,7 @@ public static class TestProjects
                     null,
                     new Paths("bin", "obj"),
                     new References(
+                        new AssemblyReference(Paths.FindPathUpwards("AllFeaturesSuccessDependency.dll")),
                         new AssemblyReference(Paths.FindPathUpwards("Sundew.Injection.dll")),
                         new AssemblyReference(Paths.FindPathUpwards("Microsoft.Bcl.AsyncInterfaces.dll")),
                         new AssemblyReference(Paths.FindPathUpwards("Initialization.Interfaces.dll")),
@@ -43,8 +45,8 @@ public static class TestProjects
             });
         }
 
-        public Lazy<Compilation> FromCurrentDirectory { get; set; }
+        public Lazy<Compilation> FromCurrentDirectory { get; }
 
-        public Lazy<Compilation> FromEntryAssembly { get; set; }
+        public Lazy<Compilation> FromEntryAssembly { get; }
     }
 }

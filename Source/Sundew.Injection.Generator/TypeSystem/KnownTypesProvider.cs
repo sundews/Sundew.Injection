@@ -1,45 +1,63 @@
-﻿namespace Sundew.Injection.Generator.TypeSystem;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="KnownTypesProvider.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Sundew.Injection.Generator.TypeSystem;
 
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using global::Initialization.Interfaces;
 using Microsoft.CodeAnalysis;
+using Sundew.Base.Primitives.Computation;
 
 public static class KnownTypesProvider
 {
-    private const string IInitializable = "Initialization.Interfaces.IInitializable";
-    private const string IAsyncInitializable = "Initialization.Interfaces.IAsyncInitializable";
-    private const string IAsyncDisposable = "System.IAsyncDisposable";
-    private const string InitializationInterfaces = "Initialization.Interfaces";
-    private const string SundewInjectionGenerator = "Sundew.Injection.Generator";
-
-    public static INamedTypeSymbol GetIInitializableTypeSymbol(this Compilation compilation)
+    public static R<INamedTypeSymbol, string> GetIInitializableTypeSymbol(this Compilation compilation)
     {
-        return compilation.GetTypesByMetadataName(IInitializable).FirstOrDefault(x => x.ContainingAssembly.Name == InitializationInterfaces) ?? throw new NotSupportedException("IInitializable was not found, Initialization.Interfaces must be referenced");
+        return R.From(compilation.GetTypeByMetadataName(typeof(IInitializable).FullName), () => "IInitializable was not found, Initialization.Interfaces must be referenced");
     }
 
-    public static INamedTypeSymbol GetIAsyncInitializableTypeSymbol(this Compilation compilation)
+    public static R<INamedTypeSymbol, string> GetIAsyncInitializableTypeSymbol(this Compilation compilation)
     {
-        return compilation.GetTypesByMetadataName(IAsyncInitializable).FirstOrDefault(x => x.ContainingAssembly.Name == InitializationInterfaces) ?? throw new NotSupportedException("IAsyncInitializable was not found, Initialization.Interfaces must be referenced");
+        return R.From(compilation.GetTypeByMetadataName(typeof(IAsyncInitializable).FullName), () => "IAsyncInitializable was not found, Initialization.Interfaces must be referenced");
     }
 
-    public static INamedTypeSymbol GetIDisposableTypeSymbol(this Compilation compilation)
+    public static R<INamedTypeSymbol, string> GetIDisposableTypeSymbol(this Compilation compilation)
     {
-        return compilation.GetTypeByMetadataName(typeof(IDisposable).FullName) ?? throw new NotSupportedException("IDisposable was not found");
+        return R.From(compilation.GetTypeByMetadataName(typeof(IDisposable).FullName), () => "IDisposable was not found");
     }
 
-    public static INamedTypeSymbol GetIAsyncDisposableTypeSymbol(this Compilation compilation)
+    public static R<INamedTypeSymbol, string> GetIAsyncDisposableTypeSymbol(this Compilation compilation)
     {
-        return compilation.GetTypesByMetadataName(IAsyncDisposable).FirstOrDefault(x => x.ContainingAssembly.Name != SundewInjectionGenerator) ?? throw new NotSupportedException("IAsyncDisposable was not found");
+        return R.From(compilation.GetTypeByMetadataName(typeof(IAsyncDisposable).FullName), () => "IAsyncDisposable was not found");
     }
 
-    public static INamedTypeSymbol GetFunc(this Compilation compilation)
+    public static R<INamedTypeSymbol, string> GetFunc(this Compilation compilation)
     {
-        return compilation.GetTypeByMetadataName(typeof(Func<>).FullName) ?? throw new NotSupportedException("Func<> was not found");
+        return R.From(compilation.GetTypeByMetadataName(typeof(Func<>).FullName), () => "Func<> was not found");
     }
 
-    public static INamedTypeSymbol GetTask(this Compilation compilation)
+    public static R<INamedTypeSymbol, string> GetTask(this Compilation compilation)
     {
-        return compilation.GetTypeByMetadataName(typeof(Task<>).FullName) ?? throw new NotSupportedException("Task<> was not found");
+        return R.From(compilation.GetTypeByMetadataName(typeof(Task<>).FullName), () => "Task<> was not found");
+    }
+
+    public static R<INamedTypeSymbol, string> GetLifecycleHandler(this Compilation compilation)
+    {
+        return R.From(compilation.GetTypesByMetadataName(typeof(LifecycleHandler).FullName).FirstOrDefault(), () => "LifecycleHandler was not found");
+    }
+
+    public static R<INamedTypeSymbol, string> GetILifecycleHandler(this Compilation compilation)
+    {
+        return R.From(compilation.GetTypesByMetadataName(typeof(ILifecycleHandler).FullName).FirstOrDefault(), () => "ILifecycleHandler was not found");
+    }
+
+    public static R<INamedTypeSymbol, string> GetConstructed(this Compilation compilation)
+    {
+        return R.From(compilation.GetTypeByMetadataName(typeof(Sundew.Injection.Constructed<>).FullName), () => "Constructed<> was not found");
     }
 }

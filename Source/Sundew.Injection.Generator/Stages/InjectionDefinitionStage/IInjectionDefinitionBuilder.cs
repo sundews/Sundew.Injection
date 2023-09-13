@@ -7,7 +7,11 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
+using Microsoft.CodeAnalysis;
+using Sundew.Base.Collections.Immutable;
+using Sundew.Base.Primitives.Computation;
+
 internal interface IInjectionDefinitionBuilder
 {
-    InjectionDefinition Build();
+    R<InjectionDefinition, ValueList<Diagnostic>> Build();
 }

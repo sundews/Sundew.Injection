@@ -1,4 +1,11 @@
-﻿namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Templates;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Trivia.cs" company="Sundews">
+// Copyright (c) Sundews. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Templates;
 
 using System;
 
@@ -29,6 +36,7 @@ public class Trivia
     public const string AsyncName = "Async";
     public const string Async = "async";
     public const string Await = "await";
+    public const string Default = "default";
     public new const string Equals = "==";
 
     public static readonly string NewLineListSeparator = $",{Environment.NewLine}";

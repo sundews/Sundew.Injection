@@ -18,32 +18,33 @@ using Sundew.Injection.Generator.TypeSystem;
 internal static class NameHelper
 {
     /// <summary>
-    /// Gets the name of the unique.
+    /// Gets the name scoped to the dependee.
     /// </summary>
     /// <param name="injectionNode">The injection node.</param>
     /// <returns>The name string.</returns>
-    public static string GetUniqueName(IInjectionNode injectionNode)
+    public static string GetDependeeScopedName(NewInstanceInjectionNode injectionNode)
     {
-        return GetUniqueName(injectionNode.Name, injectionNode.ParentName);
+        var name = injectionNode.TargetType.GetDefiniteTypeName();
+        return GetDependeeScopedName(name, injectionNode.DependeeName);
     }
 
     /// <summary>
-    /// Gets the name of the unique.
+    /// Gets the name scoped to the dependee.
     /// </summary>
     /// <param name="name">The name.</param>
-    /// <param name="parentName">The parent name.</param>
+    /// <param name="dependeeName">The dependee name.</param>
     /// <returns>The name string.</returns>
-    public static string GetUniqueName(string name, string? parentName)
+    public static string GetDependeeScopedName(string name, string? dependeeName)
     {
-        if (parentName == null)
+        if (dependeeName.IsNullOrEmpty())
         {
             return name.Uncapitalize();
         }
 
-        return $"{name}For{parentName}".Uncapitalize();
+        return $"{name}For{dependeeName}".Uncapitalize();
     }
 
-    public static string GetVariableNameForType(DefiniteType type)
+    public static string GetIdentifierNameForType(DefiniteType type)
     {
         var name = type.Name.AsSpan();
         if (IsInterfaceName(name))
@@ -84,6 +85,6 @@ internal static class NameHelper
 
     private static bool IsInterfaceName(ReadOnlySpan<char> name)
     {
-        return name[0] == 'I' && char.IsUpper(name[1]);
+        return name.Length > 1 && name[0] == 'I' && char.IsUpper(name[1]);
     }
 }

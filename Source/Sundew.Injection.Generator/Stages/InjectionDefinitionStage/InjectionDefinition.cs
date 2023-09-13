@@ -13,6 +13,6 @@ using Sundew.Injection.Generator.TypeSystem;
 internal record InjectionDefinition(string DefaultNamespace,
     Inject RequiredParameterInjection,
     ValueArray<FactoryCreationDefinition> FactoryDefinitions,
-    ValueDictionary<Type, ValueArray<BindingRegistration>> BindingRegistrations,
+    ValueDictionary<TypeId, ValueArray<BindingRegistration>> BindingRegistrations,
     ValueDictionary<UnboundGenericType, ValueArray<GenericBindingRegistration>> GenericBindingRegistrations,
-    ValueDictionary<Type, ValueArray<ParameterSource>> RequiredParameters);
+    ValueDictionary<TypeId, ValueArray<ParameterSource>> RequiredParameters);

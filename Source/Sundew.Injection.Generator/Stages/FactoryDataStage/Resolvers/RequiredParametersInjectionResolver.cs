@@ -8,15 +8,15 @@
 namespace Sundew.Injection.Generator.Stages.FactoryDataStage.Resolvers;
 
 using System.Linq;
+using System.Xml.Linq;
 using Sundew.Base.Collections.Immutable;
-using Sundew.Base.Primitives.Computation;
 using Sundew.Base.Text;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal class RequiredParametersInjectionResolver
 {
-    public RequiredParametersInjectionResolver(Inject inject, ValueDictionary<Type, ValueArray<ParameterSource>> injectTypes)
+    public RequiredParametersInjectionResolver(Inject inject, ValueDictionary<TypeId, ValueArray<ParameterSource>> injectTypes)
     {
         this.Inject = inject;
         this.InjectTypes = injectTypes;
@@ -24,16 +24,16 @@ internal class RequiredParametersInjectionResolver
 
     public Inject Inject { get; }
 
-    public ValueDictionary<Type, ValueArray<ParameterSource>> InjectTypes { get; }
+    public ValueDictionary<TypeId, ValueArray<ParameterSource>> InjectTypes { get; }
 
     public ResolvedParameterSource ResolveParameterSource(Type type, string name)
     {
-        if (this.InjectTypes.TryGetValue(type, out var parameterSources))
+        if (this.InjectTypes.TryGetValue(type.Id, out var parameterSources))
         {
             return this.ResolveParameterSource(type, name, parameterSources);
         }
 
-        return new ResolvedParameterSource.Found(ParameterSource.DirectParameter(this.Inject));
+        return new ResolvedParameterSource.NotFound(ParameterSource.DirectParameter(this.Inject));
     }
 
     private ResolvedParameterSource ResolveParameterSource(Type type, string name, ValueArray<ParameterSource> parameterSources)

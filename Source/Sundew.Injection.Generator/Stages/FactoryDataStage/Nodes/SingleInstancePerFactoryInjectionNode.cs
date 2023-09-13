@@ -20,27 +20,7 @@ internal sealed record SingleInstancePerFactoryInjectionNode(
     CreationSource CreationSource,
     O<ParameterNode> ParameterNodeOption,
     O<ValueArray<DefiniteParameter>> OverridableNewParametersOption,
-    string? ParentName) : InjectionNode(ParentName), IHaveParameters
+    string? ParentName) : InjectionNode(ParentName), IHaveParametersNode, IMayOverrideNewNode
 {
     public override string Name => this.TargetType.Name;
-
-    public bool Equals(SingleInstancePerFactoryInjectionNode? other)
-    {
-        if (ReferenceEquals(null, other))
-        {
-            return false;
-        }
-
-        if (ReferenceEquals(this, other))
-        {
-            return true;
-        }
-
-        return this.TargetType.Equals(other.TargetType) && this.TargetReferenceType.Equals(other.TargetReferenceType) && this.Parameters.Equals(other.Parameters) && this.CreationSource.Equals(other.CreationSource) && this.ParameterNodeOption.Equals(other.ParameterNodeOption) && this.OverridableNewParametersOption.Equals(other.OverridableNewParametersOption);
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(this.TargetType, this.TargetReferenceType, this.Parameters, this.CreationSource, this.ParameterNodeOption, this.OverridableNewParametersOption);
-    }
 }

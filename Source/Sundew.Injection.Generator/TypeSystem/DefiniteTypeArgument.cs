@@ -7,7 +7,7 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-public readonly record struct DefiniteTypeArgument(DefiniteType Type, TypeMetadata TypeMetadata)
+internal readonly record struct DefiniteTypeArgument(DefiniteType Type, TypeMetadata TypeMetadata)
 {
     public DefiniteTypeArgument((DefiniteType Type, TypeMetadata TypeMetadata) fullType)
         : this(fullType.Type, fullType.TypeMetadata)

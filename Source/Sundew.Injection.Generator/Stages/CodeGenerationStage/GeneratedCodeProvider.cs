@@ -31,15 +31,15 @@ internal static class GeneratedCodeProvider
         try
         {
             var knownSyntax = new KnownSyntax(compilationData);
-            var factoryDeclarations = new FactorySyntaxGenerator(compilationData, knownSyntax, cancellationToken).Generate(factoryData);
+            var factoryDeclarations = new FactorySyntaxGenerator(compilationData, knownSyntax, factoryData, cancellationToken).Generate();
 
             var options = new Options(compilationData.AreNullableAnnotationsSupported);
             var classText = FactoryImplementationSourceCodeEmitter.GetFileContent(Sundew.Injection.Accessibility.Public, factoryDeclarations.ClassNamespaceDeclaration, options);
-            var generatedOutputs = ImmutableArray.Create(new GeneratedOutput(factoryData.FactoryType.Name, classText));
+            var generatedOutputs = ImmutableArray.Create(new GeneratedOutput(factoryData.FactoryType.FullName, classText));
             if (factoryData.GenerateInterface && factoryData.FactoryInterfaceType != null && factoryDeclarations.InterfaceNamespaceDeclaration != null)
             {
                 var interfaceText = FactoryInterfaceSourceCodeEmitter.GetFileContent(Sundew.Injection.Accessibility.Public, factoryDeclarations.InterfaceNamespaceDeclaration, options);
-                generatedOutputs = generatedOutputs.Add(new GeneratedOutput(factoryData.FactoryInterfaceType.Name, interfaceText));
+                generatedOutputs = generatedOutputs.Add(new GeneratedOutput(factoryData.FactoryInterfaceType.FullName, interfaceText));
             }
 
             return R.Success(generatedOutputs.ToValueArray());

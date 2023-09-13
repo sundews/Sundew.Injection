@@ -9,6 +9,5 @@ namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.Sy
 
 internal sealed record Identifier(string Name) : Expression
 {
-    public static readonly Identifier This = new Identifier("this");
-    public static readonly Identifier Null = new Identifier("null");
+    public static readonly Identifier This = new("this");
 }

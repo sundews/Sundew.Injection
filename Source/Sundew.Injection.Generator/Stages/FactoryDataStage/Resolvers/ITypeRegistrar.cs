@@ -9,7 +9,7 @@ namespace Sundew.Injection.Generator.Stages.FactoryDataStage.Resolvers;
 
 using Sundew.Injection.Generator.TypeSystem;
 
-public interface ITypeRegistrar<in TValue>
+internal interface ITypeRegistrar<in TValue>
 {
-    void Register(Type targetType, Type? interfaceType, TValue value);
+    void Register(TypeId targetType, TypeId? interfaceType, TValue value);
 }

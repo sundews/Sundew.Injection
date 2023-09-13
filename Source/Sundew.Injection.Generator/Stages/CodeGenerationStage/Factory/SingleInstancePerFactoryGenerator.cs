@@ -19,21 +19,21 @@ using MethodImplementation = Sundew.Injection.Generator.Stages.CodeGenerationSta
 
 internal class SingleInstancePerFactoryGenerator
 {
-    private readonly InjectionNodeEvaluator injectionNodeEvaluator;
-    private readonly CompilationData compilationData;
-    private readonly KnownSyntax knownSyntax;
+    private const string Owned = "owned";
+    private readonly GeneratorFeatures generatorFeatures;
+    private readonly GeneratorContext generatorContext;
 
-    public SingleInstancePerFactoryGenerator(InjectionNodeEvaluator injectionNodeEvaluator, CompilationData compilationData, KnownSyntax knownSyntax)
+    public SingleInstancePerFactoryGenerator(
+        GeneratorFeatures generatorFeatures,
+        GeneratorContext generatorContext)
     {
-        this.injectionNodeEvaluator = injectionNodeEvaluator;
-        this.compilationData = compilationData;
-        this.knownSyntax = knownSyntax;
+        this.generatorFeatures = generatorFeatures;
+        this.generatorContext = generatorContext;
     }
 
     public FactoryNode
        VisitSingleInstancePerFactory(
            SingleInstancePerFactoryInjectionNode singleInstancePerFactoryInjectionNode,
-           FactoryData factoryData,
            in FactoryImplementation factoryImplementation,
            in MethodImplementation method)
     {
@@ -43,72 +43,68 @@ internal class SingleInstancePerFactoryGenerator
             {
                 var factory = factoryNode.FactoryImplementation;
                 var factoryMethod = factoryNode.CreateMethod;
-                var result = this.injectionNodeEvaluator.Evaluate(nextCreationNode, factoryData, in factory, in factoryMethod);
+                var result = this.generatorFeatures.InjectionNodeExpressionGenerator.Generate(nextCreationNode, in factory, in factoryMethod);
                 return factoryNode with
                 {
                     FactoryImplementation = result.FactoryImplementation,
                     CreateMethod = result.CreateMethod,
-                    Arguments = factoryNode.Arguments.AddRange(result.Arguments),
+                    DependeeArguments = factoryNode.DependeeArguments.AddRange(result.DependeeArguments),
                 };
             });
 
         var targetType = singleInstancePerFactoryInjectionNode.TargetType;
         var targetReferenceType = singleInstancePerFactoryInjectionNode.TargetReferenceType;
         var fieldType = singleInstancePerFactoryInjectionNode.ParameterNodeOption.GetValueOrDefault(x => x.Type, targetReferenceType);
-        var (fields, wasAdded, fieldDeclaration) = factoryNode.FactoryImplementation.Fields.GetOrAddUnique(
-            NameHelper.GetVariableNameForType(targetType),
+        var (fields, wasAdded, targetTypeFieldDeclaration) = factoryNode.FactoryImplementation.Fields.GetOrAdd(
+            NameHelper.GetIdentifierNameForType(targetType),
             fieldType,
-            (conflictingName, i) => conflictingName + i,
             (fieldName) => new FieldDeclaration(fieldType, fieldName, null));
 
         var statements = factoryNode.FactoryImplementation.Constructor.Statements;
 
-        var targetMemberAccessExpression = new MemberAccessExpression(Identifier.This, fieldDeclaration.Name);
+        var targetMemberAccessExpression = new MemberAccessExpression(Identifier.This, targetTypeFieldDeclaration.Name);
         var constructorParameters = factoryNode.FactoryImplementation.Constructor.Parameters;
-        var parameters = ImmutableList.Create<Expression>(targetMemberAccessExpression);
+        var dependeeArguments = ImmutableList.Create<Expression>(targetMemberAccessExpression);
         var factoryMethods = factoryNode.FactoryImplementation.FactoryMethods;
         if (wasAdded)
         {
-            (factoryMethods, var creationExpression) = singleInstancePerFactoryInjectionNode.OverridableNewParametersOption.Evaluate(
-                factoryMethods,
-                (methodParameters, factoryMethods) => FactoryMethodHelper.GenerateFactoryMethod(factoryMethods, targetReferenceType, methodParameters, singleInstancePerFactoryInjectionNode.CreationSource, factoryNode.Arguments),
-                factoryMethods => (factoryMethods, new CreationExpression(singleInstancePerFactoryInjectionNode.CreationSource, factoryNode.Arguments)));
-
-            if (singleInstancePerFactoryInjectionNode.ParameterNodeOption.HasValue)
+            (factoryMethods, var creationExpression, factoryNode) = this.generatorFeatures.OptionalOverridableCreationGenerator.Generate(singleInstancePerFactoryInjectionNode, in factoryNode);
+            if (singleInstancePerFactoryInjectionNode.ParameterNodeOption.TryGetValue(out var parameterNode))
             {
-                var (parameterDeclarations, _, parameter, argument) = ParameterHelper.VisitParameter(
-                    singleInstancePerFactoryInjectionNode.ParameterNodeOption.Value,
-                    null,
+                (constructorParameters, _, var parameter, var argument, var needsFieldAssignment) = ParameterHelper.VisitParameter(
+                    parameterNode,
+                    NameHelper.GetIdentifierNameForType(parameterNode.Type),
                     constructorParameters,
                     ImmutableList<ParameterDeclaration>.Empty,
-                    true,
-                    true,
-                    this.compilationData);
-                constructorParameters = parameterDeclarations;
+                    this.generatorContext.CompilationData);
 
-                var (newFields, _, declaration) = fields.GetOrAddUnique(
-                    NameHelper.GetVariableNameForType(parameter.Type),
+                var (newFields, _, parameterField) = fields.GetOrAdd(
+                    parameter.Name,
                     parameter.Type,
-                    (conflictingName, i) => conflictingName + i,
                     (fieldName) => new FieldDeclaration(parameter.Type, fieldName, null));
                 fields = newFields;
 
-                var optionalParameterFieldAssignment =
-                    new ExpressionStatement(new AssignmentExpression(
-                        new MemberAccessExpression(Identifier.This, parameter.Name), new Identifier(parameter.Name)));
+                if (needsFieldAssignment)
+                {
+                    var optionalParameterFieldAssignment =
+                        new ExpressionStatement(new AssignmentExpression(
+                            new MemberAccessExpression(Identifier.This, parameterField.Name),
+                            new Identifier(parameter.Name)));
+                    statements = statements.Add(optionalParameterFieldAssignment);
+                }
 
-                var localDeclarationStatement = new LocalDeclarationStatement("owned" + targetType.Name, creationExpression);
+                var localDeclarationStatement = new LocalDeclarationStatement(Owned + targetType.Name, creationExpression);
                 var localDeclarationIdentifier = new Identifier(localDeclarationStatement.Name);
                 var localDeclarationAssignmentStatement = new ExpressionStatement(new AssignmentExpression(targetMemberAccessExpression, localDeclarationIdentifier));
                 var trueStatements = ImmutableList.Create<Statement>(localDeclarationStatement);
                 if (singleInstancePerFactoryInjectionNode.NeedsLifecycleHandling)
                 {
-                    var addInvocationStatement = new ExpressionStatement(new InvocationExpression(this.knownSyntax.SharedLifetimeHandler.TryAddMethod, new Expression[] { localDeclarationIdentifier }));
+                    var addInvocationStatement = new ExpressionStatement(new InvocationExpression(this.generatorContext.KnownSyntax.SharedLifecycleHandler.TryAddMethod, new Expression[] { localDeclarationIdentifier }));
                     trueStatements = trueStatements.Add(addInvocationStatement);
                 }
 
-                statements = statements.Add(optionalParameterFieldAssignment);
                 trueStatements = trueStatements.Add(localDeclarationAssignmentStatement);
+
                 var falseStatements = ImmutableList.Create<Statement>(new ExpressionStatement(new AssignmentExpression(targetMemberAccessExpression, argument)));
 
                 statements = statements.Add(new CreateOptionalParameterIfStatement(argument, trueStatements, falseStatements));
@@ -122,7 +118,7 @@ internal class SingleInstancePerFactoryGenerator
                 if (singleInstancePerFactoryInjectionNode.NeedsLifecycleHandling)
                 {
                     statements = statements.Add(new ExpressionStatement(new InvocationExpression(
-                        this.knownSyntax.SharedLifetimeHandler.TryAddMethod,
+                        this.generatorContext.KnownSyntax.SharedLifecycleHandler.TryAddMethod,
                         new Expression[] { targetMemberAccessExpression })));
                 }
             }
@@ -140,7 +136,7 @@ internal class SingleInstancePerFactoryGenerator
                 },
                 FactoryMethods = factoryMethods,
             },
-            Arguments = parameters,
+            DependeeArguments = dependeeArguments,
         };
     }
 }

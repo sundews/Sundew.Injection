@@ -15,23 +15,23 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
-    <PackageReference Include="Sundew.Testing.CodeAnalysis" Version="0.0.0-u20230516-212605-ci" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" version="6.0.0">
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.8" />
+    <PackageReference Include="Sundew.Testing.CodeAnalysis" Version="0.0.0-u20230521-013600-ci" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" version="7.0.0">
       <Aliases>asyncinterfaces</Aliases>
     </PackageReference>
-    <PackageReference Include="Initialization.Interfaces" Version="1.0.1-u20230516-210347-ci">
+    <PackageReference Include="Initialization.Interfaces" Version="1.0.1">
       <Aliases>initialization</Aliases>
     </PackageReference>
-    <PackageReference Include="Disposal.Interfaces" Version="1.0.0-u20230516-210504-ci">
+    <PackageReference Include="Disposal.Interfaces" Version="1.0.0">
       <Aliases>disposal</Aliases>
     </PackageReference>
-    <PackageReference Include="Sundew.Base.Collections" Version="10.0.2" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Primitives" Version="10.0.2" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Equality" Version="10.0.2" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Memory" Version="10.0.2" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Reporting" Version="10.0.2" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Text" Version="10.0.2" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Collections" Version="11.0.0-u20230913-225400-ci" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Primitives" Version="11.0.0-u20230913-225400-ci" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Equality" Version="11.0.0-u20230913-225400-ci" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Memory" Version="11.0.0-u20230913-225400-ci" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Reporting" Version="11.0.0-u20230913-225400-ci" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Text" Version="11.0.0-u20230913-225400-ci" GeneratePathProperty="true" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

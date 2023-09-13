@@ -13,11 +13,13 @@ using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
-internal abstract record InjectionStageError
+internal abstract partial record InjectionStageError
 {
-    public sealed record ResolveTypeError(BindingError BindingError, string ParentNode) : InjectionStageError;
+    public sealed record UnsupportedInstanceMethod(DefiniteMethod Method, DefiniteType Type, string DependeeNodeName) : InjectionStageError;
 
-    public sealed record ResolveParameterError(Type Type, string ParentNode, ValueArray<ParameterSource> ParameterSources) : InjectionStageError;
+    public sealed record ResolveTypeError(BindingError BindingError, string DependeeNodeName) : InjectionStageError;
 
-    public sealed record ScopeError(DefiniteType DefiniteType, Scope Scope, string ParentNode, string ParentScope) : InjectionStageError;
+    public sealed record ResolveParameterError(Type Type, string DependeeNodeName, ValueArray<ParameterSource> ParameterSources) : InjectionStageError;
+
+    public sealed record ScopeError(DefiniteType DefiniteType, Scope Scope, string DependeeNodeName, string DependeeScope) : InjectionStageError;
 }

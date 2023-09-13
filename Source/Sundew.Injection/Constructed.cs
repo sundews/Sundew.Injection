@@ -5,33 +5,36 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Injection;
+#nullable enable
 
-/// <summary>
-/// Contains the result of an factory 'CreateUninitialized' call.
-/// </summary>
-/// <typeparam name="TObject">The object type.</typeparam>
-public readonly struct Constructed<TObject>
-        where TObject : class
+namespace Sundew.Injection
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="Constructed{TObject}"/> struct.
+    /// Contains the result of an factory 'CreateUninitialized' call.
     /// </summary>
-    /// <param name="object">The object.</param>
-    /// <param name="lifecycleHandler">The lifecycle handler.</param>
-    public Constructed(TObject @object, ILifecycleHandler lifecycleHandler)
+    /// <typeparam name="TObject">The object type.</typeparam>
+    public readonly struct Constructed<TObject>
+        where TObject : class
     {
-        this.Object = @object;
-        this.LifecycleHandler = lifecycleHandler;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Constructed{TObject}"/> struct.
+        /// </summary>
+        /// <param name="object">The object.</param>
+        /// <param name="lifecycleHandler">The lifecycle handler.</param>
+        public Constructed(TObject @object, ILifecycleHandler lifecycleHandler)
+        {
+            this.Object = @object;
+            this.LifecycleHandler = lifecycleHandler;
+        }
+
+        /// <summary>
+        /// Gets the object.
+        /// </summary>
+        public TObject Object { get; }
+
+        /// <summary>
+        /// Gets the lifecycle handler.
+        /// </summary>
+        public ILifecycleHandler LifecycleHandler { get; }
     }
-
-    /// <summary>
-    /// Gets the object.
-    /// </summary>
-    public TObject Object { get; }
-
-    /// <summary>
-    /// Gets the lifecycle handler.
-    /// </summary>
-    public ILifecycleHandler LifecycleHandler { get; }
 }

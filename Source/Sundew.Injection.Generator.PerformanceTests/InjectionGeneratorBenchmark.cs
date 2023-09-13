@@ -23,12 +23,7 @@ using IAsyncDisposable = asyncinterfaces::System.IAsyncDisposable;
 [SimpleJob(RuntimeMoniker.Net70)]
 public class InjectionGeneratorBenchmark
 {
-    private readonly Compilation compilation;
-
-    public InjectionGeneratorBenchmark()
-    {
-       this.compilation = TestProjects.AllFeatureSuccess.FromEntryAssembly.Value;
-    }
+    private readonly Compilation compilation = TestProjects.AllFeatureSuccess.FromEntryAssembly.Value;
 
     [Benchmark(Baseline = true)]
     public GeneratorDriverRunResult BaselineGenerator()

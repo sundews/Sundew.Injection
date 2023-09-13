@@ -23,20 +23,18 @@ internal static class ParameterHelper
 {
     private const string Null = "null";
 
-    public static (ImmutableList<ParameterDeclaration> Parameters, bool WasAdded, Parameter Parameter, Expression Argument) VisitParameter(
+    public static (ImmutableList<ParameterDeclaration> Parameters, bool WasAdded, Parameter Parameter, Expression Argument, bool CanAssignToField) VisitParameter(
         IParameterNode parameterNode,
         string? expectedParameterName,
         ImmutableList<ParameterDeclaration> parameters,
         ImmutableList<ParameterDeclaration> additionalParameters,
-        bool isMember,
-        bool isOptional,
         CompilationData compilationData)
     {
         var parameterType = parameterNode.Type;
         return parameterNode.ParameterSource switch
         {
-            DirectParameter direct => HandleDirect(direct, parameterNode, expectedParameterName, parameters, additionalParameters, isMember, isOptional, compilationData),
-            PropertyAccessorParameter property => HandleProperty(property, parameterNode, parameterType, parameters, additionalParameters, isMember),
+            DirectParameter direct => HandleDirect(direct, parameterNode, expectedParameterName, parameters, additionalParameters, compilationData),
+            PropertyAccessorParameter property => HandleProperty(property, parameterNode, parameterType, parameters, additionalParameters),
         };
     }
 
@@ -46,64 +44,62 @@ internal static class ParameterHelper
         {
             Inject.ByType => (name.Uncapitalize(), false),
             Inject.ByTypeAndName => (name.Uncapitalize(), true),
-            Inject.Separately => (NameHelper.GetUniqueName(name, parentName), true), // check for conflict
+            Inject.Separately => (NameHelper.GetDependeeScopedName(name, parentName), true), // check for conflict
             _ => throw new ArgumentOutOfRangeException(nameof(inject), inject, $"Case not handled: {inject}"),
         };
     }
 
-    private static (ImmutableList<ParameterDeclaration> Parameters, bool WasAdded, Parameter Parameter, Expression Argument) HandleDirect(
+    private static (ImmutableList<ParameterDeclaration> Parameters, bool WasAdded, Parameter Parameter, Expression Argument, bool CanAssignToField) HandleDirect(
             DirectParameter directParameter,
             IParameterNode parameterNode,
             string? expectedParameterName,
             ImmutableList<ParameterDeclaration> parameters,
             ImmutableList<ParameterDeclaration> additionalParameters,
-            bool isMember,
-            bool isOptional,
             CompilationData compilationData)
     {
         var parameterType = parameterNode.RequiresNewInstance ? compilationData.FuncType.ToDefiniteBoundGenericType(ImmutableArray.Create(new DefiniteTypeArgument(parameterNode.Type, parameterNode.TypeMetadata))) : parameterNode.Type;
-        var (parameterName, mustNameMatchForEquality) = GetParameterName(expectedParameterName.IsNullOrEmpty() ? parameterNode.Name : expectedParameterName, parameterNode.ParentName, directParameter.Inject);
+        var (parameterName, mustNameMatchForEquality) = GetParameterName(expectedParameterName.IsNullOrEmpty() ? parameterNode.Name : expectedParameterName, parameterNode.DependeeName, directParameter.Inject);
         var parameterDeclaration = additionalParameters.Find(x =>
             x.Type.Equals(parameterType) && x.Name == parameterName);
         var wasAdded = false;
+        var isArgumentReferencedByField = parameterNode.IsForConstructor;
         if (parameterDeclaration == default)
         {
-            var (declarations, wasDeclarationAdded, declaration) = parameters.GetOrAddUnique(
+            var (declarations, wasDeclarationAdded, declaration) = parameters.GetOrAdd(
                 parameterName,
                 parameterType,
-                (s, i) => s + i,
-                name => new ParameterDeclaration(parameterType, name, isOptional ? Null : null));
+                name => new ParameterDeclaration(parameterType, name, parameterNode.IsOptional ? Null : null));
             parameters = declarations;
             parameterDeclaration = declaration;
             wasAdded = wasDeclarationAdded;
         }
         else
         {
-            isMember = true;
+            isArgumentReferencedByField = true;
         }
 
         var parameter = new Parameter(parameterType, parameterDeclaration.Name, mustNameMatchForEquality);
-        Expression argument = isMember ? new MemberAccessExpression(Identifier.This, parameter.Name) : new Identifier(parameter.Name);
+        Expression argument = !parameterNode.IsOptional && isArgumentReferencedByField ? new MemberAccessExpression(Identifier.This, parameter.Name) : new Identifier(parameter.Name);
         if (parameterNode.RequiresNewInstance)
         {
-            argument = new FuncInvocationExpression(argument, isOptional);
+            argument = new FuncInvocationExpression(argument, parameterNode.IsOptional);
         }
 
-        return (parameters, wasAdded, parameter, argument);
+        return (parameters, wasAdded, parameter, argument, !parameterNode.IsOptional);
     }
 
-    private static (ImmutableList<ParameterDeclaration> Parameters, bool WasAdded, Parameter Parameter, Expression Argument) HandleProperty(
+    private static (ImmutableList<ParameterDeclaration> Parameters, bool WasAdded, Parameter Parameter, Expression Argument, bool CanAssignToField) HandleProperty(
         PropertyAccessorParameter propertyAccessorParameter,
         IParameterNode parameterNode,
         Type parameterType,
         ImmutableList<ParameterDeclaration> parameters,
-        ImmutableList<ParameterDeclaration> additionalParameters,
-        bool isMember)
+        ImmutableList<ParameterDeclaration> additionalParameters)
     {
-        var variableName = NameHelper.GetVariableNameForType(propertyAccessorParameter.AccessorProperty.ContainingType);
+        var variableName = NameHelper.GetIdentifierNameForType(propertyAccessorParameter.AccessorProperty.ContainingType);
         var parameterDeclaration = additionalParameters.Find(x =>
             x.Type.Equals(propertyAccessorParameter.AccessorProperty.ContainingType) && x.Name == variableName);
         var wasAdded = false;
+        var isMember = parameterNode.IsForConstructor;
         if (parameterDeclaration == default)
         {
             var (declarations, wasDeclarationAdded, declaration) = parameters.GetOrAdd(
@@ -128,6 +124,6 @@ internal static class ParameterHelper
             argument = new FuncInvocationExpression(argument, true);
         }
 
-        return (parameters, wasAdded, parameter, argument);
+        return (parameters, wasAdded, parameter, argument, true);
     }
 }

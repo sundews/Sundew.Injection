@@ -9,8 +9,8 @@ namespace Sundew.Injection.Generator.TypeSystem;
 
 using Sundew.Base.Collections.Immutable;
 
-public sealed record class Method(
+internal sealed record class Method(
     ValueArray<Parameter> Parameters,
     string Name,
     Type ContainingType,
-    bool IsConstructor);
+    MethodKind Kind);

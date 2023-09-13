@@ -16,24 +16,20 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal class AddParameterVisitor : CSharpSyntaxWalker
 {
-    private readonly SemanticModel semanticModel;
-    private readonly TypeFactory typeFactory;
-    private readonly CompiletimeInjectionDefinitionBuilder compiletimeInjectionDefinitionBuilder;
-    private readonly IMethodSymbol symbol;
+    private readonly IMethodSymbol methodSymbol;
+    private readonly AnalysisContext analysisContext;
     private readonly Type type;
 
-    public AddParameterVisitor(SemanticModel semanticModel, TypeFactory typeFactory, CompiletimeInjectionDefinitionBuilder compiletimeInjectionDefinitionBuilder, IMethodSymbol symbol)
+    public AddParameterVisitor(IMethodSymbol methodSymbol, AnalysisContext analysisContext)
     {
-        this.semanticModel = semanticModel;
-        this.typeFactory = typeFactory;
-        this.compiletimeInjectionDefinitionBuilder = compiletimeInjectionDefinitionBuilder;
-        this.symbol = symbol;
-        this.type = this.typeFactory.CreateType(symbol.TypeArguments.First()).Type;
+        this.methodSymbol = methodSymbol;
+        this.analysisContext = analysisContext;
+        this.type = this.analysisContext.TypeFactory.CreateType(methodSymbol.TypeArguments.First()).Type;
     }
 
     public override void VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
     {
-        var symbolInfo = this.semanticModel.GetSymbolInfo(node);
+        var symbolInfo = this.analysisContext.SemanticModel.GetSymbolInfo(node);
         if (symbolInfo.Symbol != null)
         {
             switch (symbolInfo.Symbol.Kind)
@@ -42,7 +38,7 @@ internal class AddParameterVisitor : CSharpSyntaxWalker
                     break;
                 case SymbolKind.Field:
                     var inject = symbolInfo.Symbol.Name.ParseEnum<Inject>();
-                    this.compiletimeInjectionDefinitionBuilder.AddParameter(this.type, inject);
+                    this.analysisContext.CompiletimeInjectionDefinitionBuilder.AddParameter(this.type, inject);
                     break;
             }
         }

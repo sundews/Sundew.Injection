@@ -9,24 +9,23 @@ namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory;
 
 using System;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model;
-using Sundew.Injection.Generator.Stages.CodeGenerationStage.Syntax;
-using Sundew.Injection.Generator.Stages.FactoryDataStage;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 
 internal class SingleInstancePerObjectGenerator
 {
-    private readonly InjectionNodeEvaluator injectionNodeEvaluator;
-    private readonly KnownSyntax knownSyntax;
+    private readonly GeneratorFeatures generatorFeatures;
+    private readonly GeneratorContext generatorContext;
 
-    public SingleInstancePerObjectGenerator(InjectionNodeEvaluator injectionNodeEvaluator, KnownSyntax knownSyntax)
+    public SingleInstancePerObjectGenerator(
+        GeneratorFeatures generatorFeatures,
+        GeneratorContext generatorContext)
     {
-        this.injectionNodeEvaluator = injectionNodeEvaluator;
-        this.knownSyntax = knownSyntax;
+        this.generatorFeatures = generatorFeatures;
+        this.generatorContext = generatorContext;
     }
 
     public FactoryNode VisitSingleInstancePerObject(
         SingleInstancePerObjectInjectionNode singleInstancePerObjectInjectionNode,
-        FactoryData factoryModel,
         in FactoryImplementation factoryImplementation,
         in MethodImplementation method)
     {

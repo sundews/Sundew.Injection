@@ -13,12 +13,12 @@ namespace Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 internal interface IInjectionNode
 {
     /// <summary>
-    /// Gets the parent name.
+    /// Gets the name for the node depending on this instance.
     /// </summary>
     /// <value>
-    /// The parent name.
+    /// The dependee name.
     /// </value>
-    string? ParentName { get; }
+    string? DependeeName { get; }
 
     /// <summary>
     /// Gets the identifier.

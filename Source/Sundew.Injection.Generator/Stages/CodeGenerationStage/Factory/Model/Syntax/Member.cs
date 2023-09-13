@@ -10,8 +10,9 @@ namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.Sy
 using System.Collections.Generic;
 
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
-internal abstract partial record Member;
+internal abstract partial record Member
+{
+    internal sealed record MethodImplementation(MethodDeclaration MethodDeclaration, IReadOnlyList<Statement> Statements) : Member;
 
-internal sealed record MethodImplementation(MethodDeclaration MethodDeclaration, IReadOnlyList<Statement> Statements) : Member;
-
-internal sealed record Field(FieldDeclaration Declaration) : Member;
+    internal sealed record Field(FieldDeclaration Declaration) : Member;
+}

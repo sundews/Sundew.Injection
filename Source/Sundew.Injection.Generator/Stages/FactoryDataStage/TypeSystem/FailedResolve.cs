@@ -10,4 +10,4 @@ namespace Sundew.Injection.Generator.Stages.FactoryDataStage.TypeSystem;
 using System.Collections.Generic;
 using Sundew.Injection.Generator.TypeSystem;
 
-public sealed record FailedResolve(Type Type, IReadOnlyList<FailedResolve>? InnerFailures = null);
+internal sealed record FailedResolve(Type Type, IReadOnlyList<FailedResolve>? InnerFailures = null);

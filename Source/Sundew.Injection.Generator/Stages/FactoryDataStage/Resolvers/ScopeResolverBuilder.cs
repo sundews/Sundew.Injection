@@ -9,8 +9,10 @@ namespace Sundew.Injection.Generator.Stages.FactoryDataStage.Resolvers;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using Sundew.Base.Collections;
 using Sundew.Base.Equality;
-using Sundew.DiscriminatedUnions;
+using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.TypeSystem;
 using Sundew.Injection.Generator.TypeSystem;
 using Type = Sundew.Injection.Generator.TypeSystem.Type;
@@ -65,61 +67,80 @@ internal sealed class ScopeResolverBuilder
         return scope;
     }
 
-    public ScopeResolver Build(Binding binding)
+    public R<ScopeResolver, ImmutableList<ResolvedBindingError>> Build(Binding binding)
     {
-        this.ResolveBindingScopes(ResolvedBinding.SingleParameter(binding), Scope.NewInstance);
-        return new ScopeResolver(this.bindingScopes, this.externalParameterScopes);
+        var errors = ImmutableList.CreateBuilder<ResolvedBindingError>();
+        this.ResolveBindingScopes(ResolvedBinding.SingleParameter(binding), Scope.NewInstance, errors);
+        return R.From(errors.IsEmpty(), new ScopeResolver(this.bindingScopes, this.externalParameterScopes), errors.ToImmutable());
     }
 
-    private static Scope PickScope(Scope suggestedScope, Scope parentScope)
+    private static Scope PickScope(Scope suggestedScope, Scope dependeeScope)
     {
         return suggestedScope switch
         {
-            Scope.AutoScope => parentScope,
-            Scope.NewInstanceScope => parentScope,
-            Scope.SingleInstancePerRequestScope => parentScope == Scope.NewInstance ? suggestedScope : parentScope,
-            Scope.SingleInstancePerFuncResultScope => parentScope == Scope.NewInstance ||
-                                             parentScope == Scope.SingleInstancePerRequest
+            Scope.AutoScope => dependeeScope,
+            Scope.NewInstanceScope => dependeeScope,
+            Scope.SingleInstancePerRequestScope => dependeeScope == Scope.NewInstance ? suggestedScope : dependeeScope,
+            Scope.SingleInstancePerFuncResultScope => dependeeScope == Scope.NewInstance ||
+                                             dependeeScope == Scope.SingleInstancePerRequest
                 ? suggestedScope
-                : parentScope,
-            Scope.SingleInstancePerFactoryScope => parentScope == Scope.NewInstance ||
-                                                       parentScope == Scope.SingleInstancePerRequest ||
-                                                       parentScope is Scope.SingleInstancePerFuncResultScope
+                : dependeeScope,
+            Scope.SingleInstancePerFactoryScope => dependeeScope == Scope.NewInstance ||
+                                                       dependeeScope == Scope.SingleInstancePerRequest ||
+                                                       dependeeScope is Scope.SingleInstancePerFuncResultScope
                 ? suggestedScope
-                : parentScope,
+                : dependeeScope,
         };
     }
 
-    private void ResolveBindingScopes(ResolvedBinding resolvedBinding, Scope parentScope)
+    private void ResolveBindingScopes(ResolvedBinding resolvedBinding, Scope dependeeScope, ImmutableList<ResolvedBindingError>.Builder errors)
     {
-        void PickBindingScope(Binding binding, Scope parentScope)
+        void PickBindingScope(Binding binding, Scope dependeeScope)
         {
-            var scope = this.UpdateScope(binding, parentScope);
+            var scope = this.UpdateScope(binding, dependeeScope);
+            if (binding.Method.Kind is MethodKind.Instance instance)
+            {
+                this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(binding.Method.ContainingType, instance.ContainingTypeMetadata, O.None), scope, errors);
+            }
 
             foreach (var parameter in binding.Method.Parameters)
             {
-                this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(parameter.Type, parameter.TypeMetadata), scope);
+                this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(parameter.Type, parameter.TypeMetadata, O.Some((parameter.Name, parameter.ParameterNecessity))), scope, errors);
             }
         }
 
         switch (resolvedBinding)
         {
             case SingleParameter singleParameter:
-                PickBindingScope(singleParameter.Binding, parentScope);
+                if (singleParameter.Binding.Method.Kind is MethodKind.Instance instance)
+                {
+                    this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(singleParameter.Binding.Method.ContainingType, instance.ContainingTypeMetadata, O.None), dependeeScope, errors);
+
+                    this.UpdateScope(singleParameter.Binding.Method.ContainingType, dependeeScope);
+                }
+
+                PickBindingScope(singleParameter.Binding, dependeeScope);
                 break;
             case ArrayParameter arrayParameter:
                 foreach (var binding in arrayParameter.Bindings)
                 {
-                    PickBindingScope(binding, parentScope);
+                    PickBindingScope(binding, dependeeScope);
                 }
 
-                this.UpdateScope(arrayParameter.ArrayType, parentScope);
+                this.UpdateScope(arrayParameter.ArrayType, dependeeScope);
 
                 break;
-            case ExternalParameter externalParameter:
-                this.UpdateScope(externalParameter.Type, parentScope);
+            case DefaultParameter defaultParameter:
+                this.UpdateScope(defaultParameter.Type, Scope.NewInstance);
                 break;
-            case Error error:
+            case ExternalParameter externalParameter:
+                this.UpdateScope(externalParameter.Type, dependeeScope);
+                break;
+            case ResolvedBindingError.ParameterError parameterError:
+                errors.Add(parameterError);
+                break;
+            case ResolvedBindingError.Error error:
+                errors.Add(error);
                 break;
         }
     }

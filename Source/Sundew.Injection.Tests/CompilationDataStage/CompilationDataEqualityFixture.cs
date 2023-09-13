@@ -29,8 +29,8 @@ public class CompilationDataEqualityFixture
             throw new AssertionFailedException($"InjectionDefinition should have been successful, but failed with errors: {injectionDefinition.Error.JoinToString((builder, item) => builder.Append(item), ", ")}");
         }
 
-        var lhs = CompilationDataProvider.GetCompilationData(compilation);
-        var rhs = CompilationDataProvider.GetCompilationData(compilation);
+        var lhs = CompilationDataProvider.GetCompilationData(compilation, CancellationToken.None);
+        var rhs = CompilationDataProvider.GetCompilationData(compilation, CancellationToken.None);
 
         lhs.Should().Be(rhs);
     }

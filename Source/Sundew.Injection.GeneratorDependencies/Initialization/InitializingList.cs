@@ -25,7 +25,7 @@ namespace Sundew.Injection.Initialization
     internal sealed class InitializingList<TInitializable> : IInitializable, IAsyncInitializable
     {
         private static readonly Task<bool> CompletedTrueTask = Task.FromResult(true);
-        private readonly bool parallelize;
+        private readonly bool initializeConcurrently;
         private readonly IInitializationReporter? initializationReporter;
         private IImmutableList<Initializer> initializers = ImmutableList<Initializer>.Empty;
 
@@ -40,11 +40,11 @@ namespace Sundew.Injection.Initialization
         /// <summary>
         /// Initializes a new instance of the <see cref="InitializingList{TItem}" /> class.
         /// </summary>
-        /// <param name="parallelize">if set to <c>true</c>  disposal will be parallelized.</param>
+        /// <param name="initializeConcurrently">if set to <c>true</c>  disposal will be executed concurrently.</param>
         /// <param name="initializationReporter">The initialization reporter.</param>
-        public InitializingList(bool parallelize, IInitializationReporter? initializationReporter = null)
+        public InitializingList(bool initializeConcurrently, IInitializationReporter? initializationReporter = null)
         {
-            this.parallelize = parallelize;
+            this.initializeConcurrently = initializeConcurrently;
             this.initializationReporter = initializationReporter;
         }
 
@@ -98,7 +98,7 @@ namespace Sundew.Injection.Initialization
         {
             var initializers = this.initializers;
             this.Clear();
-            if (this.parallelize)
+            if (this.initializeConcurrently)
             {
                 Parallel.ForEach(initializers, x => x.Initialize(this.initializationReporter));
             }
@@ -119,7 +119,7 @@ namespace Sundew.Injection.Initialization
         {
             var initializers = this.initializers;
             this.Clear();
-            if (this.parallelize)
+            if (this.initializeConcurrently)
             {
                 await Task.WhenAll(initializers.Select(x =>
                 {

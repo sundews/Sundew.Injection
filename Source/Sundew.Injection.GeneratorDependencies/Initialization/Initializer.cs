@@ -5,6 +5,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+#nullable enable
+
 namespace Sundew.Injection.Initialization;
 
 using System;
@@ -16,7 +18,7 @@ using global::Initialization.Interfaces;
 /// <summary>
 /// Discriminated union for initializable.
 /// </summary>
-public abstract class Initializer : IEquatable<Initializer>
+internal abstract class Initializer : IEquatable<Initializer>
 {
     /// <summary>
     /// Checks this instance for equality against the other.

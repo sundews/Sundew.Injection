@@ -10,7 +10,7 @@ namespace Sundew.Injection.Generator.TypeSystem;
 using Sundew.Base.Collections.Immutable;
 
 [DiscriminatedUnions.DiscriminatedUnion]
-public abstract record ContaineeType(string Name, string Namespace, string AssemblyName)
+internal abstract record ContaineeType(string Name, string Namespace, string AssemblyName)
 {
     public sealed record GenericType(string Name, string Namespace, string AssemblyName, ValueArray<TypeParameter> TypeParameters) : ContaineeType(Name, Namespace, AssemblyName);
 

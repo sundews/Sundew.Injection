@@ -13,7 +13,7 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Sundew.Base.Collections.Immutable;
 
-public static class GenericTypeConverter
+internal static class GenericTypeConverter
 {
     public static UnboundGenericType ToUnboundGenericType(this DefiniteBoundGenericType definiteBoundGenericType)
     {
@@ -53,11 +53,6 @@ public static class GenericTypeConverter
     public static UnboundGenericType GetUnboundGenericType(INamedTypeSymbol unboundGenericTypeSymbol)
     {
         return new UnboundGenericType(unboundGenericTypeSymbol.Name, TypeHelper.GetNamespace(unboundGenericTypeSymbol.ContainingNamespace), unboundGenericTypeSymbol.ContainingAssembly.Identity.ToString());
-    }
-
-    public static BoundGenericType ToBoundGenericType(this GenericType genericType, ValueArray<TypeArgument> typeArguments)
-    {
-        return new BoundGenericType(genericType.Name, genericType.Namespace, genericType.AssemblyName, genericType.TypeParameters, typeArguments);
     }
 
     public static DefiniteBoundGenericType ToDefiniteBoundGenericType(this GenericType genericType, ValueArray<DefiniteTypeArgument> typeArguments)

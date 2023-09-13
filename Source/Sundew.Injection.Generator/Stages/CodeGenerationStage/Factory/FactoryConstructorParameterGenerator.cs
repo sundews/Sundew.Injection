@@ -10,41 +10,35 @@ namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory;
 using System.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.Syntax;
-using Sundew.Injection.Generator.Stages.CodeGenerationStage.Syntax;
-using Sundew.Injection.Generator.Stages.CompilationDataStage;
-using Sundew.Injection.Generator.Stages.FactoryDataStage;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 using MethodImplementation = Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.MethodImplementation;
 
 internal sealed class FactoryConstructorParameterGenerator
 {
-    private readonly InjectionNodeEvaluator injectionNodeEvaluator;
-    private readonly CompilationData compilationData;
-    private readonly KnownSyntax knownSyntax;
+    private readonly GeneratorFeatures generatorFeatures;
+    private readonly GeneratorContext generatorContext;
 
-    public FactoryConstructorParameterGenerator(InjectionNodeEvaluator injectionNodeEvaluator, CompilationData compilationData, KnownSyntax knownSyntax)
+    public FactoryConstructorParameterGenerator(
+        GeneratorFeatures generatorFeatures,
+        GeneratorContext generatorContext)
     {
-        this.injectionNodeEvaluator = injectionNodeEvaluator;
-        this.compilationData = compilationData;
-        this.knownSyntax = knownSyntax;
+        this.generatorFeatures = generatorFeatures;
+        this.generatorContext = generatorContext;
     }
 
     public FactoryNode
         VisitFactoryConstructorParameter(
             FactoryConstructorParameterInjectionNode factoryConstructorParameterInjectionNode,
-            FactoryData factoryData,
             in FactoryImplementation factoryImplementation,
             in MethodImplementation method)
     {
         var factoryConstructorMethod = factoryImplementation.Constructor;
-        var (parameters, wasAdded, parameter, argument) = ParameterHelper.VisitParameter(
+        var (parameters, wasAdded, parameter, argument, _) = ParameterHelper.VisitParameter(
             factoryConstructorParameterInjectionNode,
             null,
             factoryConstructorMethod.Parameters,
             ImmutableList<ParameterDeclaration>.Empty,
-            true,
-            false,
-            this.compilationData);
+            this.generatorContext.CompilationData);
 
         var identifier = new Identifier(parameter.Name);
 

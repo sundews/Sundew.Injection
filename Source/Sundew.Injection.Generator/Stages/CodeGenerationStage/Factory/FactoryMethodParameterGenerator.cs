@@ -9,38 +9,32 @@ namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory;
 
 using System.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model;
-using Sundew.Injection.Generator.Stages.CodeGenerationStage.Syntax;
-using Sundew.Injection.Generator.Stages.CompilationDataStage;
-using Sundew.Injection.Generator.Stages.FactoryDataStage;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 
 internal class FactoryMethodParameterGenerator
 {
-    private readonly InjectionNodeEvaluator injectionNodeEvaluator;
-    private readonly CompilationData compilationData;
-    private readonly KnownSyntax knownSyntax;
+    private readonly GeneratorFeatures generatorFeatures;
+    private readonly GeneratorContext generatorContext;
 
-    public FactoryMethodParameterGenerator(InjectionNodeEvaluator injectionNodeEvaluator, CompilationData compilationData, KnownSyntax knownSyntax)
+    public FactoryMethodParameterGenerator(
+        GeneratorFeatures generatorFeatures,
+        GeneratorContext generatorContext)
     {
-        this.injectionNodeEvaluator = injectionNodeEvaluator;
-        this.compilationData = compilationData;
-        this.knownSyntax = knownSyntax;
+        this.generatorFeatures = generatorFeatures;
+        this.generatorContext = generatorContext;
     }
 
     public FactoryNode VisitFactoryMethodParameter(
         FactoryMethodParameterInjectionNode factoryMethodParameterInjectionNode,
-        FactoryData factoryModel,
         in FactoryImplementation factoryImplementation,
         in MethodImplementation method)
     {
-        var (parameters, _, _, argument) = ParameterHelper.VisitParameter(
+        var (parameters, _, _, argument, _) = ParameterHelper.VisitParameter(
             factoryMethodParameterInjectionNode,
             null,
             method.Parameters,
             factoryImplementation.Constructor.Parameters,
-            false,
-            false,
-            this.compilationData);
+            this.generatorContext.CompilationData);
         return new FactoryNode(
             factoryImplementation,
             method with

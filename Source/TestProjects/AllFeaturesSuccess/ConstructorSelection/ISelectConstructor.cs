@@ -2,7 +2,7 @@
 {
     using System;
 
-    public interface ISelectConstructor : IDisposable, IPrint
+    public interface ISelectConstructor : IAsyncDisposable, IPrint
     {
     }
 }

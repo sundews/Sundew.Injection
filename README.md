@@ -14,16 +14,19 @@ Software applications types based on time running.
 
 Generally, short-lived applications can benefit the most from Pure DI during start-up, but server applications can fx improve the number of request the can process by using Pure DI.
 
-### Motivation
-* Recognize that DI containers are a too generic solution to application object graph creation
-  * 90+% of all types created in an application have a static relationship to the application (e.g. Only one implementation per interface)
-  * A DI container will allow an application to resolve nearly any type, but effectively any application explicitly resolves a finite number of types
-     * The resolved types might change over time, which is why DI containers are convenient.
-       *  As long as changing which types are resolved and building an object graph is easy, a DI container is not needed
-* Performance
-  * Whether DI container performance is a issue can be debated, reflected/dynamically compiled code is slower than statically compiled code. 
-  * DI container adds high costs to high-level tests, alternatives such as reusing containers introduce complexity and risk of not running tests properly isolated
-* Support platforms that do not support dynamic code compilation: iOS
+## Getting started
+
+1. Install nuget package [Sundew.Injection](https://www.nuget.org/packages/Sundew.Injection)
+2. Create a class and implement the IInjectionDeclaration interface
+3. Create type bindings using the Bind* methods on the IInjectionBuilder in the Configure method
+4. Use CreateFactory for the code generator to implement the factory class
+5. Use the generated factory in the application
+
+## Documentation
+
+## Examples
+
+* See the [FactoryDeclaration](https://github.com/sundews/Sundew.Injection/blob/master/Source/TestProjects/AllFeaturesSuccess/FactoryDeclaration.cs) where nearly all features are used.
 
 ## Features
 
@@ -42,25 +45,31 @@ Generally, short-lived applications can benefit the most from Pure DI during sta
 | - Required parameters (required interface)                      | Required parameters are explicitly part of the factory interface                                                                       | Same as above, although interface is not explicit                            |
 | - Required parameter from custom class                          | Specify a custom class that contains parameters, to control public interface                                                           | Same as above                                                                |
 | - Optional parameters                                           | Explicitly specifies a parameter, but in case of null the implementation is resovled                                                   | Depends on DICs, typically emulated though an empty multiple implementations |
+| - Optional arguments                                            | Parameters that are nullable or specifies a default, may have the default value passed as an argument                                  | Depends on DICs                                                              |
 | **Lifetime scopes**                                             | Used to declare the dependency graph e.g. how object communicate                                                                       | Supported by all DICs                                                        |
 | - Single instance per factory                                   | The same instance will be used throughout the factory lifetime                                                                         | Equivalent to singleton                                                      |
 | - Single instance per request                                   | A new instance will be created per call to the 'Create' method and thus be shared                                                      | Equivalent to single instance per request/resolve                            |
 | - New instance                                                  | A new instance is created every time it is requested                                                                                   | Equivalent to transient                                                      |
 | **Override 'new' in derived factory class**                     | Useful when wanting to replace an implementation with a different one.<br/>e.g. a mock without making explicitly part of the interface | Typically registrations can be overwritten                                   |
 | **Thread safety**                                               | Create methods can be called on multiple threads                                                                                       | Supported by most DICs                                                       |
-| **Initialization**                                              | Implement IInitializable or IAsyncInitializable in a type to perform initialization not suited for the ctor.                           | Support for similar functionality in some DICs                               |
-| **Disposal**                                                    | Disposal by disposing factory or explicit Dispose(TCreated) method                                                                     | Depends on DIC, some support only disposing singletons                       |
-| **Factories can depend on other generated factories**           | Currently, factories can be injected, but does not support calling the 'Create' method (planned)                                       | Supported by some DICs through child containers                              |
+| **Lifecycle**                                                   | Support for IInitializable/IAsyncInitializable and IDisposable/IAsyncDisposable                                                        | Depends on DIC, typically the equivalent can be achieved                     |
+| - Initialization                                                | Implement IInitializable or IAsyncInitializable in a type to perform initialization not suited for the ctor.                           | Support for similar functionality in some DICs                               |
+| - Disposal                                                      | Disposal by disposing factory or explicit Dispose(TCreated) method                                                                     | Depends on DIC, some support only disposing singletons                       |
+| **Child factories**                                             | Factories can be used by other factories to create types                                                                               | Supported by some DICs through child containers                              |
+| - Bind and use generated factories                              | Generated factories will automatically be recognized for bindings (Also in compiled dependencies)                                      |                                                                              |
+| - Bind instance methods manually                                | Use any isntance method as a factory by manually binding it                                                                            |                                                                              |
 | **Zero reflection**                                             | Improved performance<br/>Enable .NET Native/NativeAOT etc.                                                                             | Not supported by DICs                                                        |
 
-## Not implemented yet:
-* Calling child factory 'Create' methods
-* Examples
-* Test error cases
-* Generating documentation
-* Custom lifetime scope, to support implementing something like single instance per thread or per session
-* Interception
-* Test correctness of generated code
+### Motivation
+* Recognize that DI containers are a too generic solution to application object graph creation
+  * 90+% of all types created in an application have a static relationship to the application (e.g. Only one implementation per interface)
+  * A DI container will allow an application to resolve nearly any type, but effectively any application explicitly resolves a finite number of types
+     * The resolved types might change over time, which is why DI containers are convenient.
+       *  As long as changing which types are resolved and building an object graph is easy, a DI container is not needed
+* Performance
+  * Whether DI container performance is a issue can be debated, reflected/dynamically compiled code is slower than statically compiled code. 
+  * DI container adds high costs to high-level tests, alternatives such as reusing containers introduce complexity and risk of not running tests properly isolated
+* Support platforms that do not support dynamic code compilation: iOS
 
 ## Not supported DIC features
 * No dynamic assembly loading such as a plug-in system -> Use an existing DI container/AssemblyLoadContext for the high-level plug-in loading and Sundew.Injection for the plug-ins themselves.
@@ -69,7 +78,7 @@ Generally, short-lived applications can benefit the most from Pure DI during sta
 ## Factory or Dependency Injection Container?
 
 An issue with the factory pattern is that it is only conceptually reusable. Hence DICs provide a productivity improvement as a reusable pattern for instantiating object graphs.
-Although the output of Sundew.Injection resembles the Factory pattern more closely, the declaration of these are very aligned with usage of a DICs. Therefore the name Sundew.Injection was chosen.
+Although the output of Sundew.Injection resembles the Factory pattern more closely, the declaration resemble the usage of a DICs. Therefore the name Sundew.Injection was chosen.
 
 With this, an instantiated Factory is conceptually similar to a configured DIC instance.
 
@@ -82,6 +91,13 @@ An IDisposable/IAsyncDisposable object is considered owned by a factory in the f
 ## Open questions
 * How to integrate with application frameworks?
   * Some frameworks like ASP.NET dictates the use of an DICs.
+
+## Not implemented yet:
+* Generating documentation
+* Test error cases
+* Custom lifetime scope, to support implementing something like single instance per thread or per session
+* Test correctness of generated code
+* Interception
 
 ### Challenges/Risk
 * Build performance

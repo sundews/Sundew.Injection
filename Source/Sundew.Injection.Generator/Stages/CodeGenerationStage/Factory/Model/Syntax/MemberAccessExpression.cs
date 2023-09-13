@@ -7,4 +7,6 @@
 
 namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.Syntax;
 
-internal sealed record MemberAccessExpression(Expression Expression, string Name) : Expression;
+using System;
+
+internal sealed record MemberAccessExpression(Expression Expression, string Name) : InvocationExpressionBase(Array.Empty<Expression>());

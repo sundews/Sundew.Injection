@@ -7,37 +7,44 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
-using System;
 using System.Collections;
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
+using Sundew.Base.Collections;
+using Sundew.Base.Collections.Immutable;
+using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.TypeSystem;
 
 public sealed class KnownAnalysisTypes : IKnownInjectableTypes
 {
-    private const string SundewInjection = "Sundew.Injection";
-
-    public KnownAnalysisTypes(Compilation compilation)
+    private KnownAnalysisTypes(
+        INamedTypeSymbol funcTypeSymbol,
+        INamedTypeSymbol enumerableTypeSymbol,
+        INamedTypeSymbol disposableTypeSymbol,
+        INamedTypeSymbol asyncDisposableTypeSymbol,
+        INamedTypeSymbol initializableTypeSymbol,
+        INamedTypeSymbol asyncInitializableTypeSymbol,
+        INamedTypeSymbol injectionDeclarationType,
+        INamedTypeSymbol injectionBuilderType,
+        INamedTypeSymbol factoryMethodSelectorTypeSymbol,
+        INamedTypeSymbol createMethodSelectorTypeSymbol,
+        INamedTypeSymbol constructedTypeSymbol)
     {
-        this.IEnumerableTypeSymbol = compilation.GetTypeByMetadataName(typeof(IEnumerable).FullName) ?? throw new NotSupportedException("IEnumerable was not found");
-
-        this.IInitializableTypeSymbol = compilation.GetIInitializableTypeSymbol();
-        this.IAsyncInitializableTypeSymbol = compilation.GetIAsyncInitializableTypeSymbol();
-
-        this.IDisposableTypeSymbol = compilation.GetIDisposableTypeSymbol();
-        this.IAsyncDisposableTypeSymbol = compilation.GetIAsyncDisposableTypeSymbol();
-
-        this.InjectionDeclarationType =
-            compilation.TryGetTypeByAssemblyQualifiedMetadataName(typeof(IInjectionDeclaration), SundewInjection) ?? throw new NotSupportedException("IInjectionDeclaration was not found, Sundew.Injection must be referenced");
-        this.InjectionBuilderType =
-            compilation.TryGetTypeByAssemblyQualifiedMetadataName(typeof(IInjectionBuilder), SundewInjection) ?? throw new NotSupportedException("IInjectionBuilder was not found, Sundew.Injection must be referenced");
-
-        this.FactoryMethodSelectorTypeSymbol =
-            compilation.TryGetTypeByAssemblyQualifiedMetadataName(typeof(IFactoryMethodSelector), SundewInjection) ?? throw new NotSupportedException("IFactoryMethodSelector was not found, Sundew.Injection must be referenced");
-
-        this.FuncTypeSymbol = compilation.GetFunc();
+        this.FuncTypeSymbol = funcTypeSymbol;
+        this.IEnumerableTypeSymbol = enumerableTypeSymbol;
+        this.IDisposableTypeSymbol = disposableTypeSymbol;
+        this.IAsyncDisposableTypeSymbol = asyncDisposableTypeSymbol;
+        this.IInitializableTypeSymbol = initializableTypeSymbol;
+        this.IAsyncInitializableTypeSymbol = asyncInitializableTypeSymbol;
+        this.InjectionDeclarationType = injectionDeclarationType;
+        this.InjectionBuilderType = injectionBuilderType;
+        this.FactoryMethodSelectorTypeSymbol = factoryMethodSelectorTypeSymbol;
+        this.CreateMethodSelectorTypeSymbol = createMethodSelectorTypeSymbol;
+        this.ConstructedTypeSymbol = constructedTypeSymbol;
     }
 
-    public INamedTypeSymbol FuncTypeSymbol { get; set; }
+    public INamedTypeSymbol FuncTypeSymbol { get; }
 
     public INamedTypeSymbol IEnumerableTypeSymbol { get; }
 
@@ -54,4 +61,45 @@ public sealed class KnownAnalysisTypes : IKnownInjectableTypes
     public INamedTypeSymbol InjectionBuilderType { get; }
 
     public INamedTypeSymbol FactoryMethodSelectorTypeSymbol { get; }
+
+    public INamedTypeSymbol CreateMethodSelectorTypeSymbol { get; }
+
+    public INamedTypeSymbol ConstructedTypeSymbol { get; }
+
+    public static R<KnownAnalysisTypes, ValueList<Diagnostic>> Get(Compilation compilation)
+    {
+        var requiredTypes = new[]
+        {
+            compilation.GetFunc(),
+            R.From(compilation.GetTypeByMetadataName(typeof(IEnumerable).FullName), () => "IEnumerable was not found"),
+            compilation.GetIDisposableTypeSymbol(),
+            compilation.GetIAsyncDisposableTypeSymbol(),
+            compilation.GetIInitializableTypeSymbol(),
+            compilation.GetIAsyncInitializableTypeSymbol(),
+            R.From(compilation.GetTypeByMetadataName(typeof(IInjectionDeclaration).FullName), () => "IInjectionDeclaration was not found, Sundew.Injection must be referenced"), R.From(compilation.GetTypeByMetadataName(typeof(IInjectionDeclaration).FullName), () => "IInjectionDeclaration was not found, Sundew.Injection must be referenced"),
+            R.From(compilation.GetTypeByMetadataName(typeof(IFactoryMethodSelector).FullName), () => "IFactoryMethodSelector was not found, Sundew.Injection must be referenced"),
+            R.From(compilation.GetTypeByMetadataName(typeof(ICreateMethodSelector<>).FullName), () => "ICreateMethodSelector was not found, Sundew.Injection must be referenced"),
+            compilation.GetConstructed(),
+        }.AllOrFailed();
+
+        if (requiredTypes.TryGet(out var all, out var errors))
+        {
+            var index = 0;
+            return R.Success(new KnownAnalysisTypes(
+                all[index++],
+                all[index++],
+                all[index++],
+                all[index++],
+                all[index++],
+                all[index++],
+                all[index++],
+                all[index++],
+                all[index++],
+                all[index++],
+                all[index++]));
+        }
+
+        return R.Error((ValueList<Diagnostic>)errors
+            .Select(x => Diagnostic.Create(Diagnostics.RequiredTypeNotFoundError, null, x.Error)).ToImmutableList());
+    }
 }

@@ -23,20 +23,22 @@ public class InjectionGenerator : IIncrementalGenerator
     {
         var accessibleConstructorProvider = context.SyntaxProvider.SetupAccessibleConstructorStage();
 
-        var compilationInfoProvider = context.CompilationProvider.SetupCompilationInfoStage();
+        var (successCompilationInfoProvider, errorCompilationInfoProvider) = context.CompilationProvider.SetupCompilationDataStage().SegregateByResult();
+
+        context.RegisterSourceOutput(errorCompilationInfoProvider, (productionContext, diagnostics) => diagnostics.ForEach(productionContext.ReportDiagnostic));
 
         var (injectionDefinitionSuccessProvider, injectionDefinitionErrorProvider) = context.SyntaxProvider.SetupInjectionDefinitionStage().SegregateByResult();
 
-        context.RegisterSourceOutput(injectionDefinitionErrorProvider, (productionContext, error) => error.ForEach(productionContext.ReportDiagnostic));
+        context.RegisterSourceOutput(injectionDefinitionErrorProvider, (productionContext, diagnostics) => diagnostics.ForEach(productionContext.ReportDiagnostic));
 
         var injectionTreeInputProvider = injectionDefinitionSuccessProvider
-            .Combine(compilationInfoProvider)
+            .Combine(successCompilationInfoProvider)
             .Combine(accessibleConstructorProvider.Collect())
             .Select((x, _) => (x.Left.Left, x.Left.Right, x.Right));
 
         var (factoryDefinitionSuccessProvider, factoryDefinitionErrorProvider) = injectionTreeInputProvider.SetupFactoryDataStage().SegregateByResult();
 
-        var factoryDefinitionProvider = factoryDefinitionSuccessProvider.Combine(compilationInfoProvider);
+        var factoryDefinitionProvider = factoryDefinitionSuccessProvider.Combine(successCompilationInfoProvider);
 
         context.RegisterSourceOutput(factoryDefinitionErrorProvider, (productionContext, error) => error.ForEach(productionContext.ReportDiagnostic));
 
