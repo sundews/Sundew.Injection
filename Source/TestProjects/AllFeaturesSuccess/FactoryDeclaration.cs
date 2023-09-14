@@ -22,7 +22,7 @@
     {
         public void Configure(IInjectionBuilder injectionBuilder)
         {
-            // The default method for matching declared parameters to
+            // The default method for matching declared parameters
             injectionBuilder.RequiredParameterInjection = Inject.ByTypeAndName;
 
             // Each consumer will have its own parameter generated
