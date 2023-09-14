@@ -5,8 +5,8 @@ The overarching goal of Sundew.Injection is to increase performance related to o
 ## Getting started
 
 1. Install nuget package [Sundew.Injection](https://www.nuget.org/packages/Sundew.Injection)
-2. Create a class and implement the IInjectionDeclaration interface
-3. Create type bindings using the Bind* methods on the IInjectionBuilder in the Configure method
+2. Create a class and implement the ```IInjectionDeclaration``` interface
+3. Create type bindings using the Bind* methods on the ```IInjectionBuilder``` in the Configure method
 4. Use CreateFactory for the code generator to implement the factory class
 ```csharp
 internal class FactoryDeclaration : IInjectionDeclaration
@@ -29,13 +29,12 @@ var resolveRootFactory = new ResolveRootFactory();
 IResolveRoot resolveRoot = resolveRootFactory.Create();
 ```
 
+## Specific examples
+
+* All features: [FactoryDeclaration](/Source/TestProjects/AllFeaturesSuccess/FactoryDeclaration.cs) and the [generated result](/Source/Sundew.Injection.IntegrationTests/InjectionGeneratorFixture.VerifyGeneratedSources%23AllFeaturesSuccess.ResolveRootFactory.generated.verified.cs)
 
 ## Documentation
-
-## Examples
-
-* See the [FactoryDeclaration](/Source/TestProjects/AllFeaturesSuccess/FactoryDeclaration.cs) where nearly all features are used
-* [Generated result](/Source/Sundew.Injection.IntegrationTests/InjectionGeneratorFixture.VerifyGeneratedSources%23AllFeaturesSuccess.ResolveRootFactory.generated.verified.cs)
+TODO
 
 ## Features
 
