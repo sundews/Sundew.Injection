@@ -34,7 +34,7 @@ IResolveRoot resolveRoot = resolveRootFactory.Create();
 
 ## Examples
 
-* See the [FactoryDeclaration](https://github.com/sundews/Sundew.Injection/blob/main/Source/TestProjects/AllFeaturesSuccess/FactoryDeclaration.cs) where nearly all features are used
+* See the [FactoryDeclaration](/Source/TestProjects/AllFeaturesSuccess/FactoryDeclaration.cs) where nearly all features are used
 * [Generated result](/Source/Sundew.Injection.IntegrationTests/InjectionGeneratorFixture.VerifyGeneratedSources%23AllFeaturesSuccess.ResolveRootFactory.generated.verified.cs)
 
 ## Features
