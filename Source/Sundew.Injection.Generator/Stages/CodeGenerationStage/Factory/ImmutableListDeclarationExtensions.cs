@@ -45,14 +45,25 @@ internal static class ImmutableListDeclarationExtensions
             Func<string, TDeclaration> createDeclarationFunc)
     where TDeclaration : struct, IDeclaration
     {
-        var result = declarations.PrivateEnsureDeclaration(
+        var result = declarations.PrivateGetOrCreate(
             name,
             type,
             1,
             true,
             proposeNameFunc,
             createDeclarationFunc);
-        return (result.Declarations, result.Declaration);
+        return (result.WasCreated ? declarations.Add(result.Declaration) : declarations, result.Declaration);
+    }
+
+    public static (bool WasCreated, TDeclaration Declaration)
+        GetOrCreate<TDeclaration>(
+            this ImmutableList<TDeclaration> declarations,
+            string name,
+            Type type,
+            Func<string, TDeclaration> createDeclarationFunc)
+        where TDeclaration : struct, IDeclaration
+    {
+        return declarations.PrivateGetOrCreate(name, type, 1, false, (s, _) => s, createDeclarationFunc);
     }
 
     public static (ImmutableList<TDeclaration> Declarations, bool WasAdded, TDeclaration Declaration)
@@ -63,38 +74,39 @@ internal static class ImmutableListDeclarationExtensions
             Func<string, TDeclaration> createDeclarationFunc)
     where TDeclaration : struct, IDeclaration
     {
-        return declarations.PrivateEnsureDeclaration(name, type, 1, false, (s, _) => s, createDeclarationFunc);
+        var result = declarations.PrivateGetOrCreate(name, type, 1, false, (s, _) => s, createDeclarationFunc);
+        return (result.WasCreated ? declarations.Add(result.Declaration) : declarations, result.WasCreated, result.Declaration);
     }
 
-    private static (ImmutableList<TDeclaration> Declarations, bool WasAdded, TDeclaration Declaration)
-        PrivateEnsureDeclaration<TDeclaration>(
+    private static (bool WasCreated, TDeclaration Declaration)
+        PrivateGetOrCreate<TDeclaration>(
             this ImmutableList<TDeclaration> declarations,
             string name,
             Type type,
             int proposedCount,
-            bool mustAdd,
+            bool mustCreate,
             Func<string, int, string> proposeNameFunc,
             Func<string, TDeclaration> createDeclarationFunc)
-    where TDeclaration : struct, IDeclaration
+        where TDeclaration : struct, IDeclaration
     {
         var conflictingDeclaration = declarations.FirstOrDefault(x => x.Name == name);
         if (!Equals(conflictingDeclaration, default(TDeclaration)))
         {
-            if (!mustAdd && conflictingDeclaration.Type.Equals(type))
+            if (!mustCreate && conflictingDeclaration.Type.Equals(type))
             {
-                return (declarations, false, conflictingDeclaration);
+                return (false, conflictingDeclaration);
             }
 
-            return declarations.PrivateEnsureDeclaration(
+            return declarations.PrivateGetOrCreate(
                 proposeNameFunc(name, proposedCount),
                 type,
                 proposedCount + 1,
-                mustAdd,
+                mustCreate,
                 proposeNameFunc,
                 createDeclarationFunc);
         }
 
         var declaration = createDeclarationFunc(name);
-        return (declarations.Add(declaration), true, declaration);
+        return (true, declaration);
     }
 }

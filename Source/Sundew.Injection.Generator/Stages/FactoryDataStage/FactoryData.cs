@@ -18,4 +18,5 @@ internal sealed record FactoryData(
     Accessibility Accessibility,
     bool NeedsLifecycleHandling,
     O<InjectionTree> LifecycleHandlingInjectionTree,
-    ValueList<FactoryMethodData> FactoryMethodInfos);
+    ValueList<FactoryMethodData> FactoryMethodInfos,
+    bool GenerateTypeResolver);

@@ -21,7 +21,6 @@ using Sundew.Injection.Generator.Stages.FactoryDataStage;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 using Sundew.Injection.Generator.TypeSystem;
 using InjectionNode = Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes.InjectionNode;
-using MethodImplementation = Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.MethodImplementation;
 
 internal class FactorySyntaxGenerator
 {
@@ -87,9 +86,11 @@ internal class FactorySyntaxGenerator
                 interfaces,
                 ImmutableArray.Create(this.knownSyntax.FactoryAttribute),
                 factoryImplementation.CreateMethods.Select(x => x.Declaration)
-                    .Concat(factoryImplementation.DisposeForMethodImplementations.Select(x => x.Declaration)).ToArray());
+                    .Concat(factoryImplementation.DisposeMethodImplementations.Select(x => x.Declaration)).ToArray());
             interfaces = ImmutableList.Create(this.factoryData.FactoryInterfaceType);
         }
+
+        var (resolveMethods, fields) = this.factoryData.GenerateTypeResolver ? this.generatorFeatures.ResolveTypeGenerator.Generate(this.factoryData.FactoryType, factoryImplementation.CreateMethods) : (ImmutableList<Member.MethodImplementation>.Empty, ImmutableList<Member.Field>.Empty);
 
         var classDeclaration =
             new ClassDeclaration(
@@ -97,16 +98,18 @@ internal class FactorySyntaxGenerator
                 !factoryImplementation.FactoryMethods.Any(),
                 factoryImplementation.Fields.Select(x => new Member.Field(x))
                     .Concat(
+                        fields,
                         new Member.MethodImplementation(
                             new MethodDeclaration(DeclaredAccessibility.Public, false, this.factoryData.FactoryType.Name, factoryImplementation.Constructor.Parameters.GroupBy(x => x.DefaultValue != null).OrderBy(x => x.Key).SelectMany(x => x).ToImmutableList()),
                             factoryImplementation.Constructor.Statements).ToEnumerable<Member>(),
                         factoryImplementation.CreateMethods.Select(x =>
                             new Member.MethodImplementation(x.Declaration, x.MethodImplementation.Statements)),
-                        factoryImplementation.FactoryMethods.Select(x =>
-                            new Member.MethodImplementation(x.Declaration, x.MethodImplementation.Statements)),
-                        factoryImplementation.DisposeForMethodImplementations.Select(x =>
+                        resolveMethods,
+                        factoryImplementation.DisposeMethodImplementations.Select(x =>
                             new Member.MethodImplementation(x.Declaration, x.Statements)),
                         disposeMethods,
+                        factoryImplementation.FactoryMethods.Select(x =>
+                            new Member.MethodImplementation(x.Declaration, x.MethodImplementation.Statements)),
                         factoryImplementation.PrivateCreateMethods.Select(x =>
                             new Member.MethodImplementation(x.Declaration, x.MethodImplementation.Statements)))
                     .ToArray(),
@@ -124,12 +127,11 @@ internal class FactorySyntaxGenerator
             injectionNode,
             in factoryImplementation,
             new MethodImplementation());
-        /*var t = Newtonsoft.Json.JsonConvert.SerializeObject(factoryNode, new Newtonsoft.Json.JsonSerializerSettings { DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.IgnoreAndPopulate });*/
         var targetTypeParameterName = NameHelper.GetIdentifierNameForType(factoryMethodData.Target.Type);
 
         var fields = factoryNode.FactoryImplementation.Fields;
 
-        var disposeMethodImplementations = ImmutableList<DeclaredDisposeMethodImplementation>.Empty;
+        var disposeMethodImplementations = factoryImplementation.DisposeMethodImplementations;
         var factoryMethodStatements = factoryNode.CreateMethod.Statements;
         var asyncCreateReturnType = this.compilationData.TaskType.ToDefiniteBoundGenericType(ImmutableArray.Create(new DefiniteTypeArgument(factoryMethodData.Return)));
         var factoryMethods = factoryImplementation.CreateMethods;
@@ -141,7 +143,7 @@ internal class FactorySyntaxGenerator
             createMethodParameters,
             factoryMethodData.Return.Type);
 
-        if (this.factoryData.NeedsLifecycleHandling)
+        if (factoryMethodData.RootNeedsLifecycleHandling)
         {
             factoryMethodStatements = factoryMethodStatements.Insert(0, this.knownSyntax.SharedLifecycleHandler.CreateChildLifecycleHandlerAndAssignVarStatement);
 
@@ -237,7 +239,7 @@ internal class FactorySyntaxGenerator
         {
             Fields = fields,
             CreateMethods = factoryMethods,
-            DisposeForMethodImplementations = disposeMethodImplementations,
+            DisposeMethodImplementations = disposeMethodImplementations,
         };
     }
 }

@@ -7,14 +7,18 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Sundew.Base.Collections;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.TypeSystem;
+using Accessibility = Sundew.Injection.Accessibility;
 using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
+using Type = Sundew.Injection.Generator.TypeSystem.Type;
 
 internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefinitionBuilder
 {
@@ -40,6 +44,16 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
     public bool HasBinding(Type type)
     {
         return this.bindingRegistrations.ContainsKey(type.Id);
+    }
+
+    public IReadOnlyList<BindingRegistration> TryGetBindingRegistrations(Type type)
+    {
+        if (this.bindingRegistrations.TryGetValue(type.Id, out var registrations))
+        {
+            return registrations;
+        }
+
+        return Array.Empty<BindingRegistration>();
     }
 
     public void AddParameter(Type parameterType, Inject inject = Inject.ByType)
@@ -73,7 +87,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
 
         var targetReferencingType = interfaces.Length > 0 ? interfaces.Last().Type : target.Type;
 
-        var binding = new BindingRegistration(target.Type, targetReferencingType, scope ?? Scope.Auto, method, target.TypeMetadata.HasLifetime, isInjectable, isNewOverridable);
+        var binding = new BindingRegistration(target, targetReferencingType, scope ?? Scope._Auto, method, isInjectable, isNewOverridable);
         AddBinding(target.Type.Id, binding);
         foreach (var @interface in interfaces)
         {
@@ -107,9 +121,10 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         string? factoryClassNamespace = null,
         string? factoryClassName = null,
         bool generateInterface = true,
-        Injection.Accessibility accessibility = Injection.Accessibility.Public)
+        Accessibility accessibility = Injection.Accessibility.Public,
+        bool generateTypeResolver = false)
     {
-        this.factoryDefinitions.Add(new FactoryCreationDefinition(factoryClassNamespace ?? this.DefaultNamespace, factoryClassName, generateInterface, factoryMethodRegistrationBuilder.Build(), accessibility));
+        this.factoryDefinitions.Add(new FactoryCreationDefinition(factoryClassNamespace ?? this.DefaultNamespace, factoryClassName, generateInterface, factoryMethodRegistrationBuilder.Build(), accessibility, generateTypeResolver));
     }
 
     public void ReportDiagnostic(Diagnostic diagnostic)

@@ -56,14 +56,14 @@ internal sealed class TypeResolver
         var result = this.ResolveType(arrayType.ElementType);
         if (result.IsSuccess)
         {
-            return R.Success<DefiniteType>(new DefiniteArrayType(result.Value));
+            return new DefiniteArrayType(result.Value).ToSuccess<DefiniteType>();
         }
 
-        return R.Error(result.Error);
+        return result;
     }
 
     private R<DefiniteType, FailedResolve> TryResolveErrorType(ErrorType errorType)
     {
-        return this.typeRegistry.TryGet(errorType.Name, out var resolvableType) ? R.Success<DefiniteType>(resolvableType) : R.Error(new FailedResolve(errorType));
+        return this.typeRegistry.TryGet(errorType.Name, out var resolvableType) ? resolvableType.ToSuccess<DefiniteType>() : new FailedResolve(errorType).ToError();
     }
 }

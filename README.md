@@ -114,6 +114,7 @@ An IDisposable/IAsyncDisposable object is considered owned by a factory in the f
   * Some frameworks like ASP.NET dictates the use of an DICs.
 
 ## Not implemented yet:
+* Optional reflection type resolver
 * Generating documentation
 * Test error cases
 * Custom lifetime scope, to support implementing something like single instance per thread or per session

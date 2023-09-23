@@ -40,7 +40,7 @@ internal class BindingFactory
 
     public ResolvedBinding TryCreateSingleParameter(BindingRegistration bindingRegistration, Type? returnType = null)
     {
-        var resolveTypeResult = this.typeResolver.ResolveType(bindingRegistration.TargetType);
+        var resolveTypeResult = this.typeResolver.ResolveType(bindingRegistration.TargetType.Type);
         if (!resolveTypeResult.IsSuccess)
         {
             return ResolvedBinding._Error(
@@ -60,7 +60,7 @@ internal class BindingFactory
         }
 
         var resolvedTargetType = resolveTypeResult.Value;
-        var newBinding = new Binding(resolvedTargetType, commonTypeResult.Value, bindingRegistration.Scope, createMethodResult.Value, bindingRegistration.HasLifecycle, bindingRegistration.IsInjectable, bindingRegistration.IsNewOverridable);
+        var newBinding = new Binding(resolvedTargetType, commonTypeResult.Value, bindingRegistration.Scope, createMethodResult.Value, bindingRegistration.TargetType.TypeMetadata.HasLifetime, bindingRegistration.IsInjectable, bindingRegistration.IsNewOverridable);
         var newResolvedBinding = ResolvedBinding.SingleParameter(newBinding);
         var returnTypeId = returnType?.Id;
         var resolvedTargetTypeId = resolvedTargetType.Id;
@@ -94,7 +94,7 @@ internal class BindingFactory
     {
         var createBindingsResult = resolvedBindingRegistrationsForArray.AllOrFailed(x =>
         {
-            var resolveTypResult = this.typeResolver.ResolveType(x.TargetType);
+            var resolveTypResult = this.typeResolver.ResolveType(x.TargetType.Type);
             if (!resolveTypResult.IsSuccess)
             {
                 return Item.Fail<Binding, BindingError>(new BindingError.FailedResolveError(resolveTypResult.Error));
@@ -103,7 +103,7 @@ internal class BindingFactory
             var createMethodResult = this.methodFactory.CreateMethod(x.Method);
             if (createMethodResult.IsSuccess)
             {
-                var newBinding = new Binding(resolveTypResult.Value, elementType, x.Scope, createMethodResult.Value, x.HasLifecycle, x.IsInjectable, x.IsNewOverridable);
+                var newBinding = new Binding(resolveTypResult.Value, elementType, x.Scope, createMethodResult.Value, x.TargetType.TypeMetadata.HasLifetime, x.IsInjectable, x.IsNewOverridable);
                 return Item.Pass(newBinding);
             }
 
@@ -131,10 +131,10 @@ internal class BindingFactory
         NamedType factoryType,
         NamedType? factoryInterfaceType,
         ImmutableList<FactoryConstructorParameter>.Builder factoryConstructorParameters,
-        bool hasLifetime)
+        bool hasLifecycle)
     {
         var constructorMethod = new DefiniteMethod(factoryType, factoryType.Name, factoryConstructorParameters.Distinct().Select(x => new DefiniteParameter(x.Type, x.Name, x.TypeMetadata, ParameterNecessity._Required)).ToImmutableArray(), ImmutableArray<DefiniteTypeArgument>.Empty, MethodKind._Constructor);
-        var binding = new Binding(factoryType, factoryType, Scope.Auto, constructorMethod, hasLifetime, false, false);
+        var binding = new Binding(factoryType, factoryType, Scope._Auto, constructorMethod, hasLifecycle, false, false);
         var bindings = new[] { binding };
         var factoryInterfaceTypeId = factoryInterfaceType?.Id;
         var factoryTypeId = factoryType.Id;

@@ -86,7 +86,13 @@ internal class AddFactoryMethodVisitor : CSharpSyntaxWalker
             }
         }
 
-        this.factoryMethodRegistrationBuilder.Add(interfaceType, implementationType, constructorSelector, createMethodName, accessibility, isNewOverridable);
+        if (typeArguments.Length == 1 && !implementationType.IsInstantiable() && constructorSelector == null)
+        {
+            this.analysisContext.AddDefaultFactoryMethodFromTypeSymbol(implementationType, accessibility, isNewOverridable, this.factoryMethodRegistrationBuilder);
+            return;
+        }
+
+        this.analysisContext.AddFactoryMethodFromTypeSymbol(interfaceType, implementationType, constructorSelector, createMethodName, accessibility, isNewOverridable, this.factoryMethodRegistrationBuilder);
     }
 
     private Method? GetMethod(ArgumentSyntax argumentSyntax)

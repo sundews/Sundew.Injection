@@ -23,4 +23,8 @@ internal sealed record CompilationData(
     NamedType ValueTaskType,
     GenericType TaskType,
     GenericType FuncType,
+    GenericType TypeResolver,
+    NamedType TypeType,
+    NamedType ObjectType,
+    DefiniteBoundGenericType SpanOfObjectType,
     string AssemblyName);

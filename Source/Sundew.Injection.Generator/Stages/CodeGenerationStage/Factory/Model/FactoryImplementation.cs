@@ -15,7 +15,7 @@ internal readonly record struct FactoryImplementation(
     Constructor Constructor,
     ImmutableList<DeclaredMethodImplementation> CreateMethods,
     ImmutableList<DeclaredMethodImplementation> FactoryMethods,
-    ImmutableList<DeclaredDisposeMethodImplementation> DisposeForMethodImplementations,
+    ImmutableList<DeclaredDisposeMethodImplementation> DisposeMethodImplementations,
     ImmutableList<DeclaredMethodImplementation> PrivateCreateMethods)
 {
     public FactoryImplementation()

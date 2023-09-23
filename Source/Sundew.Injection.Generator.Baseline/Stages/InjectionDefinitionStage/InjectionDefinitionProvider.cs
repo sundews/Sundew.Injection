@@ -44,7 +44,7 @@ internal static class InjectionDefinitionProvider
         }
         catch (Exception e)
         {
-            return R.Error(ImmutableArray.Create(Diagnostic.Create(Diagnostics.UnknownError, default, e.Message)).ToValueList());
+            return R.Error(ImmutableArray.Create(Diagnostic.Create(Diagnostics.UnknownError, default, e.ToString())).ToValueList());
         }
     }
 

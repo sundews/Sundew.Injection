@@ -19,7 +19,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
     <PackageReference Include="NUnit" Version="3.13.3" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
-    <PackageReference Include="NUnit.Analyzers" Version="3.6.1">
+    <PackageReference Include="NUnit.Analyzers" Version="3.7.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -27,11 +27,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Base.Collections" Version="11.0.0-u20230913-225400-ci">
+    <PackageReference Include="Sundew.Base.Collections" Version="11.0.0-u20230922-211816-local">
       <Aliases>sbc</Aliases>
     </PackageReference>
-    <PackageReference Include="Sundew.Base.Primitives" Version="11.0.0-u20230913-225400-ci" />
-    <PackageReference Include="Sundew.Base.Text" Version="11.0.0-u20230913-225400-ci">
+    <PackageReference Include="Sundew.Base.Primitives" Version="11.0.0-u20230922-211816-local" />
+    <PackageReference Include="Sundew.Base.Text" Version="11.0.0-u20230922-211816-local">
       <Aliases>sbt</Aliases>
     </PackageReference>
     <PackageReference Include="Sundew.Testing.CodeAnalysis" Version="0.0.0-u20230521-013600-ci" />

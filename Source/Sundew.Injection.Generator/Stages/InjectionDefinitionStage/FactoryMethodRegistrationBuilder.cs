@@ -8,26 +8,16 @@
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
 using System.Collections.Immutable;
-using Microsoft.CodeAnalysis;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.TypeSystem;
-using Scope = Sundew.Injection.Scope;
 
 internal sealed class FactoryMethodRegistrationBuilder
 {
-    private readonly TypeFactory typeFactory;
     private readonly ImmutableArray<FactoryMethodRegistration>.Builder registrations = ImmutableArray.CreateBuilder<FactoryMethodRegistration>();
 
-    public FactoryMethodRegistrationBuilder(TypeFactory typeFactory)
+    public FactoryMethodRegistrationBuilder Add((Type Type, TypeMetadata TypeMetadata) interfaceType, (Type Type, TypeMetadata TypeMetadata) implementationType, Scope scope, Method method, string? createMethodName, Injection.Accessibility accessibility, bool isNewOverridable)
     {
-        this.typeFactory = typeFactory;
-    }
-
-    public FactoryMethodRegistrationBuilder Add(ITypeSymbol interfaceTypeSymbol, ITypeSymbol implementationType, Method? method, string? createMethodName, Injection.Accessibility accessibility, bool isNewOverridable)
-    {
-        var actualMethod = method ?? this.typeFactory.CreateMethod(TypeHelper.GetDefaultConstructorMethod(implementationType));
-        var interfaceType = this.typeFactory.CreateType(interfaceTypeSymbol);
-        this.registrations.Add(new FactoryMethodRegistration(interfaceType, this.typeFactory.CreateType(implementationType), Scope.NewInstance, actualMethod, accessibility, isNewOverridable, createMethodName));
+        this.registrations.Add(new FactoryMethodRegistration(interfaceType, implementationType, scope, method, accessibility, isNewOverridable, createMethodName));
         return this;
     }
 

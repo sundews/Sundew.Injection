@@ -23,6 +23,8 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal static class FactoryDataProvider
 {
+    private const string RootNodeName = "root";
+
     public static IncrementalValuesProvider<R<FactoryData, ValueList<Diagnostic>>> SetupFactoryDataStage(this IncrementalValuesProvider<(InjectionDefinition InjectionDefinition, CompilationData CompilationData, ImmutableArray<SyntaxNode> AccessibleConstructors)> tupleForCodeGenerationProvider)
     {
         return tupleForCodeGenerationProvider.SelectMany((x, cancellationToken) => GetFactoryData(x.InjectionDefinition, x.CompilationData, cancellationToken));
@@ -38,7 +40,7 @@ internal static class FactoryDataProvider
                 injectionDefinition.RequiredParameterInjection, injectionDefinition.RequiredParameters);
             var bindingResolver = new BindingResolver(injectionDefinition.BindingRegistrations, injectionDefinition.GenericBindingRegistrations, requiredParametersInjectionResolver, ImmutableArray.Create(compilationData.LifecycleHandlerBinding));
             var scopeResolverBuilder = new ScopeResolverBuilder(bindingResolver);
-            foreach (var factoryCreationDefinition in injectionDefinition.FactoryDefinitions)
+            foreach (var factoryCreationDefinition in injectionDefinition.FactoryCreationDefinitions)
             {
                 var useTargetTypeNameForCreateMethod =
                     factoryCreationDefinition.FactoryMethodRegistrations.Count > 1;
@@ -48,7 +50,7 @@ internal static class FactoryDataProvider
                 {
                     var createBindingResult = bindingResolver.CreateBindingRoot(x, useTargetTypeNameForCreateMethod)
                         .WithError(bindingError => ImmutableList.Create<InjectionStageError>(
-                            new InjectionStageError.ResolveTypeError(bindingError, "root")));
+                            new InjectionStageError.ResolveTypeError(bindingError, RootNodeName)));
                     if (createBindingResult.TryGetError(out var bindingErrors))
                     {
                         return Item.Fail(bindingErrors).For<FactoryMethodData>();
@@ -62,7 +64,7 @@ internal static class FactoryDataProvider
                         {
                             return x switch
                             {
-                                ResolvedBindingError.Error error => new InjectionStageError.ResolveTypeError(error.BindingError, "root"),
+                                ResolvedBindingError.Error error => new InjectionStageError.ResolveTypeError(error.BindingError, RootNodeName),
                                 ResolvedBindingError.ParameterError parameterError => InjectionStageError._ResolveParameterError(parameterError.Type, parameterError.ParameterName, parameterError.ParameterSources),
                             };
                         }).ToImmutableList());
@@ -81,7 +83,8 @@ internal static class FactoryDataProvider
                         rootBinding.Method.Name,
                         (createBindingResult.Value.ReturnType, x.Return.TypeMetadata),
                         (rootBinding.TargetType, x.Target.TypeMetadata),
-                        injectionTreeResult.Value.Root));
+                        injectionTreeResult.Value.Root,
+                        injectionTreeResult.Value.RootNeedsLifecycleHandling));
                 });
 
                 if (factoryMethodRegistrationsResult.TryGet(out var all, out var failed))
@@ -110,7 +113,8 @@ internal static class FactoryDataProvider
                         factoryCreationDefinition.Accessibility,
                         needsLifecycleHandling,
                         lifecycleInjectionNodeResult.Value,
-                        all.Items.ToImmutableArray());
+                        all.Items.ToImmutableArray(),
+                        factoryCreationDefinition.GenerateTypeResolver);
 
                     factoryDefinitionResults.Add(R.Success(factoryDefinition));
                 }
@@ -153,7 +157,7 @@ internal static class FactoryDataProvider
                 {
                     return x switch
                     {
-                        ResolvedBindingError.Error error => new InjectionStageError.ResolveTypeError(error.BindingError, "root"),
+                        ResolvedBindingError.Error error => new InjectionStageError.ResolveTypeError(error.BindingError, RootNodeName),
                         ResolvedBindingError.ParameterError parameterError => InjectionStageError._ResolveParameterError(parameterError.Type, parameterError.ParameterName, parameterError.ParameterSources),
                     };
                 }).Select(GetDiagnostic).ToImmutableList());

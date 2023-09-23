@@ -88,6 +88,60 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Occurs when there is no way to construct a type, either by missing a binding, the type not having a constructor or being abstract/interface.
+        /// </summary>
+        internal static string NoBindingFoundForNonConstructableTypeErrorDescription {
+            get {
+                return ResourceManager.GetString("NoBindingFoundForNonConstructableTypeErrorDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Binding not found for type {0} and type is not constructable.
+        /// </summary>
+        internal static string NoBindingFoundForNonConstructableTypeErrorMessageFormat {
+            get {
+                return ResourceManager.GetString("NoBindingFoundForNonConstructableTypeErrorMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Binding not found.
+        /// </summary>
+        internal static string NoBindingFoundForNonConstructableTypeErrorTitle {
+            get {
+                return ResourceManager.GetString("NoBindingFoundForNonConstructableTypeErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Occurs when a binding does not specify a factory method or constructor and no constructor could be resovled automatically.
+        /// </summary>
+        internal static string NoFactoryMethodFoundForTypeErrorDescription {
+            get {
+                return ResourceManager.GetString("NoFactoryMethodFoundForTypeErrorDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not resolve factory method for type {0}.
+        /// </summary>
+        internal static string NoFactoryMethodFoundForTypeErrorMessageFormat {
+            get {
+                return ResourceManager.GetString("NoFactoryMethodFoundForTypeErrorMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No factory method was found to instanciate type.
+        /// </summary>
+        internal static string NoFactoryMethodFoundForTypeErrorTitle {
+            get {
+                return ResourceManager.GetString("NoFactoryMethodFoundForTypeErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Types without a viable constructor are not supported.
         /// </summary>
         internal static string NoViableConstructorFoundErrorDescription {

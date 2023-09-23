@@ -225,4 +225,22 @@
   <data name="MultipleParametersNotSupportedForBindFactoryErrorTitle" xml:space="preserve">
     <value>ICreate</value>
   </data>
+  <data name="NoBindingFoundForNonConstructableTypeErrorDescription" xml:space="preserve">
+    <value>Occurs when there is no way to construct a type, either by missing a binding, the type not having a constructor or being abstract/interface</value>
+  </data>
+  <data name="NoBindingFoundForNonConstructableTypeErrorMessageFormat" xml:space="preserve">
+    <value>Binding not found for type {0} and type is not constructable</value>
+  </data>
+  <data name="NoBindingFoundForNonConstructableTypeErrorTitle" xml:space="preserve">
+    <value>Binding not found</value>
+  </data>
+  <data name="NoFactoryMethodFoundForTypeErrorDescription" xml:space="preserve">
+    <value>Occurs when a binding does not specify a factory method or constructor and no constructor could be resovled automatically</value>
+  </data>
+  <data name="NoFactoryMethodFoundForTypeErrorMessageFormat" xml:space="preserve">
+    <value>Could not resolve factory method for type {0}</value>
+  </data>
+  <data name="NoFactoryMethodFoundForTypeErrorTitle" xml:space="preserve">
+    <value>No factory method was found to instanciate type</value>
+  </data>
 </root>

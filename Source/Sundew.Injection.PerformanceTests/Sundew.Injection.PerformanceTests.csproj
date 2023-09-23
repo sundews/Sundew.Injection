@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net7.0;net48</TargetFrameworks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Configurations>Debug;Release;DebugTests</Configurations>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.8" />
+    <PackageReference Include="Sundew.Testing.CodeAnalysis" Version="0.0.0-u20230521-013600-ci" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" version="7.0.0">
+      <Aliases>asyncinterfaces</Aliases>
+    </PackageReference>
+    <PackageReference Include="Initialization.Interfaces" Version="1.0.1">
+      <Aliases>initialization</Aliases>
+    </PackageReference>
+    <PackageReference Include="Disposal.Interfaces" Version="1.0.0">
+      <Aliases>disposal</Aliases>
+    </PackageReference>
+    <PackageReference Include="Sundew.Base.Collections" Version="11.0.0-u20230913-225400-ci" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Primitives" Version="11.0.0-u20230913-225400-ci" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Equality" Version="11.0.0-u20230913-225400-ci" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Memory" Version="11.0.0-u20230913-225400-ci" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Reporting" Version="11.0.0-u20230913-225400-ci" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Text" Version="11.0.0-u20230913-225400-ci" GeneratePathProperty="true" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>

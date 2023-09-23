@@ -88,11 +88,11 @@ internal static class ExpressionAnalysisHelper
         var symbolInfo = semanticModel.GetSymbolInfo(argumentSyntax.Expression);
         return symbolInfo.Symbol?.Name switch
         {
-            nameof(Scope.SingleInstancePerFactory) => Scope.SingleInstancePerFactory,
-            nameof(Scope.SingleInstancePerRequest) => Scope.SingleInstancePerRequest,
+            nameof(Scope.SingleInstancePerFactory) => Scope._SingleInstancePerFactory,
+            nameof(Scope.SingleInstancePerRequest) => Scope._SingleInstancePerRequest,
             nameof(Scope.SingleInstancePerFuncResult) => GetSingleInstancePerFuncResult(semanticModel, argumentSyntax, typeFactory),
-            nameof(Scope.NewInstance) => Scope.NewInstance,
-            _ => Scope.Auto,
+            nameof(Scope.NewInstance) => Scope._NewInstance,
+            _ => Scope._Auto,
         };
     }
 
@@ -100,7 +100,7 @@ internal static class ExpressionAnalysisHelper
     {
         if (argumentSyntax.Expression is InvocationExpressionSyntax invocationExpressionSyntax)
         {
-            return Scope.SingleInstancePerFuncResult(GetMethod(invocationExpressionSyntax.ArgumentList.Arguments.Single(), semanticModel, typeFactory)!);
+            return Scope._SingleInstancePerFuncResult(GetMethod(invocationExpressionSyntax.ArgumentList.Arguments.Single(), semanticModel, typeFactory)!);
         }
 
         return null!;

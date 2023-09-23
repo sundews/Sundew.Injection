@@ -108,7 +108,7 @@ internal class InjectionDeclarationVisitor : CSharpSyntaxWalker
                 new BindGenericVisitor(this.semanticModel, this.typeFactory, this.compiletimeInjectionDefinitionBuilder, methodSymbol).Visit(node);
                 break;
             case nameof(Injection.IInjectionBuilder.CreateFactory):
-                if (methodSymbol.Parameters.Length == 4)
+                if (methodSymbol.IsGenericMethod)
                 {
                     new CreateFactoryVisitorGeneric(this.semanticModel, this.typeFactory, this.knownAnalysisTypes, this.compiletimeInjectionDefinitionBuilder, methodSymbol).Visit(node);
                     return;

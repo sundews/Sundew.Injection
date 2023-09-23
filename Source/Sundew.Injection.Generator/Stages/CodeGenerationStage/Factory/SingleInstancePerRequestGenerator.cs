@@ -35,45 +35,45 @@ internal class SingleInstancePerRequestGenerator
             in FactoryImplementation factoryImplementation,
             in MethodImplementation method)
     {
-        var factoryNode = singleInstancePerRequestInjectionNode.Parameters.Aggregate(
-            new FactoryNode(in factoryImplementation, in method, ImmutableList<Expression>.Empty),
-            (factoryNode, nextCreationNode) =>
-            {
-                var factory = factoryNode.FactoryImplementation;
-                var factoryMethod = factoryNode.CreateMethod;
-                var result = this.generatorFeatures.InjectionNodeExpressionGenerator.Generate(nextCreationNode, in factory, in factoryMethod);
-                return factoryNode with
-                {
-                    FactoryImplementation = result.FactoryImplementation,
-                    CreateMethod = result.CreateMethod,
-                    DependeeArguments = factoryNode.DependeeArguments.AddRange(result.DependeeArguments),
-                };
-            });
-
-        var statements = factoryNode.CreateMethod.Statements;
+        var factoryNode = new FactoryNode(in factoryImplementation, in method, ImmutableList<Expression>.Empty);
         var targetType = singleInstancePerRequestInjectionNode.TargetType;
         var targetReferenceType = singleInstancePerRequestInjectionNode.TargetReferenceType;
         var variableType = singleInstancePerRequestInjectionNode.ParameterNodeOption.GetValueOrDefault(x => x.Type, targetReferenceType);
-        var (variables, wasAdded, variableDeclaration) = factoryNode.CreateMethod.Variables.GetOrAdd(
+        (factoryNode, var wasAdded, var variableDeclaration) = factoryNode.GetOrAddVariable(
             NameHelper.GetIdentifierNameForType(variableType),
             variableType,
-            (name) => new Declaration(variableType, name));
+            (name) => new Declaration(variableType, name),
+            (in FactoryNode factoryNode, bool willAdd, in Declaration declaration) =>
+            {
+                if (willAdd)
+                {
+                    return singleInstancePerRequestInjectionNode.Parameters.Aggregate(
+                        factoryNode,
+                        (factoryNode, nextCreationNode) =>
+                        {
+                            var factory = factoryNode.FactoryImplementation;
+                            var factoryMethod = factoryNode.CreateMethod;
+                            var result =
+                                this.generatorFeatures.InjectionNodeExpressionGenerator.Generate(nextCreationNode, in factory, in factoryMethod);
+                            return factoryNode with
+                            {
+                                FactoryImplementation = result.FactoryImplementation,
+                                CreateMethod = result.CreateMethod,
+                                DependeeArguments = factoryNode.DependeeArguments.AddRange(result.DependeeArguments),
+                            };
+                        });
+                }
+
+                return factoryNode;
+            });
 
         var targetIdentifier = new Identifier(variableDeclaration.Name);
-        var factoryMethodParameters = factoryNode.CreateMethod.Parameters;
-        var factoryMethods = factoryNode.FactoryImplementation.FactoryMethods;
         if (wasAdded)
         {
-            (factoryMethods, var creationExpression, factoryNode) = this.generatorFeatures.OptionalOverridableCreationGenerator.Generate(singleInstancePerRequestInjectionNode, factoryNode);
+            (factoryNode, var creationExpression) = this.generatorFeatures.OptionalOverridableCreationGenerator.Generate(singleInstancePerRequestInjectionNode, factoryNode);
             if (singleInstancePerRequestInjectionNode.ParameterNodeOption.TryGetValue(out var parameterNode))
             {
-                (factoryMethodParameters, _, var parameter, var argument, _) = ParameterHelper.VisitParameter(
-                    parameterNode,
-                    variableDeclaration.Name,
-                    factoryMethodParameters,
-                    factoryImplementation.Constructor.Parameters,
-                    this.generatorContext.CompilationData);
-
+                (factoryNode, _, var parameter, var argument, _) = factoryNode.GetOrAddCreateMethodParameter(parameterNode, variableDeclaration.Name, this.generatorContext.CompilationData);
                 var localDeclarationStatement = new LocalDeclarationStatement(Owned + targetType.Name, creationExpression);
                 var localDeclarationIdentifier = new Identifier(localDeclarationStatement.Name);
                 var localDeclarationAssignmentStatement = new ExpressionStatement(new AssignmentExpression(new Identifier(parameter.Name), localDeclarationIdentifier));
@@ -85,29 +85,19 @@ internal class SingleInstancePerRequestGenerator
                 }
 
                 trueStatements = trueStatements.Add(localDeclarationAssignmentStatement);
-                statements = statements.Add(Statement.CreateOptionalParameterIfStatement(argument, trueStatements));
+                factoryNode = factoryNode.AddCreateMethodStatement(Statement.CreateOptionalParameterIfStatement(argument, trueStatements));
             }
             else
             {
                 var assignmentStatement = new LocalDeclarationStatement(variableDeclaration.Name, creationExpression);
-                statements = statements.Add(assignmentStatement);
+                factoryNode = factoryNode.AddCreateMethodStatement(assignmentStatement);
                 if (singleInstancePerRequestInjectionNode.NeedsLifecycleHandling)
                 {
-                    statements = statements.Add(new ExpressionStatement(new InvocationExpression(this.generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, new Expression[] { targetIdentifier })));
+                    factoryNode = factoryNode.AddCreateMethodStatement(new ExpressionStatement(new InvocationExpression(this.generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, new Expression[] { targetIdentifier })));
                 }
             }
         }
 
-        return factoryNode with
-        {
-            CreateMethod = factoryNode.CreateMethod with
-            {
-                Parameters = factoryMethodParameters,
-                Variables = variables,
-                Statements = statements,
-            },
-            FactoryImplementation = factoryNode.FactoryImplementation with { FactoryMethods = factoryMethods },
-            DependeeArguments = ImmutableList.Create<Expression>(targetIdentifier),
-        };
+        return factoryNode with { DependeeArguments = ImmutableList.Create<Expression>(targetIdentifier) };
     }
 }

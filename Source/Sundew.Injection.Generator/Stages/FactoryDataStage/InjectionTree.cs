@@ -11,4 +11,4 @@ using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Resolvers;
 
-internal sealed record InjectionTree(InjectionNode Root, bool NeedsLifecycleHandling, ValueList<FactoryConstructorParameter> FactoryConstructorParameters);
+internal sealed record InjectionTree(InjectionNode Root, ValueList<FactoryConstructorParameter> FactoryConstructorParameters, bool NeedsLifecycleHandling, bool RootNeedsLifecycleHandling);

@@ -46,7 +46,7 @@ internal sealed class FactoryConstructorParameterGenerator
         var statements = factoryImplementation.Constructor.Statements;
         if (wasAdded)
         {
-            fields = fields.Add(new FieldDeclaration(parameter.Type, parameter.Name, null));
+            fields = fields.Add(new FieldDeclaration(parameter.Type, parameter.Name, false, null));
 
             var assignmentStatement =
                 new ExpressionStatement(new AssignmentExpression(

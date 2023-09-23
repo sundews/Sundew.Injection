@@ -102,13 +102,10 @@ internal static class ParameterHelper
         var isMember = parameterNode.IsForConstructor;
         if (parameterDeclaration == default)
         {
-            var (declarations, wasDeclarationAdded, declaration) = parameters.GetOrAdd(
+            (parameters, wasAdded, parameterDeclaration) = parameters.GetOrAdd(
                 variableName,
                 propertyAccessorParameter.AccessorProperty.ContainingType,
                 (name, type) => new ParameterDeclaration(type, name, null));
-            parameters = declarations;
-            parameterDeclaration = declaration;
-            wasAdded = wasDeclarationAdded;
         }
         else
         {

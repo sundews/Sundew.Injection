@@ -53,7 +53,7 @@ internal sealed class ScopeResolverBuilder
 
     public Scope UpdateScope(Type type, Scope parentScope)
     {
-        var scope = PickScope(Scope.Auto, parentScope);
+        var scope = PickScope(Scope._Auto, parentScope);
         if (this.externalParameterScopes.TryGetValue(type, out var previousResolvedScope))
         {
             scope = PickScope(scope, previousResolvedScope);
@@ -70,7 +70,7 @@ internal sealed class ScopeResolverBuilder
     public R<ScopeResolver, ImmutableList<ResolvedBindingError>> Build(Binding binding)
     {
         var errors = ImmutableList.CreateBuilder<ResolvedBindingError>();
-        this.ResolveBindingScopes(ResolvedBinding.SingleParameter(binding), Scope.NewInstance, errors);
+        this.ResolveBindingScopes(ResolvedBinding.SingleParameter(binding), Scope._NewInstance, errors);
         return R.From(errors.IsEmpty(), new ScopeResolver(this.bindingScopes, this.externalParameterScopes), errors.ToImmutable());
     }
 
@@ -78,16 +78,16 @@ internal sealed class ScopeResolverBuilder
     {
         return suggestedScope switch
         {
-            Scope.AutoScope => dependeeScope,
-            Scope.NewInstanceScope => dependeeScope,
-            Scope.SingleInstancePerRequestScope => dependeeScope == Scope.NewInstance ? suggestedScope : dependeeScope,
-            Scope.SingleInstancePerFuncResultScope => dependeeScope == Scope.NewInstance ||
-                                             dependeeScope == Scope.SingleInstancePerRequest
+            Scope.Auto => dependeeScope,
+            Scope.NewInstance => dependeeScope,
+            Scope.SingleInstancePerRequest => dependeeScope == Scope._NewInstance ? suggestedScope : dependeeScope,
+            Scope.SingleInstancePerFuncResult => dependeeScope == Scope._NewInstance ||
+                                             dependeeScope == Scope._SingleInstancePerRequest
                 ? suggestedScope
                 : dependeeScope,
-            Scope.SingleInstancePerFactoryScope => dependeeScope == Scope.NewInstance ||
-                                                       dependeeScope == Scope.SingleInstancePerRequest ||
-                                                       dependeeScope is Scope.SingleInstancePerFuncResultScope
+            Scope.SingleInstancePerFactory => dependeeScope == Scope._NewInstance ||
+                                                       dependeeScope == Scope._SingleInstancePerRequest ||
+                                                       dependeeScope is Scope.SingleInstancePerFuncResult
                 ? suggestedScope
                 : dependeeScope,
         };
@@ -131,7 +131,7 @@ internal sealed class ScopeResolverBuilder
 
                 break;
             case DefaultParameter defaultParameter:
-                this.UpdateScope(defaultParameter.Type, Scope.NewInstance);
+                this.UpdateScope(defaultParameter.Type, Scope._NewInstance);
                 break;
             case ExternalParameter externalParameter:
                 this.UpdateScope(externalParameter.Type, dependeeScope);

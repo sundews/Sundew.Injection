@@ -39,12 +39,11 @@ internal sealed class InjectionTreeBuilder
 
     public R<InjectionTree, ImmutableList<InjectionStageError>> Build(Binding binding, CancellationToken cancellationToken)
     {
-        var injectionModelResult = this.GetInjectionModel(binding, null, Scope.NewInstance, O.None, cancellationToken);
+        var injectionModelResult = this.GetInjectionModel(binding, null, binding.Scope, O.None, cancellationToken);
         if (injectionModelResult.IsSuccess)
         {
             var injectionModel = injectionModelResult.Value;
-            /*var t = Newtonsoft.Json.JsonConvert.SerializeObject(injectionModel, new Newtonsoft.Json.JsonSerializerSettings { DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.IgnoreAndPopulate });*/
-            return R.Success(new InjectionTree(injectionModel.InjectionNode, injectionModel.NeedsLifecycleHandling, injectionModel.FactoryConstructorParameters));
+            return R.Success(new InjectionTree(injectionModel.InjectionNode, injectionModel.FactoryConstructorParameters, injectionModel.NeedsLifecycleHandling, injectionModel.InjectionNode is not SingleInstancePerFactoryInjectionNode && injectionModel.NeedsLifecycleHandling));
         }
 
         return R.Error(injectionModelResult.Error);
@@ -66,7 +65,7 @@ internal sealed class InjectionTreeBuilder
         var creationResult = this.GetCreationSource(binding, dependeeInjectionNode, cancellationToken);
         if (!creationResult.IsSuccess)
         {
-            return R.Error(creationResult.Error);
+            return creationResult.Error.ToError();
         }
 
         var errors = ImmutableList.CreateBuilder<InjectionStageError>();
@@ -90,7 +89,7 @@ internal sealed class InjectionTreeBuilder
             dependeeScope,
             needsLifecycleHandling,
             O.From(binding.IsNewOverridable, binding.Method.Parameters),
-            O.From(binding.IsInjectable, binding.TargetReferenceType).Combine(parameterOption, (targetReferenceType, parameter) => new ParameterNode(targetReferenceType, this.GetParameterSource(targetReferenceType, parameter.Name, errors), parameter.Name, parameter.TypeMetadata, scope == Scope.NewInstance, scope == Scope.SingleInstancePerFactory, dependeeInjectionNode?.GetInjectionNodeName())));
+            O.From(binding.IsInjectable, binding.TargetReferenceType).Combine(parameterOption, (targetReferenceType, parameter) => new ParameterNode(targetReferenceType, this.GetParameterSource(targetReferenceType, parameter.Name, errors), parameter.Name, parameter.TypeMetadata, scope == Scope._NewInstance, scope == Scope._SingleInstancePerFactory, dependeeInjectionNode?.GetInjectionNodeName())));
 
         errors.TryAdd(scopeError);
 
@@ -214,14 +213,14 @@ internal sealed class InjectionTreeBuilder
         Scope scope,
         ParameterSource parameterSource)
     {
-        if (scope == Scope.SingleInstancePerFactory)
+        if (scope == Scope._SingleInstancePerFactory)
         {
             var factoryConstructorParameterInjectionNode =
                 new FactoryConstructorParameterInjectionNode(type, parameter.Name, parameterSource, parameter.TypeMetadata, dependeeName);
             return (factoryConstructorParameterInjectionNode, O.Some(new FactoryConstructorParameter(type, parameter.Name, parameter.TypeMetadata)));
         }
 
-        return (InjectionNode.FactoryMethodParameterInjectionNode(type, parameter.Name, parameterSource, parameter.TypeMetadata, !parameter.TypeMetadata.IsValueType && scope == Scope.NewInstance, dependeeName), O.None);
+        return (InjectionNode.FactoryMethodParameterInjectionNode(type, parameter.Name, parameterSource, parameter.TypeMetadata, !parameter.TypeMetadata.IsValueType && scope == Scope._NewInstance, dependeeName), O.None);
     }
 
     private ParameterSource GetParameterSource(DefiniteType type, string parameterName, ImmutableList<InjectionStageError>.Builder diagnostics)
@@ -261,7 +260,7 @@ internal sealed class InjectionTreeBuilder
     {
         return scope switch
         {
-            Scope.AutoScope => (
+            Scope.Auto => (
                 InjectionNode.NewInstanceInjectionNode(
                     targetType,
                     targetReferenceType,
@@ -272,11 +271,11 @@ internal sealed class InjectionTreeBuilder
                     overridableNewParametersOption,
                     dependeeInjectionNode?.GetInjectionNodeName()),
                 R.From(
-                    dependeeScope != Scope.SingleInstancePerRequest &&
-                    dependeeScope != Scope.SingleInstancePerFactory &&
-                    dependeeScope is not Scope.SingleInstancePerFuncResultScope,
-                    () => InjectionStageError._ScopeError(targetType, Scope.NewInstance, dependeeInjectionNode?.GetInjectionNodeName() ?? Root, dependeeScope.ToString()))),
-            Scope.NewInstanceScope => (
+                    dependeeScope != Scope._SingleInstancePerRequest &&
+                    dependeeScope != Scope._SingleInstancePerFactory &&
+                    dependeeScope is not Scope.SingleInstancePerFuncResult,
+                    () => InjectionStageError._ScopeError(targetType, Scope._NewInstance, dependeeInjectionNode?.GetInjectionNodeName() ?? Root, dependeeScope.ToString()))),
+            Scope.NewInstance => (
                 InjectionNode.NewInstanceInjectionNode(
                     targetType,
                     targetReferenceType,
@@ -287,11 +286,11 @@ internal sealed class InjectionTreeBuilder
                     overridableNewParametersOption,
                     dependeeInjectionNode?.GetInjectionNodeName()),
                 R.From(
-                    dependeeScope != Scope.SingleInstancePerRequest &&
-                    dependeeScope != Scope.SingleInstancePerFactory &&
-                    dependeeScope is not Scope.SingleInstancePerFuncResultScope,
-                    () => InjectionStageError._ScopeError(targetType, Scope.NewInstance, dependeeInjectionNode?.GetInjectionNodeName() ?? Root, dependeeScope.ToString()))),
-            Scope.SingleInstancePerRequestScope => (
+                    dependeeScope != Scope._SingleInstancePerRequest &&
+                    dependeeScope != Scope._SingleInstancePerFactory &&
+                    dependeeScope is not Scope.SingleInstancePerFuncResult,
+                    () => InjectionStageError._ScopeError(targetType, Scope._NewInstance, dependeeInjectionNode?.GetInjectionNodeName() ?? Root, dependeeScope.ToString()))),
+            Scope.SingleInstancePerRequest => (
                 InjectionNode.SingleInstancePerRequestInjectionNode(
                     targetType,
                     targetReferenceType,
@@ -302,10 +301,10 @@ internal sealed class InjectionTreeBuilder
                     overridableNewParametersOption,
                     dependeeInjectionNode?.GetInjectionNodeName()),
                 R.From(
-                    dependeeScope != Scope.SingleInstancePerFactory &&
-                    dependeeScope is not Scope.SingleInstancePerFuncResultScope,
-                    () => InjectionStageError._ScopeError(targetType, scope, dependeeInjectionNode?.GetInjectionNodeName() ?? Root, $"{Scope.SingleInstancePerFactory}, {nameof(Scope.SingleInstancePerFuncResultScope)}"))),
-            Scope.SingleInstancePerFuncResultScope => (
+                    dependeeScope != Scope._SingleInstancePerFactory &&
+                    dependeeScope is not Scope.SingleInstancePerFuncResult,
+                    () => InjectionStageError._ScopeError(targetType, scope, dependeeInjectionNode?.GetInjectionNodeName() ?? Root, $"{Scope._SingleInstancePerFactory}, {nameof(Scope.SingleInstancePerFuncResult)}"))),
+            Scope.SingleInstancePerFuncResult => (
                 InjectionNode.SingleInstancePerFactoryInjectionNode(
                     targetType,
                     targetReferenceType,
@@ -316,9 +315,9 @@ internal sealed class InjectionTreeBuilder
                     overridableNewParametersOption,
                     dependeeInjectionNode?.GetInjectionNodeName()),
                 R.From(
-                    dependeeScope == Scope.SingleInstancePerFactory,
-                    () => InjectionStageError._ScopeError(targetType, scope, dependeeInjectionNode?.GetInjectionNodeName() ?? Root, Scope.SingleInstancePerFactory.ToString()))),
-            Scope.SingleInstancePerFactoryScope => (
+                    dependeeScope == Scope._SingleInstancePerFactory,
+                    () => InjectionStageError._ScopeError(targetType, scope, dependeeInjectionNode?.GetInjectionNodeName() ?? Root, Scope._SingleInstancePerFactory.ToString()))),
+            Scope.SingleInstancePerFactory => (
                 InjectionNode.SingleInstancePerFactoryInjectionNode(
                     targetType,
                     targetReferenceType,

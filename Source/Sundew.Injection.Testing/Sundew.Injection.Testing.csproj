@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Sundew.Injection\Sundew.Injection.csproj" />
-    <ProjectReference Include="..\TestProjects\AllFeaturesSuccessDependency\AllFeaturesSuccessDependency.csproj" />
+    <ProjectReference Include="..\TestProjects\AllFeaturesSuccessDependency\AllFeaturesSuccessDependency.csproj" /> 
   </ItemGroup>
 
 </Project>

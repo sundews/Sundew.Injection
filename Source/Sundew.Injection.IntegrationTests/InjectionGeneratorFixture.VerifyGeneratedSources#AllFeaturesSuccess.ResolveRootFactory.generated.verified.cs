@@ -91,13 +91,13 @@ namespace AllFeaturesSuccess
             this.manualDependencyFactory = new global::AllFeaturesSuccessDependency.ManualDependencyFactory();
         }
 
-        public global::AllFeaturesSuccess.IResolveRoot Create(
+        public global::AllFeaturesSuccess.IResolveRoot CreateResolveRoot(
             int[] defaultItems,
             global::System.Func<global::AllFeaturesSuccess.RequiredInterface.IRequiredService> requiredService,
             global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest? injectableSingleInstancePerRequest = null,
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null)
         {
-            var constructedResolveRoot = this.CreateUninitialized(
+            var constructedResolveRoot = this.CreateResolveRootUninitialized(
                 defaultItems,
                 requiredService,
                 injectableSingleInstancePerRequest,
@@ -106,13 +106,13 @@ namespace AllFeaturesSuccess
             return constructedResolveRoot.Object;
         }
 
-        public async global::System.Threading.Tasks.Task<global::AllFeaturesSuccess.IResolveRoot> CreateAsync(
+        public async global::System.Threading.Tasks.Task<global::AllFeaturesSuccess.IResolveRoot> CreateResolveRootAsync(
             int[] defaultItems,
             global::System.Func<global::AllFeaturesSuccess.RequiredInterface.IRequiredService> requiredService,
             global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest? injectableSingleInstancePerRequest = null,
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null)
         {
-            var constructedResolveRoot = this.CreateUninitialized(
+            var constructedResolveRoot = this.CreateResolveRootUninitialized(
                 defaultItems,
                 requiredService,
                 injectableSingleInstancePerRequest,
@@ -123,7 +123,7 @@ namespace AllFeaturesSuccess
 
         [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
         [global::Sundew.Injection.CreateMethod]
-        public global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.IResolveRoot> CreateUninitialized(
+        public global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.IResolveRoot> CreateResolveRootUninitialized(
             int[] defaultItems,
             global::System.Func<global::AllFeaturesSuccess.RequiredInterface.IRequiredService> requiredService,
             global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest? injectableSingleInstancePerRequest = null,
@@ -184,14 +184,10 @@ namespace AllFeaturesSuccess
             return new global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.IResolveRoot>(resolveRootResult, childLifecycleHandler);
         }
 
-        protected virtual global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregationOverridableNew OnCreateInterfaceSegregationOverridableNew(global::AllFeaturesSuccess.RequiredInterface.IInjectedByType injectedByType)
+        [global::Sundew.Injection.CreateMethod]
+        public global::AllFeaturesSuccess.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory CreateInterfaceSingleInstancePerFactory()
         {
-            return new global::AllFeaturesSuccess.InterfaceSegregationBindings.InterfaceSegregationOverridableNewImplementation(injectedByType);
-        }
-
-        protected virtual global::AllFeaturesSuccess.OverridableNew.OverrideableNewImplementation OnCreateOverrideableNewImplementation(global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest injectableSingleInstancePerRequest, global::AllFeaturesSuccess.InterfaceImplementationBindings.IInjectableByInterface injectableByInterface)
-        {
-            return new global::AllFeaturesSuccess.OverridableNew.OverrideableNewImplementation(injectableSingleInstancePerRequest, injectableByInterface);
+            return this.interfaceSingleInstancePerFactory;
         }
 
         public void Dispose(global::AllFeaturesSuccess.IResolveRoot resolveRoot)
@@ -212,6 +208,16 @@ namespace AllFeaturesSuccess
         public global::System.Threading.Tasks.ValueTask DisposeAsync()
         {
             return this.lifecycleHandler.DisposeAsync();
+        }
+
+        protected virtual global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregationOverridableNew OnCreateInterfaceSegregationOverridableNew(global::AllFeaturesSuccess.RequiredInterface.IInjectedByType injectedByType)
+        {
+            return new global::AllFeaturesSuccess.InterfaceSegregationBindings.InterfaceSegregationOverridableNewImplementation(injectedByType);
+        }
+
+        protected virtual global::AllFeaturesSuccess.OverridableNew.OverrideableNewImplementation OnCreateOverrideableNewImplementation(global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest injectableSingleInstancePerRequest, global::AllFeaturesSuccess.InterfaceImplementationBindings.IInjectableByInterface injectableByInterface)
+        {
+            return new global::AllFeaturesSuccess.OverridableNew.OverrideableNewImplementation(injectableSingleInstancePerRequest, injectableByInterface);
         }
     }
 }

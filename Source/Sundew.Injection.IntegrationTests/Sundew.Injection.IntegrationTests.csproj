@@ -28,7 +28,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Sundew.Testing.CodeAnalysis" Version="0.0.0-u20230521-013600-ci" />
-    <PackageReference Include="Verify.NUnit" Version="21.1.3" />
+    <PackageReference Include="Verify.NUnit" Version="21.1.5" />
     <PackageReference Include="Verify.SourceGenerators" Version="2.1.0" />
   </ItemGroup>
 

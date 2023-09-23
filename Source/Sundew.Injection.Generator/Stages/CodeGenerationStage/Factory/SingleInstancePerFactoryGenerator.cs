@@ -9,11 +9,10 @@ namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory;
 
 using System.Collections.Immutable;
 using System.Linq;
+using System.Xml.Linq;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.Syntax;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Syntax;
-using Sundew.Injection.Generator.Stages.CompilationDataStage;
-using Sundew.Injection.Generator.Stages.FactoryDataStage;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 using MethodImplementation = Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.MethodImplementation;
 
@@ -37,52 +36,58 @@ internal class SingleInstancePerFactoryGenerator
            in FactoryImplementation factoryImplementation,
            in MethodImplementation method)
     {
-        var factoryNode = singleInstancePerFactoryInjectionNode.Parameters.Aggregate(
-            new FactoryNode(in factoryImplementation, in method, ImmutableList<Expression>.Empty),
-            (factoryNode, nextCreationNode) =>
-            {
-                var factory = factoryNode.FactoryImplementation;
-                var factoryMethod = factoryNode.CreateMethod;
-                var result = this.generatorFeatures.InjectionNodeExpressionGenerator.Generate(nextCreationNode, in factory, in factoryMethod);
-                return factoryNode with
-                {
-                    FactoryImplementation = result.FactoryImplementation,
-                    CreateMethod = result.CreateMethod,
-                    DependeeArguments = factoryNode.DependeeArguments.AddRange(result.DependeeArguments),
-                };
-            });
+        var factoryNode = new FactoryNode(in factoryImplementation, in method, ImmutableList<Expression>.Empty);
 
         var targetType = singleInstancePerFactoryInjectionNode.TargetType;
         var targetReferenceType = singleInstancePerFactoryInjectionNode.TargetReferenceType;
         var fieldType = singleInstancePerFactoryInjectionNode.ParameterNodeOption.GetValueOrDefault(x => x.Type, targetReferenceType);
-        var (fields, wasAdded, targetTypeFieldDeclaration) = factoryNode.FactoryImplementation.Fields.GetOrAdd(
+
+        (factoryNode, var wasAdded, var targetTypeFieldDeclaration) = factoryNode.GetOrAddField(
             NameHelper.GetIdentifierNameForType(targetType),
             fieldType,
-            (fieldName) => new FieldDeclaration(fieldType, fieldName, null));
+            (fieldName) => new FieldDeclaration(fieldType, fieldName, false, null),
+            (in FactoryNode factoryNode, bool willAdd, in FieldDeclaration _) =>
+            {
+                if (willAdd)
+                {
+                    return singleInstancePerFactoryInjectionNode.Parameters.Aggregate(
+                        factoryNode,
+                        (nextFactoryNode, nextInjectionNode) =>
+                        {
+                            var factory = nextFactoryNode.FactoryImplementation;
+                            var factoryMethod = nextFactoryNode.CreateMethod;
+                            var result =
+                                this.generatorFeatures.InjectionNodeExpressionGenerator.Generate(nextInjectionNode, in factory, in factoryMethod);
+                            return nextFactoryNode with
+                            {
+                                FactoryImplementation = result.FactoryImplementation,
+                                CreateMethod = result.CreateMethod,
+                                DependeeArguments =
+                                nextFactoryNode.DependeeArguments.AddRange(result.DependeeArguments),
+                            };
+                        });
+                }
 
-        var statements = factoryNode.FactoryImplementation.Constructor.Statements;
+                return factoryNode;
+            });
 
         var targetMemberAccessExpression = new MemberAccessExpression(Identifier.This, targetTypeFieldDeclaration.Name);
-        var constructorParameters = factoryNode.FactoryImplementation.Constructor.Parameters;
         var dependeeArguments = ImmutableList.Create<Expression>(targetMemberAccessExpression);
-        var factoryMethods = factoryNode.FactoryImplementation.FactoryMethods;
         if (wasAdded)
         {
-            (factoryMethods, var creationExpression, factoryNode) = this.generatorFeatures.OptionalOverridableCreationGenerator.Generate(singleInstancePerFactoryInjectionNode, in factoryNode);
+            (factoryNode, var creationExpression) = this.generatorFeatures.OptionalOverridableCreationGenerator.Generate(singleInstancePerFactoryInjectionNode, in factoryNode);
             if (singleInstancePerFactoryInjectionNode.ParameterNodeOption.TryGetValue(out var parameterNode))
             {
-                (constructorParameters, _, var parameter, var argument, var needsFieldAssignment) = ParameterHelper.VisitParameter(
+                (factoryNode, _, var parameter, var argument, var needsFieldAssignment) = factoryNode.GetOrAddConstructorParameter(
                     parameterNode,
                     NameHelper.GetIdentifierNameForType(parameterNode.Type),
-                    constructorParameters,
                     ImmutableList<ParameterDeclaration>.Empty,
                     this.generatorContext.CompilationData);
 
-                var (newFields, _, parameterField) = fields.GetOrAdd(
+                (factoryNode, _, var parameterField) = factoryNode.GetOrAddField(
                     parameter.Name,
                     parameter.Type,
-                    (fieldName) => new FieldDeclaration(parameter.Type, fieldName, null));
-                fields = newFields;
+                    (fieldName) => new FieldDeclaration(parameter.Type, fieldName, false, null));
 
                 if (needsFieldAssignment)
                 {
@@ -90,7 +95,7 @@ internal class SingleInstancePerFactoryGenerator
                         new ExpressionStatement(new AssignmentExpression(
                             new MemberAccessExpression(Identifier.This, parameterField.Name),
                             new Identifier(parameter.Name)));
-                    statements = statements.Add(optionalParameterFieldAssignment);
+                    factoryNode = factoryNode.AddConstructorStatement(optionalParameterFieldAssignment);
                 }
 
                 var localDeclarationStatement = new LocalDeclarationStatement(Owned + targetType.Name, creationExpression);
@@ -107,36 +112,23 @@ internal class SingleInstancePerFactoryGenerator
 
                 var falseStatements = ImmutableList.Create<Statement>(new ExpressionStatement(new AssignmentExpression(targetMemberAccessExpression, argument)));
 
-                statements = statements.Add(new CreateOptionalParameterIfStatement(argument, trueStatements, falseStatements));
+                factoryNode = factoryNode.AddConstructorStatement(new CreateOptionalParameterIfStatement(argument, trueStatements, falseStatements));
             }
             else
             {
                 var assignmentStatement =
                     new ExpressionStatement(new AssignmentExpression(targetMemberAccessExpression, creationExpression));
-                statements = statements.Add(assignmentStatement);
+                factoryNode = factoryNode.AddConstructorStatement(assignmentStatement);
 
                 if (singleInstancePerFactoryInjectionNode.NeedsLifecycleHandling)
                 {
-                    statements = statements.Add(new ExpressionStatement(new InvocationExpression(
+                    factoryNode = factoryNode.AddConstructorStatement(new ExpressionStatement(new InvocationExpression(
                         this.generatorContext.KnownSyntax.SharedLifecycleHandler.TryAddMethod,
                         new Expression[] { targetMemberAccessExpression })));
                 }
             }
         }
 
-        return factoryNode with
-        {
-            FactoryImplementation = factoryNode.FactoryImplementation with
-            {
-                Fields = fields,
-                Constructor = factoryNode.FactoryImplementation.Constructor with
-                {
-                    Statements = statements,
-                    Parameters = constructorParameters,
-                },
-                FactoryMethods = factoryMethods,
-            },
-            DependeeArguments = dependeeArguments,
-        };
+        return factoryNode with { DependeeArguments = dependeeArguments };
     }
 }

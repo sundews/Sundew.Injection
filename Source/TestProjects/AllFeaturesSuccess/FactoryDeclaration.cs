@@ -99,7 +99,9 @@
 
             // Creates a factory for ResolveRoot and generates an interface for it as well
             injectionBuilder.CreateFactory(
-                factories => factories.Add<IResolveRoot, ResolveRoot>(), generateInterface: true);
+                factories => factories
+                    .Add<IResolveRoot, ResolveRoot>()
+                    .Add<IInterfaceSingleInstancePerFactory>(), generateInterface: true);
         }
 
         internal static ImmutableList<T> CreateList<T>(T[] defaultItems)

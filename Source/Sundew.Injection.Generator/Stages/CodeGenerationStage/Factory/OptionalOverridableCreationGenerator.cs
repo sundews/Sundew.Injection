@@ -23,7 +23,7 @@ internal sealed class OptionalOverridableCreationGenerator
         this.generatorContext = generatorContext;
     }
 
-    public (ImmutableList<DeclaredMethodImplementation> FactoryMethods, InvocationExpressionBase CreationExpression, FactoryNode FactoryNode)
+    public (FactoryNode FactoryNode, InvocationExpressionBase CreationExpression)
         Generate(IMayOverrideNewNode mayOverrideNew, in FactoryNode factoryNode)
     {
         return mayOverrideNew.OverridableNewParametersOption.Evaluate(
@@ -33,7 +33,7 @@ internal sealed class OptionalOverridableCreationGenerator
             (factoryMethods, factoryNode) =>
             {
                 var creationResult = this.generatorFeatures.CreationExpressionGenerator.Generate(factoryNode, mayOverrideNew.CreationSource, factoryNode.DependeeArguments);
-                return (factoryMethods, creationResult.CreationExpression, creationResult.FactoryNode);
+                return creationResult;
             });
     }
 }

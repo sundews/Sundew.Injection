@@ -29,7 +29,7 @@ internal sealed class OnCreateMethodGenerator
         this.generatorContext = generatorContext;
     }
 
-    public (ImmutableList<DeclaredMethodImplementation> FactoryMethods, InvocationExpressionBase CreationExpression, FactoryNode FactoryNode)
+    public (FactoryNode FactoryNode, InvocationExpressionBase CreationExpression)
         Generate(
             ImmutableList<DeclaredMethodImplementation> factoryMethods, DefiniteType targetType, ValueArray<DefiniteParameter> parameters, CreationSource creationSource, FactoryNode factoryNode)
     {
@@ -43,6 +43,6 @@ internal sealed class OnCreateMethodGenerator
             resultingFactoryNode = creationExpressionPair.FactoryNode;
         }
 
-        return (factoryMethods, new InvocationExpression(new MemberAccessExpression(Identifier.This, declaration.Name), factoryNode.DependeeArguments), resultingFactoryNode);
+        return (resultingFactoryNode with { FactoryImplementation = resultingFactoryNode.FactoryImplementation with { FactoryMethods = factoryMethods } }, new InvocationExpression(new MemberAccessExpression(Identifier.This, declaration.Name), factoryNode.DependeeArguments));
     }
 }

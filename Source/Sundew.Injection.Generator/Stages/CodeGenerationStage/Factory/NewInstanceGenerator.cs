@@ -53,13 +53,13 @@ internal sealed class NewInstanceGenerator
         var dependeeArguments = ImmutableList.Create<Expression>();
         var targetReferenceType = newInstanceInjectionNode.TargetReferenceType;
 
-        (var factoryMethods, var creationExpression, factoryNode) = newInstanceInjectionNode.OverridableNewParametersOption.Evaluate(
+        (factoryNode, var creationExpression) = newInstanceInjectionNode.OverridableNewParametersOption.Evaluate(
             factoryNode.FactoryImplementation.FactoryMethods,
             (creationParameters, factoryMethods) => this.generatorFeatures.OnCreateMethodGenerator.Generate(factoryMethods, targetReferenceType, creationParameters, newInstanceInjectionNode.CreationSource, factoryNode),
             factoryMethods =>
             {
                 var creationResult = this.generatorFeatures.CreationExpressionGenerator.Generate(in factoryNode, newInstanceInjectionNode.CreationSource, factoryNode.DependeeArguments);
-                return (factoryMethods, creationResult.CreationExpression, creationResult.FactoryNode);
+                return creationResult;
             });
 
         var variables = factoryNode.CreateMethod.Variables;
@@ -127,7 +127,6 @@ internal sealed class NewInstanceGenerator
                 Parameters = factoryMethodParameters,
             },
             DependeeArguments = dependeeArguments,
-            FactoryImplementation = factoryNode.FactoryImplementation with { FactoryMethods = factoryMethods },
         };
     }
 }

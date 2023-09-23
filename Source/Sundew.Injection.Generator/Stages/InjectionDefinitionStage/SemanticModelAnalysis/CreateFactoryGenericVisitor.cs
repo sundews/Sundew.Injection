@@ -29,12 +29,12 @@ internal class CreateFactoryGenericVisitor : CSharpSyntaxWalker
     {
         var typeArguments = this.methodSymbol.TypeArguments;
         var parameters = this.methodSymbol.Parameters;
-        var factoryMethods = new FactoryMethodRegistrationBuilder(this.analysisContext.TypeFactory);
         var i = 0;
         var factoryName = (string?)parameters[i++].ExplicitDefaultValue;
         var generateInterface = (bool?)parameters[i++].ExplicitDefaultValue ?? true;
         var accessibility = parameters[i++].ExplicitDefaultValue.ToEnumOrDefault(Injection.Accessibility.Public);
         var @namespace = (string?)parameters[i++].ExplicitDefaultValue;
+        var generateTypeResolver = (bool?)parameters[i++].ExplicitDefaultValue ?? false;
         var argumentIndex = 0;
         foreach (var argumentSyntax in node.Arguments)
         {
@@ -54,6 +54,9 @@ internal class CreateFactoryGenericVisitor : CSharpSyntaxWalker
                     case nameof(accessibility):
                         accessibility = this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value.ToEnumOrDefault(Injection.Accessibility.Public);
                         break;
+                    case nameof(generateTypeResolver):
+                        generateTypeResolver = (bool?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value ?? false;
+                        break;
                 }
             }
             else
@@ -72,32 +75,18 @@ internal class CreateFactoryGenericVisitor : CSharpSyntaxWalker
                     case 3:
                         @namespace = (string?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
                         break;
+                    case 4:
+                        generateTypeResolver = (bool?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value ?? false;
+                        break;
                 }
 
                 argumentIndex++;
             }
         }
 
-        var implementationType = typeArguments.Last();
-        factoryMethods.Add(implementationType, implementationType, null, null, accessibility, false);
-
-        this.analysisContext.CompiletimeInjectionDefinitionBuilder.CreateFactory(factoryMethods, @namespace, factoryName, generateInterface, accessibility);
-    }
-
-    public override void VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
-    {
-        var symbolInfo = this.analysisContext.SemanticModel.GetSymbolInfo(node);
-        if (symbolInfo.Symbol != null)
-        {
-            switch (symbolInfo.Symbol.Kind)
-            {
-                case SymbolKind.Method:
-                    break;
-                case SymbolKind.Field:
-                    break;
-            }
-        }
-
-        base.VisitMemberAccessExpression(node);
+        var typeSymbol = typeArguments.Last();
+        var factoryMethodRegistrationBuilder = new FactoryMethodRegistrationBuilder();
+        this.analysisContext.AddDefaultFactoryMethodFromTypeSymbol(typeSymbol, accessibility, false, factoryMethodRegistrationBuilder);
+        this.analysisContext.CompiletimeInjectionDefinitionBuilder.CreateFactory(factoryMethodRegistrationBuilder, @namespace, factoryName, generateInterface, accessibility, generateTypeResolver);
     }
 }

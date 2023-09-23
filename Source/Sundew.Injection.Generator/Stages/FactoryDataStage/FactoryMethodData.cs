@@ -14,4 +14,5 @@ internal sealed record FactoryMethodData(
     string FactoryMethodName,
     (DefiniteType Type, TypeMetadata TypeMetadata) Return,
     (DefiniteType Type, TypeMetadata TypeMetadata) Target,
-    InjectionNode InjectionTree);
+    InjectionNode InjectionTree,
+    bool RootNeedsLifecycleHandling);

@@ -51,6 +51,11 @@ public static class KnownTypesProvider
         return R.From(compilation.GetTypesByMetadataName(typeof(LifecycleHandler).FullName).FirstOrDefault(), () => "LifecycleHandler was not found");
     }
 
+    public static R<INamedTypeSymbol, string> GetTypeResolver(this Compilation compilation)
+    {
+        return R.From(compilation.GetTypesByMetadataName(typeof(TypeResolver<>).FullName).FirstOrDefault(), () => "TypeResolver<> was not found");
+    }
+
     public static R<INamedTypeSymbol, string> GetILifecycleHandler(this Compilation compilation)
     {
         return R.From(compilation.GetTypesByMetadataName(typeof(ILifecycleHandler).FullName).FirstOrDefault(), () => "ILifecycleHandler was not found");

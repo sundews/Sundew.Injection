@@ -16,7 +16,7 @@ public class NameRegistry<TValue> : ICache<string, TValue>, INameRegistrar<TValu
 
     public void Register(string name, TValue value)
     {
-        this.registry.Add(name, value);
+        this.registry[name] = value;
     }
 
     public bool TryGet(string name, [NotNullWhen(true)] out TValue? value)

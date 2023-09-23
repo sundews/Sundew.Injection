@@ -15,7 +15,10 @@ internal sealed class GeneratorFeatures
         this.OnCreateMethodGenerator = new OnCreateMethodGenerator(this, generatorContext);
         this.CreationExpressionGenerator = new CreationExpressionGenerator(this, generatorContext);
         this.OptionalOverridableCreationGenerator = new OptionalOverridableCreationGenerator(this, generatorContext);
+        this.ResolveTypeGenerator = new ResolveTypeGenerator(this, generatorContext);
     }
+
+    public ResolveTypeGenerator ResolveTypeGenerator { get; }
 
     public InjectionNodeEvaluator InjectionNodeExpressionGenerator { get; }
 

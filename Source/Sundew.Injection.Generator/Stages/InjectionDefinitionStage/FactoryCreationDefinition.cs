@@ -14,4 +14,5 @@ internal readonly record struct FactoryCreationDefinition(
     string? FactoryClassName,
     bool GenerateInterface,
     ValueArray<FactoryMethodRegistration> FactoryMethodRegistrations,
-    Accessibility Accessibility);
+    Accessibility Accessibility,
+    bool GenerateTypeResolver);

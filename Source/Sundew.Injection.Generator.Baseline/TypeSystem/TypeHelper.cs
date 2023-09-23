@@ -7,6 +7,7 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
+using System;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -33,11 +34,19 @@ public static class TypeHelper
         return stringBuilder.ToString();
     }
 
-    public static IMethodSymbol GetDefaultConstructorMethod(ITypeSymbol typeSymbol)
+    public static IMethodSymbol? GetDefaultConstructorMethod(ITypeSymbol typeSymbol)
     {
         if (typeSymbol is INamedTypeSymbol namedTypeSymbol)
         {
-            return namedTypeSymbol.Constructors.OrderByDescending(x => x.Parameters.Length).First();
+            try
+            {
+                return namedTypeSymbol.Constructors.OrderByDescending(x => x.Parameters.Length).FirstOrDefault(x => !x.IsStatic && x.DeclaredAccessibility == Accessibility.Public);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         return default!;

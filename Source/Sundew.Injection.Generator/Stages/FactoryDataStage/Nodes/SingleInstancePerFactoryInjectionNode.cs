@@ -7,7 +7,6 @@
 
 namespace Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 
-using System;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.TypeSystem;

@@ -79,9 +79,26 @@ internal sealed class BindingResolver
             return this.bindingFactory.TryCreateSingleParameter(bindingRegistration, type);
         }
 
-        if (typeMetadata.DefaultConstructor != null)
+        if (typeMetadata.DefaultConstructor.HasValue)
         {
-            return this.bindingFactory.TryCreateSingleParameter(new BindingRegistration(type, type, Scope.Auto, typeMetadata.DefaultConstructor, typeMetadata.HasLifetime, false, false));
+            return this.bindingFactory.TryCreateSingleParameter(new BindingRegistration((type, typeMetadata), type, Scope._Auto, typeMetadata.DefaultConstructor.Value, false, false));
+        }
+
+        if (type is DefiniteBoundGenericType definiteBoundGenericType2)
+        {
+            var unboundGenericType = definiteBoundGenericType2.ToUnboundGenericType();
+            if (this.genericBindingRegistrations.TryGetValue(unboundGenericType, out var resolvedGenericBindings))
+            {
+                var genericTypeDefinitionBinding = resolvedGenericBindings.First();
+                var selectedUnboundGenericType = genericTypeDefinitionBinding.TargetType;
+                var definiteBoundGenericTargetType = selectedUnboundGenericType.ToDefiniteBoundGenericType(definiteBoundGenericType2.TypeArguments);
+                if (!this.resolvedBindingsCache.TryGet(definiteBoundGenericTargetType.Id, out var resolvedBinding))
+                {
+                    return this.bindingFactory.TryCreateGenericSingleParameter(type, definiteBoundGenericTargetType, genericTypeDefinitionBinding);
+                }
+
+                return resolvedBinding;
+            }
         }
 
         if (typeMetadata.ImplementsIEnumerable)
@@ -111,22 +128,14 @@ internal sealed class BindingResolver
                     return resolvedBinding;
                 }
             }
-        }
-
-        if (type is DefiniteBoundGenericType definiteBoundGenericType2)
-        {
-            var unboundGenericType = definiteBoundGenericType2.ToUnboundGenericType();
-            if (this.genericBindingRegistrations.TryGetValue(unboundGenericType, out var resolvedGenericBindings))
+            else if (type is DefiniteBoundGenericType definiteBoundGenericTypeEnumerable)
             {
-                var genericTypeDefinitionBinding = resolvedGenericBindings.First();
-                var selectedUnboundGenericType = genericTypeDefinitionBinding.TargetType;
-                var definiteBoundGenericTargetType = selectedUnboundGenericType.ToDefiniteBoundGenericType(definiteBoundGenericType2.TypeArguments);
-                if (!this.resolvedBindingsCache.TryGet(definiteBoundGenericTargetType.Id, out var resolvedBinding))
+                var firstTypeArgumentType = definiteBoundGenericTypeEnumerable.TypeArguments.First().Type;
+                var resolvedBinding = this.ResolveArrayBinding(firstTypeArgumentType, type);
+                if (resolvedBinding != null)
                 {
-                    return this.bindingFactory.TryCreateGenericSingleParameter(type, definiteBoundGenericTargetType, genericTypeDefinitionBinding);
+                    return resolvedBinding;
                 }
-
-                return resolvedBinding;
             }
         }
 
@@ -151,7 +160,7 @@ internal sealed class BindingResolver
             var createMethodResult = this.methodFactory.CreateMethod(factoryMethodRegistration.Method, factoryMethodName);
             if (createMethodResult.IsSuccess)
             {
-                var binding = new Binding(targetTypeResult.Value, targetTypeResult.Value, Scope.Auto, createMethodResult.Value, factoryMethodRegistration.Target.TypeMetadata.HasLifetime, false, factoryMethodRegistration.IsNewOverridable);
+                var binding = new Binding(targetTypeResult.Value, returnTypeResult.Value, factoryMethodRegistration.Scope, createMethodResult.Value, factoryMethodRegistration.Target.TypeMetadata.HasLifetime, false, factoryMethodRegistration.IsNewOverridable);
                 return R.Success(new BindingRoot(binding, factoryMethodRegistration.Accessibility, returnTypeResult.Value));
             }
 
@@ -176,7 +185,7 @@ internal sealed class BindingResolver
         FactoryCreationDefinition factoryCreationDefinition,
         NamedType fallbackFactoryType,
         ImmutableList<FactoryConstructorParameter>.Builder factoryConstructorParameters,
-        bool implementsIDisposable,
+        bool needLifecycleHandling,
         string assemblyName)
     {
         var (classTypeName, interfaceTypeName, factoryNamespace) = FactoryNameHelper.GetFactoryNames(
@@ -196,7 +205,7 @@ internal sealed class BindingResolver
             factoryInterfaceType = new NamedType(interfaceTypeName, factoryNamespace, assemblyName);
         }
 
-        this.bindingFactory.CreateFactoryBinding(factoryType, factoryInterfaceType, factoryConstructorParameters, implementsIDisposable);
+        this.bindingFactory.CreateFactoryBinding(factoryType, factoryInterfaceType, factoryConstructorParameters, needLifecycleHandling);
         return (factoryType, factoryInterfaceType);
     }
 

@@ -99,7 +99,7 @@ internal class InjectionDeclarationVisitor : CSharpSyntaxWalker
                 new BindGenericVisitor(methodSymbol, this.analysisContext).Visit(node);
                 break;
             case nameof(Injection.IInjectionBuilder.CreateFactory):
-                if (methodSymbol.Parameters.Length == 4)
+                if (methodSymbol.IsGenericMethod)
                 {
                     new CreateFactoryGenericVisitor(methodSymbol, this.analysisContext).Visit(node);
                     return;

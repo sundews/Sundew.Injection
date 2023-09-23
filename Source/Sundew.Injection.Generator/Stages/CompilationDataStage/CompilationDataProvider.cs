@@ -7,6 +7,7 @@
 
 namespace Sundew.Injection.Generator.Stages.CompilationDataStage;
 
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -21,8 +22,6 @@ using Type = System.Type;
 
 internal static class CompilationDataProvider
 {
-    private const string InitializationParameters = "initializationParameters";
-    private const string DisposalParameters = "disposalParameters";
     private static readonly NamedType VoidType = new("void", string.Empty, string.Empty);
     private static readonly NamedType ValueTaskType = new("ValueTask", "System.Threading.Tasks", string.Empty);
 
@@ -45,6 +44,7 @@ internal static class CompilationDataProvider
             compilation.GetTask(),
             compilation.GetILifecycleHandler(),
             compilation.GetLifecycleHandler(),
+            compilation.GetTypeResolver(),
         }.AllOrFailed();
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -62,6 +62,7 @@ internal static class CompilationDataProvider
 
             var ilifecycleHandlerTypeSymbol = all[index++];
             var lifecycleHandlerTypeSymbol = all[index++];
+            var typeResolverTypeSymbol = all[index++];
             var ilifecycleHandlerType = TypeConverter.GetNamedType(ilifecycleHandlerTypeSymbol);
             var lifecycleHandlerType = TypeConverter.GetNamedType(lifecycleHandlerTypeSymbol);
             var lifecycleHandlerConstructor = lifecycleHandlerTypeSymbol.Constructors.FirstOrDefault(x => x.Parameters.Length == 2 && x.DeclaredAccessibility == Accessibility.Public && !x.IsStatic);
@@ -69,16 +70,17 @@ internal static class CompilationDataProvider
             var lifecycleHandlerBinding = new Binding(
                 lifecycleHandlerType,
                 lifecycleHandlerType,
-                Scope.SingleInstancePerFactory,
+                Scope._SingleInstancePerFactory,
                 new DefiniteMethod(
                     lifecycleHandlerType,
                     lifecycleHandlerType.Name,
-                    lifecycleHandlerConstructor!.Parameters.Select(x => new DefiniteParameter(TypeConverter.GetNamedType((INamedTypeSymbol)x.Type), x.Name, defaultMetadata, ParameterNecessity._Optional(null))).ToImmutableArray(),
+                    lifecycleHandlerConstructor!.Parameters.Select(x => new DefiniteParameter(TypeConverter.GetNamedType((INamedTypeSymbol)x.Type), x.Name, defaultMetadata, ParameterNecessity._Optional(null))).ToValueArray(),
                     ImmutableArray<DefiniteTypeArgument>.Empty,
                     MethodKind._Constructor),
                 false,
                 false,
                 false);
+            var objectType = CreateNamedType(typeof(object));
             return R.Success(new CompilationData(
                 areNullableAnnotationsSupported,
                 iInitializableType,
@@ -92,10 +94,14 @@ internal static class CompilationDataProvider
                 ValueTaskType,
                 GenericTypeConverter.GetGenericType(task),
                 GenericTypeConverter.GetGenericType(func),
+                GenericTypeConverter.GetGenericType(typeResolverTypeSymbol),
+                CreateNamedType(typeof(Type)),
+                objectType,
+                GenericTypeConverter.GetGenericType(typeof(Span<>), string.Empty).ToDefiniteBoundGenericType(ImmutableArray.Create(new DefiniteTypeArgument(objectType, new TypeMetadata(O.None, false, false, true)))),
                 compilation.AssemblyName ?? string.Empty));
         }
 
-        return R.Error((ValueList<Diagnostic>)errors.Select(x => Diagnostic.Create(Diagnostics.RequiredTypeNotFoundError, null, x.Error)).ToImmutableList());
+        return R.Error(errors.Select(x => Diagnostic.Create(Diagnostics.RequiredTypeNotFoundError, null, x.Error)).ToValueList());
     }
 
     private static NamedType CreateNamedType(Type type)

@@ -12,6 +12,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.TypeSystem;
 using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
 
@@ -81,19 +82,14 @@ internal class BindVisitor : CSharpSyntaxWalker
         var interfaceTypes = typeArguments.Take(typeArguments.Length - 1).Select(this.analysisContext.TypeFactory.CreateType).ToImmutableArray();
         var implementationType = this.analysisContext.TypeFactory.CreateType(typeArguments.Last());
 
-        var actualMethod = constructorSelector;
-        if (actualMethod == default)
+        var actualMethod = constructorSelector.ToOption().Or(() => implementationType.TypeMetadata.DefaultConstructor);
+        if (actualMethod.HasValue)
         {
-            if (implementationType.TypeMetadata.DefaultConstructor == null)
-            {
-                // Diagnostic
-                return;
-            }
-
-            actualMethod = new Method(implementationType.TypeMetadata.DefaultConstructor.Parameters, implementationType.Type.Name, implementationType.Type, MethodKind._Constructor);
+            this.analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(interfaceTypes, implementationType, actualMethod.Value, scope, isInjectable, isNewOverridable);
+            return;
         }
 
-        this.analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(interfaceTypes, implementationType, actualMethod, scope, isInjectable, isNewOverridable);
+        this.analysisContext.CompiletimeInjectionDefinitionBuilder.ReportDiagnostic(Diagnostic.Create(Diagnostics.NoFactoryMethodFoundForTypeError, null, implementationType.Type));
     }
 
     private static bool GetBooleanLiteralValue(ArgumentSyntax argumentSyntax)

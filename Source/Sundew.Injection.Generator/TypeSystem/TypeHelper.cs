@@ -35,13 +35,13 @@ internal static class TypeHelper
         return stringBuilder.ToString();
     }
 
-    public static IMethodSymbol GetDefaultConstructorMethod(ITypeSymbol typeSymbol)
+    public static IMethodSymbol? GetDefaultConstructorMethod(ITypeSymbol typeSymbol)
     {
         if (typeSymbol is INamedTypeSymbol namedTypeSymbol)
         {
-            return namedTypeSymbol.Constructors.OrderByDescending(x => x.Parameters.Length).First(x => !x.IsStatic && x.DeclaredAccessibility == Accessibility.Public);
+            return namedTypeSymbol.Constructors.OrderByDescending(x => x.Parameters.Length).FirstOrDefault(x => !x.IsStatic && x.DeclaredAccessibility == Accessibility.Public);
         }
 
-        return default!;
+        return default;
     }
 }

@@ -20,6 +20,7 @@ public class Trivia
     public const string Interface = "interface";
     public const string Class = "class";
     public const string Global = "global";
+    public const string Static = "static";
     public const string Readonly = "readonly";
     public const string Protected = "protected";
     public const string Virtual = "virtual";

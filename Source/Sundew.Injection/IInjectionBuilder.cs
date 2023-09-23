@@ -289,17 +289,29 @@ namespace Sundew.Injection
         /// <param name="generateInterface">Indicates whether an interface should also be generated for the factory.</param>
         /// <param name="accessibility">The accessibility of the generated types.</param>
         /// <param name="namespace">The namespace for the generated types.</param>
+        /// <param name="generateTypeResolver">Indicates whether a type resolver method should be implemented for the factory.</param>
         void CreateFactory(
             Func<IFactoryMethodSelector, IFactoryMethods> factoryMethods,
             string? factoryName = null,
             bool generateInterface = true,
             Accessibility accessibility = Accessibility.Public,
-            string? @namespace = null);
+            string? @namespace = null,
+            bool generateTypeResolver = false);
 
+        /// <summary>
+        /// Specifies a factory to be generated and which factory methods are available.
+        /// </summary>
+        /// <typeparam name="TReturn">The return type.</typeparam>
+        /// <param name="factoryName">The factory name.</param>
+        /// <param name="generateInterface">Indicates whether an interface should also be generated for the factory.</param>
+        /// <param name="accessibility">The accessibility of the generated types.</param>
+        /// <param name="namespace">The namespace for the generated types.</param>
+        /// <param name="generateTypeResolver">Indicates whether a type resolver method should be implemented for the factory.</param>
         void CreateFactory<TReturn>(
             string? factoryName = null,
             bool generateInterface = true,
             Accessibility accessibility = Accessibility.Public,
-            string? @namespace = null);
+            string? @namespace = null,
+            bool generateTypeResolver = false);
     }
 }
