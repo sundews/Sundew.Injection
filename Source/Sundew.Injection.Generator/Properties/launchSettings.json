@@ -5,7 +5,7 @@
     },
     "Roslyn Component": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\TestProjects\\AllFeaturesSuccessDependency\\AllFeaturesSuccessDependency.csproj"
+      "targetProject": "..\\TestProjects\\AllFeaturesSuccess\\AllFeaturesSuccess.csproj"
     }
   }
 }

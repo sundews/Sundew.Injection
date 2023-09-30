@@ -65,22 +65,20 @@ internal static class SourceCodeEmitterExtensions
 
         if (definiteType.Namespace != string.Empty)
         {
-            stringBuilder.Append(Trivia.Global).Append(Trivia.DoubleColon);
-            stringBuilder.Append(definiteType.Namespace);
-            stringBuilder.Append('.');
+            stringBuilder.Append(Trivia.Global).Append(Trivia.DoubleColon).Append(definiteType.Namespace).Append('.');
         }
 
         switch (definiteType)
         {
             case DefiniteArrayType arrayType:
-                stringBuilder.Append(arrayType.Name);
-                stringBuilder.Append('[').Append(']');
+                stringBuilder.Append(arrayType.Name).Append('[').Append(']');
                 break;
-            case DefiniteBoundGenericType definiteBoundGenericType:
-                stringBuilder.Append(definiteBoundGenericType.Name);
-                stringBuilder.Append('<');
-                AppendTypeArguments(stringBuilder, definiteBoundGenericType.TypeArguments);
-                stringBuilder.Append('>');
+            case DefiniteClosedGenericType definiteBoundGenericType:
+                stringBuilder.Append(definiteBoundGenericType.Name).Append('<');
+                AppendTypeArguments(stringBuilder, definiteBoundGenericType.TypeArguments).Append('>');
+                break;
+            case DefiniteNestedType definiteNestedType:
+                stringBuilder.Append(definiteNestedType.Name);
                 break;
             case NamedType namedType:
                 stringBuilder.Append(namedType.Name);
@@ -103,11 +101,12 @@ internal static class SourceCodeEmitterExtensions
 
     public static StringBuilder AppendMethodDeclaration(this StringBuilder stringBuilder, MethodDeclaration methodDeclaration, Options options, int indentation)
     {
-        if (methodDeclaration.ReturnType != null)
-        {
-            AppendFullyQualifiedType(stringBuilder, methodDeclaration.ReturnType);
-            stringBuilder.Append(' ');
-        }
+        stringBuilder.If(
+            methodDeclaration.ReturnType,
+            (builder, returnType) => builder
+                .AppendFullyQualifiedType(returnType.Type)
+                .If(returnType.CanHaveDefaultValue && !returnType.Type.IsValueType && options.AreNullableAnnotationsSupported, builder => builder.Append('?'))
+                .Append(' '));
 
         return stringBuilder.Append(methodDeclaration.Name).Append('(').AppendParameters(methodDeclaration.Parameters, options.AreNullableAnnotationsSupported, indentation + 4).Append(')');
     }
@@ -117,7 +116,7 @@ internal static class SourceCodeEmitterExtensions
         return stringBuilder.AppendItems(attributes, (builder, declaration) => builder.Append(' ', indentation).AppendLine(declaration.Value));
     }
 
-    private static StringBuilder AppendParameters(this StringBuilder stringBuilder, ImmutableList<ParameterDeclaration> parameters, bool areNullableAnnotationsSupported, int indentation)
+    public static StringBuilder AppendParameters(this StringBuilder stringBuilder, ImmutableList<ParameterDeclaration> parameters, bool areNullableAnnotationsSupported, int indentation)
     {
         var useNewLine = parameters.Count > 3;
         var actualSeparator = Trivia.ListSeparator;
@@ -137,7 +136,7 @@ internal static class SourceCodeEmitterExtensions
             {
                 builder.Append(' ', indentation);
                 builder.AppendFullyQualifiedType(declaration.Type);
-                if (areNullableAnnotationsSupported && declaration.DefaultValue != null)
+                if (areNullableAnnotationsSupported && !declaration.Type.IsValueType && declaration.DefaultValue != null)
                 {
                     stringBuilder.Append('?');
                 }

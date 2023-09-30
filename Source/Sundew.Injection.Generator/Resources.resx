@@ -121,19 +121,19 @@
     <value>Occurs when a required parameter cannot be resolved</value>
   </data>
   <data name="ResolveRequiredParameterErrorMessageFormat" xml:space="preserve">
-    <value>Could not resolve the type: {0} as a parameter for: {1} from the available parameter sources: {2}</value>
+    <value>Could not Resolve the type: {0} as a parameter for: {1} from the available parameter sources: {2}</value>
   </data>
   <data name="ResolveRequiredParameterErrorTitle" xml:space="preserve">
-    <value>Could not resolve required parameter</value>
+    <value>Could not Resolve required parameter</value>
   </data>
   <data name="ResolveTypeErrorDescription" xml:space="preserve">
     <value>Occurs when type could not be resolved</value>
   </data>
   <data name="ResolveTypeErrorMessageFormat" xml:space="preserve">
-    <value>Failed to resolve the type: {0}</value>
+    <value>Failed to Resolve the type: {0}</value>
   </data>
   <data name="ResolveTypeErrorTitle" xml:space="preserve">
-    <value>Could not resolve type</value>
+    <value>Could not Resolve type</value>
   </data>
   <data name="UnsupportedInstanceMethodErrorDescription" xml:space="preserve">
     <value>Occurs when an factory instance method is not supported</value>
@@ -148,7 +148,7 @@
     <value>Occurs when failing to resolves a method and its parameters</value>
   </data>
   <data name="ResolveMethodMessageFormat" xml:space="preserve">
-    <value>Could not resolve the following parameters for type: {0} - parameters: {1}</value>
+    <value>Could not Resolve the following parameters for type: {0} - parameters: {1}</value>
   </data>
   <data name="ResolveMethodErrorTitle" xml:space="preserve">
     <value>Method could not be resolved</value>
@@ -157,7 +157,7 @@
     <value>Occurs when failing to resolves a generic method and its parameters</value>
   </data>
   <data name="ResolveGenericMethodMessageFormat" xml:space="preserve">
-    <value>Could not resolve the following parameters for type: {0} - parameters: {1}</value>
+    <value>Could not Resolve the following parameters for type: {0} - parameters: {1}</value>
   </data>
   <data name="ResolveGenericMethodErrorTitle" xml:space="preserve">
     <value>Generic method could not be resolved</value>
@@ -238,7 +238,7 @@
     <value>Occurs when a binding does not specify a factory method or constructor and no constructor could be resovled automatically</value>
   </data>
   <data name="NoFactoryMethodFoundForTypeErrorMessageFormat" xml:space="preserve">
-    <value>Could not resolve factory method for type {0}</value>
+    <value>Could not Resolve factory method for type {0}</value>
   </data>
   <data name="NoFactoryMethodFoundForTypeErrorTitle" xml:space="preserve">
     <value>No factory method was found to instanciate type</value>

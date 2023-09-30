@@ -8,8 +8,10 @@
 namespace Sundew.Injection.Generator.Stages.CompilationDataStage;
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Sundew.Base.Collections;
@@ -22,8 +24,8 @@ using Type = System.Type;
 
 internal static class CompilationDataProvider
 {
-    private static readonly NamedType VoidType = new("void", string.Empty, string.Empty);
-    private static readonly NamedType ValueTaskType = new("ValueTask", "System.Threading.Tasks", string.Empty);
+    private static readonly NamedType VoidType = new("void", string.Empty, string.Empty, true);
+    private static readonly NamedType ValueTaskType = new("ValueTask", "System.Threading.Tasks", string.Empty, true);
 
     public static IncrementalValueProvider<R<CompilationData, ValueList<Diagnostic>>> SetupCompilationDataStage(this IncrementalValueProvider<Compilation> compilationProvider)
     {
@@ -44,7 +46,8 @@ internal static class CompilationDataProvider
             compilation.GetTask(),
             compilation.GetILifecycleHandler(),
             compilation.GetLifecycleHandler(),
-            compilation.GetTypeResolver(),
+            compilation.GetTypeResolverBinarySearch(),
+            compilation.GetTypeResolverLinearSearch(),
         }.AllOrFailed();
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -62,11 +65,12 @@ internal static class CompilationDataProvider
 
             var ilifecycleHandlerTypeSymbol = all[index++];
             var lifecycleHandlerTypeSymbol = all[index++];
-            var typeResolverTypeSymbol = all[index++];
+            var typeResolverBinarySearchTypeSymbol = all[index++];
+            var typeResolverLinearSearchTypeSymbol = all[index++];
             var ilifecycleHandlerType = TypeConverter.GetNamedType(ilifecycleHandlerTypeSymbol);
             var lifecycleHandlerType = TypeConverter.GetNamedType(lifecycleHandlerTypeSymbol);
             var lifecycleHandlerConstructor = lifecycleHandlerTypeSymbol.Constructors.FirstOrDefault(x => x.Parameters.Length == 2 && x.DeclaredAccessibility == Accessibility.Public && !x.IsStatic);
-            var defaultMetadata = new TypeMetadata(null, false, false, false);
+            var defaultMetadata = new TypeMetadata(null, false, false);
             var lifecycleHandlerBinding = new Binding(
                 lifecycleHandlerType,
                 lifecycleHandlerType,
@@ -80,7 +84,7 @@ internal static class CompilationDataProvider
                 false,
                 false,
                 false);
-            var objectType = CreateNamedType(typeof(object));
+            var objectType = new NamedType("object", string.Empty, string.Empty, false);
             return R.Success(new CompilationData(
                 areNullableAnnotationsSupported,
                 iInitializableType,
@@ -88,29 +92,65 @@ internal static class CompilationDataProvider
                 iDisposableType,
                 iAsyncDisposableType,
                 lifecycleHandlerBinding,
-                CreateNamedType(typeof(IGeneratedFactory)),
-                GenericTypeConverter.GetGenericType(typeof(Sundew.Injection.Constructed<>), string.Empty),
+                GetNamedType(typeof(IGeneratedFactory)),
+                GetGenericType(typeof(Sundew.Injection.Constructed<>), string.Empty),
                 VoidType,
                 ValueTaskType,
                 GenericTypeConverter.GetGenericType(task),
                 GenericTypeConverter.GetGenericType(func),
-                GenericTypeConverter.GetGenericType(typeResolverTypeSymbol),
-                CreateNamedType(typeof(Type)),
+                GenericTypeConverter.GetGenericType(typeResolverBinarySearchTypeSymbol),
+                GenericTypeConverter.GetGenericType(typeResolverLinearSearchTypeSymbol),
+                GetNamedType(typeof(Type)),
                 objectType,
-                GenericTypeConverter.GetGenericType(typeof(Span<>), string.Empty).ToDefiniteBoundGenericType(ImmutableArray.Create(new DefiniteTypeArgument(objectType, new TypeMetadata(O.None, false, false, true)))),
+                GetGenericType(typeof(Span<>), string.Empty).ToDefiniteBoundGenericType(ImmutableArray.Create(new DefiniteTypeArgument(objectType, new TypeMetadata(O.None, false, false)))),
+                GetGenericType(typeof(Resolver<>), string.Empty),
+                GetUnboundGenericType(typeof(IEnumerable<>), string.Empty),
                 compilation.AssemblyName ?? string.Empty));
         }
 
         return R.Error(errors.Select(x => Diagnostic.Create(Diagnostics.RequiredTypeNotFoundError, null, x.Error)).ToValueList());
     }
 
-    private static NamedType CreateNamedType(Type type)
+    private static NamedType GetNamedType(Type type)
     {
-        return new NamedType(type.Name, type.Namespace, type.Assembly.GetName().Name);
+        return new NamedType(type.Name, type.Namespace, type.Assembly.GetName().Name, type.IsValueType);
+    }
+
+    private static OpenGenericType GetGenericType(System.Type genericType, string assemblyName)
+    {
+        var name = GetGenericName(genericType);
+        return new OpenGenericType(
+            name,
+            genericType.Namespace,
+            assemblyName,
+            genericType.GetTypeInfo().GenericTypeParameters.Select(x => new TypeParameter(x.Name)).ToImmutableArray(),
+            genericType.IsValueType);
+    }
+
+    private static UnboundGenericType GetUnboundGenericType(System.Type genericType, string assemblyName)
+    {
+        var name = GetGenericName(genericType);
+        return new UnboundGenericType(
+            name,
+            genericType.GetTypeInfo().GenericTypeParameters.Length,
+            genericType.Namespace,
+            assemblyName);
+    }
+
+    private static string GetGenericName(Type genericType)
+    {
+        var name = genericType.Name;
+        var genericIndex = genericType.Name.IndexOf('`');
+        if (genericIndex > -1)
+        {
+            name = name.Substring(0, genericIndex);
+        }
+
+        return name;
     }
 
     private static NamedType CreateNamedType(INamedTypeSymbol namedTypeSymbol)
     {
-        return new NamedType(namedTypeSymbol.MetadataName, TypeHelper.GetNamespace(namedTypeSymbol.ContainingNamespace), namedTypeSymbol.ContainingAssembly.Identity.ToString());
+        return new NamedType(namedTypeSymbol.MetadataName, TypeHelper.GetNamespace(namedTypeSymbol.ContainingNamespace), namedTypeSymbol.ContainingAssembly.Identity.ToString(), namedTypeSymbol.IsValueType);
     }
 }

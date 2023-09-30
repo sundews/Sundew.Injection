@@ -1,18 +1,27 @@
 ﻿namespace AllFeaturesSuccess
 {
     using System;
+    using System.Collections.Generic;
     using AllFeaturesSuccess.ChildFactory;
+    using AllFeaturesSuccess.MultipleImplementations;
     using AllFeaturesSuccess.OverridableNew;
 
     public class ResolveRoot : global::AllFeaturesSuccess.IResolveRoot
     {
         private readonly OverrideableNewImplementation overrideableNewImplementation;
         private readonly ConstructedChild constructedChild;
+        private readonly IEnumerable<IMultipleImplementationForEnumerable> multipleImplementationForEnumerables;
 
-        public ResolveRoot(global::AllFeaturesSuccess.InterfaceImplementationBindings.IIntercepted intercepted, global::AllFeaturesSuccess.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory interfaceSingleInstancePerFactory, OverrideableNewImplementation overrideableNewImplementation, ConstructedChild constructedChild)
+        public ResolveRoot(
+            global::AllFeaturesSuccess.InterfaceImplementationBindings.IIntercepted intercepted,
+            global::AllFeaturesSuccess.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory interfaceSingleInstancePerFactory,
+            OverrideableNewImplementation overrideableNewImplementation,
+            ConstructedChild constructedChild,
+            IEnumerable<IMultipleImplementationForEnumerable> multipleImplementationForEnumerables)
         {
             this.overrideableNewImplementation = overrideableNewImplementation;
             this.constructedChild = constructedChild;
+            this.multipleImplementationForEnumerables = multipleImplementationForEnumerables;
             this.Intercepted = intercepted;
             this.InterfaceSingleInstancePerFactory = interfaceSingleInstancePerFactory;
         }
@@ -28,6 +37,10 @@
             this.InterfaceSingleInstancePerFactory.PrintMe(indent + 2);
             this.overrideableNewImplementation.PrintMe(indent + 2);
             this.constructedChild.PrintMe(indent + 2);
+            foreach (var multipleImplementationForEnumerable in this.multipleImplementationForEnumerables)
+            {
+                multipleImplementationForEnumerable.PrintMe(indent + 2);
+            }
         }
     }
 }

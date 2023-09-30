@@ -84,7 +84,7 @@ internal sealed class BindingResolver
             return this.bindingFactory.TryCreateSingleParameter(new BindingRegistration((type, typeMetadata), type, Scope._Auto, typeMetadata.DefaultConstructor.Value, false, false));
         }
 
-        if (type is DefiniteBoundGenericType definiteBoundGenericType2)
+        if (type is DefiniteClosedGenericType definiteBoundGenericType2)
         {
             var unboundGenericType = definiteBoundGenericType2.ToUnboundGenericType();
             if (this.genericBindingRegistrations.TryGetValue(unboundGenericType, out var resolvedGenericBindings))
@@ -105,7 +105,7 @@ internal sealed class BindingResolver
         {
             if (type is DefiniteArrayType definiteArrayType)
             {
-                var resolvedBinding = this.ResolveArrayBinding(definiteArrayType.ElementType, type);
+                var resolvedBinding = this.ResolveMultiItemBinding(definiteArrayType.ElementType, type);
                 if (resolvedBinding != null)
                 {
                     return resolvedBinding;
@@ -113,25 +113,25 @@ internal sealed class BindingResolver
             }
             else if (type is ArrayType arrayType)
             {
-                var resolvedBinding = this.ResolveArrayBinding(arrayType.ElementType, type);
+                var resolvedBinding = this.ResolveMultiItemBinding(arrayType.ElementType, type);
                 if (resolvedBinding != null)
                 {
                     return resolvedBinding;
                 }
             }
-            else if (type is BoundGenericType definiteBoundGenericType)
+            else if (type is ClosedGenericType definiteBoundGenericType)
             {
                 var firstTypeArgumentType = definiteBoundGenericType.TypeArguments.First().Type;
-                var resolvedBinding = this.ResolveArrayBinding(firstTypeArgumentType, type);
+                var resolvedBinding = this.ResolveMultiItemBinding(firstTypeArgumentType, type);
                 if (resolvedBinding != null)
                 {
                     return resolvedBinding;
                 }
             }
-            else if (type is DefiniteBoundGenericType definiteBoundGenericTypeEnumerable)
+            else if (type is DefiniteClosedGenericType definiteBoundGenericTypeEnumerable)
             {
                 var firstTypeArgumentType = definiteBoundGenericTypeEnumerable.TypeArguments.First().Type;
-                var resolvedBinding = this.ResolveArrayBinding(firstTypeArgumentType, type);
+                var resolvedBinding = this.ResolveMultiItemBinding(firstTypeArgumentType, definiteBoundGenericTypeEnumerable);
                 if (resolvedBinding != null)
                 {
                     return resolvedBinding;
@@ -197,19 +197,20 @@ internal sealed class BindingResolver
         var factoryType = new NamedType(
             classTypeName,
             factoryNamespace,
-            assemblyName);
+            assemblyName,
+            false);
 
         NamedType? factoryInterfaceType = null;
         if (factoryCreationDefinition.GenerateInterface)
         {
-            factoryInterfaceType = new NamedType(interfaceTypeName, factoryNamespace, assemblyName);
+            factoryInterfaceType = new NamedType(interfaceTypeName, factoryNamespace, assemblyName, false);
         }
 
         this.bindingFactory.CreateFactoryBinding(factoryType, factoryInterfaceType, factoryConstructorParameters, needLifecycleHandling);
         return (factoryType, factoryInterfaceType);
     }
 
-    private ResolvedBinding? ResolveArrayBinding(Type firstTypeArgumentType, Type parameterType)
+    private ResolvedBinding? ResolveMultiItemBinding(Type firstTypeArgumentType, Type parameterType)
     {
         var elementTypeLookupResult = this.typeResolver.ResolveType(firstTypeArgumentType);
         if (!elementTypeLookupResult.IsSuccess)
@@ -217,15 +218,20 @@ internal sealed class BindingResolver
             return ResolvedBinding._Error(new BindingError.FailedResolveError(elementTypeLookupResult.Error));
         }
 
+        return this.ResolveMultiItemBinding(elementTypeLookupResult.Value, parameterType);
+    }
+
+    private ResolvedBinding? ResolveMultiItemBinding(DefiniteType firstTypeArgumentType, Type parameterType)
+    {
         var firstTypeArgumentTypeId = firstTypeArgumentType.Id;
         if (this.bindingsCache.TryGet(firstTypeArgumentTypeId, out var bindings))
         {
-            return this.bindingFactory.CreateArrayParameter(parameterType, elementTypeLookupResult.Value, bindings);
+            return this.bindingFactory.CreateMultiItemParameter(parameterType, firstTypeArgumentType, bindings);
         }
 
         if (this.bindingRegistrations.TryGetValue(firstTypeArgumentTypeId, out var resolvedBindingRegistrationsForArray))
         {
-            return this.bindingFactory.TryCreateArrayParameter(parameterType, elementTypeLookupResult.Value, resolvedBindingRegistrationsForArray);
+            return this.bindingFactory.TryCreateMultiItemParameter(parameterType, firstTypeArgumentType, resolvedBindingRegistrationsForArray);
         }
 
         return null;

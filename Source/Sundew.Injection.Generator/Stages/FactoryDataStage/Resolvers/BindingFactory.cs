@@ -69,7 +69,7 @@ internal class BindingFactory
         return newResolvedBinding;
     }
 
-    public ResolvedBinding TryCreateGenericSingleParameter(Type interfaceType, DefiniteBoundGenericType targetType, GenericBindingRegistration genericBindingRegistration)
+    public ResolvedBinding TryCreateGenericSingleParameter(Type interfaceType, DefiniteClosedGenericType targetType, GenericBindingRegistration genericBindingRegistration)
     {
         var methodResult = this.methodFactory.CreateMethod(targetType, genericBindingRegistration.TargetType, genericBindingRegistration.Method);
         if (!methodResult.IsSuccess)
@@ -90,7 +90,7 @@ internal class BindingFactory
         return resolvedBinding;
     }
 
-    public ResolvedBinding TryCreateArrayParameter(Type requestedArrayCompatibleType, DefiniteType elementType, ValueArray<BindingRegistration> resolvedBindingRegistrationsForArray)
+    public ResolvedBinding TryCreateMultiItemParameter(Type requestedArrayCompatibleType, DefiniteType elementType, ValueArray<BindingRegistration> resolvedBindingRegistrationsForArray)
     {
         var createBindingsResult = resolvedBindingRegistrationsForArray.AllOrFailed(x =>
         {
@@ -113,16 +113,16 @@ internal class BindingFactory
         if (createBindingsResult.TryGet(out var all, out var failed))
         {
             this.bindingsTypeRegistrar.Register(requestedArrayCompatibleType.Id, null, all.Items);
-            return this.CreateArrayParameter(requestedArrayCompatibleType, elementType, all.Items);
+            return this.CreateMultiItemParameter(requestedArrayCompatibleType, elementType, all.Items);
         }
 
         return ResolvedBinding._Error(new BindingError.ResolveArrayElementsError(failed.Items.Select(x => x.Error).ToArray()));
     }
 
-    public ResolvedBinding CreateArrayParameter(Type requestedArrayCompatibleType, DefiniteType definiteElementType, IReadOnlyList<Binding> bindings)
+    public ResolvedBinding CreateMultiItemParameter(Type requestedArrayCompatibleType, DefiniteType definiteElementType, IReadOnlyList<Binding> bindings)
     {
         var definiteArrayType = new DefiniteArrayType(definiteElementType);
-        var arrayParameter = ResolvedBinding.ArrayParameter(definiteArrayType, bindings);
+        var arrayParameter = ResolvedBinding.MultiItemParameter(definiteArrayType, bindings);
         this.resolvedBindingTypeRegistrar.Register(definiteArrayType.Id, requestedArrayCompatibleType.Id, arrayParameter);
         return arrayParameter;
     }

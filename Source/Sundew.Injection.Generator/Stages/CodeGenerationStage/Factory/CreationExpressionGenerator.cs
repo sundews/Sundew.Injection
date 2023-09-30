@@ -34,6 +34,7 @@ internal sealed class CreationExpressionGenerator
             CreationSource.DefaultValue defaultValue => (factoryNode, new CreationExpression.DefaultValue(defaultValue.DefiniteType)),
             CreationSource.InstanceMethodCall instanceMethodCall => this.GenerateInstanceMethodCallExpression(instanceMethodCall, arguments, in factoryNode),
             CreationSource.LiteralValue literalValue => (factoryNode, CreationExpression.Literal(literalValue.Literal)),
+            CreationSource.IteratorMethodCall iteratorMethodCall => this.generatorFeatures.IteratorMethodGenerator.Generate(iteratorMethodCall, arguments, in factoryNode),
             CreationSource.StaticMethodCall staticMethodCall => (factoryNode, CreationExpression._StaticMethodCall(staticMethodCall.Type, staticMethodCall.Method.Name, staticMethodCall.Method.TypeArguments, arguments)),
         };
     }

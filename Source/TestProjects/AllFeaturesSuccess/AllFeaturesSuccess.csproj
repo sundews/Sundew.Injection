@@ -30,6 +30,7 @@
 
 
   <ItemGroup>
+    <Folder Include="Generics\" />
     <Folder Include="NewInstance\" />
     <Folder Include="UnboundType\" />
   </ItemGroup>

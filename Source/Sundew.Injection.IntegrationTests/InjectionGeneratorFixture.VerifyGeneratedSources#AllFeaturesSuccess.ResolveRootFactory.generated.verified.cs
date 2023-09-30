@@ -7,6 +7,18 @@ namespace AllFeaturesSuccess
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public class ResolveRootFactory : global::AllFeaturesSuccess.IResolveRootFactory
     {
+        private static readonly global::Sundew.Injection.TypeResolverLinearSearch<global::AllFeaturesSuccess.ResolveRootFactory> ResolveRootFactoryTypeResolver = new global::Sundew.Injection.TypeResolverLinearSearch<global::AllFeaturesSuccess.ResolveRootFactory>(
+            new global::Sundew.Injection.Resolver<global::AllFeaturesSuccess.ResolveRootFactory>(
+                typeof(global::AllFeaturesSuccess.IResolveRoot),
+                (factory, arguments) => factory.CreateResolveRoot(
+                    (global::System.Collections.Generic.IEnumerable<int>)arguments[0],
+                    (int)arguments[1],
+                    (global::System.Func<global::AllFeaturesSuccess.RequiredInterface.IRequiredService>)arguments[2],
+                    (global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest?)arguments[3],
+                    (global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation?)arguments[4])),
+            new global::Sundew.Injection.Resolver<global::AllFeaturesSuccess.ResolveRootFactory>(
+                typeof(global::AllFeaturesSuccess.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory),
+                (factory, arguments) => factory.CreateInterfaceSingleInstancePerFactory()));
         private readonly global::Sundew.Injection.ILifecycleParameters lifecycleParameters;
         private readonly global::Sundew.Injection.LifecycleHandler lifecycleHandler;
         private readonly global::AllFeaturesSuccess.RequiredInterface.IRequiredParameters requiredParameters;
@@ -26,6 +38,7 @@ namespace AllFeaturesSuccess
         private readonly global::AllFeaturesSuccessDependency.DependencyFactory dependencyFactory;
         private readonly global::AllFeaturesSuccessDependency.ManualDependencyFactory manualDependencyFactory;
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public ResolveRootFactory(
             global::AllFeaturesSuccess.RequiredInterface.IRequiredParameters requiredParameters,
             global::AllFeaturesSuccess.RequiredInterface.IInjectedSeparately injectedSeparatelyForInterfaceSingleInstancePerFactory,
@@ -91,14 +104,17 @@ namespace AllFeaturesSuccess
             this.manualDependencyFactory = new global::AllFeaturesSuccessDependency.ManualDependencyFactory();
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public global::AllFeaturesSuccess.IResolveRoot CreateResolveRoot(
-            int[] defaultItems,
+            global::System.Collections.Generic.IEnumerable<int> integers,
+            int defaultItem,
             global::System.Func<global::AllFeaturesSuccess.RequiredInterface.IRequiredService> requiredService,
             global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest? injectableSingleInstancePerRequest = null,
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null)
         {
             var constructedResolveRoot = this.CreateResolveRootUninitialized(
-                defaultItems,
+                integers,
+                defaultItem,
                 requiredService,
                 injectableSingleInstancePerRequest,
                 interfaceSegregation);
@@ -106,14 +122,17 @@ namespace AllFeaturesSuccess
             return constructedResolveRoot.Object;
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public async global::System.Threading.Tasks.Task<global::AllFeaturesSuccess.IResolveRoot> CreateResolveRootAsync(
-            int[] defaultItems,
+            global::System.Collections.Generic.IEnumerable<int> integers,
+            int defaultItem,
             global::System.Func<global::AllFeaturesSuccess.RequiredInterface.IRequiredService> requiredService,
             global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest? injectableSingleInstancePerRequest = null,
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null)
         {
             var constructedResolveRoot = this.CreateResolveRootUninitialized(
-                defaultItems,
+                integers,
+                defaultItem,
                 requiredService,
                 injectableSingleInstancePerRequest,
                 interfaceSegregation);
@@ -121,19 +140,21 @@ namespace AllFeaturesSuccess
             return constructedResolveRoot.Object;
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
         [global::Sundew.Injection.CreateMethod]
         public global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.IResolveRoot> CreateResolveRootUninitialized(
-            int[] defaultItems,
+            global::System.Collections.Generic.IEnumerable<int> integers,
+            int defaultItem,
             global::System.Func<global::AllFeaturesSuccess.RequiredInterface.IRequiredService> requiredService,
             global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest? injectableSingleInstancePerRequest = null,
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null)
         {
             var childLifecycleHandler = this.lifecycleHandler.CreateChildLifecycleHandler();
-            var immutableList = global::AllFeaturesSuccess.FactoryDeclaration.CreateList<int>(defaultItems);
+            var generic = global::AllFeaturesSuccess.FactoryDeclaration.CreateGeneric<int>(defaultItem);
             if (injectableSingleInstancePerRequest == null)
             {
-                var ownedInjectableSingleInstancePerRequest = new global::AllFeaturesSuccess.SingleInstancePerRequest.InjectableSingleInstancePerRequest(this.requiredParameters.SingleModuleRequiredCreateMethodParameter, immutableList);
+                var ownedInjectableSingleInstancePerRequest = new global::AllFeaturesSuccess.SingleInstancePerRequest.InjectableSingleInstancePerRequest(this.requiredParameters.SingleModuleRequiredCreateMethodParameter, integers, generic);
                 childLifecycleHandler.TryAdd(ownedInjectableSingleInstancePerRequest);
                 injectableSingleInstancePerRequest = ownedInjectableSingleInstancePerRequest;
             }
@@ -167,7 +188,7 @@ namespace AllFeaturesSuccess
             childLifecycleHandler.TryAdd(constructedChildForResolveRoot);
             var resolveRootResult = new global::AllFeaturesSuccess.ResolveRoot(
                 new global::AllFeaturesSuccess.InterfaceImplementationBindings.Intercepted(
-                    global::AllFeaturesSuccess.FactoryDeclaration.CreateList<global::AllFeaturesSuccess.MultipleImplementations.IMultipleImplementation>(this.multipleImplementationArray),
+                    this.multipleImplementationArray,
                     global::AllFeaturesSuccess.FactoryDeclaration.CreateFeatureService1(
                         this.interfaceSingleInstancePerFactory,
                         injectableSingleInstancePerRequest,
@@ -184,37 +205,50 @@ namespace AllFeaturesSuccess
             return new global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.IResolveRoot>(resolveRootResult, childLifecycleHandler);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         [global::Sundew.Injection.CreateMethod]
         public global::AllFeaturesSuccess.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory CreateInterfaceSingleInstancePerFactory()
         {
             return this.interfaceSingleInstancePerFactory;
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
+        public object? Resolve(global::System.Type type, global::System.Span<object> arguments = default)
+        {
+            return ResolveRootFactoryTypeResolver.Resolve(this, type, arguments);
+        }
+
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public void Dispose(global::AllFeaturesSuccess.IResolveRoot resolveRoot)
         {
             this.lifecycleHandler.Dispose(resolveRoot);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public global::System.Threading.Tasks.ValueTask DisposeAsync(global::AllFeaturesSuccess.IResolveRoot resolveRoot)
         {
             return this.lifecycleHandler.DisposeAsync(resolveRoot);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public void Dispose()
         {
             this.lifecycleHandler.Dispose();
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public global::System.Threading.Tasks.ValueTask DisposeAsync()
         {
             return this.lifecycleHandler.DisposeAsync();
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         protected virtual global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregationOverridableNew OnCreateInterfaceSegregationOverridableNew(global::AllFeaturesSuccess.RequiredInterface.IInjectedByType injectedByType)
         {
             return new global::AllFeaturesSuccess.InterfaceSegregationBindings.InterfaceSegregationOverridableNewImplementation(injectedByType);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         protected virtual global::AllFeaturesSuccess.OverridableNew.OverrideableNewImplementation OnCreateOverrideableNewImplementation(global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest injectableSingleInstancePerRequest, global::AllFeaturesSuccess.InterfaceImplementationBindings.IInjectableByInterface injectableByInterface)
         {
             return new global::AllFeaturesSuccess.OverridableNew.OverrideableNewImplementation(injectableSingleInstancePerRequest, injectableByInterface);

@@ -28,17 +28,32 @@ internal sealed class TypeResolver
         return type switch
         {
             ArrayType arrayType => this.ResolveArrayType(arrayType),
-            BoundGenericType boundGenericType => this.ResolveBoundGenericType(boundGenericType),
+            ClosedGenericType boundGenericType => this.ResolveBoundGenericType(boundGenericType),
             NamedType namedType => R.Success<DefiniteType>(namedType),
+            NestedType nestedType => this.ResolveNestedType(nestedType),
             ErrorType errorType => this.TryResolveErrorType(errorType),
-            DefiniteBoundGenericType definiteBoundGenericType => R.Success<DefiniteType>(definiteBoundGenericType),
+            DefiniteClosedGenericType definiteBoundGenericType => R.Success<DefiniteType>(definiteBoundGenericType),
+            DefiniteNestedType definiteNestedType => definiteNestedType.ToSuccess<DefiniteType>(),
             DefiniteArrayType definiteArrayType => R.Success<DefiniteType>(definiteArrayType),
         };
     }
 
-    private R<DefiniteType, FailedResolve> ResolveBoundGenericType(BoundGenericType boundGenericType)
+    private R<DefiniteType, FailedResolve> ResolveNestedType(NestedType nestedType)
     {
-        var result = boundGenericType.TypeArguments.AllOrFailed(argument =>
+        var resolveContainingTypeResult = this.ResolveType(nestedType.ContainingType);
+        var resolveContainedTypeResult = this.ResolveType(nestedType.ContainedType);
+        var resolveResults = new[] { resolveContainedTypeResult, resolveContainingTypeResult }.AllOrFailed();
+        if (resolveResults.TryGet(out var all, out var failed))
+        {
+            return new DefiniteNestedType(all[0], all[1]).ToSuccess<DefiniteType>();
+        }
+
+        return new FailedResolve(nestedType, failed.GetErrors()).ToError();
+    }
+
+    private R<DefiniteType, FailedResolve> ResolveBoundGenericType(ClosedGenericType closedGenericType)
+    {
+        var result = closedGenericType.TypeArguments.AllOrFailed(argument =>
         {
             var result = this.ResolveType(argument.Type);
             return result.IsSuccess
@@ -47,8 +62,8 @@ internal sealed class TypeResolver
         });
 
         return result.With(
-            all => DefiniteType.DefiniteBoundGenericType(boundGenericType.Name, boundGenericType.Namespace, boundGenericType.AssemblyName, boundGenericType.TypeParameters, all.Items),
-            failed => new FailedResolve(boundGenericType, failed.Items.Select(x => x.Error).ToImmutableArray()));
+            all => DefiniteType.DefiniteClosedGenericType(closedGenericType.Name, closedGenericType.Namespace, closedGenericType.AssemblyName, closedGenericType.TypeParameters, all.Items, closedGenericType.IsValueType),
+            failed => new FailedResolve(closedGenericType, failed.Items.Select(x => x.Error).ToImmutableArray()));
     }
 
     private R<DefiniteType, FailedResolve> ResolveArrayType(ArrayType arrayType)

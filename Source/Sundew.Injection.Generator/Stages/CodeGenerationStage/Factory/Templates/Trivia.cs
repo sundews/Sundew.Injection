@@ -38,6 +38,10 @@ public class Trivia
     public const string Async = "async";
     public const string Await = "await";
     public const string Default = "default";
+    public const string TypeOf = "typeof";
+    public const string LambdaArrow = "=>";
+    public const string Yield = "yield";
+    public const string MethodImpl = "[global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]";
     public new const string Equals = "==";
 
     public static readonly string NewLineListSeparator = $",{Environment.NewLine}";

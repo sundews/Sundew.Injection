@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="BoundGenericType.cs" company="Sundews">
+// <copyright file="OpenGenericType.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -8,15 +8,5 @@
 namespace Sundew.Injection.Generator.TypeSystem;
 
 using Sundew.Base.Collections.Immutable;
-using Sundew.Base.Text;
 
-internal sealed record BoundGenericType(
-        string Name,
-        string Namespace,
-        string AssemblyName,
-        ValueArray<TypeParameter> TypeParameters,
-        ValueArray<TypeArgument> TypeArguments)
-    : Type(Name)
-{
-    public override TypeId Id => new($"{this.AssemblyName}::{this.Namespace}.{this.Name}<{this.TypeArguments.JoinToString((builder, x) => builder.Append(x.Type.Id.Id), ", ")}>");
-}
+internal sealed record OpenGenericType(string Name, string Namespace, string AssemblyName, ValueArray<TypeParameter> TypeParameters, bool IsValueType) : Symbol(Name);

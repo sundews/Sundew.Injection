@@ -65,18 +65,24 @@ internal class FactorySyntaxGenerator
 
             disposeMethods = ImmutableList.Create(
                 new Model.Syntax.Member.MethodImplementation(
-                    new MethodDeclaration(DeclaredAccessibility.Public, false, this.knownSyntax.DisposeName, ImmutableList<ParameterDeclaration>.Empty, this.compilationData.VoidType), ImmutableList.Create<Statement>(new ExpressionStatement(
+                    new MethodDeclaration(DeclaredAccessibility.Public, false, this.knownSyntax.DisposeName, ImmutableList<ParameterDeclaration>.Empty, new UsedType(this.compilationData.VoidType)), ImmutableList.Create<Statement>(new ExpressionStatement(
                         new InvocationExpression(this.knownSyntax.SharedLifecycleHandler.DisposeMethod)))),
                 new Model.Syntax.Member.MethodImplementation(
-                    new MethodDeclaration(DeclaredAccessibility.Public, false, this.knownSyntax.DisposeAsyncName, ImmutableList<ParameterDeclaration>.Empty, this.compilationData.ValueTaskType), ImmutableList.Create<Statement>(new ReturnStatement(new InvocationExpression(this.knownSyntax.SharedLifecycleHandler.DisposeAsyncMethod)))));
+                    new MethodDeclaration(DeclaredAccessibility.Public, false, this.knownSyntax.DisposeAsyncName, ImmutableList<ParameterDeclaration>.Empty, new UsedType(this.compilationData.ValueTaskType)), ImmutableList.Create<Statement>(new ReturnStatement(new InvocationExpression(this.knownSyntax.SharedLifecycleHandler.DisposeAsyncMethod)))));
         }
 
-        factoryImplementation = this.factoryData.FactoryMethodInfos.Aggregate(
-            factoryImplementation,
-            (factory, factoryMethodInfo) => this.GenerateFactoryMethod(
-                factoryMethodInfo.InjectionTree,
-                factoryMethodInfo,
-                factory));
+        (factoryImplementation, var defaultMethodDeclarations) = this.factoryData.FactoryMethodInfos.Aggregate(
+            (factoryImplementation, DefaultCreateMethods: ImmutableArray<CreateMethod>.Empty),
+            (factory, factoryMethodInfo) =>
+            {
+                var result = this.GenerateFactoryMethod(
+                    factoryMethodInfo.InjectionTree,
+                    factoryMethodInfo,
+                    factory.factoryImplementation);
+                return (result.FactoryImplementation, factory.DefaultCreateMethods.Add(result.DefaultCreateMethod));
+            });
+
+        var (resolveMethods, fields) = this.factoryData.GenerateTypeResolver ? this.generatorFeatures.ResolveTypeGenerator.Generate(this.factoryData.FactoryType, defaultMethodDeclarations) : (ImmutableList<Member.MethodImplementation>.Empty, ImmutableList<Member.Field>.Empty);
 
         InterfaceDeclaration? interfaceDeclaration = null;
         if (this.factoryData.GenerateInterface && this.factoryData.FactoryInterfaceType != null)
@@ -86,19 +92,19 @@ internal class FactorySyntaxGenerator
                 interfaces,
                 ImmutableArray.Create(this.knownSyntax.FactoryAttribute),
                 factoryImplementation.CreateMethods.Select(x => x.Declaration)
-                    .Concat(factoryImplementation.DisposeMethodImplementations.Select(x => x.Declaration)).ToArray());
+                    .Concat(
+                        resolveMethods.Select(x => x.MethodDeclaration),
+                        factoryImplementation.DisposeMethodImplementations.Select(x => x.Declaration)).ToArray());
             interfaces = ImmutableList.Create(this.factoryData.FactoryInterfaceType);
         }
-
-        var (resolveMethods, fields) = this.factoryData.GenerateTypeResolver ? this.generatorFeatures.ResolveTypeGenerator.Generate(this.factoryData.FactoryType, factoryImplementation.CreateMethods) : (ImmutableList<Member.MethodImplementation>.Empty, ImmutableList<Member.Field>.Empty);
 
         var classDeclaration =
             new ClassDeclaration(
                 this.factoryData.FactoryType,
                 !factoryImplementation.FactoryMethods.Any(),
-                factoryImplementation.Fields.Select(x => new Member.Field(x))
+                fields
                     .Concat(
-                        fields,
+                        factoryImplementation.Fields.Select(x => new Member.Field(x)),
                         new Member.MethodImplementation(
                             new MethodDeclaration(DeclaredAccessibility.Public, false, this.factoryData.FactoryType.Name, factoryImplementation.Constructor.Parameters.GroupBy(x => x.DefaultValue != null).OrderBy(x => x.Key).SelectMany(x => x).ToImmutableList()),
                             factoryImplementation.Constructor.Statements).ToEnumerable<Member>(),
@@ -118,7 +124,7 @@ internal class FactorySyntaxGenerator
         return new FactoryDeclarations(interfaceDeclaration, classDeclaration);
     }
 
-    private FactoryImplementation GenerateFactoryMethod(
+    private (FactoryImplementation FactoryImplementation, CreateMethod DefaultCreateMethod) GenerateFactoryMethod(
         InjectionNode injectionNode,
         FactoryMethodData factoryMethodData,
         in FactoryImplementation factoryImplementation)
@@ -141,7 +147,7 @@ internal class FactorySyntaxGenerator
             false,
             factoryMethodData.FactoryMethodName,
             createMethodParameters,
-            factoryMethodData.Return.Type);
+            new UsedType(factoryMethodData.Return.Type));
 
         if (factoryMethodData.RootNeedsLifecycleHandling)
         {
@@ -169,7 +175,7 @@ internal class FactorySyntaxGenerator
                 factoryMethodData.FactoryMethodName + Trivia.AsyncName,
                 createMethodParameters,
                 ImmutableArray<AttributeDeclaration>.Empty,
-                asyncCreateReturnType);
+                new UsedType(asyncCreateReturnType));
             var rawFactoryMethodDeclaration = new MethodDeclaration(
                 DeclaredAccessibility.Public,
                 false,
@@ -177,7 +183,7 @@ internal class FactorySyntaxGenerator
                 factoryMethodData.FactoryMethodName + Uninitialized,
                 createMethodParameters,
                 ImmutableArray.Create(this.knownSyntax.EditorBrowsableAttribute, this.knownSyntax.CreateMethodAttribute),
-                constructedType);
+                new UsedType(constructedType));
             var createStatement =
                 new LocalDeclarationStatement(
                     Constructed + factoryMethodData.Target.Type.Name,
@@ -212,7 +218,7 @@ internal class FactorySyntaxGenerator
                         false,
                         this.knownSyntax.DisposeName,
                         ImmutableList.Create(new ParameterDeclaration(factoryMethodData.Return.Type, targetTypeParameterName)),
-                        this.compilationData.VoidType),
+                        new UsedType(this.compilationData.VoidType)),
                     ImmutableList.Create<Statement>(new ExpressionStatement(
                         new InvocationExpression(
                             this.knownSyntax.SharedLifecycleHandler.DisposeMethod,
@@ -220,7 +226,7 @@ internal class FactorySyntaxGenerator
 
             disposeMethodImplementations = disposeMethodImplementations.Add(
                 new DeclaredDisposeMethodImplementation(
-                    new MethodDeclaration(DeclaredAccessibility.Public, false, this.knownSyntax.DisposeAsyncName, ImmutableList.Create(new ParameterDeclaration(factoryMethodData.Return.Type, targetTypeParameterName)), this.compilationData.ValueTaskType),
+                    new MethodDeclaration(DeclaredAccessibility.Public, false, this.knownSyntax.DisposeAsyncName, ImmutableList.Create(new ParameterDeclaration(factoryMethodData.Return.Type, targetTypeParameterName)), new UsedType(this.compilationData.ValueTaskType)),
                     ImmutableList.Create<Statement>(new ReturnStatement(
                         new InvocationExpression(
                             this.knownSyntax.SharedLifecycleHandler.DisposeAsyncMethod,
@@ -235,11 +241,12 @@ internal class FactorySyntaxGenerator
                 .Add(new DeclaredMethodImplementation(factoryMethodDeclaration with { Attributes = ImmutableList.Create(this.knownSyntax.CreateMethodAttribute) }, factoryNode.CreateMethod with { Statements = factoryMethodStatements }));
         }
 
-        return factoryNode.FactoryImplementation with
-        {
-            Fields = fields,
-            CreateMethods = factoryMethods,
-            DisposeMethodImplementations = disposeMethodImplementations,
-        };
+        return (factoryNode.FactoryImplementation with
+            {
+                Fields = fields,
+                CreateMethods = factoryMethods,
+                DisposeMethodImplementations = disposeMethodImplementations,
+            },
+            new CreateMethod(factoryMethodDeclaration.Name, factoryMethodDeclaration.Parameters, factoryMethodData.Return.Type));
     }
 }

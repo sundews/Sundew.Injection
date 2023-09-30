@@ -4,6 +4,7 @@
     using System.Collections.Immutable;
     using AllFeaturesSuccess.ChildFactory;
     using AllFeaturesSuccess.ConstructorSelection;
+    using AllFeaturesSuccess.Generics;
     using AllFeaturesSuccess.InterfaceImplementationBindings;
     using AllFeaturesSuccess.InterfaceSegregationBindings;
     using AllFeaturesSuccess.MultipleImplementations;
@@ -37,7 +38,7 @@
             injectionBuilder.AddParameterProperties<OptionalParameters>();
 
             // Generic binding for any type of IEnumerable<> to an ImmutableList<>
-            injectionBuilder.BindGeneric<IEnumerable<object>, ImmutableList<object>>(Scope.Auto, () => CreateList<object>(default!));
+            injectionBuilder.BindGeneric<IGeneric<object>, Generic<object>>(Scope.Auto, () => CreateGeneric<object>(default!));
 
             // Declares parameters for controlling initialization and disposal of the generated factory
             injectionBuilder.Bind<IInitializationParameters, IDisposalParameters, ILifecycleParameters, LifecycleParameters>(isInjectable: true);
@@ -45,10 +46,14 @@
             // Interface to implementation binding, where the instance may be provided by a parameter (see OptionalParameters)
             injectionBuilder.Bind<IInjectableByInterface, InjectableByInterface>(isInjectable: true);
 
-            // Multiple implementation of the same interface binding, inject IEnumerable<IMultipleImplementation> to consume
-            injectionBuilder.Bind<IMultipleImplementation, MultipleImplementationA>();
-            injectionBuilder.Bind<IMultipleImplementation, MultipleImplementationB>();
+            // Multiple implementation of the same interface binding, inject IEnumerable<IMultipleImplementationForArray> to consume
+            injectionBuilder.Bind<IMultipleImplementationForArray, MultipleImplementationForArrayA>();
+            injectionBuilder.Bind<IMultipleImplementationForArray, MultipleImplementationForArrayB>();
 
+            // Multiple implementation of the same interface binding, inject IEnumerable<IMultipleImplementationForEnumerable> to consume
+            injectionBuilder.Bind<IMultipleImplementationForEnumerable, MultipleImplementationForEnumerableA>();
+            injectionBuilder.Bind<IMultipleImplementationForEnumerable, MultipleImplementationForEnumerableB>();
+            
             // Segregated interface binding as a singleton, that allows new to be overriden in a derived factory
             injectionBuilder.Bind<IInterfaceSegregationOverridableNewA, IInterfaceSegregationOverridableNewB, IInterfaceSegregationOverridableNew, InterfaceSegregationOverridableNewImplementation>(Scope.SingleInstancePerFactory, isNewOverridable: true);
 
@@ -101,12 +106,12 @@
             injectionBuilder.CreateFactory(
                 factories => factories
                     .Add<IResolveRoot, ResolveRoot>()
-                    .Add<IInterfaceSingleInstancePerFactory>(), generateInterface: true);
+                    .Add<IInterfaceSingleInstancePerFactory>(), generateInterface: true, generateTypeResolver: true);
         }
 
-        internal static ImmutableList<T> CreateList<T>(T[] defaultItems)
+        internal static Generic<T> CreateGeneric<T>(T defaultItem)
         {
-            return ImmutableList.Create(defaultItems);
+            return new Generic<T>(defaultItem);
         }
 
         internal static SelectFactoryMethod CreateFeatureService1(IInterfaceSingleInstancePerFactory interfaceSingleInstancePerFactory, IInjectableSingleInstancePerRequest injectableSingleInstancePerRequest, IRequiredService requiredService, IInterfaceSegregationB interfaceSegregationB)

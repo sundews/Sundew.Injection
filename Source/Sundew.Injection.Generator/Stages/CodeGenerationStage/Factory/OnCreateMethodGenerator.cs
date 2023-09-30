@@ -33,7 +33,7 @@ internal sealed class OnCreateMethodGenerator
         Generate(
             ImmutableList<DeclaredMethodImplementation> factoryMethods, DefiniteType targetType, ValueArray<DefiniteParameter> parameters, CreationSource creationSource, FactoryNode factoryNode)
     {
-        var declaration = new MethodDeclaration(DeclaredAccessibility.Protected, true, OnCreate + NameHelper.GetFactoryMethodName(targetType.Name), parameters.Select(x => new ParameterDeclaration(x.Type, x.Name, null)).ToImmutableList(), targetType);
+        var declaration = new MethodDeclaration(DeclaredAccessibility.Protected, true, OnCreate + NameHelper.GetFactoryMethodName(targetType.Name), parameters.Select(x => new ParameterDeclaration(x.Type, x.Name, null)).ToImmutableList(), new UsedType(targetType));
         var existingFactoryMethod = factoryMethods.FirstOrDefault(x => x.Declaration == declaration);
         var resultingFactoryNode = factoryNode;
         if (Equals(existingFactoryMethod.Declaration, default))

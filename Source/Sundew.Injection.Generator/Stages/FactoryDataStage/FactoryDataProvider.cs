@@ -70,7 +70,7 @@ internal static class FactoryDataProvider
                         }).ToImmutableList());
                     }
 
-                    var injectionTreeBuilder = new InjectionTreeBuilder(bindingResolver, requiredParametersInjectionResolver, scopeResolverResult.Value);
+                    var injectionTreeBuilder = new InjectionTreeBuilder(bindingResolver, requiredParametersInjectionResolver, scopeResolverResult.Value, compilationData.IEnumerableOfTType);
                     var injectionTreeResult = injectionTreeBuilder.Build(rootBinding, cancellationToken);
                     if (injectionTreeResult.TryGetError(out var injectionErrors))
                     {
@@ -90,7 +90,7 @@ internal static class FactoryDataProvider
                 if (factoryMethodRegistrationsResult.TryGet(out var all, out var failed))
                 {
                     var fallbackFactoryMethodData = all.First();
-                    var fallbackFactoryType = new NamedType(fallbackFactoryMethodData.Return.Type.Name, fallbackFactoryMethodData.Target.Type.Namespace, compilationData.AssemblyName);
+                    var fallbackFactoryType = new NamedType(fallbackFactoryMethodData.Return.Type.Name, fallbackFactoryMethodData.Target.Type.Namespace, compilationData.AssemblyName, false);
                     var (factoryType, factoryInterfaceType) = bindingResolver.CreateFactoryBinding(factoryCreationDefinition, fallbackFactoryType, factoryConstructorParameters, needsLifecycleHandling, compilationData.AssemblyName);
 
                     var lifecycleInjectionNodeResult = TryCreateLifecycleInjectionNode(
@@ -163,7 +163,7 @@ internal static class FactoryDataProvider
                 }).Select(GetDiagnostic).ToImmutableList());
             }
 
-            var injectionTreeBuilder = new InjectionTreeBuilder(bindingResolver, requiredParametersInjectionResolver, scopeResolverResult.Value);
+            var injectionTreeBuilder = new InjectionTreeBuilder(bindingResolver, requiredParametersInjectionResolver, scopeResolverResult.Value, compilationData.IEnumerableOfTType);
             var injectionTreeResult = injectionTreeBuilder.Build(rootBinding, cancellationToken);
             if (injectionTreeResult.TryGetError(out var injectionStageErrors))
             {

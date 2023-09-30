@@ -24,4 +24,6 @@ internal abstract partial record CreationSource
     internal sealed record LiteralValue(string Literal) : CreationSource;
 
     internal sealed record DefaultValue(DefiniteType DefiniteType) : CreationSource;
+
+    internal sealed record IteratorMethodCall(DefiniteType ElementType) : CreationSource;
 }

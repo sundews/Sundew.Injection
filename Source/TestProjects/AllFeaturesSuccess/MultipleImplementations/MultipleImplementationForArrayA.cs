@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MultipleImplementationA.cs" company="Sundews">
+// <copyright file="MultipleImplementationForArrayA.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -10,11 +10,11 @@ namespace AllFeaturesSuccess.MultipleImplementations
     using System;
     using AllFeaturesSuccess.RequiredInterface;
 
-    public class MultipleImplementationA : IMultipleImplementation
+    public class MultipleImplementationForArrayA : IMultipleImplementationForArray
     {
         private readonly IMultipleModuleRequiredParameter secondSpecificallyNamedModuleParameter;
 
-        public MultipleImplementationA(IMultipleModuleRequiredParameter secondSpecificallyNamedModuleParameter)
+        public MultipleImplementationForArrayA(IMultipleModuleRequiredParameter secondSpecificallyNamedModuleParameter)
         {
             this.secondSpecificallyNamedModuleParameter = secondSpecificallyNamedModuleParameter;
         }

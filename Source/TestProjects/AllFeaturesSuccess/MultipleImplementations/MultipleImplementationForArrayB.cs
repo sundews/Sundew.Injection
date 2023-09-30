@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="MultipleImplementationB.cs" company="Sundews">
+// <copyright file="MultipleImplementationForArrayB.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -10,11 +10,11 @@ namespace AllFeaturesSuccess.MultipleImplementations
     using System;
     using AllFeaturesSuccess.RequiredInterface;
 
-    public class MultipleImplementationB : IMultipleImplementation
+    public class MultipleImplementationForArrayB : IMultipleImplementationForArray
     {
         private readonly IMultipleModuleRequiredParameter firstSpecificallyNamedModuleParameter;
 
-        public MultipleImplementationB(IMultipleModuleRequiredParameter firstSpecificallyNamedModuleParameter)
+        public MultipleImplementationForArrayB(IMultipleModuleRequiredParameter firstSpecificallyNamedModuleParameter)
         {
             this.firstSpecificallyNamedModuleParameter = firstSpecificallyNamedModuleParameter;
         }

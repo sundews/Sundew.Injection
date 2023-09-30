@@ -22,6 +22,7 @@ namespace Sundew.Injection
         private readonly InitializingList<object> initializingList;
         private readonly DisposingList<object> disposingList;
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public ChildLifecycleHandler(
             InitializingList<object> sharedInitializingList,
             bool initializeConcurrently,
@@ -34,29 +35,34 @@ namespace Sundew.Injection
             this.disposingList = new DisposingList<object>(disposeConcurrently, disposalReporter);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public void TryAdd(object constructed)
         {
             this.initializingList.TryAdd(constructed);
             this.disposingList.TryAdd(constructed);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public void Initialize()
         {
             this.sharedInitializingList.Initialize();
             this.initializingList.Initialize();
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public async ValueTask InitializeAsync()
         {
             await this.sharedInitializingList.InitializeAsync().ConfigureAwait(false);
             await this.initializingList.InitializeAsync().ConfigureAwait(false);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public void Dispose()
         {
             this.disposingList.Dispose();
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public async ValueTask DisposeAsync()
         {
             await this.disposingList.DisposeAsync().ConfigureAwait(false);

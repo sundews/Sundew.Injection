@@ -121,13 +121,13 @@ internal sealed class ScopeResolverBuilder
 
                 PickBindingScope(singleParameter.Binding, dependeeScope);
                 break;
-            case ArrayParameter arrayParameter:
-                foreach (var binding in arrayParameter.Bindings)
+            case MultiItemParameter multiItemParameter:
+                foreach (var binding in multiItemParameter.Bindings)
                 {
                     PickBindingScope(binding, dependeeScope);
                 }
 
-                this.UpdateScope(arrayParameter.ArrayType, dependeeScope);
+                this.UpdateScope(multiItemParameter.EnumerableType, dependeeScope);
 
                 break;
             case DefaultParameter defaultParameter:

@@ -95,7 +95,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         }
     }
 
-    public void BindGeneric(ImmutableArray<(UnboundGenericType Type, TypeMetadata TypeMetadata)> interfaces, (GenericType Type, TypeMetadata TypeMetadata) implementation, Scope scope, GenericMethod genericMethod)
+    public void BindGeneric(ImmutableArray<(UnboundGenericType Type, TypeMetadata TypeMetadata)> interfaces, (OpenGenericType Type, TypeMetadata TypeMetadata) implementation, Scope scope, GenericMethod genericMethod)
     {
         void AddBinding(UnboundGenericType type, GenericBindingRegistration genericBinding)
         {

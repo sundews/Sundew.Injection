@@ -2,7 +2,7 @@
 {
     using System;
 
-    public interface IMultipleImplementation : IDisposable, IPrint
+    public interface IMultipleImplementationForArray : IDisposable, IPrint
     {
     }
 }

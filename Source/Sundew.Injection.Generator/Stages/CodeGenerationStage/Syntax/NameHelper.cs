@@ -63,7 +63,9 @@ internal static class NameHelper
                 }
 
                 return name.ToString().Uncapitalize() + arrayName;
-            case DefiniteBoundGenericType genericType:
+            case DefiniteClosedGenericType genericType:
+                break;
+            case DefiniteNestedType definiteNestedType:
                 break;
             case NamedType namedType:
                 break;

@@ -25,7 +25,7 @@ internal sealed class MethodFactory
         this.typeResolver = typeResolver;
     }
 
-    public R<DefiniteMethod, CreateGenericMethodError> CreateMethod(DefiniteBoundGenericType definiteBoundGenericType, GenericType genericType, GenericMethod genericMethod)
+    public R<DefiniteMethod, CreateGenericMethodError> CreateMethod(DefiniteClosedGenericType definiteClosedGenericType, OpenGenericType openGenericType, GenericMethod genericMethod)
     {
         static Item<DefiniteParameter, Symbol> TryGetDefiniteArray(ArrayType arrayType, TypeMetadata typeMetadata, string parameterName, TypeResolver typeResolver)
         {
@@ -38,12 +38,23 @@ internal sealed class MethodFactory
             return Item.Fail<DefiniteParameter, Symbol>(arrayType);
         }
 
-        static Item<DefiniteParameter, Symbol> TryGetDefiniteBoundGenericType(BoundGenericType boundGenericType, TypeMetadata typeMetadata, string parameterName, TypeResolver typeResolver)
+        static Item<DefiniteParameter, Symbol> TryGetDefiniteBoundGenericType(ClosedGenericType closedGenericType, TypeMetadata typeMetadata, string parameterName, TypeResolver typeResolver)
         {
-            var resolveTypeResult = typeResolver.ResolveType(boundGenericType);
+            var resolveTypeResult = typeResolver.ResolveType(closedGenericType);
             return resolveTypeResult.IsSuccess
                 ? Item.Pass(new DefiniteParameter(resolveTypeResult.Value, parameterName, typeMetadata, ParameterNecessity._Required))
-                : Item.Fail<DefiniteParameter, Symbol>(boundGenericType);
+                : Item.Fail<DefiniteParameter, Symbol>(closedGenericType);
+        }
+
+        static Item<DefiniteParameter, Symbol> LookupOpenGenericType(OpenGenericType openGenericType, string parameterName, TypeMetadata typeMetadata, Dictionary<TypeParameter, DefiniteTypeArgument> typeParameterDictionary)
+        {
+            var lookupResult = openGenericType.TypeParameters.AllOrFailed(x => LookupTypeParameter(x, x.Name, typeParameterDictionary));
+            if (lookupResult.IsSuccess)
+            {
+                return Item.Pass(new DefiniteParameter(openGenericType.ToDefiniteBoundGenericType(lookupResult.Value.Items.Select(x => new DefiniteTypeArgument(x.Type, x.TypeMetadata)).ToValueArray()), parameterName, typeMetadata, ParameterNecessity._Required));
+            }
+
+            return Item.Fail<DefiniteParameter, Symbol>(openGenericType);
         }
 
         static Item<DefiniteParameter, Symbol> LookupTypeParameter(TypeParameter typeParameter, string parameterName, Dictionary<TypeParameter, DefiniteTypeArgument> typeParameterDictionary)
@@ -59,15 +70,27 @@ internal sealed class MethodFactory
             {
                 var resolveTypeResult = typeResolver.ResolveType(definiteTypeArgument.Type);
                 return resolveTypeResult.IsSuccess
-                    ? Item.Pass(new DefiniteParameter(new DefiniteArrayType(resolveTypeResult.Value), parameterName, new TypeMetadata(null, true, false, false), ParameterNecessity._Required))
+                    ? Item.Pass(new DefiniteParameter(new DefiniteArrayType(resolveTypeResult.Value), parameterName, new TypeMetadata(null, true, false), ParameterNecessity._Required))
                     : Item.Fail<DefiniteParameter, Symbol>(typeParameterArray);
             }
 
             return Item.Fail<DefiniteParameter, Symbol>(typeParameterArray);
         }
 
-        var typeParameterDictionary = genericType.TypeParameters
-            .Zip(definiteBoundGenericType.TypeArguments, (symbol, typeArgument) => (symbol, typeArgument))
+        static Item<DefiniteParameter, Symbol> TryGetDefiniteNestedType(NestedType nestedType, TypeMetadata typeMetadata, string parameterName, TypeResolver typeResolver)
+        {
+            var resolveContainingTypeResult = typeResolver.ResolveType(nestedType.ContainingType);
+            var resolveContainedTypeResult = typeResolver.ResolveType(nestedType.ContainedType);
+            if (resolveContainingTypeResult.IsSuccess && resolveContainedTypeResult.IsSuccess)
+            {
+                return Item.Pass(new DefiniteParameter(new DefiniteNestedType(resolveContainedTypeResult.Value, resolveContainingTypeResult.Value), parameterName, typeMetadata, ParameterNecessity._Required));
+            }
+
+            return Item.Fail<DefiniteParameter, Symbol>(nestedType);
+        }
+
+        var typeParameterDictionary = openGenericType.TypeParameters
+            .Zip(definiteClosedGenericType.TypeArguments, (symbol, typeArgument) => (symbol, typeArgument))
             .ToDictionary(tuple => tuple.symbol, tuple => tuple.typeArgument);
         var methodParameters = genericMethod.Parameters.AllOrFailed(
             x =>
@@ -76,17 +99,20 @@ internal sealed class MethodFactory
                 {
                     ArrayType arrayType => TryGetDefiniteArray(arrayType, x.TypeMetadata, x.Name, this.typeResolver),
                     NamedType namedType => Item.Pass(new DefiniteParameter(namedType, x.Name, x.TypeMetadata, ParameterNecessity._Required)),
-                    BoundGenericType boundGenericType => TryGetDefiniteBoundGenericType(boundGenericType, x.TypeMetadata, x.Name, this.typeResolver),
+                    NestedType nestedType => TryGetDefiniteNestedType(nestedType, x.TypeMetadata, x.Name, this.typeResolver),
+                    OpenGenericType openGenericType => LookupOpenGenericType(openGenericType, x.Name, x.TypeMetadata, typeParameterDictionary),
+                    ClosedGenericType boundGenericType => TryGetDefiniteBoundGenericType(boundGenericType, x.TypeMetadata, x.Name, this.typeResolver),
                     ErrorType errorType => Item.Fail<DefiniteParameter, Symbol>(errorType),
                     TypeParameter typeParameter => LookupTypeParameter(typeParameter, x.Name, typeParameterDictionary),
                     TypeParameterArray typeParameterArray => LookupTypeParameterArray(typeParameterArray, x.Name, typeParameterDictionary, this.typeResolver),
-                    DefiniteBoundGenericType definiteBoundGenericType => Item.Pass(new DefiniteParameter(definiteBoundGenericType, x.Name, x.TypeMetadata, ParameterNecessity._Required)),
+                    DefiniteClosedGenericType definiteBoundGenericType => Item.Pass(new DefiniteParameter(definiteBoundGenericType, x.Name, x.TypeMetadata, ParameterNecessity._Required)),
+                    DefiniteNestedType definiteNestedType => Item.Pass(new DefiniteParameter(definiteNestedType, x.Name, x.TypeMetadata, ParameterNecessity._Required)),
                     DefiniteArrayType definiteArrayType => Item.Pass(new DefiniteParameter(definiteArrayType, x.Name, x.TypeMetadata, ParameterNecessity._Required)),
                 };
             });
 
         return methodParameters.With(
-            all => CreateMethod(genericMethod, all.Items.ToImmutableArray(), definiteBoundGenericType),
+            all => CreateMethod(genericMethod, all.Items.ToImmutableArray(), definiteClosedGenericType),
             failed => new CreateGenericMethodError(failed.Items.Select(x => (x.Item, x.Error)).ToImmutableArray()));
     }
 
@@ -111,9 +137,9 @@ internal sealed class MethodFactory
         return R.Error(new CreateMethodError(method.ContainingType, default));
     }
 
-    private static DefiniteMethod CreateMethod(GenericMethod genericMethod, ValueArray<DefiniteParameter> parameters, DefiniteBoundGenericType definiteBoundGenericType)
+    private static DefiniteMethod CreateMethod(GenericMethod genericMethod, ValueArray<DefiniteParameter> parameters, DefiniteClosedGenericType definiteClosedGenericType)
     {
-        return new DefiniteMethod(GetDefiniteType(genericMethod.ContainedType, definiteBoundGenericType.TypeArguments), genericMethod.Name, parameters, definiteBoundGenericType.TypeArguments, genericMethod.Kind);
+        return new DefiniteMethod(GetDefiniteType(genericMethod.ContainedType, definiteClosedGenericType.TypeArguments), genericMethod.Name, parameters, definiteClosedGenericType.TypeArguments, genericMethod.Kind);
     }
 
     private static DefiniteType GetDefiniteType(ContaineeType containeeType, ValueArray<DefiniteTypeArgument> typeArguments)
@@ -121,7 +147,7 @@ internal sealed class MethodFactory
         return containeeType switch
         {
             ContaineeType.GenericType genericType => genericType.ToDefiniteBoundGenericType(typeArguments),
-            ContaineeType.NamedType namedType => DefiniteType.NamedType(namedType.Name, namedType.Namespace, namedType.AssemblyName),
+            ContaineeType.NamedType namedType => DefiniteType.NamedType(namedType.Name, namedType.Namespace, namedType.AssemblyName, namedType.IsValueType),
         };
     }
 }

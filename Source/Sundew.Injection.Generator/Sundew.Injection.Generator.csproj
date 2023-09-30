@@ -17,9 +17,11 @@
     <EmbeddedResource Update="Resources.resx" Generator="ResXFileCodeGenerator" LastGenOutput="Resources.Designer.cs" />
     <GeneratorDependencies Include="..\Sundew.Injection.GeneratorDependencies\**\*.cs" />
     <GeneratorDependencies Remove="**/obj/**/*.*;**/Properties/**/*.*" />
+    <EmbeddedResource Remove="..\Sundew.Injection.GeneratorDependencies\Resolver.cs" />
     <EmbeddedResource Include="@(GeneratorDependencies)">
       <Link>Stages/ProvideDependenciesStage/%(RecursiveDir)%(Filename)%(Extension)</Link>
     </EmbeddedResource>
+    <Compile Remove="..\Sundew.Injection.GeneratorDependencies\Resolver.cs" />
     <Compile Include="@(GeneratorDependencies)">
       <Link>Stages/ProvideDependenciesStage/%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
@@ -67,12 +69,12 @@
     <PackageReference Include="Disposal.Interfaces" Version="1.0.0" GeneratePathProperty="true" PrivateAssets="All" />
     <PackageReference Include="Initialization.Interfaces" Version="1.0.1" GeneratePathProperty="true" PrivateAssets="All" />
 
-    <PackageReference Include="Sundew.Base.Collections" Version="11.0.0-u20230922-211816-local" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Primitives" Version="11.0.0-u20230922-211816-local" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Equality" Version="11.0.0-u20230922-211816-local" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Memory" Version="11.0.0-u20230922-211816-local" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Reporting" Version="11.0.0-u20230922-211816-local" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Text" Version="11.0.0-u20230922-211816-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Collections" Version="11.0.0-u20230927-125234-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Primitives" Version="11.0.0-u20230927-125234-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Equality" Version="11.0.0-u20230927-125234-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Memory" Version="11.0.0-u20230927-125234-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Reporting" Version="11.0.0-u20230927-125234-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Text" Version="11.0.0-u20230927-125234-local" GeneratePathProperty="true" PrivateAssets="all" />
     <PackageReference Include="Sundew.DiscriminatedUnions" Version="5.0.0" GeneratePathProperty="true" PrivateAssets="all" />
   </ItemGroup>
 

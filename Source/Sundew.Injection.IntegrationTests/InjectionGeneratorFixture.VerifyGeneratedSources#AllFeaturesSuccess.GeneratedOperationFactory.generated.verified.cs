@@ -7,16 +7,19 @@ namespace AllFeaturesSuccess
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed class GeneratedOperationFactory : global::AllFeaturesSuccess.IGeneratedOperationFactory
     {
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public GeneratedOperationFactory()
         {
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         [global::Sundew.Injection.CreateMethod]
         public global::AllFeaturesSuccess.Operations.IOperation CreateOperationA(int lhs, int rhs)
         {
             return new global::AllFeaturesSuccess.Operations.OperationA(lhs, rhs);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         [global::Sundew.Injection.CreateMethod]
         public global::AllFeaturesSuccess.Operations.IOperation CreateOperationB(int lhs, int rhs)
         {

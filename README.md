@@ -109,16 +109,17 @@ An IDisposable/IAsyncDisposable object is considered owned by a factory in the f
 1. It was instantiated by the factory
 2. It was created by a Func<> passed into the factory and creation was triggered by the factory.
 
-## Open questions
-* How to integrate with application frameworks?
-  * Some frameworks like ASP.NET dictates the use of an DICs.
-
 ## Not implemented yet:
-* Optional reflection type resolver
-* Generating documentation
+* First Beta
+  * Optional reflection type resolver performance
+  * Local function ienumerable optimization
+  * Fix nuget package need interface project explicitly
+  * Generating documentation
+  * Rework generics
+  * Test correctness of generated code
+  * Place generator dependencies in own namespace
 * Test error cases
 * Custom lifetime scope, to support implementing something like single instance per thread or per session
-* Test correctness of generated code
 * Interception
 
 ### Challenges/Risk

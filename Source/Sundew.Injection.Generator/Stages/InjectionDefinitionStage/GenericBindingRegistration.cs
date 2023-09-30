@@ -10,7 +10,7 @@ namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed record GenericBindingRegistration(
-    GenericType TargetType,
+    OpenGenericType TargetType,
     Scope Scope,
     GenericMethod Method,
     Accessibility Accessibility,

@@ -12,6 +12,7 @@ namespace AllFeaturesSuccess
         private readonly global::AllFeaturesSuccessDependency.DependencyFactory dependencyFactory;
         private readonly global::AllFeaturesSuccessDependency.ManualDependencyFactory manualDependencyFactory;
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public ConstructedChildFactory(global::Sundew.Injection.ILifecycleParameters? lifecycleParameters = null)
         {
             if (lifecycleParameters == null)
@@ -34,6 +35,7 @@ namespace AllFeaturesSuccess
             this.manualDependencyFactory = new global::AllFeaturesSuccessDependency.ManualDependencyFactory();
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public global::AllFeaturesSuccess.ChildFactory.ConstructedChild Create(global::AllFeaturesSuccess.OptionalInterface.OptionalParameters optionalParameters)
         {
             var constructedConstructedChild = this.CreateUninitialized(optionalParameters);
@@ -41,6 +43,7 @@ namespace AllFeaturesSuccess
             return constructedConstructedChild.Object;
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public async global::System.Threading.Tasks.Task<global::AllFeaturesSuccess.ChildFactory.ConstructedChild> CreateAsync(global::AllFeaturesSuccess.OptionalInterface.OptionalParameters optionalParameters)
         {
             var constructedConstructedChild = this.CreateUninitialized(optionalParameters);
@@ -48,6 +51,7 @@ namespace AllFeaturesSuccess
             return constructedConstructedChild.Object;
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
         [global::Sundew.Injection.CreateMethod]
         public global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.ChildFactory.ConstructedChild> CreateUninitialized(global::AllFeaturesSuccess.OptionalInterface.OptionalParameters optionalParameters)
@@ -68,21 +72,25 @@ namespace AllFeaturesSuccess
             return new global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.ChildFactory.ConstructedChild>(constructedChildResult, childLifecycleHandler);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public void Dispose(global::AllFeaturesSuccess.ChildFactory.ConstructedChild constructedChild)
         {
             this.lifecycleHandler.Dispose(constructedChild);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public global::System.Threading.Tasks.ValueTask DisposeAsync(global::AllFeaturesSuccess.ChildFactory.ConstructedChild constructedChild)
         {
             return this.lifecycleHandler.DisposeAsync(constructedChild);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public void Dispose()
         {
             this.lifecycleHandler.Dispose();
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public global::System.Threading.Tasks.ValueTask DisposeAsync()
         {
             return this.lifecycleHandler.DisposeAsync();

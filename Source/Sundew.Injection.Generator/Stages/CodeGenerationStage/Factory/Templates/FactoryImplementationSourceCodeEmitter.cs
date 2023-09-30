@@ -89,6 +89,7 @@ internal static class FactoryImplementationSourceCodeEmitter
 
     private static void AppendField(this StringBuilder stringBuilder, Member.Field field, int indentation)
     {
+        var formattingOptions = field.Declaration.IsStatic ? new FormattingOptions(true) : new FormattingOptions(false);
         stringBuilder.Append(' ', indentation)
             .Append(Trivia.Private)
             .If(
@@ -102,13 +103,16 @@ internal static class FactoryImplementationSourceCodeEmitter
             .Append(field.Declaration.Name)
             .If(
                 field.Declaration.CreationExpression,
-                (x, value) => x.Append(' ').Append('=').Append(' ').AppendExpression(value, indentation))
+                (x, value) => x.Append(' ').Append('=').Append(' ').AppendExpression(value, indentation, formattingOptions))
             .Append(';');
     }
 
     private static void AppendMethodImplementation(this StringBuilder stringBuilder, Member.MethodImplementation methodImplementation, Options options, int indentation)
     {
-        stringBuilder.AppendAttributes(methodImplementation.MethodDeclaration.Attributes, indentation)
+        stringBuilder
+            .Append(' ', indentation)
+            .AppendLine(Trivia.MethodImpl)
+            .AppendAttributes(methodImplementation.MethodDeclaration.Attributes, indentation)
             .Append(' ', indentation)
             .AppendAccessibility(methodImplementation.MethodDeclaration.Accessibility)
             .If(
@@ -123,35 +127,35 @@ internal static class FactoryImplementationSourceCodeEmitter
             .Append(' ', indentation)
             .Append('{')
             .AppendLine()
-            .AppendStatements(methodImplementation.Statements, indentation)
+            .AppendStatements(methodImplementation.Statements, options, indentation)
             .Append(' ', indentation)
             .Append('}');
     }
 
-    private static StringBuilder AppendStatements(this StringBuilder stringBuilder, IReadOnlyList<Statement> statements, int indentation)
+    private static StringBuilder AppendStatements(this StringBuilder stringBuilder, IReadOnlyList<Statement> statements, Options options, int indentation)
     {
         indentation += 4;
         foreach (var statement in statements)
         {
-            stringBuilder.AppendStatement(statement, indentation);
+            stringBuilder.AppendStatement(statement, options, indentation);
         }
 
         return stringBuilder;
     }
 
-    private static void AppendStatement(this StringBuilder stringBuilder, Statement statement, int indentation)
+    private static void AppendStatement(this StringBuilder stringBuilder, Statement statement, Options options, int indentation)
     {
-        stringBuilder.Append(' ', indentation);
+        var formattingOptions = new FormattingOptions(false);
         switch (statement)
         {
             case CreateOptionalParameterIfStatement createOptionalParameterIfStatement:
-                stringBuilder.Append(Trivia.If).Append(' ').Append('(')
-                    .AppendExpression(createOptionalParameterIfStatement.ConditionAccess, indentation).Append(' ')
+                stringBuilder.Append(' ', indentation).Append(Trivia.If).Append(' ').Append('(')
+                    .AppendExpression(createOptionalParameterIfStatement.ConditionAccess, indentation, formattingOptions).Append(' ')
                     .Append(Trivia.Equals).Append(' ').Append(Trivia.Null).Append(')')
                     .AppendLine()
                     .Append(' ', indentation).Append('{')
                     .AppendLine()
-                    .AppendStatements(createOptionalParameterIfStatement.TrueStatements, indentation)
+                    .AppendStatements(createOptionalParameterIfStatement.TrueStatements, options, indentation)
                     .Append(' ', indentation).Append('}')
                     .AppendLine()
                     .If(
@@ -160,49 +164,62 @@ internal static class FactoryImplementationSourceCodeEmitter
                             .AppendLine()
                             .Append(' ', indentation).Append('{')
                             .AppendLine()
-                            .AppendStatements(falseStatements, indentation)
+                            .AppendStatements(falseStatements, options, indentation)
                             .Append(' ', indentation).Append('}')
                             .AppendLine());
 
                 break;
             case ExpressionStatement expressionStatement:
-                stringBuilder.AppendExpression(expressionStatement.Expression, indentation).Append(';');
+                stringBuilder.Append(' ', indentation).AppendExpression(expressionStatement.Expression, indentation, formattingOptions).Append(';');
                 break;
             case ReturnStatement returnStatement:
-                stringBuilder.Append(Trivia.Return)
+                stringBuilder.Append(' ', indentation).Append(Trivia.Return)
                     .Append(' ')
-                    .AppendExpression(returnStatement.Expression, indentation)
+                    .AppendExpression(returnStatement.Expression, indentation, formattingOptions)
                     .Append(';');
                 break;
             case LocalDeclarationStatement localDeclarationExpression:
-                stringBuilder.Append(Trivia.Var)
+                stringBuilder.Append(' ', indentation).Append(Trivia.Var)
                     .Append(' ')
                     .Append(localDeclarationExpression.Name)
                     .Append(' ')
                     .Append('=')
                     .Append(' ')
-                    .AppendExpression(localDeclarationExpression.Initializer, indentation)
+                    .AppendExpression(localDeclarationExpression.Initializer, indentation, formattingOptions)
                     .Append(';');
+                break;
+            case LocalFunctionStatement localFunctionStatement:
+                stringBuilder.AppendLine()
+                    .Append(' ', indentation).Append(Trivia.Static).Append(' ').AppendFullyQualifiedType(localFunctionStatement.ReturnType).Append(' ').Append(localFunctionStatement.Name)
+                    .Append('(').AppendParameters(localFunctionStatement.Parameters, options.AreNullableAnnotationsSupported, 0).Append(')')
+                    .AppendLine()
+                    .Append(' ', indentation).Append('{')
+                    .AppendLine()
+                    .AppendStatements(localFunctionStatement.Statements, options, indentation)
+                    .Append(' ', indentation).Append('}')
+                    .AppendLine();
+                break;
+            case YieldReturnStatement yieldReturnStatement:
+                stringBuilder.Append(' ', indentation).Append(Trivia.Yield).Append(' ').Append(Trivia.Return).Append(' ').AppendExpression(yieldReturnStatement.Expression, 0, formattingOptions).Append(';');
                 break;
         }
 
         stringBuilder.AppendLine();
     }
 
-    private static StringBuilder AppendExpression(this StringBuilder stringBuilder, Expression expression, int indentation)
+    private static StringBuilder AppendExpression(this StringBuilder stringBuilder, Expression expression, int indentation, FormattingOptions formattingOptions)
     {
         var newIndentation = indentation + 4;
         switch (expression)
         {
             case AssignmentExpression assignmentExpression:
-                stringBuilder.AppendExpression(assignmentExpression.Lhs, indentation)
+                stringBuilder.AppendExpression(assignmentExpression.Lhs, indentation, formattingOptions)
                     .Append(' ').Append('=').Append(' ')
-                    .AppendExpression(assignmentExpression.Rhs, indentation);
+                    .AppendExpression(assignmentExpression.Rhs, indentation, formattingOptions);
                 break;
             case AwaitExpression awaitExpression:
-                stringBuilder.Append(Trivia.Await).Append(' ').AppendExpression(awaitExpression.Expression, indentation);
+                stringBuilder.Append(Trivia.Await).Append(' ').AppendExpression(awaitExpression.Expression, indentation, formattingOptions);
                 break;
-
             case CreationExpression.Array arrayCreation:
 
                 stringBuilder.Append(Trivia.New)
@@ -212,7 +229,7 @@ internal static class FactoryImplementationSourceCodeEmitter
                     .Append(' ')
                     .Append('{')
                     .Append(' ')
-                    .AppendArguments(arrayCreation.Arguments, newIndentation)
+                    .AppendArguments(arrayCreation.Arguments, newIndentation, formattingOptions)
                     .Append(' ')
                     .Append('}');
 
@@ -222,30 +239,32 @@ internal static class FactoryImplementationSourceCodeEmitter
                     .Append(' ')
                     .AppendFullyQualifiedType(constructorCall.Type)
                     .Append('(')
-                    .AppendArguments(constructorCall.Arguments, newIndentation)
+                    .AppendArguments(constructorCall.Arguments, newIndentation, formattingOptions)
                     .Append(')');
 
                 break;
             case CreationExpression.InstanceMethodCall instanceMethodCall:
-                stringBuilder.AppendExpression(instanceMethodCall.FactoryAccessExpression, indentation)
+                stringBuilder.AppendExpression(instanceMethodCall.FactoryAccessExpression, indentation, formattingOptions)
                     .Append('.')
                     .Append(instanceMethodCall.Name)
                     .If(
                         !instanceMethodCall.TypeArguments.IsEmpty(),
                         x => x.Append('<').AppendItems(instanceMethodCall.TypeArguments, (builder, argument) => builder.AppendFullyQualifiedType(argument.Type), Trivia.ListSeparator).Append('>'))
                     .Append('(')
-                    .AppendArguments(instanceMethodCall.Arguments, newIndentation)
+                    .AppendArguments(instanceMethodCall.Arguments, newIndentation, formattingOptions)
                     .Append(')');
                 break;
             case CreationExpression.StaticMethodCall staticMethodCall:
-                stringBuilder.AppendFullyQualifiedType(staticMethodCall.Type)
-                    .Append('.')
+                stringBuilder
+                    .If(
+                        staticMethodCall.Type,
+                        (builder, type) => builder.AppendFullyQualifiedType(type).Append('.'))
                     .Append(staticMethodCall.Name)
                     .If(
                         !staticMethodCall.TypeArguments.IsEmpty(),
                         x => x.Append('<').AppendItems(staticMethodCall.TypeArguments, (builder, argument) => builder.AppendFullyQualifiedType(argument.Type), Trivia.ListSeparator).Append('>'))
                     .Append('(')
-                    .AppendArguments(staticMethodCall.Arguments, newIndentation)
+                    .AppendArguments(staticMethodCall.Arguments, newIndentation, formattingOptions)
                     .Append(')');
 
                 break;
@@ -253,7 +272,7 @@ internal static class FactoryImplementationSourceCodeEmitter
                 stringBuilder.Append(Trivia.Default).Append('(').AppendFullyQualifiedType(defaultValue.Type).Append(')');
                 break;
             case FuncInvocationExpression funcInvocationExpression:
-                stringBuilder.AppendExpression(funcInvocationExpression.DelegateAccessor, indentation)
+                stringBuilder.AppendExpression(funcInvocationExpression.DelegateAccessor, indentation, formattingOptions)
                     .If(
                         funcInvocationExpression.IsNullable,
                         x => x.Append('?'))
@@ -263,38 +282,62 @@ internal static class FactoryImplementationSourceCodeEmitter
             case Identifier identifier:
                 stringBuilder.Append(identifier.Name);
                 break;
-            case InvocationExpression invocationExpression:
-                stringBuilder.AppendExpression(invocationExpression.Expression, indentation).Append('(').AppendArguments(invocationExpression.Arguments, indentation + 4).Append(')');
+            case IndexerAccess indexerAccess:
+                stringBuilder.AppendExpression(indexerAccess.Source, indentation, formattingOptions).Append('[').Append(indexerAccess.Index).Append(']');
                 break;
+            case InvocationExpression invocationExpression:
+                stringBuilder.AppendExpression(invocationExpression.Expression, indentation, formattingOptions).Append('(').AppendArguments(invocationExpression.Arguments, indentation + 4, formattingOptions).Append(')');
+                break;
+
             case Literal literal:
                 stringBuilder.Append(literal.Value);
                 break;
             case MemberAccessExpression memberAccessExpression:
-                stringBuilder.AppendExpression(memberAccessExpression.Expression, indentation).Append('.').Append(memberAccessExpression.Name);
+                stringBuilder.AppendExpression(memberAccessExpression.Expression, indentation, formattingOptions).Append('.').Append(memberAccessExpression.Name);
                 break;
             case NullCoalescingOperatorExpression nullCoalescingOperatorExpression:
-                stringBuilder.AppendExpression(nullCoalescingOperatorExpression.Lhs, indentation).Append(' ').Append(Trivia.NullCoalescing).Append(' ').AppendExpression(nullCoalescingOperatorExpression.Rhs, indentation);
+                stringBuilder.AppendExpression(nullCoalescingOperatorExpression.Lhs, indentation, formattingOptions).Append(' ').Append(Trivia.NullCoalescing).Append(' ').AppendExpression(nullCoalescingOperatorExpression.Rhs, indentation, formattingOptions);
+                break;
+            case Lambda lambda:
+                stringBuilder.Append('(')
+                    .AppendItems(lambda.Parameters, (builder, expression1) => builder.AppendExpression(expression1, indentation, formattingOptions), Trivia.ListSeparator)
+                    .Append(')')
+                    .Append(' ')
+                    .Append(Trivia.LambdaArrow)
+                    .Append(' ')
+                    .AppendExpression(lambda.Expression, indentation, formattingOptions);
+                break;
+            case TypeOf typeOf:
+                stringBuilder.Append(Trivia.TypeOf).Append('(').AppendFullyQualifiedType(typeOf.Type).Append(')');
+                break;
+            case Cast cast:
+                stringBuilder.Append('(')
+                    .AppendFullyQualifiedType(cast.TargetType.Type)
+                    .If(cast.TargetType.CanHaveDefaultValue && !cast.TargetType.Type.IsValueType, builder => builder.Append('?'))
+                    .Append(')')
+                    .AppendExpression(cast.Source, 0, formattingOptions);
                 break;
         }
 
         return stringBuilder;
     }
 
-    private static StringBuilder AppendArguments(this StringBuilder stringBuilder, IReadOnlyList<Expression> arguments, int indentation)
+    private static StringBuilder AppendArguments(this StringBuilder stringBuilder, IReadOnlyList<Expression> arguments, int indentation, FormattingOptions formattingOptions)
     {
-        var useNewLine = arguments.Count > 3;
+        var useNewLine = arguments.Count > 3 || formattingOptions.ForceArgumentNewLine;
         var actualSeparator = Trivia.ListSeparator;
+        var preArguments = string.Empty;
         var argumentIndentation = indentation;
         if (useNewLine)
         {
             actualSeparator = Trivia.NewLineListSeparator;
-            stringBuilder.Append(Environment.NewLine);
+            preArguments = Environment.NewLine;
         }
         else
         {
             argumentIndentation = 0;
         }
 
-        return stringBuilder.AppendItems(arguments, (builder, expression) => builder.Append(' ', argumentIndentation).AppendExpression(expression, indentation), actualSeparator);
+        return stringBuilder.AppendItems(arguments, builder => builder.Append(preArguments), (builder, expression) => builder.Append(' ', argumentIndentation).AppendExpression(expression, indentation, formattingOptions), actualSeparator);
     }
 }

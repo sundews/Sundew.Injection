@@ -8,7 +8,7 @@
 namespace Sundew.Injection.Generator.TypeSystem;
 
 internal sealed record DefiniteArrayType(DefiniteType ElementType)
-    : DefiniteType(ElementType.Name, ElementType.Namespace, ElementType.AssemblyName)
+    : DefiniteType(ElementType.Name, ElementType.Namespace, ElementType.AssemblyName, false)
 {
     public override string FullName => $"{this.Namespace}.{this.Name}";
 
