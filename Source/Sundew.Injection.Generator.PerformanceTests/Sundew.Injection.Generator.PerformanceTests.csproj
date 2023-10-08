@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.8" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.9" />
     <PackageReference Include="Sundew.Testing.CodeAnalysis" Version="0.0.0-u20230521-013600-ci" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" version="7.0.0">
       <Aliases>asyncinterfaces</Aliases>
@@ -26,12 +26,12 @@
     <PackageReference Include="Disposal.Interfaces" Version="1.0.0">
       <Aliases>disposal</Aliases>
     </PackageReference>
-    <PackageReference Include="Sundew.Base.Collections" Version="11.0.0-u20230927-125234-local" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Primitives" Version="11.0.0-u20230927-125234-local" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Equality" Version="11.0.0-u20230927-125234-local" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Memory" Version="11.0.0-u20230927-125234-local" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Reporting" Version="11.0.0-u20230927-125234-local" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Text" Version="11.0.0-u20230927-125234-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Collections" Version="11.0.0-u20231008-215545-ci" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Primitives" Version="11.0.0-u20231008-215545-ci" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Equality" Version="11.0.0-u20231008-215545-ci" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Memory" Version="11.0.0-u20231008-215545-ci" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Reporting" Version="11.0.0-u20231008-215545-ci" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Text" Version="11.0.0-u20231008-215545-ci" GeneratePathProperty="true" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
