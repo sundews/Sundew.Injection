@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.TypeSystem;
 using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
 using Parameter = Sundew.Injection.Generator.TypeSystem.Parameter;
@@ -20,9 +21,9 @@ internal static class BindingHelper
     public static void BindFactory(this AnalysisContext analysisContext, (Type Type, TypeMetadata TypeMetadata) factoryType, IEnumerable<(Method Method, ITypeSymbol ReturnType)> createMethods)
     {
         if (!analysisContext.CompiletimeInjectionDefinitionBuilder.HasBinding(factoryType.Type) &&
-            factoryType.TypeMetadata.DefaultConstructor.HasValue)
+            factoryType.TypeMetadata.DefaultConstructor.TryGetValue(out var defaultConstructor))
         {
-            var actualMethod = new Method(factoryType.TypeMetadata.DefaultConstructor.Value.Parameters, factoryType.Type.Name, factoryType.Type, MethodKind._Constructor);
+            var actualMethod = new Method(defaultConstructor.Parameters, factoryType.Type.Name, factoryType.Type, MethodKind._Constructor);
             analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<(Type Type, TypeMetadata TypeMetadata)>.Empty, factoryType, actualMethod, Scope._SingleInstancePerFactory, false, false);
         }
 

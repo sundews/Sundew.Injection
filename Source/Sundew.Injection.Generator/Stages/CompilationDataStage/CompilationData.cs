@@ -29,5 +29,6 @@ internal sealed record CompilationData(
     NamedType ObjectType,
     DefiniteClosedGenericType SpanOfObjectType,
     OpenGenericType Resolver,
-    UnboundGenericType IEnumerableOfTType,
+    OpenGenericType IEnumerableOfTType,
+    OpenGenericType IReadOnlyListOfTType,
     string AssemblyName);

@@ -9,7 +9,6 @@ namespace Sundew.Injection.Generator.TypeSystem;
 
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Sundew.Base.Collections.Immutable;
 
@@ -30,6 +29,11 @@ internal static class GenericTypeConverter
         return new UnboundGenericType(definiteArrayType.Name, 1, definiteArrayType.Namespace, definiteArrayType.AssemblyName);
     }
 
+    public static OpenGenericType ToOpenGenericType(this ClosedGenericType closedGenericType)
+    {
+        return new OpenGenericType(closedGenericType.Name, closedGenericType.Namespace, closedGenericType.AssemblyName, closedGenericType.TypeParameters, closedGenericType.IsValueType);
+    }
+
     public static OpenGenericType GetGenericType(INamedTypeSymbol genericTypeSymbol)
     {
         return new OpenGenericType(
@@ -45,12 +49,12 @@ internal static class GenericTypeConverter
         return new UnboundGenericType(unboundGenericTypeSymbol.Name, unboundGenericTypeSymbol.TypeParameters.Length, TypeHelper.GetNamespace(unboundGenericTypeSymbol.ContainingNamespace), unboundGenericTypeSymbol.ContainingAssembly.Identity.ToString());
     }
 
-    public static DefiniteClosedGenericType ToDefiniteBoundGenericType(this OpenGenericType openGenericType, ValueArray<DefiniteTypeArgument> typeArguments)
+    public static DefiniteClosedGenericType ToDefiniteClosedGenericType(this OpenGenericType openGenericType, ValueArray<DefiniteTypeArgument> typeArguments)
     {
         return new DefiniteClosedGenericType(openGenericType.Name, openGenericType.Namespace, openGenericType.AssemblyName, openGenericType.TypeParameters, typeArguments, openGenericType.IsValueType);
     }
 
-    public static DefiniteClosedGenericType ToDefiniteBoundGenericType(this ContaineeType.GenericType genericType, ValueArray<DefiniteTypeArgument> typeArguments)
+    public static DefiniteClosedGenericType ToDefiniteClosedGenericType(this ContaineeType.GenericType genericType, ValueArray<DefiniteTypeArgument> typeArguments)
     {
         return new DefiniteClosedGenericType(genericType.Name, genericType.Namespace, genericType.AssemblyName, genericType.TypeParameters, typeArguments, genericType.IsValueType);
     }

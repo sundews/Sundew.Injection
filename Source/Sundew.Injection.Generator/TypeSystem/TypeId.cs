@@ -7,4 +7,50 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-internal readonly record struct TypeId(string Id);
+using System;
+using System.Text;
+
+internal readonly struct TypeId : IEquatable<TypeId>
+{
+    private const string TypeName = "TypeId {";
+    private readonly TypeIdWithHash typeId;
+
+    public TypeId(string id)
+    {
+        this.typeId = new TypeIdWithHash(id, id.GetHashCode());
+    }
+
+    public string Id => this.typeId.Id;
+
+    public static bool operator ==(TypeId left, TypeId right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(TypeId left, TypeId right)
+    {
+        return !left.Equals(right);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is TypeId other && this.Equals(other);
+    }
+
+    public bool Equals(TypeId other)
+    {
+        return this.typeId.Equals(other.typeId);
+    }
+
+    public override int GetHashCode()
+    {
+        return this.typeId.HashCode;
+    }
+
+    public override string ToString()
+    {
+        return new StringBuilder(TypeName, TypeName.Length + this.Id.Length + 2).Append(this.Id).Append(' ').Append('}').ToString();
+    }
+
+    private readonly record struct TypeIdWithHash(string Id, int HashCode);
+}

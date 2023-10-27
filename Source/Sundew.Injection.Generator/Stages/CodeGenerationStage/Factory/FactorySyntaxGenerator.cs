@@ -11,6 +11,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using Sundew.Base.Collections;
+using Sundew.Base.Primitives.Computation;
 using Sundew.Base.Text;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.Syntax;
@@ -50,10 +51,10 @@ internal class FactorySyntaxGenerator
         var factoryImplementation = new FactoryImplementation();
         var interfaces = ImmutableList.Create(this.compilationData.IGeneratedFactoryType);
         var disposeMethods = ImmutableList<Model.Syntax.Member.MethodImplementation>.Empty;
-        if (this.factoryData.LifecycleHandlingInjectionTree.TryGetValue(out var lifecycleHandlingInjectionTree))
+        if (this.factoryData.LifecycleHandlingInjectionTree.HasValue())
         {
             var factoryNode = this.generatorFeatures.InjectionNodeExpressionGenerator.Generate(
-                lifecycleHandlingInjectionTree.Root,
+                this.factoryData.LifecycleHandlingInjectionTree.Root,
                 factoryImplementation,
                 new MethodImplementation());
 
@@ -139,7 +140,7 @@ internal class FactorySyntaxGenerator
 
         var disposeMethodImplementations = factoryImplementation.DisposeMethodImplementations;
         var factoryMethodStatements = factoryNode.CreateMethod.Statements;
-        var asyncCreateReturnType = this.compilationData.TaskType.ToDefiniteBoundGenericType(ImmutableArray.Create(new DefiniteTypeArgument(factoryMethodData.Return)));
+        var asyncCreateReturnType = this.compilationData.TaskType.ToDefiniteClosedGenericType(ImmutableArray.Create(new DefiniteTypeArgument(factoryMethodData.Return)));
         var factoryMethods = factoryImplementation.CreateMethods;
         var createMethodParameters = factoryNode.CreateMethod.Parameters.GroupBy(x => x.DefaultValue != null).OrderBy(x => x.Key).SelectMany(x => x).ToImmutableList();
         var factoryMethodDeclaration = new MethodDeclaration(
@@ -166,7 +167,7 @@ internal class FactorySyntaxGenerator
                             new[] { constructedValueIdentifier, this.knownSyntax.ChildLifecycleHandler.Access, })));
 
             var constructedType =
-                this.compilationData.ConstructedType.ToDefiniteBoundGenericType(
+                this.compilationData.ConstructedType.ToDefiniteClosedGenericType(
                     ImmutableArray.Create(new DefiniteTypeArgument(factoryMethodData.Return)));
             var factoryMethodAsyncDeclaration = new MethodDeclaration(
                 DeclaredAccessibility.Public,

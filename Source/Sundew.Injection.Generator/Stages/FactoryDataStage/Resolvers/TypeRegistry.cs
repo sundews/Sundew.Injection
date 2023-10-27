@@ -13,19 +13,51 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed class TypeRegistry<TValue> : ICache<TypeId, TValue>, ITypeRegistrar<TValue>
 {
-    private readonly Dictionary<TypeId, TValue> registry = new();
+    private readonly Dictionary<TypeId, Reference> registry = new();
 
-    public void Register(TypeId targetType, TypeId? interfaceType, TValue value)
+    public void Register(TypeId targetType, TypeId? interfaceType, TValue value, bool allowOverwrite)
     {
-        this.registry[targetType] = value;
+        this.AddOrUpdate(targetType, value, allowOverwrite);
         if (interfaceType.HasValue && targetType != interfaceType)
         {
-            this.registry[interfaceType.Value] = value;
+            this.AddOrUpdate(interfaceType.Value, value, allowOverwrite);
         }
     }
 
     public bool TryGet(TypeId type, [NotNullWhen(true)] out TValue? value)
     {
-        return this.registry.TryGetValue(type, out value);
+        if (this.registry.TryGetValue(type, out var reference))
+        {
+            value = reference.Value!;
+            return true;
+        }
+
+        value = default;
+        return false;
+    }
+
+    private void AddOrUpdate(TypeId targetType, TValue value, bool allowOverwrite)
+    {
+        if (this.registry.TryGetValue(targetType, out var reference))
+        {
+            if (allowOverwrite)
+            {
+                reference.Value = value;
+            }
+        }
+        else
+        {
+            this.registry[targetType] = new Reference(value);
+        }
+    }
+
+    private class Reference
+    {
+        public Reference(TValue value)
+        {
+            this.Value = value;
+        }
+
+        public TValue Value { get; set; }
     }
 }

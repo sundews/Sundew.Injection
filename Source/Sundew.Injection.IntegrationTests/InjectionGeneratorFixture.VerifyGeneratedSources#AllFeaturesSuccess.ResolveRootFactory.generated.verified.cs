@@ -22,9 +22,9 @@ namespace AllFeaturesSuccess
         private readonly global::Sundew.Injection.ILifecycleParameters lifecycleParameters;
         private readonly global::Sundew.Injection.LifecycleHandler lifecycleHandler;
         private readonly global::AllFeaturesSuccess.RequiredInterface.IRequiredParameters requiredParameters;
-        private readonly global::AllFeaturesSuccess.MultipleImplementations.IMultipleImplementation multipleImplementationA;
-        private readonly global::AllFeaturesSuccess.MultipleImplementations.IMultipleImplementation multipleImplementationB;
-        private readonly global::AllFeaturesSuccess.MultipleImplementations.IMultipleImplementation[] multipleImplementationArray;
+        private readonly global::AllFeaturesSuccess.MultipleImplementations.IMultipleImplementationForArray multipleImplementationForArrayA;
+        private readonly global::AllFeaturesSuccess.MultipleImplementations.IMultipleImplementationForArray multipleImplementationForArrayB;
+        private readonly global::AllFeaturesSuccess.MultipleImplementations.IMultipleImplementationForArray[] multipleImplementationForArrayArray;
         private readonly global::AllFeaturesSuccess.RequiredInterface.IInjectedSeparately injectedSeparatelyForInterfaceSingleInstancePerFactory;
         private readonly global::AllFeaturesSuccess.GeneratedOperationFactory generatedOperationFactory;
         private readonly global::AllFeaturesSuccess.RequiredInterface.IInjectedByType injectedByType;
@@ -64,11 +64,11 @@ namespace AllFeaturesSuccess
 
             this.lifecycleHandler = new global::Sundew.Injection.LifecycleHandler(this.lifecycleParameters, this.lifecycleParameters);
             this.requiredParameters = requiredParameters;
-            this.multipleImplementationA = new global::AllFeaturesSuccess.MultipleImplementations.MultipleImplementationA(this.requiredParameters.SecondSpecificallyNamedModuleParameter);
-            this.lifecycleHandler.TryAdd(this.multipleImplementationA);
-            this.multipleImplementationB = new global::AllFeaturesSuccess.MultipleImplementations.MultipleImplementationB(this.requiredParameters.FirstSpecificallyNamedModuleParameter);
-            this.lifecycleHandler.TryAdd(this.multipleImplementationB);
-            this.multipleImplementationArray = new global::AllFeaturesSuccess.MultipleImplementations.IMultipleImplementation[] { this.multipleImplementationA, this.multipleImplementationB };
+            this.multipleImplementationForArrayA = new global::AllFeaturesSuccess.MultipleImplementations.MultipleImplementationForArrayA(this.requiredParameters.SecondSpecificallyNamedModuleParameter);
+            this.lifecycleHandler.TryAdd(this.multipleImplementationForArrayA);
+            this.multipleImplementationForArrayB = new global::AllFeaturesSuccess.MultipleImplementations.MultipleImplementationForArrayB(this.requiredParameters.FirstSpecificallyNamedModuleParameter);
+            this.lifecycleHandler.TryAdd(this.multipleImplementationForArrayB);
+            this.multipleImplementationForArrayArray = new global::AllFeaturesSuccess.MultipleImplementations.IMultipleImplementationForArray[] { this.multipleImplementationForArrayA, this.multipleImplementationForArrayB };
             this.injectedSeparatelyForInterfaceSingleInstancePerFactory = injectedSeparatelyForInterfaceSingleInstancePerFactory;
             this.generatedOperationFactory = new global::AllFeaturesSuccess.GeneratedOperationFactory();
             this.injectedByType = injectedByType;
@@ -76,7 +76,7 @@ namespace AllFeaturesSuccess
             this.lifecycleHandler.TryAdd(this.interfaceSegregationOverridableNewImplementation);
             this.interfaceSingleInstancePerFactory = new global::AllFeaturesSuccess.SingleInstancePerFactory.InterfaceSingleInstancePerFactory(
                 this.injectedSeparatelyForInterfaceSingleInstancePerFactory,
-                this.multipleImplementationArray,
+                this.multipleImplementationForArrayArray,
                 this.generatedOperationFactory,
                 this.interfaceSegregationOverridableNewImplementation);
             this.lifecycleHandler.TryAdd(this.interfaceSingleInstancePerFactory);
@@ -186,9 +186,16 @@ namespace AllFeaturesSuccess
             childLifecycleHandler.TryAdd(manualDependencyForConstructedChild);
             var constructedChildForResolveRoot = new global::AllFeaturesSuccess.ChildFactory.ConstructedChild(newInstanceAndDisposableForConstructedChild, dependencyForConstructedChild, manualDependencyForConstructedChild);
             childLifecycleHandler.TryAdd(constructedChildForResolveRoot);
+
+            static global::AllFeaturesSuccess.MultipleImplementations.IMultipleImplementationForEnumerable CreateMultipleImplementationForEnumerable()
+            {
+                yield return new global::AllFeaturesSuccess.MultipleImplementations.MultipleImplementationForEnumerableA();
+                yield return new global::AllFeaturesSuccess.MultipleImplementations.MultipleImplementationForEnumerableB();
+            }
+
             var resolveRootResult = new global::AllFeaturesSuccess.ResolveRoot(
                 new global::AllFeaturesSuccess.InterfaceImplementationBindings.Intercepted(
-                    this.multipleImplementationArray,
+                    this.multipleImplementationForArrayArray,
                     global::AllFeaturesSuccess.FactoryDeclaration.CreateFeatureService1(
                         this.interfaceSingleInstancePerFactory,
                         injectableSingleInstancePerRequest,
@@ -200,7 +207,8 @@ namespace AllFeaturesSuccess
                     overrideableNewImplementationForIntercepted),
                 this.interfaceSingleInstancePerFactory,
                 overrideableNewImplementationForResolveRoot,
-                constructedChildForResolveRoot);
+                constructedChildForResolveRoot,
+                CreateMultipleImplementationForEnumerable());
             this.lifecycleHandler.TryAdd(resolveRootResult, childLifecycleHandler);
             return new global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.IResolveRoot>(resolveRootResult, childLifecycleHandler);
         }

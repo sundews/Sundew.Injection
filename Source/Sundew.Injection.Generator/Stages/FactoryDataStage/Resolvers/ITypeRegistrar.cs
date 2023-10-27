@@ -11,5 +11,5 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal interface ITypeRegistrar<in TValue>
 {
-    void Register(TypeId targetType, TypeId? interfaceType, TValue value);
+    void Register(TypeId targetType, TypeId? interfaceType, TValue value, bool allowOverwrite);
 }

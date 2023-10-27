@@ -42,7 +42,8 @@ internal sealed class IteratorMethodGenerator
                             createMethodName,
                             ImmutableArray<ParameterDeclaration>.Empty,
                             iteratorMethodCall.ElementType,
-                            arguments.Select(x => new YieldReturnStatement(x)).ToImmutableList<Statement>())),
+                            arguments.Select(x => new YieldReturnStatement(x)).ToImmutableList<Statement>(),
+                            !arguments.Any(x => x is MemberAccessExpression))),
                 },
             },
             CreationExpression._StaticMethodCall(default, createMethodName, ImmutableArray<DefiniteTypeArgument>.Empty, Array.Empty<Expression>()));

@@ -7,6 +7,4 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-using Sundew.Base.Primitives.Computation;
-
-internal readonly record struct TypeMetadata(O<Method> DefaultConstructor, bool ImplementsIEnumerable, bool HasLifetime);
+internal readonly record struct TypeMetadata(Method? DefaultConstructor, EnumerableMetadata EnumerableMetadata, bool HasLifetime);

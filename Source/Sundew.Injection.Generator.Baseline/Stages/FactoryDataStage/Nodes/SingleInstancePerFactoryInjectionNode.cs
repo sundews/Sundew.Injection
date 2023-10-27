@@ -9,7 +9,6 @@ namespace Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 
 using System.Collections.Generic;
 using Sundew.Base.Collections.Immutable;
-using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed record SingleInstancePerFactoryInjectionNode(
@@ -18,8 +17,8 @@ internal sealed record SingleInstancePerFactoryInjectionNode(
     bool TargetImplementsDisposable,
     IReadOnlyList<InjectionNode> Parameters,
     CreationSource CreationSource,
-    O<ParameterNode> ParameterNodeOption,
-    O<ValueArray<DefiniteParameter>> OverridableNewParametersOption,
+    ParameterNode? ParameterNodeOption,
+    ValueArray<DefiniteParameter>? OverridableNewParametersOption,
     InjectionNode? ParentCreationNode) : InjectionNode(ParentCreationNode), IHaveParameters
 {
     public override string Name => this.TargetType.Name;

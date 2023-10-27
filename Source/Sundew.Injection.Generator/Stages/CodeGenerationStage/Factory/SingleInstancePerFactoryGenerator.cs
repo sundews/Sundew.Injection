@@ -9,7 +9,7 @@ namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory;
 
 using System.Collections.Immutable;
 using System.Linq;
-using System.Xml.Linq;
+using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.Syntax;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Syntax;

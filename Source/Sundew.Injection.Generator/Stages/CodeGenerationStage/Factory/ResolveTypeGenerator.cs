@@ -37,13 +37,13 @@ internal class ResolveTypeGenerator
     public (ImmutableList<Member.MethodImplementation> Methods, ImmutableList<Member.Field> Fields) Generate(
         NamedType factoryType, ValueList<CreateMethod> createMethods)
     {
-        var factoryTypeTypeArguments = ImmutableArray.Create(new DefiniteTypeArgument(factoryType, new TypeMetadata(O.None, false, false)));
+        var factoryTypeTypeArguments = ImmutableArray.Create(new DefiniteTypeArgument(factoryType, new TypeMetadata(null, EnumerableMetadata.NonEnumerableMetadata, false)));
         var typeResolver = createMethods.Count > 100
             ? this.generatorContext.CompilationData.TypeResolverBinarySearch
             : this.generatorContext.CompilationData.TypeResolverLinearSearch;
-        var typeResolverType = typeResolver.ToDefiniteBoundGenericType(
+        var typeResolverType = typeResolver.ToDefiniteClosedGenericType(
             factoryTypeTypeArguments);
-        var creationExpression = this.GetCreationExpression(createMethods, typeResolverType, this.generatorContext.CompilationData.Resolver.ToDefiniteBoundGenericType(factoryTypeTypeArguments));
+        var creationExpression = this.GetCreationExpression(createMethods, typeResolverType, this.generatorContext.CompilationData.Resolver.ToDefiniteClosedGenericType(factoryTypeTypeArguments));
 
         var field = new Member.Field(
             new FieldDeclaration(

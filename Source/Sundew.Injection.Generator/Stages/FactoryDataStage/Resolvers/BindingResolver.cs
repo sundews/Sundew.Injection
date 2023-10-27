@@ -7,9 +7,9 @@
 
 namespace Sundew.Injection.Generator.Stages.FactoryDataStage.Resolvers;
 
-using System;
 using System.Collections.Immutable;
 using System.Linq;
+using Sundew.Base.Collections;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Base.Primitives.Computation;
 using Sundew.Base.Text;
@@ -35,7 +35,8 @@ internal sealed class BindingResolver
         ValueDictionary<TypeId, ValueArray<BindingRegistration>> bindingRegistrations,
         ValueDictionary<UnboundGenericType, ValueArray<GenericBindingRegistration>> genericBindingRegistrations,
         RequiredParametersInjectionResolver requiredParametersInjectionResolver,
-        ImmutableArray<Binding> predefinedBindings)
+        ImmutableArray<Binding> predefinedBindings,
+        KnownEnumerableTypes knownEnumerableTypes)
     {
         this.bindingRegistrations = bindingRegistrations;
         this.genericBindingRegistrations = genericBindingRegistrations;
@@ -47,10 +48,10 @@ internal sealed class BindingResolver
         var bindingsRegistry = new TypeRegistry<Binding[]>();
         foreach (var predefinedBinding in predefinedBindings)
         {
-            bindingsRegistry.Register(predefinedBinding.TargetType.Id, predefinedBinding.TargetReferenceType.Id, new[] { predefinedBinding });
+            bindingsRegistry.Register(predefinedBinding.TargetType.Id, predefinedBinding.TargetReferenceType.Id, new[] { predefinedBinding }, true);
         }
 
-        this.bindingFactory = new BindingFactory(this.typeResolver, this.methodFactory, typeRegistry, resolvedBindingRegistry, bindingsRegistry);
+        this.bindingFactory = new BindingFactory(this.typeResolver, this.methodFactory, typeRegistry, resolvedBindingRegistry, bindingsRegistry, knownEnumerableTypes);
         this.resolvedBindingsCache = resolvedBindingRegistry;
         this.bindingsCache = bindingsRegistry;
     }
@@ -62,10 +63,10 @@ internal sealed class BindingResolver
             return cachedBinding;
         }
 
-        return this.ResolveParameter(definiteParameter.Type, definiteParameter.TypeMetadata, O.Some((definiteParameter.Name, definiteParameter.ParameterNecessity)));
+        return this.ResolveParameter(definiteParameter.Type, definiteParameter.TypeMetadata, (definiteParameter.Name, definiteParameter.ParameterNecessity));
     }
 
-    public ResolvedBinding ResolveBinding(Type type, TypeMetadata typeMetadata, O<(string Name, ParameterNecessity Necessity)> parameterOption)
+    public ResolvedBinding ResolveBinding(Type type, TypeMetadata typeMetadata, (string Name, ParameterNecessity Necessity)? parameterOption)
     {
         var typeId = type.Id;
         if (this.resolvedBindingsCache.TryGet(typeId, out var cachedBinding))
@@ -79,9 +80,9 @@ internal sealed class BindingResolver
             return this.bindingFactory.TryCreateSingleParameter(bindingRegistration, type);
         }
 
-        if (typeMetadata.DefaultConstructor.HasValue)
+        if (typeMetadata.DefaultConstructor.TryGetValue(out var defaultConstructor))
         {
-            return this.bindingFactory.TryCreateSingleParameter(new BindingRegistration((type, typeMetadata), type, Scope._Auto, typeMetadata.DefaultConstructor.Value, false, false));
+            return this.bindingFactory.TryCreateSingleParameter(new BindingRegistration((type, typeMetadata), type, Scope._Auto, defaultConstructor, false, false));
         }
 
         if (type is DefiniteClosedGenericType definiteBoundGenericType2)
@@ -91,7 +92,7 @@ internal sealed class BindingResolver
             {
                 var genericTypeDefinitionBinding = resolvedGenericBindings.First();
                 var selectedUnboundGenericType = genericTypeDefinitionBinding.TargetType;
-                var definiteBoundGenericTargetType = selectedUnboundGenericType.ToDefiniteBoundGenericType(definiteBoundGenericType2.TypeArguments);
+                var definiteBoundGenericTargetType = selectedUnboundGenericType.ToDefiniteClosedGenericType(definiteBoundGenericType2.TypeArguments);
                 if (!this.resolvedBindingsCache.TryGet(definiteBoundGenericTargetType.Id, out var resolvedBinding))
                 {
                     return this.bindingFactory.TryCreateGenericSingleParameter(type, definiteBoundGenericTargetType, genericTypeDefinitionBinding);
@@ -101,11 +102,11 @@ internal sealed class BindingResolver
             }
         }
 
-        if (typeMetadata.ImplementsIEnumerable)
+        if (typeMetadata.EnumerableMetadata.ImplementsIEnumerable)
         {
             if (type is DefiniteArrayType definiteArrayType)
             {
-                var resolvedBinding = this.ResolveMultiItemBinding(definiteArrayType.ElementType, type);
+                var resolvedBinding = this.ResolveMultiItemBinding(definiteArrayType, definiteArrayType.ElementType, true);
                 if (resolvedBinding != null)
                 {
                     return resolvedBinding;
@@ -113,25 +114,41 @@ internal sealed class BindingResolver
             }
             else if (type is ArrayType arrayType)
             {
-                var resolvedBinding = this.ResolveMultiItemBinding(arrayType.ElementType, type);
+                var resolveArrayElementResult = this.typeResolver.ResolveType(arrayType.ElementType);
+                if (!resolveArrayElementResult.IsSuccess)
+                {
+                    return ResolvedBinding._Error(new BindingError.FailedResolveError(resolveArrayElementResult.Error));
+                }
+
+                var definiteArrayType2 = new DefiniteArrayType(resolveArrayElementResult.Value);
+                var resolvedBinding = this.ResolveMultiItemBinding(definiteArrayType2, resolveArrayElementResult.Value, true);
                 if (resolvedBinding != null)
                 {
                     return resolvedBinding;
                 }
             }
-            else if (type is ClosedGenericType definiteBoundGenericType)
+            else if (type is ClosedGenericType closedGenericType
+                     && typeMetadata.EnumerableMetadata.IsArrayCompatible
+                     && closedGenericType.TypeArguments.TryGetOnlyOne(out var itemTypeArgument))
             {
-                var firstTypeArgumentType = definiteBoundGenericType.TypeArguments.First().Type;
-                var resolvedBinding = this.ResolveMultiItemBinding(firstTypeArgumentType, type);
+                var resolveElementResult = this.typeResolver.ResolveType(itemTypeArgument.Type);
+                if (!resolveElementResult.IsSuccess)
+                {
+                    return ResolvedBinding._Error(new BindingError.FailedResolveError(resolveElementResult.Error));
+                }
+
+                var definiteClosedGenericType2 = closedGenericType.ToOpenGenericType().ToDefiniteClosedGenericType(ImmutableArray.Create(new DefiniteTypeArgument(resolveElementResult.Value, itemTypeArgument.TypeMetadata)));
+                var resolvedBinding = this.ResolveMultiItemBinding(definiteClosedGenericType2, resolveElementResult.Value, typeMetadata.EnumerableMetadata.IsArrayRequired);
                 if (resolvedBinding != null)
                 {
                     return resolvedBinding;
                 }
             }
-            else if (type is DefiniteClosedGenericType definiteBoundGenericTypeEnumerable)
+            else if (type is DefiniteClosedGenericType definiteBoundGenericTypeEnumerable
+                     && typeMetadata.EnumerableMetadata.IsArrayCompatible
+                     && definiteBoundGenericTypeEnumerable.TypeArguments.TryGetOnlyOne(out var definiteItemTypeArgument))
             {
-                var firstTypeArgumentType = definiteBoundGenericTypeEnumerable.TypeArguments.First().Type;
-                var resolvedBinding = this.ResolveMultiItemBinding(firstTypeArgumentType, definiteBoundGenericTypeEnumerable);
+                var resolvedBinding = this.ResolveMultiItemBinding(definiteBoundGenericTypeEnumerable, definiteItemTypeArgument.Type, typeMetadata.EnumerableMetadata.IsArrayRequired);
                 if (resolvedBinding != null)
                 {
                     return resolvedBinding;
@@ -210,34 +227,26 @@ internal sealed class BindingResolver
         return (factoryType, factoryInterfaceType);
     }
 
-    private ResolvedBinding? ResolveMultiItemBinding(Type firstTypeArgumentType, Type parameterType)
+    private ResolvedBinding? ResolveMultiItemBinding(
+        DefiniteType parameterType,
+        DefiniteType itemType,
+        bool isArrayRequired)
     {
-        var elementTypeLookupResult = this.typeResolver.ResolveType(firstTypeArgumentType);
-        if (!elementTypeLookupResult.IsSuccess)
-        {
-            return ResolvedBinding._Error(new BindingError.FailedResolveError(elementTypeLookupResult.Error));
-        }
-
-        return this.ResolveMultiItemBinding(elementTypeLookupResult.Value, parameterType);
-    }
-
-    private ResolvedBinding? ResolveMultiItemBinding(DefiniteType firstTypeArgumentType, Type parameterType)
-    {
-        var firstTypeArgumentTypeId = firstTypeArgumentType.Id;
+        var firstTypeArgumentTypeId = itemType.Id;
         if (this.bindingsCache.TryGet(firstTypeArgumentTypeId, out var bindings))
         {
-            return this.bindingFactory.CreateMultiItemParameter(parameterType, firstTypeArgumentType, bindings);
+            return this.bindingFactory.CreateMultiItemParameter(parameterType, itemType, bindings, isArrayRequired);
         }
 
-        if (this.bindingRegistrations.TryGetValue(firstTypeArgumentTypeId, out var resolvedBindingRegistrationsForArray))
+        if (this.bindingRegistrations.TryGetValue(firstTypeArgumentTypeId, out var resolvedBindingRegistrations))
         {
-            return this.bindingFactory.TryCreateMultiItemParameter(parameterType, firstTypeArgumentType, resolvedBindingRegistrationsForArray);
+            return this.bindingFactory.TryCreateMultiItemParameter(parameterType, itemType, resolvedBindingRegistrations, isArrayRequired);
         }
 
-        return null;
+        return default;
     }
 
-    private ResolvedBinding ResolveParameter(DefiniteType definiteType, TypeMetadata typeMetadata, O<(string Name, ParameterNecessity Necessity)> parameterOption)
+    private ResolvedBinding ResolveParameter(DefiniteType definiteType, TypeMetadata typeMetadata, (string Name, ParameterNecessity Necessity)? parameterOption)
     {
         if (!parameterOption.HasValue)
         {
@@ -246,19 +255,19 @@ internal sealed class BindingResolver
 
         return parameterOption.Value.Necessity switch
         {
-            ParameterNecessity.Optional optional => EvaluateParameter(definiteType, typeMetadata, O.Some(optional)),
-            ParameterNecessity.Required => EvaluateParameter(definiteType, typeMetadata, O.None),
+            ParameterNecessity.Optional optional => EvaluateParameter(definiteType, typeMetadata, optional),
+            ParameterNecessity.Required => EvaluateParameter(definiteType, typeMetadata, null),
         };
 
-        ResolvedBinding EvaluateParameter(DefiniteType definiteType, TypeMetadata typeMetadata, O<ParameterNecessity.Optional> optionalOption)
+        ResolvedBinding EvaluateParameter(DefiniteType definiteType, TypeMetadata typeMetadata, ParameterNecessity.Optional? optionalOption)
         {
             var parameterName = parameterOption.Value.Name;
             var resolvedParameterSource = this.requiredParametersInjectionResolver.ResolveParameterSource(definiteType, parameterName);
             return resolvedParameterSource switch
             {
                 Found found => ResolvedBinding.ExternalParameter(definiteType, typeMetadata, found.ParameterSource),
-                NotFound notFound => optionalOption.HasValue ? ResolvedBinding.DefaultParameter(optionalOption.Value.DefaultValue, definiteType, typeMetadata) : ResolvedBinding.ExternalParameter(definiteType, typeMetadata, notFound.ProposedParameterSource),
-                NoExactMatch noExactMatch => optionalOption.HasValue ? ResolvedBinding.DefaultParameter(optionalOption.Value.DefaultValue, definiteType, typeMetadata) : ResolvedBinding._ParameterError(definiteType, parameterName, noExactMatch.ParameterSources),
+                NotFound notFound => optionalOption.HasValue() ? ResolvedBinding.DefaultParameter(optionalOption.DefaultValue, definiteType, typeMetadata) : ResolvedBinding.ExternalParameter(definiteType, typeMetadata, notFound.ProposedParameterSource),
+                NoExactMatch noExactMatch => optionalOption.HasValue() ? ResolvedBinding.DefaultParameter(optionalOption.DefaultValue, definiteType, typeMetadata) : ResolvedBinding._ParameterError(definiteType, parameterName, noExactMatch.ParameterSources),
             };
         }
     }

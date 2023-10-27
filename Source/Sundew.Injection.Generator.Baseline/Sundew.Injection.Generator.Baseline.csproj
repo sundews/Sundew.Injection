@@ -34,7 +34,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Packaging.Publish" Version="8.2.2">
+    <PackageReference Include="Sundew.Packaging.Publish" Version="8.2.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -56,13 +56,13 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Features" Version="4.4.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="4.4.0" />
-    <PackageReference Include="Sundew.Base.Collections" Version="11.0.0-u20231008-215545-ci" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Primitives" Version="11.0.0-u20231008-215545-ci" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Equality" Version="11.0.0-u20231008-215545-ci" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Memory" Version="11.0.0-u20231008-215545-ci" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Reporting" Version="11.0.0-u20231008-215545-ci" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Text" Version="11.0.0-u20231008-215545-ci" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.DiscriminatedUnions" Version="5.0.0" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Collections" Version="11.0.0-u20231027-015343-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Primitives" Version="11.0.0-u20231027-015343-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Equality" Version="11.0.0-u20231027-015343-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Memory" Version="11.0.0-u20231027-015343-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Reporting" Version="11.0.0-u20231027-015343-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Text" Version="11.0.0-u20231027-015343-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.DiscriminatedUnions" Version="5.1.0-u20231016-124505-ci" GeneratePathProperty="true" PrivateAssets="all" />
   </ItemGroup>
 
   <PropertyGroup>

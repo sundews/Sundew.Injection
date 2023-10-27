@@ -38,7 +38,12 @@ internal static class FactoryDataProvider
         {
             var requiredParametersInjectionResolver = new RequiredParametersInjectionResolver(
                 injectionDefinition.RequiredParameterInjection, injectionDefinition.RequiredParameters);
-            var bindingResolver = new BindingResolver(injectionDefinition.BindingRegistrations, injectionDefinition.GenericBindingRegistrations, requiredParametersInjectionResolver, ImmutableArray.Create(compilationData.LifecycleHandlerBinding));
+            var bindingResolver = new BindingResolver(
+                injectionDefinition.BindingRegistrations,
+                injectionDefinition.GenericBindingRegistrations,
+                requiredParametersInjectionResolver,
+                ImmutableArray.Create(compilationData.LifecycleHandlerBinding),
+                new KnownEnumerableTypes(compilationData.IEnumerableOfTType, compilationData.IReadOnlyListOfTType));
             var scopeResolverBuilder = new ScopeResolverBuilder(bindingResolver);
             foreach (var factoryCreationDefinition in injectionDefinition.FactoryCreationDefinitions)
             {
@@ -70,7 +75,7 @@ internal static class FactoryDataProvider
                         }).ToImmutableList());
                     }
 
-                    var injectionTreeBuilder = new InjectionTreeBuilder(bindingResolver, requiredParametersInjectionResolver, scopeResolverResult.Value, compilationData.IEnumerableOfTType);
+                    var injectionTreeBuilder = new InjectionTreeBuilder(bindingResolver, requiredParametersInjectionResolver, scopeResolverResult.Value);
                     var injectionTreeResult = injectionTreeBuilder.Build(rootBinding, cancellationToken);
                     if (injectionTreeResult.TryGetError(out var injectionErrors))
                     {
@@ -139,7 +144,7 @@ internal static class FactoryDataProvider
         }
     }
 
-    private static R<O<InjectionTree>, ImmutableList<Diagnostic>> TryCreateLifecycleInjectionNode(
+    private static R<InjectionTree?, ImmutableList<Diagnostic>> TryCreateLifecycleInjectionNode(
         bool needsLifecycleHandling,
         CompilationData compilationData,
         ScopeResolverBuilder scopeResolverBuilder,
@@ -163,17 +168,17 @@ internal static class FactoryDataProvider
                 }).Select(GetDiagnostic).ToImmutableList());
             }
 
-            var injectionTreeBuilder = new InjectionTreeBuilder(bindingResolver, requiredParametersInjectionResolver, scopeResolverResult.Value, compilationData.IEnumerableOfTType);
+            var injectionTreeBuilder = new InjectionTreeBuilder(bindingResolver, requiredParametersInjectionResolver, scopeResolverResult.Value);
             var injectionTreeResult = injectionTreeBuilder.Build(rootBinding, cancellationToken);
             if (injectionTreeResult.TryGetError(out var injectionStageErrors))
             {
                 return R.Error(injectionStageErrors.Select(GetDiagnostic).ToImmutableList());
             }
 
-            return R.Success(O.Some(injectionTreeResult.Value));
+            return injectionTreeResult.Value.ToSuccessOption();
         }
 
-        return R.Success(O.None.For<InjectionTree>());
+        return R.Success();
     }
 
     private static Diagnostic GetDiagnostic(InjectionStageError injectionStageErrors)

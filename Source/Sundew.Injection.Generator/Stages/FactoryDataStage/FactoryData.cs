@@ -8,7 +8,6 @@
 namespace Sundew.Injection.Generator.Stages.FactoryDataStage;
 
 using Sundew.Base.Collections.Immutable;
-using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed record FactoryData(
@@ -17,6 +16,6 @@ internal sealed record FactoryData(
     bool GenerateInterface,
     Accessibility Accessibility,
     bool NeedsLifecycleHandling,
-    O<InjectionTree> LifecycleHandlingInjectionTree,
+    InjectionTree? LifecycleHandlingInjectionTree,
     ValueList<FactoryMethodData> FactoryMethodInfos,
     bool GenerateTypeResolver);

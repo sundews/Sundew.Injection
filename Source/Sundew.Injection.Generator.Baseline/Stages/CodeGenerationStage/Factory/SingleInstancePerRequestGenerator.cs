@@ -9,6 +9,7 @@ namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory;
 
 using System.Collections.Immutable;
 using System.Linq;
+using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.Syntax;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Syntax;
@@ -71,10 +72,10 @@ internal class SingleInstancePerRequestGenerator
                 factoryMethods,
                 (methodParameters, factoryMethods) => FactoryMethodHelper.GenerateFactoryMethod(factoryMethods, targetReferenceType, methodParameters, singleInstancePerRequestInjectionNode.CreationSource, factoryNode.Arguments),
                 factoryMethods => (factoryMethods, new CreationExpression(singleInstancePerRequestInjectionNode.CreationSource, factoryNode.Arguments)));
-            if (singleInstancePerRequestInjectionNode.ParameterNodeOption.HasValue)
+            if (singleInstancePerRequestInjectionNode.ParameterNodeOption.TryGetValue(out var parameterNode))
             {
                 var (parameterDeclarations, _, parameter, argument) = ParameterHelper.VisitParameter(
-                    singleInstancePerRequestInjectionNode.ParameterNodeOption.Value,
+                    parameterNode,
                     variableDeclaration.Name,
                     factoryMethodParameters,
                     factoryImplementation.Constructor.Parameters,

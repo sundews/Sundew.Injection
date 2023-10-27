@@ -70,4 +70,14 @@ public static class KnownTypesProvider
     {
         return R.From(compilation.GetTypeByMetadataName(typeof(Sundew.Injection.Constructed<>).FullName), () => "Constructed<> was not found");
     }
+
+    public static R<INamedTypeSymbol, string> GetIEnumerableOfT(this Compilation compilation)
+    {
+        return R.From(compilation.GetTypeByMetadataName(typeof(System.Collections.Generic.IEnumerable<>).FullName), () => "IEnumerable<> was not found");
+    }
+
+    public static R<INamedTypeSymbol, string> GetIReadOnlyListOfT(this Compilation compilation)
+    {
+        return R.From(compilation.GetTypeByMetadataName(typeof(System.Collections.Generic.IReadOnlyList<>).FullName), () => "IReadOnlyList<> was not found");
+    }
 }

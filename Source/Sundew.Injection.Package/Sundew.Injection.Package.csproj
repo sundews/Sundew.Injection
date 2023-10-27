@@ -34,7 +34,7 @@
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" version="7.0.0" GeneratePathProperty="true" PrivateAssets="all" />
     <PackageReference Include="Disposal.Interfaces" Version="1.0.0" />
     <PackageReference Include="Initialization.Interfaces" Version="1.0.1" />
-    <PackageReference Include="Sundew.Packaging.Publish" Version="8.2.2">
+    <PackageReference Include="Sundew.Packaging.Publish" Version="8.2.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

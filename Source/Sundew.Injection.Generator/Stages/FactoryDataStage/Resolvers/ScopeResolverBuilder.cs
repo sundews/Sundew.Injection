@@ -100,12 +100,12 @@ internal sealed class ScopeResolverBuilder
             var scope = this.UpdateScope(binding, dependeeScope);
             if (binding.Method.Kind is MethodKind.Instance instance)
             {
-                this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(binding.Method.ContainingType, instance.ContainingTypeMetadata, O.None), scope, errors);
+                this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(binding.Method.ContainingType, instance.ContainingTypeMetadata, null), scope, errors);
             }
 
             foreach (var parameter in binding.Method.Parameters)
             {
-                this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(parameter.Type, parameter.TypeMetadata, O.Some((parameter.Name, parameter.ParameterNecessity))), scope, errors);
+                this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(parameter.Type, parameter.TypeMetadata, (parameter.Name, parameter.ParameterNecessity)), scope, errors);
             }
         }
 
@@ -114,7 +114,7 @@ internal sealed class ScopeResolverBuilder
             case SingleParameter singleParameter:
                 if (singleParameter.Binding.Method.Kind is MethodKind.Instance instance)
                 {
-                    this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(singleParameter.Binding.Method.ContainingType, instance.ContainingTypeMetadata, O.None), dependeeScope, errors);
+                    this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(singleParameter.Binding.Method.ContainingType, instance.ContainingTypeMetadata, null), dependeeScope, errors);
 
                     this.UpdateScope(singleParameter.Binding.Method.ContainingType, dependeeScope);
                 }
@@ -127,7 +127,7 @@ internal sealed class ScopeResolverBuilder
                     PickBindingScope(binding, dependeeScope);
                 }
 
-                this.UpdateScope(multiItemParameter.EnumerableType, dependeeScope);
+                this.UpdateScope(multiItemParameter.Type, dependeeScope);
 
                 break;
             case DefaultParameter defaultParameter:

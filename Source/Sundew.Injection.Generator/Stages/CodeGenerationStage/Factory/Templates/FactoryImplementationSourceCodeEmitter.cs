@@ -190,7 +190,8 @@ internal static class FactoryImplementationSourceCodeEmitter
                 break;
             case LocalFunctionStatement localFunctionStatement:
                 stringBuilder.AppendLine()
-                    .Append(' ', indentation).Append(Trivia.Static).Append(' ').AppendFullyQualifiedType(localFunctionStatement.ReturnType).Append(' ').Append(localFunctionStatement.Name)
+                    .Append(' ', indentation)
+                    .If(localFunctionStatement.IsStatic, x => x.Append(Trivia.Static)).Append(' ').AppendFullyQualifiedType(localFunctionStatement.ReturnType).Append(' ').Append(localFunctionStatement.Name)
                     .Append('(').AppendParameters(localFunctionStatement.Parameters, options.AreNullableAnnotationsSupported, 0).Append(')')
                     .AppendLine()
                     .Append(' ', indentation).Append('{')
@@ -209,7 +210,6 @@ internal static class FactoryImplementationSourceCodeEmitter
 
     private static StringBuilder AppendExpression(this StringBuilder stringBuilder, Expression expression, int indentation, FormattingOptions formattingOptions)
     {
-        var newIndentation = indentation + 4;
         switch (expression)
         {
             case AssignmentExpression assignmentExpression:
@@ -220,6 +220,61 @@ internal static class FactoryImplementationSourceCodeEmitter
             case AwaitExpression awaitExpression:
                 stringBuilder.Append(Trivia.Await).Append(' ').AppendExpression(awaitExpression.Expression, indentation, formattingOptions);
                 break;
+            case CreationExpression creationExpression:
+                stringBuilder.AppendCreationExpression(creationExpression, indentation, formattingOptions);
+                break;
+            case FuncInvocationExpression funcInvocationExpression:
+                stringBuilder.AppendExpression(funcInvocationExpression.DelegateAccessor, indentation, formattingOptions)
+                    .If(
+                        funcInvocationExpression.IsNullable,
+                        x => x.Append('?'))
+                    .Append('.')
+                    .Append(Trivia.InvokeCall);
+                break;
+            case Identifier identifier:
+                stringBuilder.Append(identifier.Name);
+                break;
+            case IndexerAccess indexerAccess:
+                stringBuilder.AppendExpression(indexerAccess.Source, indentation, formattingOptions).Append('[').Append(indexerAccess.Index).Append(']');
+                break;
+            case InvocationExpression invocationExpression:
+                stringBuilder.AppendExpression(invocationExpression.Expression, indentation, formattingOptions).Append('(').AppendArguments(invocationExpression.Arguments, indentation + 4, formattingOptions).Append(')');
+                break;
+            case MemberAccessExpression memberAccessExpression:
+                stringBuilder.AppendExpression(memberAccessExpression.Expression, indentation, formattingOptions).Append('.').Append(memberAccessExpression.Name);
+                break;
+            case NullCoalescingOperatorExpression nullCoalescingOperatorExpression:
+                stringBuilder.AppendExpression(nullCoalescingOperatorExpression.Lhs, indentation, formattingOptions).Append(' ').Append(Trivia.NullCoalescing).Append(' ').AppendExpression(nullCoalescingOperatorExpression.Rhs, indentation, formattingOptions);
+                break;
+            case Lambda lambda:
+                stringBuilder.Append('(')
+                    .AppendItems(lambda.Parameters, (builder, expression1) => builder.AppendExpression(expression1, indentation, formattingOptions), Trivia.ListSeparator)
+                    .Append(')')
+                    .Append(' ')
+                    .Append(Trivia.LambdaArrow)
+                    .Append(' ')
+                    .AppendExpression(lambda.Expression, indentation, formattingOptions);
+                break;
+            case TypeOf typeOf:
+                stringBuilder.Append(Trivia.TypeOf).Append('(').AppendFullyQualifiedType(typeOf.Type).Append(')');
+                break;
+            case Cast cast:
+                stringBuilder.Append('(')
+                    .AppendFullyQualifiedType(cast.TargetType.Type)
+                    .If(cast.TargetType.CanHaveDefaultValue && !cast.TargetType.Type.IsValueType, builder => builder.Append('?'))
+                    .Append(')')
+                    .AppendExpression(cast.Source, 0, formattingOptions);
+                break;
+        }
+
+        return stringBuilder;
+    }
+
+    private static StringBuilder AppendCreationExpression(this StringBuilder stringBuilder, CreationExpression expression, int indentation, FormattingOptions formattingOptions)
+    {
+        var newIndentation = indentation + 4;
+        switch (expression)
+        {
             case CreationExpression.Array arrayCreation:
 
                 stringBuilder.Append(Trivia.New)
@@ -271,51 +326,8 @@ internal static class FactoryImplementationSourceCodeEmitter
             case CreationExpression.DefaultValue defaultValue:
                 stringBuilder.Append(Trivia.Default).Append('(').AppendFullyQualifiedType(defaultValue.Type).Append(')');
                 break;
-            case FuncInvocationExpression funcInvocationExpression:
-                stringBuilder.AppendExpression(funcInvocationExpression.DelegateAccessor, indentation, formattingOptions)
-                    .If(
-                        funcInvocationExpression.IsNullable,
-                        x => x.Append('?'))
-                    .Append('.')
-                    .Append(Trivia.InvokeCall);
-                break;
-            case Identifier identifier:
-                stringBuilder.Append(identifier.Name);
-                break;
-            case IndexerAccess indexerAccess:
-                stringBuilder.AppendExpression(indexerAccess.Source, indentation, formattingOptions).Append('[').Append(indexerAccess.Index).Append(']');
-                break;
-            case InvocationExpression invocationExpression:
-                stringBuilder.AppendExpression(invocationExpression.Expression, indentation, formattingOptions).Append('(').AppendArguments(invocationExpression.Arguments, indentation + 4, formattingOptions).Append(')');
-                break;
-
             case Literal literal:
                 stringBuilder.Append(literal.Value);
-                break;
-            case MemberAccessExpression memberAccessExpression:
-                stringBuilder.AppendExpression(memberAccessExpression.Expression, indentation, formattingOptions).Append('.').Append(memberAccessExpression.Name);
-                break;
-            case NullCoalescingOperatorExpression nullCoalescingOperatorExpression:
-                stringBuilder.AppendExpression(nullCoalescingOperatorExpression.Lhs, indentation, formattingOptions).Append(' ').Append(Trivia.NullCoalescing).Append(' ').AppendExpression(nullCoalescingOperatorExpression.Rhs, indentation, formattingOptions);
-                break;
-            case Lambda lambda:
-                stringBuilder.Append('(')
-                    .AppendItems(lambda.Parameters, (builder, expression1) => builder.AppendExpression(expression1, indentation, formattingOptions), Trivia.ListSeparator)
-                    .Append(')')
-                    .Append(' ')
-                    .Append(Trivia.LambdaArrow)
-                    .Append(' ')
-                    .AppendExpression(lambda.Expression, indentation, formattingOptions);
-                break;
-            case TypeOf typeOf:
-                stringBuilder.Append(Trivia.TypeOf).Append('(').AppendFullyQualifiedType(typeOf.Type).Append(')');
-                break;
-            case Cast cast:
-                stringBuilder.Append('(')
-                    .AppendFullyQualifiedType(cast.TargetType.Type)
-                    .If(cast.TargetType.CanHaveDefaultValue && !cast.TargetType.Type.IsValueType, builder => builder.Append('?'))
-                    .Append(')')
-                    .AppendExpression(cast.Source, 0, formattingOptions);
                 break;
         }
 

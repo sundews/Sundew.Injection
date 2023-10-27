@@ -28,7 +28,7 @@ internal sealed class TypeResolver
         return type switch
         {
             ArrayType arrayType => this.ResolveArrayType(arrayType),
-            ClosedGenericType boundGenericType => this.ResolveBoundGenericType(boundGenericType),
+            ClosedGenericType boundGenericType => this.ResolveClosedGenericType(boundGenericType),
             NamedType namedType => R.Success<DefiniteType>(namedType),
             NestedType nestedType => this.ResolveNestedType(nestedType),
             ErrorType errorType => this.TryResolveErrorType(errorType),
@@ -51,7 +51,7 @@ internal sealed class TypeResolver
         return new FailedResolve(nestedType, failed.GetErrors()).ToError();
     }
 
-    private R<DefiniteType, FailedResolve> ResolveBoundGenericType(ClosedGenericType closedGenericType)
+    private R<DefiniteType, FailedResolve> ResolveClosedGenericType(ClosedGenericType closedGenericType)
     {
         var result = closedGenericType.TypeArguments.AllOrFailed(argument =>
         {
@@ -68,13 +68,7 @@ internal sealed class TypeResolver
 
     private R<DefiniteType, FailedResolve> ResolveArrayType(ArrayType arrayType)
     {
-        var result = this.ResolveType(arrayType.ElementType);
-        if (result.IsSuccess)
-        {
-            return new DefiniteArrayType(result.Value).ToSuccess<DefiniteType>();
-        }
-
-        return result;
+        return this.ResolveType(arrayType.ElementType).WithValue(DefiniteType.DefiniteArrayType);
     }
 
     private R<DefiniteType, FailedResolve> TryResolveErrorType(ErrorType errorType)

@@ -21,4 +21,4 @@ internal sealed record SingleParameter(Binding Binding) : ResolvedBinding;
 
 internal sealed record DefaultParameter(object? Literal, DefiniteType Type, TypeMetadata TypeMetadata) : ResolvedBinding;
 
-internal sealed record MultiItemParameter(DefiniteArrayType EnumerableType, IReadOnlyList<Binding> Bindings) : ResolvedBinding;
+internal sealed record MultiItemParameter(DefiniteType Type, DefiniteType ElementType, IReadOnlyList<Binding> Bindings) : ResolvedBinding;

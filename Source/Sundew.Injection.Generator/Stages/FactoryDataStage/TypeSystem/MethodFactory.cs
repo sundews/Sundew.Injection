@@ -51,7 +51,7 @@ internal sealed class MethodFactory
             var lookupResult = openGenericType.TypeParameters.AllOrFailed(x => LookupTypeParameter(x, x.Name, typeParameterDictionary));
             if (lookupResult.IsSuccess)
             {
-                return Item.Pass(new DefiniteParameter(openGenericType.ToDefiniteBoundGenericType(lookupResult.Value.Items.Select(x => new DefiniteTypeArgument(x.Type, x.TypeMetadata)).ToValueArray()), parameterName, typeMetadata, ParameterNecessity._Required));
+                return Item.Pass(new DefiniteParameter(openGenericType.ToDefiniteClosedGenericType(lookupResult.Value.Items.Select(x => new DefiniteTypeArgument(x.Type, x.TypeMetadata)).ToValueArray()), parameterName, typeMetadata, ParameterNecessity._Required));
             }
 
             return Item.Fail<DefiniteParameter, Symbol>(openGenericType);
@@ -70,7 +70,7 @@ internal sealed class MethodFactory
             {
                 var resolveTypeResult = typeResolver.ResolveType(definiteTypeArgument.Type);
                 return resolveTypeResult.IsSuccess
-                    ? Item.Pass(new DefiniteParameter(new DefiniteArrayType(resolveTypeResult.Value), parameterName, new TypeMetadata(null, true, false), ParameterNecessity._Required))
+                    ? Item.Pass(new DefiniteParameter(new DefiniteArrayType(resolveTypeResult.Value), parameterName, new TypeMetadata(null, new EnumerableMetadata(true, true, true), false), ParameterNecessity._Required))
                     : Item.Fail<DefiniteParameter, Symbol>(typeParameterArray);
             }
 
@@ -146,7 +146,7 @@ internal sealed class MethodFactory
     {
         return containeeType switch
         {
-            ContaineeType.GenericType genericType => genericType.ToDefiniteBoundGenericType(typeArguments),
+            ContaineeType.GenericType genericType => genericType.ToDefiniteClosedGenericType(typeArguments),
             ContaineeType.NamedType namedType => DefiniteType.NamedType(namedType.Name, namedType.Namespace, namedType.AssemblyName, namedType.IsValueType),
         };
     }

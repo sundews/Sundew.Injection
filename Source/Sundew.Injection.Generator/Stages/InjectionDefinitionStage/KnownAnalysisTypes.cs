@@ -29,7 +29,9 @@ public sealed class KnownAnalysisTypes : IKnownInjectableTypes
         INamedTypeSymbol injectionBuilderType,
         INamedTypeSymbol factoryMethodSelectorTypeSymbol,
         INamedTypeSymbol createMethodSelectorTypeSymbol,
-        INamedTypeSymbol constructedTypeSymbol)
+        INamedTypeSymbol constructedTypeSymbol,
+        INamedTypeSymbol readonlyListTypeSymbol,
+        INamedTypeSymbol enumerableOfTTypeSymbol)
     {
         this.FuncTypeSymbol = funcTypeSymbol;
         this.IEnumerableTypeSymbol = enumerableTypeSymbol;
@@ -42,6 +44,8 @@ public sealed class KnownAnalysisTypes : IKnownInjectableTypes
         this.FactoryMethodSelectorTypeSymbol = factoryMethodSelectorTypeSymbol;
         this.CreateMethodSelectorTypeSymbol = createMethodSelectorTypeSymbol;
         this.ConstructedTypeSymbol = constructedTypeSymbol;
+        this.IReadOnlyListOfTTypeSymbol = readonlyListTypeSymbol;
+        this.IEnumerableOfTTypeSymbol = enumerableOfTTypeSymbol;
     }
 
     public INamedTypeSymbol FuncTypeSymbol { get; }
@@ -55,6 +59,10 @@ public sealed class KnownAnalysisTypes : IKnownInjectableTypes
     public INamedTypeSymbol IInitializableTypeSymbol { get; }
 
     public INamedTypeSymbol IAsyncInitializableTypeSymbol { get; }
+
+    public INamedTypeSymbol IReadOnlyListOfTTypeSymbol { get; }
+
+    public INamedTypeSymbol IEnumerableOfTTypeSymbol { get; }
 
     public INamedTypeSymbol InjectionDeclarationType { get; }
 
@@ -80,12 +88,16 @@ public sealed class KnownAnalysisTypes : IKnownInjectableTypes
             R.From(compilation.GetTypeByMetadataName(typeof(IFactoryMethodSelector).FullName), () => "IFactoryMethodSelector was not found, Sundew.Injection must be referenced"),
             R.From(compilation.GetTypeByMetadataName(typeof(ICreateMethodSelector<>).FullName), () => "ICreateMethodSelector was not found, Sundew.Injection must be referenced"),
             compilation.GetConstructed(),
+            compilation.GetIReadOnlyListOfT(),
+            compilation.GetIEnumerableOfT(),
         }.AllOrFailed();
 
         if (requiredTypes.TryGet(out var all, out var errors))
         {
             var index = 0;
             return R.Success(new KnownAnalysisTypes(
+                all[index++],
+                all[index++],
                 all[index++],
                 all[index++],
                 all[index++],

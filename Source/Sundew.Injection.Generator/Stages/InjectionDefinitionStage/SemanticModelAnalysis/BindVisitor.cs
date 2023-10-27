@@ -82,10 +82,10 @@ internal class BindVisitor : CSharpSyntaxWalker
         var interfaceTypes = typeArguments.Take(typeArguments.Length - 1).Select(this.analysisContext.TypeFactory.CreateType).ToImmutableArray();
         var implementationType = this.analysisContext.TypeFactory.CreateType(typeArguments.Last());
 
-        var actualMethod = constructorSelector.ToOption().Or(() => implementationType.TypeMetadata.DefaultConstructor);
-        if (actualMethod.HasValue)
+        var actualMethodOption = constructorSelector.Or(() => implementationType.TypeMetadata.DefaultConstructor);
+        if (actualMethodOption.TryGetValue(out var actualMethod))
         {
-            this.analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(interfaceTypes, implementationType, actualMethod.Value, scope, isInjectable, isNewOverridable);
+            this.analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(interfaceTypes, implementationType, actualMethod, scope, isInjectable, isNewOverridable);
             return;
         }
 

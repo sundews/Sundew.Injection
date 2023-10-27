@@ -64,8 +64,7 @@ internal sealed class NewInstanceGenerator
 
         var variables = factoryNode.CreateMethod.Variables;
         var statements = factoryNode.CreateMethod.Statements;
-        var variableDeclarationOption = O.From(
-            newInstanceInjectionNode.NeedsLifecycleHandling || newInstanceInjectionNode.ParameterNodeOption.HasValue,
+        var variableDeclarationOption = (newInstanceInjectionNode.NeedsLifecycleHandling || newInstanceInjectionNode.ParameterNodeOption.HasValue()).ToOptionalValue(
             () =>
             {
                 var variableName = NameHelper.GetDependeeScopedName(newInstanceInjectionNode);
@@ -76,7 +75,7 @@ internal sealed class NewInstanceGenerator
             });
 
         var factoryMethodParameters = factoryNode.CreateMethod.Parameters;
-        if (newInstanceInjectionNode.ParameterNodeOption.TryGetValue(out var parameterNode))
+        if (newInstanceInjectionNode.ParameterNodeOption.TryGetValue(out var parameterNode) && variableDeclarationOption.TryGetValue(out var variableDeclaration))
         {
             var (parameterDeclarations, _, parameter, argument, _) = ParameterHelper.VisitParameter(
                 parameterNode,
@@ -84,7 +83,7 @@ internal sealed class NewInstanceGenerator
                 factoryMethodParameters,
                 factoryImplementation.Constructor.Parameters,
                 this.generatorContext.CompilationData);
-            var (newVariables, _, declaration) = variableDeclarationOption.Value;
+            var (newVariables, _, declaration) = variableDeclaration;
             variables = newVariables;
             var localDeclarationStatement = new LocalDeclarationStatement(declaration.Name, new NullCoalescingOperatorExpression(argument, creationExpression));
             statements = statements.Add(localDeclarationStatement);

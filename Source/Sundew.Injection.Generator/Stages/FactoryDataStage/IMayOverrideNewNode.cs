@@ -8,7 +8,6 @@
 namespace Sundew.Injection.Generator.Stages.FactoryDataStage;
 
 using Sundew.Base.Collections.Immutable;
-using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal interface IMayOverrideNewNode
@@ -17,5 +16,5 @@ internal interface IMayOverrideNewNode
 
     CreationSource CreationSource { get; }
 
-    O<ValueArray<DefiniteParameter>> OverridableNewParametersOption { get; }
+    ValueArray<DefiniteParameter>? OverridableNewParametersOption { get; }
 }

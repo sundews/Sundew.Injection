@@ -24,6 +24,7 @@ using Type = System.Type;
 
 internal static class CompilationDataProvider
 {
+    private const string ObjectName = "object";
     private static readonly NamedType VoidType = new("void", string.Empty, string.Empty, true);
     private static readonly NamedType ValueTaskType = new("ValueTask", "System.Threading.Tasks", string.Empty, true);
 
@@ -48,6 +49,8 @@ internal static class CompilationDataProvider
             compilation.GetLifecycleHandler(),
             compilation.GetTypeResolverBinarySearch(),
             compilation.GetTypeResolverLinearSearch(),
+            compilation.GetIEnumerableOfT(),
+            compilation.GetIReadOnlyListOfT(),
         }.AllOrFailed();
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -67,10 +70,12 @@ internal static class CompilationDataProvider
             var lifecycleHandlerTypeSymbol = all[index++];
             var typeResolverBinarySearchTypeSymbol = all[index++];
             var typeResolverLinearSearchTypeSymbol = all[index++];
+            var iEnumerableOfTSymbol = all[index++];
+            var iReadOnlyListOfTSymbol = all[index++];
             var ilifecycleHandlerType = TypeConverter.GetNamedType(ilifecycleHandlerTypeSymbol);
             var lifecycleHandlerType = TypeConverter.GetNamedType(lifecycleHandlerTypeSymbol);
             var lifecycleHandlerConstructor = lifecycleHandlerTypeSymbol.Constructors.FirstOrDefault(x => x.Parameters.Length == 2 && x.DeclaredAccessibility == Accessibility.Public && !x.IsStatic);
-            var defaultMetadata = new TypeMetadata(null, false, false);
+            var defaultMetadata = new TypeMetadata(null, EnumerableMetadata.NonEnumerableMetadata, false);
             var lifecycleHandlerBinding = new Binding(
                 lifecycleHandlerType,
                 lifecycleHandlerType,
@@ -84,7 +89,7 @@ internal static class CompilationDataProvider
                 false,
                 false,
                 false);
-            var objectType = new NamedType("object", string.Empty, string.Empty, false);
+            var objectType = new NamedType(ObjectName, string.Empty, string.Empty, false);
             return R.Success(new CompilationData(
                 areNullableAnnotationsSupported,
                 iInitializableType,
@@ -102,9 +107,10 @@ internal static class CompilationDataProvider
                 GenericTypeConverter.GetGenericType(typeResolverLinearSearchTypeSymbol),
                 GetNamedType(typeof(Type)),
                 objectType,
-                GetGenericType(typeof(Span<>), string.Empty).ToDefiniteBoundGenericType(ImmutableArray.Create(new DefiniteTypeArgument(objectType, new TypeMetadata(O.None, false, false)))),
+                GetGenericType(typeof(Span<>), string.Empty).ToDefiniteClosedGenericType(ImmutableArray.Create(new DefiniteTypeArgument(objectType, new TypeMetadata(null, EnumerableMetadata.NonEnumerableMetadata, false)))),
                 GetGenericType(typeof(Resolver<>), string.Empty),
-                GetUnboundGenericType(typeof(IEnumerable<>), string.Empty),
+                GenericTypeConverter.GetGenericType(iEnumerableOfTSymbol),
+                GenericTypeConverter.GetGenericType(iEnumerableOfTSymbol),
                 compilation.AssemblyName ?? string.Empty));
         }
 

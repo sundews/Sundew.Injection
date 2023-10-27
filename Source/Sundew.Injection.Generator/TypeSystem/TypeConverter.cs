@@ -60,7 +60,8 @@ internal static class TypeConverter
 
     public static ArrayType GetArrayType(IArrayTypeSymbol arrayTypeSymbol, IKnownInjectableTypes knownInjectableTypes)
     {
-        return new ArrayType(GetType(arrayTypeSymbol.ElementType, knownInjectableTypes).Type);
+        var type = GetType(arrayTypeSymbol.ElementType, knownInjectableTypes);
+        return new ArrayType(type.Type);
     }
 
     public static NamedType GetNamedType(INamedTypeSymbol namedTypeSymbol)
@@ -163,7 +164,11 @@ internal static class TypeConverter
 
     public static TypeMetadata GetTypeMetadata(ITypeSymbol typeSymbol, Method? defaultConstructor, IKnownInjectableTypes knownInjectableTypes)
     {
-        return new TypeMetadata(defaultConstructor, typeSymbol.CanBeAssignedTo(knownInjectableTypes.IEnumerableTypeSymbol), HasLifecycle(typeSymbol, knownInjectableTypes));
+        var implementIEnumerable = typeSymbol is IArrayTypeSymbol || typeSymbol.OriginalDefinition.CanBeAssignedTo(knownInjectableTypes.IEnumerableOfTTypeSymbol);
+        var enumerableMetadata = implementIEnumerable
+            ? new EnumerableMetadata(true, GetArrayMetadata(typeSymbol, knownInjectableTypes))
+            : new EnumerableMetadata(false, false, false);
+        return new TypeMetadata(defaultConstructor, enumerableMetadata, HasLifecycle(typeSymbol, knownInjectableTypes));
     }
 
     public static MethodKind GetMethodKind(IMethodSymbol methodSymbol, IKnownInjectableTypes knownInjectableTypes)
@@ -183,6 +188,14 @@ internal static class TypeConverter
                typeSymbol.CanBeAssignedTo(knownInjectableTypes.IDisposableTypeSymbol) ||
                typeSymbol.CanBeAssignedTo(knownInjectableTypes.IAsyncInitializableTypeSymbol) ||
                typeSymbol.CanBeAssignedTo(knownInjectableTypes.IInitializableTypeSymbol);
+    }
+
+    private static (bool IsArrayCompatible, bool IsArrayRequired) GetArrayMetadata(ITypeSymbol typeSymbol, IKnownInjectableTypes knownInjectableTypes)
+    {
+        var originalTypeSymbol = typeSymbol.OriginalDefinition;
+        var isIEnumerable = SymbolEqualityComparer.Default.Equals(originalTypeSymbol, knownInjectableTypes.IEnumerableOfTTypeSymbol);
+        var isReadOnlyList = SymbolEqualityComparer.Default.Equals(originalTypeSymbol, knownInjectableTypes.IReadOnlyListOfTTypeSymbol);
+        return (isReadOnlyList || isIEnumerable, !isIEnumerable);
     }
 
     private static Symbol GetNamedSymbol(INamedTypeSymbol namedTypeSymbol, IKnownInjectableTypes knownInjectableTypes)
