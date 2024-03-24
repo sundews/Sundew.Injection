@@ -10,8 +10,8 @@ namespace Sundew.Injection.Generator;
 using System;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
+using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
-using Sundew.Base.Primitives.Computation;
 using Sundew.Base.Text;
 
 internal static class IncrementalValuesProviderSplitExtensions
@@ -39,5 +39,13 @@ internal static class IncrementalValuesProviderSplitExtensions
         });
         var errorProvider = many.Where(x => !x.IsSuccess).Select((x, c) => x.Error!);
         return (successProvider, errorProvider);
+    }
+
+    public static (IncrementalValuesProvider<TSuccess> SuccessProvider, IncrementalValuesProvider<ValueList<Diagnostic>> ErrorProvider) SegregateByResult<TSuccess>(this IncrementalValuesProvider<ValueArray<R<TSuccess, ValueList<Diagnostic>>>> resultProvider)
+    {
+        var many = resultProvider.SelectMany((x, _) => x);
+        var successProvider = many.Where(x => x.IsSuccess).Select((x, c) => x.Value!);
+        var errorsProvider = many.Where(x => !x.IsSuccess).Select((x, c) => x.Error!);
+        return (successProvider, errorsProvider);
     }
 }

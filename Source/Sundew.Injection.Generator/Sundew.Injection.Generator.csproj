@@ -22,6 +22,9 @@
       <Link>Stages/ProvideDependenciesStage/%(RecursiveDir)%(Filename)%(Extension)</Link>
     </EmbeddedResource>
     <Compile Remove="..\Sundew.Injection.GeneratorDependencies\Resolver.cs" />
+    <EmbeddedResource Remove="..\Sundew.Injection.GeneratorDependencies\Resolver.cs" />
+    <Compile Remove="..\Sundew.Injection.GeneratorDependencies\Resolver.cs" />
+    <Compile Remove="..\Sundew.Injection.GeneratorDependencies\Resolver.cs" />
     <Compile Include="@(GeneratorDependencies)">
       <Link>Stages/ProvideDependenciesStage/%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
@@ -34,7 +37,7 @@
   <ItemGroup>
     <PackageReference Include="ILRepack.Lib.MSBuild" Version="2.1.18" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="PolySharp" Version="1.13.2">
+    <PackageReference Include="PolySharp" Version="1.14.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -42,7 +45,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Packaging.Publish" Version="8.2.3">
+    <PackageReference Include="Sundew.Packaging.Publish" Version="10.0.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -61,25 +64,26 @@
     <PackageReference Include="System.ValueTuple" Version="4.5.0" GeneratePathProperty="true" />
     <PackageReference Include="System.Collections.Immutable" Version="6.0.0" GeneratePathProperty="true" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" version="7.0.0" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Features" Version="4.4.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="4.4.0" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" version="8.0.0" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Features" Version="4.3.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="4.3.1" />
 
-    <PackageReference Include="Disposal.Interfaces" Version="1.0.0" GeneratePathProperty="true" PrivateAssets="All" />
-    <PackageReference Include="Initialization.Interfaces" Version="1.0.1" GeneratePathProperty="true" PrivateAssets="All" />
+    <PackageReference Include="Disposal.Interfaces" Version="1.0.1" GeneratePathProperty="true" PrivateAssets="All" />
+    <PackageReference Include="Initialization.Interfaces" Version="1.0.2" GeneratePathProperty="true" PrivateAssets="All" />
 
-    <PackageReference Include="Sundew.Base.Collections" Version="11.0.0-u20231027-015343-local" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Primitives" Version="11.0.0-u20231027-015343-local" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Equality" Version="11.0.0-u20231027-015343-local" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Memory" Version="11.0.0-u20231027-015343-local" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Reporting" Version="11.0.0-u20231027-015343-local" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Text" Version="11.0.0-u20231027-015343-local" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.DiscriminatedUnions" Version="5.1.0-u20231016-124505-ci" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Collections" Version="12.0.6-u20240112-154618-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Primitives" Version="12.0.6-u20240112-153102-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Equality" Version="12.0.6-u20240112-153102-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Memory" Version="12.0.6-u20240112-153102-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Reporting" Version="12.0.6-u20240112-153102-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Text" Version="12.0.6-u20240112-154618-local" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.DiscriminatedUnions" Version="5.2.7-u20240119-182407-local" GeneratePathProperty="true" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Extensions\" />
+    <Folder Include="Stages\Features\Interception\" />
   </ItemGroup>
 
   <PropertyGroup>

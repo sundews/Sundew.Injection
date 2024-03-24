@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Sundew.Base.Collections;
+using Sundew.Base.Collections.Linq;
 using Sundew.Injection.Generator.Extensions;
 using Sundew.Injection.Generator.TypeSystem;
 

@@ -2,8 +2,8 @@
 
 using System;
 using Microsoft.CodeAnalysis;
+using Sundew.Base.IO;
 using Sundew.Testing.CodeAnalysis;
-using Sundew.Testing.IO;
 using AssemblyReference = Sundew.Testing.CodeAnalysis.AssemblyReference;
 
 public static class TestProjects
@@ -17,30 +17,30 @@ public static class TestProjects
             this.FromEntryAssembly = new Lazy<Compilation>(() =>
             {
                 var project = new CSharpProject(
-                    Paths.FindPathUpwards(path),
+                    Paths.FindPathUpwards(path)!,
                     null,
                     new Paths("bin", "obj"),
                     new References(
-                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("AllFeaturesSuccessDependency.dll")),
-                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Sundew.Injection.dll")),
-                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Microsoft.Bcl.AsyncInterfaces.dll")),
-                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Initialization.Interfaces.dll")),
-                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Disposal.Interfaces.dll"))));
+                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("AllFeaturesSuccessDependency.dll")!),
+                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Sundew.Injection.dll")!),
+                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Microsoft.Bcl.AsyncInterfaces.dll")!),
+                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Initialization.Interfaces.dll")!),
+                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Disposal.Interfaces.dll")!)));
                 return project.Compile();
             });
 
             this.FromCurrentDirectory = new Lazy<Compilation>(() =>
             {
                 var project = new CSharpProject(
-                    Paths.FindPathUpwards(path),
+                    Paths.FindPathUpwards(path)!,
                     null,
                     new Paths("bin", "obj"),
                     new References(
-                        new AssemblyReference(Paths.FindPathUpwards("AllFeaturesSuccessDependency.dll")),
-                        new AssemblyReference(Paths.FindPathUpwards("Sundew.Injection.dll")),
-                        new AssemblyReference(Paths.FindPathUpwards("Microsoft.Bcl.AsyncInterfaces.dll")),
-                        new AssemblyReference(Paths.FindPathUpwards("Initialization.Interfaces.dll")),
-                        new AssemblyReference(Paths.FindPathUpwards("Disposal.Interfaces.dll"))));
+                        new AssemblyReference(Paths.FindPathUpwards("AllFeaturesSuccessDependency.dll")!),
+                        new AssemblyReference(Paths.FindPathUpwards("Sundew.Injection.dll")!),
+                        new AssemblyReference(Paths.FindPathUpwards("Microsoft.Bcl.AsyncInterfaces.dll")!),
+                        new AssemblyReference(Paths.FindPathUpwards("Initialization.Interfaces.dll")!),
+                        new AssemblyReference(Paths.FindPathUpwards("Disposal.Interfaces.dll")!)));
                 return project.Compile();
             });
         }

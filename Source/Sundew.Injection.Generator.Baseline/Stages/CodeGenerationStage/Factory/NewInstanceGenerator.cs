@@ -61,12 +61,12 @@ internal sealed class NewInstanceGenerator
 
         var variables = factoryNode.CreateMethod.Variables;
         var statements = factoryNode.CreateMethod.Statements;
-        var (factoryMethods, creationExpression) = newInstanceInjectionNode.OverridableNewParametersOption.Evaluate(
+        var (factoryMethods, creationExpression) = newInstanceInjectionNode.OverridableNewParametersOption.GetValueOrDefault(
             factoryNode.FactoryImplementation.FactoryMethods,
             (methodParameters, factoryMethods) => FactoryMethodHelper.GenerateFactoryMethod(factoryMethods, commonType, methodParameters, newInstanceInjectionNode.CreationSource, factoryNode.Arguments),
             factoryMethods => (factoryMethods, new CreationExpression(newInstanceInjectionNode.CreationSource, factoryNode.Arguments)));
 
-        var variableDeclarationOption = (newInstanceInjectionNode.TargetImplementsDisposable || newInstanceInjectionNode.ParameterNodeOption.HasValue()).ToOptionalValue(
+        var variableDeclarationOption = (newInstanceInjectionNode.TargetImplementsDisposable || newInstanceInjectionNode.ParameterNodeOption.HasValue()).ToOption(
             () =>
             {
                 var variableName = NameHelper.GetUniqueName(newInstanceInjectionNode.Name, newInstanceInjectionNode.ParentInjectionNode);

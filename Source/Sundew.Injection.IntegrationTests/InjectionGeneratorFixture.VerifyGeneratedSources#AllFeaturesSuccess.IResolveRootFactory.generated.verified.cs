@@ -13,6 +13,7 @@ namespace AllFeaturesSuccess
             global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest? injectableSingleInstancePerRequest = null,
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null);
 
+        [global::Sundew.Injection.IndirectCreateMethodAttribute]
         global::System.Threading.Tasks.Task<global::AllFeaturesSuccess.IResolveRoot> CreateResolveRootAsync(
             global::System.Collections.Generic.IEnumerable<int> integers,
             int defaultItem,
@@ -21,7 +22,8 @@ namespace AllFeaturesSuccess
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null);
 
         [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-        [global::Sundew.Injection.CreateMethod]
+        [global::Sundew.Injection.BindableCreateMethodAttribute]
+        [global::Sundew.Injection.IndirectCreateMethodAttribute]
         global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.IResolveRoot> CreateResolveRootUninitialized(
             global::System.Collections.Generic.IEnumerable<int> integers,
             int defaultItem,
@@ -29,10 +31,11 @@ namespace AllFeaturesSuccess
             global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest? injectableSingleInstancePerRequest = null,
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null);
 
-        [global::Sundew.Injection.CreateMethod]
+        [global::Sundew.Injection.BindableCreateMethodAttribute]
         global::AllFeaturesSuccess.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory CreateInterfaceSingleInstancePerFactory();
 
-        object? Resolve(global::System.Type type, global::System.Span<object> arguments = default);
+        [global::Sundew.Injection.BindableCreateMethodAttribute]
+        global::AllFeaturesSuccess.TypeResolver.IMultipleImplementationForTypeResolver CreateMultipleImplementationForTypeResolverC();
 
         void Dispose(global::AllFeaturesSuccess.IResolveRoot resolveRoot);
 

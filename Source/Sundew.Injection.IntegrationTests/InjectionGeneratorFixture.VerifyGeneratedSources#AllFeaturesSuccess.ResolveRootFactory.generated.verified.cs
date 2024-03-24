@@ -7,18 +7,6 @@ namespace AllFeaturesSuccess
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public class ResolveRootFactory : global::AllFeaturesSuccess.IResolveRootFactory
     {
-        private static readonly global::Sundew.Injection.TypeResolverLinearSearch<global::AllFeaturesSuccess.ResolveRootFactory> ResolveRootFactoryTypeResolver = new global::Sundew.Injection.TypeResolverLinearSearch<global::AllFeaturesSuccess.ResolveRootFactory>(
-            new global::Sundew.Injection.Resolver<global::AllFeaturesSuccess.ResolveRootFactory>(
-                typeof(global::AllFeaturesSuccess.IResolveRoot),
-                (factory, arguments) => factory.CreateResolveRoot(
-                    (global::System.Collections.Generic.IEnumerable<int>)arguments[0],
-                    (int)arguments[1],
-                    (global::System.Func<global::AllFeaturesSuccess.RequiredInterface.IRequiredService>)arguments[2],
-                    (global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest?)arguments[3],
-                    (global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation?)arguments[4])),
-            new global::Sundew.Injection.Resolver<global::AllFeaturesSuccess.ResolveRootFactory>(
-                typeof(global::AllFeaturesSuccess.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory),
-                (factory, arguments) => factory.CreateInterfaceSingleInstancePerFactory()));
         private readonly global::Sundew.Injection.ILifecycleParameters lifecycleParameters;
         private readonly global::Sundew.Injection.LifecycleHandler lifecycleHandler;
         private readonly global::AllFeaturesSuccess.RequiredInterface.IRequiredParameters requiredParameters;
@@ -123,6 +111,7 @@ namespace AllFeaturesSuccess
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
+        [global::Sundew.Injection.IndirectCreateMethodAttribute]
         public async global::System.Threading.Tasks.Task<global::AllFeaturesSuccess.IResolveRoot> CreateResolveRootAsync(
             global::System.Collections.Generic.IEnumerable<int> integers,
             int defaultItem,
@@ -142,7 +131,8 @@ namespace AllFeaturesSuccess
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-        [global::Sundew.Injection.CreateMethod]
+        [global::Sundew.Injection.BindableCreateMethodAttribute]
+        [global::Sundew.Injection.IndirectCreateMethodAttribute]
         public global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.IResolveRoot> CreateResolveRootUninitialized(
             global::System.Collections.Generic.IEnumerable<int> integers,
             int defaultItem,
@@ -187,7 +177,7 @@ namespace AllFeaturesSuccess
             var constructedChildForResolveRoot = new global::AllFeaturesSuccess.ChildFactory.ConstructedChild(newInstanceAndDisposableForConstructedChild, dependencyForConstructedChild, manualDependencyForConstructedChild);
             childLifecycleHandler.TryAdd(constructedChildForResolveRoot);
 
-            static global::AllFeaturesSuccess.MultipleImplementations.IMultipleImplementationForEnumerable CreateMultipleImplementationForEnumerable()
+            static global::System.Collections.Generic.IEnumerable<global::AllFeaturesSuccess.MultipleImplementations.IMultipleImplementationForEnumerable> CreateMultipleImplementationForEnumerable()
             {
                 yield return new global::AllFeaturesSuccess.MultipleImplementations.MultipleImplementationForEnumerableA();
                 yield return new global::AllFeaturesSuccess.MultipleImplementations.MultipleImplementationForEnumerableB();
@@ -214,16 +204,17 @@ namespace AllFeaturesSuccess
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        [global::Sundew.Injection.CreateMethod]
+        [global::Sundew.Injection.BindableCreateMethodAttribute]
         public global::AllFeaturesSuccess.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory CreateInterfaceSingleInstancePerFactory()
         {
             return this.interfaceSingleInstancePerFactory;
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        public object? Resolve(global::System.Type type, global::System.Span<object> arguments = default)
+        [global::Sundew.Injection.BindableCreateMethodAttribute]
+        public global::AllFeaturesSuccess.TypeResolver.IMultipleImplementationForTypeResolver CreateMultipleImplementationForTypeResolverC()
         {
-            return ResolveRootFactoryTypeResolver.Resolve(this, type, arguments);
+            return new global::AllFeaturesSuccess.TypeResolver.MultipleImplementationForTypeResolverC();
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]

@@ -15,10 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" version="7.0.0" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" version="8.0.0" />
     <PackageReference Include="System.Collections.Immutable" Version="6.0.0" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Disposal.Interfaces" Version="1.0.0" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Initialization.Interfaces" Version="1.0.1" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Disposal.Interfaces" Version="1.0.1" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Initialization.Interfaces" Version="1.0.2" GeneratePathProperty="true" PrivateAssets="all" />
   </ItemGroup>
 
 
@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <Folder Include="Generics\" />
+    <Folder Include="TypeResolver\" />
     <Folder Include="NewInstance\" />
     <Folder Include="UnboundType\" />
   </ItemGroup>

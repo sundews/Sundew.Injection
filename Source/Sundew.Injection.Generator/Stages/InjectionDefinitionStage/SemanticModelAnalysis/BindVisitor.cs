@@ -12,9 +12,8 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Sundew.Base.Primitives.Computation;
+using Sundew.Base;
 using Sundew.Injection.Generator.TypeSystem;
-using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
 
 internal class BindVisitor : CSharpSyntaxWalker
 {
@@ -82,7 +81,7 @@ internal class BindVisitor : CSharpSyntaxWalker
         var interfaceTypes = typeArguments.Take(typeArguments.Length - 1).Select(this.analysisContext.TypeFactory.CreateType).ToImmutableArray();
         var implementationType = this.analysisContext.TypeFactory.CreateType(typeArguments.Last());
 
-        var actualMethodOption = constructorSelector.Or(() => implementationType.TypeMetadata.DefaultConstructor);
+        var actualMethodOption = constructorSelector ?? implementationType.TypeMetadata.DefaultConstructor;
         if (actualMethodOption.TryGetValue(out var actualMethod))
         {
             this.analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(interfaceTypes, implementationType, actualMethod, scope, isInjectable, isNewOverridable);

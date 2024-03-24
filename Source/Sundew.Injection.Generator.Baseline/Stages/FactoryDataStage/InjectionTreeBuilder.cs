@@ -78,7 +78,7 @@ internal sealed class InjectionTreeBuilder
            parentInjectionNode,
            parentScope,
            implementIDisposable,
-           binding.IsNewOverridable.ToOptionalValue(binding.Method.Parameters),
+           binding.IsNewOverridable.ToOption(binding.Method.Parameters),
            binding.IsInjectable.ToOption(binding.CommonType).Combine(parameterOption, (type, parameter) => new ParameterNode(type, this.GetParameterSource(type, parameter, diagnostics), parameter.Name, parameter.TypeMetadata, scope == Scope.NewInstance, parentInjectionNode)),
            diagnostics);
 

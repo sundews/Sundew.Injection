@@ -187,7 +187,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type must be generic..
+        ///   Looks up a localized string similar to ImplementationType must be generic..
         /// </summary>
         internal static string OnlyGenericTypeSupportedErrorTitle {
             get {
@@ -376,7 +376,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type must be instantiable.
+        ///   Looks up a localized string similar to ImplementationType must be instantiable.
         /// </summary>
         internal static string TypeNotInstantiableErrorTitle {
             get {

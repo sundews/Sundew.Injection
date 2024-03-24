@@ -7,7 +7,7 @@
 
 namespace Sundew.Injection.Generator.Stages.CompilationDataStage;
 
-using Sundew.Injection.Generator.Stages.FactoryDataStage.TypeSystem;
+using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed record CompilationData(
@@ -23,12 +23,16 @@ internal sealed record CompilationData(
     NamedType ValueTaskType,
     OpenGenericType TaskType,
     OpenGenericType FuncType,
-    OpenGenericType TypeResolverBinarySearch,
-    OpenGenericType TypeResolverLinearSearch,
+    DefiniteType ResolverItemsFactoryType,
+    DefiniteType ResolverItemType,
+    DefiniteArrayType ResolverItemArrayType,
     NamedType TypeType,
     NamedType ObjectType,
+    NamedType IntType,
+    NamedType ServiceProviderType,
     DefiniteClosedGenericType SpanOfObjectType,
-    OpenGenericType Resolver,
+    OpenGenericType ResolverType,
     OpenGenericType IEnumerableOfTType,
     OpenGenericType IReadOnlyListOfTType,
-    string AssemblyName);
+    string AssemblyName,
+    string AssemblyNamespace);

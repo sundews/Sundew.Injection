@@ -70,7 +70,7 @@ internal class SingleInstancePerFactoryGenerator
         var factoryMethods = factoryNode.FactoryImplementation.FactoryMethods;
         if (wasAdded)
         {
-            (factoryMethods, var creationExpression) = singleInstancePerFactoryInjectionNode.OverridableNewParametersOption.Evaluate(
+            (factoryMethods, var creationExpression) = singleInstancePerFactoryInjectionNode.OverridableNewParametersOption.GetValueOrDefault(
                 factoryMethods,
                 (methodParameters, factoryMethods) => FactoryMethodHelper.GenerateFactoryMethod(factoryMethods, targetReferenceType, methodParameters, singleInstancePerFactoryInjectionNode.CreationSource, factoryNode.Arguments),
                 factoryMethods => (factoryMethods, new CreationExpression(singleInstancePerFactoryInjectionNode.CreationSource, factoryNode.Arguments)));

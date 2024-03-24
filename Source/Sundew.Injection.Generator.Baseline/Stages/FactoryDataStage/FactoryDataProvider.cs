@@ -11,16 +11,15 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Sundew.Base.Collections;
+using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
-using Sundew.Base.Primitives.Computation;
+using Sundew.Base.Collections.Linq;
 using Sundew.Injection.Generator.Stages.CompilationDataStage;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Extensions;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Resolvers;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
-using static Sundew.Base.Collections.Item;
 
 internal static class FactoryDataProvider
 {

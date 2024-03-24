@@ -6,7 +6,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using sbt::Sundew.Base.Text;
 using Sundew.Injection.Generator.Stages.CompilationDataStage;
-using Sundew.Injection.Generator.Stages.FactoryDataStage;
+using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Testing;
 
@@ -33,8 +33,8 @@ public class FactoryDataEqualityFixture
 
         var compilationData = CompilationDataProvider.GetCompilationData(compilation, CancellationToken.None).Value!;
 
-        var lhs= FactoryDataProvider.GetFactoryData(injectionDefinition.Value, compilationData, CancellationToken.None);
-        var rhs = FactoryDataProvider.GetFactoryData(injectionDefinition.Value, compilationData, CancellationToken.None);
+        var lhs= FactoryResolvedGraphProvider.GetResolvedFactoryGraph(injectionDefinition.Value, compilationData, CancellationToken.None);
+        var rhs = FactoryResolvedGraphProvider.GetResolvedFactoryGraph(injectionDefinition.Value, compilationData, CancellationToken.None);
 
         lhs.Should().Equal(rhs);
     }

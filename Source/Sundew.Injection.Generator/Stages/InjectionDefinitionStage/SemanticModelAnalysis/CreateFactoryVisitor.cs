@@ -10,7 +10,7 @@ namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticMod
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Sundew.Base.Primitives;
+using Sundew.Base;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
 internal class CreateFactoryVisitor : CSharpSyntaxWalker
@@ -33,7 +33,6 @@ internal class CreateFactoryVisitor : CSharpSyntaxWalker
         var generateInterface = (bool?)parameters[i++].ExplicitDefaultValue ?? true;
         var accessibility = parameters[i++].ExplicitDefaultValue.ToEnumOrDefault(Injection.Accessibility.Public);
         var @namespace = (string?)parameters[i++].ExplicitDefaultValue;
-        var generateTypeResolver = (bool?)parameters[i++].ExplicitDefaultValue ?? false;
         var argumentIndex = 0;
         foreach (var argumentSyntax in node.Arguments)
         {
@@ -56,9 +55,6 @@ internal class CreateFactoryVisitor : CSharpSyntaxWalker
                     case nameof(@namespace):
                         @namespace = (string?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
                         break;
-                    case nameof(generateTypeResolver):
-                        generateTypeResolver = (bool?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value ?? false;
-                        break;
                 }
             }
             else
@@ -80,15 +76,12 @@ internal class CreateFactoryVisitor : CSharpSyntaxWalker
                     case 4:
                         @namespace = (string?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
                         break;
-                    case 5:
-                        generateTypeResolver = (bool?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value ?? false;
-                        break;
                 }
 
                 argumentIndex++;
             }
         }
 
-        this.analysisContext.CompiletimeInjectionDefinitionBuilder.CreateFactory(factoryMethods, @namespace, factoryName, generateInterface, accessibility, generateTypeResolver);
+        this.analysisContext.CompiletimeInjectionDefinitionBuilder.CreateFactory(factoryMethods, @namespace, factoryName, generateInterface, accessibility);
     }
 }

@@ -12,7 +12,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Sundew.Base.Collections;
+using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
 internal static class TypeConverter
@@ -53,7 +53,7 @@ internal static class TypeConverter
         {
             IErrorTypeSymbol errorTypeSymbol => (new ErrorType(errorTypeSymbol.MetadataName), default),
             IArrayTypeSymbol arrayTypeSymbol => (GetArrayType(arrayTypeSymbol, knownInjectableTypes), default),
-            INamedTypeSymbol namedTypeSymbol => (GetNamedOrBoundGenericType(namedTypeSymbol, knownInjectableTypes), namedTypeSymbol.Constructors),
+            INamedTypeSymbol namedTypeSymbol => (GetNamedOrClosedGenericType(namedTypeSymbol, knownInjectableTypes), namedTypeSymbol.Constructors),
             _ => throw new System.NotSupportedException($"The type {typeSymbol} is currently not supported."),
         };
     }
@@ -98,6 +98,20 @@ internal static class TypeConverter
                 methodSymbol.MetadataName,
                 GetType(methodSymbol.ContainingType, knownInjectableTypes).Type,
                 TypeConverter.GetMethodKind(methodSymbol, knownInjectableTypes));
+        }
+
+        return default;
+    }
+
+    [return: NotNullIfNotNull(nameof(methodSymbol))]
+    public static FactoryMethod GetFactoryMethod(IMethodSymbol? methodSymbol, IKnownInjectableTypes knownInjectableTypes)
+    {
+        if (methodSymbol != null)
+        {
+            return new FactoryMethod(
+                methodSymbol.MetadataName,
+                methodSymbol.Parameters.Select(x => GetParameter(x, knownInjectableTypes)).ToImmutableArray(),
+                GetType(methodSymbol.ReturnType, knownInjectableTypes).Type);
         }
 
         return default;
@@ -211,10 +225,10 @@ internal static class TypeConverter
                 namedTypeSymbol.IsValueType);
         }
 
-        return GetNamedOrBoundGenericType(namedTypeSymbol, knownInjectableTypes);
+        return GetNamedOrClosedGenericType(namedTypeSymbol, knownInjectableTypes);
     }
 
-    private static Type GetNamedOrBoundGenericType(INamedTypeSymbol namedTypeSymbol, IKnownInjectableTypes knownInjectableTypes)
+    private static Type GetNamedOrClosedGenericType(INamedTypeSymbol namedTypeSymbol, IKnownInjectableTypes knownInjectableTypes)
     {
         if (namedTypeSymbol.IsGenericType && !namedTypeSymbol.IsUnboundGenericType)
         {

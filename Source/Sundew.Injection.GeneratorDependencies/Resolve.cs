@@ -7,7 +7,5 @@
 
 namespace Sundew.Injection
 {
-    using System;
-
-    internal delegate object Resolve<in TFactory>(TFactory factory, Span<object> arguments);
+    internal delegate object Resolve();
 }

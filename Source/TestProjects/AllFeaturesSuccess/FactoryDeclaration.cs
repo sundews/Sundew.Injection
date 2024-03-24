@@ -15,6 +15,7 @@
     using AllFeaturesSuccess.RequiredInterface;
     using AllFeaturesSuccess.SingleInstancePerFactory;
     using AllFeaturesSuccess.SingleInstancePerRequest;
+    using AllFeaturesSuccess.TypeResolver;
     using AllFeaturesSuccessDependency;
     using Sundew.Injection;
     using Sundew.Injection.Interception;
@@ -53,7 +54,7 @@
             // Multiple implementation of the same interface binding, inject IEnumerable<IMultipleImplementationForEnumerable> to consume
             injectionBuilder.Bind<IMultipleImplementationForEnumerable, MultipleImplementationForEnumerableA>();
             injectionBuilder.Bind<IMultipleImplementationForEnumerable, MultipleImplementationForEnumerableB>();
-            
+
             // Segregated interface binding as a singleton, that allows new to be overriden in a derived factory
             injectionBuilder.Bind<IInterfaceSegregationOverridableNewA, IInterfaceSegregationOverridableNewB, IInterfaceSegregationOverridableNew, InterfaceSegregationOverridableNewImplementation>(Scope.SingleInstancePerFactory, isNewOverridable: true);
 
@@ -88,6 +89,13 @@
             // Creates a factory for ConstructedChild
             injectionBuilder.CreateFactory<ConstructedChild>();
 
+            injectionBuilder.Bind<IMultipleImplementationForTypeResolver, MultipleImplementationForTypeResolverA>();
+            injectionBuilder.Bind<IMultipleImplementationForTypeResolver, MultipleImplementationForTypeResolverB>();
+
+            injectionBuilder.Bind<DependencyShared>(Scope.SingleInstancePerFactory);
+
+            injectionBuilder.CreateFactory<IMultipleImplementationForTypeResolver>();
+
             // Binding to a generated factory in another assembly
             injectionBuilder.BindFactory<DependencyFactory>();
 
@@ -106,7 +114,17 @@
             injectionBuilder.CreateFactory(
                 factories => factories
                     .Add<IResolveRoot, ResolveRoot>()
-                    .Add<IInterfaceSingleInstancePerFactory>(), generateInterface: true, generateTypeResolver: true);
+                    .Add<IInterfaceSingleInstancePerFactory>()
+                    .Add<IMultipleImplementationForTypeResolver, MultipleImplementationForTypeResolverC>(),
+                generateInterface: true);
+
+            injectionBuilder.CreateResolver(x => x
+                    .Add<MultipleImplementationForTypeResolverFactory>()
+                    .Add<DependencyFactory>()
+                    .Add<ManualDependencyFactory>()
+                    .Add<GeneratedOperationFactory>()
+                    .Add<ResolveRootFactory>(),
+                "TestContainer");
         }
 
         internal static Generic<T> CreateGeneric<T>(T defaultItem)

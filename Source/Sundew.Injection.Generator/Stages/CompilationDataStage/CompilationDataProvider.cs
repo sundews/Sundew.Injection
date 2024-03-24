@@ -8,16 +8,15 @@
 namespace Sundew.Injection.Generator.Stages.CompilationDataStage;
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Microsoft.CodeAnalysis;
-using Sundew.Base.Collections;
+using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
-using Sundew.Base.Primitives.Computation;
-using Sundew.Injection.Generator.Stages.FactoryDataStage.TypeSystem;
+using Sundew.Base.Collections.Linq;
+using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
 using Sundew.Injection.Generator.TypeSystem;
 using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
 using Type = System.Type;
@@ -25,6 +24,7 @@ using Type = System.Type;
 internal static class CompilationDataProvider
 {
     private const string ObjectName = "object";
+    private const string IntName = "int";
     private static readonly NamedType VoidType = new("void", string.Empty, string.Empty, true);
     private static readonly NamedType ValueTaskType = new("ValueTask", "System.Threading.Tasks", string.Empty, true);
 
@@ -47,8 +47,8 @@ internal static class CompilationDataProvider
             compilation.GetTask(),
             compilation.GetILifecycleHandler(),
             compilation.GetLifecycleHandler(),
-            compilation.GetTypeResolverBinarySearch(),
-            compilation.GetTypeResolverLinearSearch(),
+            compilation.GetResolverItemsFactory(),
+            compilation.GetResolverItem(),
             compilation.GetIEnumerableOfT(),
             compilation.GetIReadOnlyListOfT(),
         }.AllOrFailed();
@@ -68,8 +68,8 @@ internal static class CompilationDataProvider
 
             var ilifecycleHandlerTypeSymbol = all[index++];
             var lifecycleHandlerTypeSymbol = all[index++];
-            var typeResolverBinarySearchTypeSymbol = all[index++];
-            var typeResolverLinearSearchTypeSymbol = all[index++];
+            var resolverItemsFactoryTypeSymbol = all[index++];
+            var resolverItemTypeSymbol = all[index++];
             var iEnumerableOfTSymbol = all[index++];
             var iReadOnlyListOfTSymbol = all[index++];
             var ilifecycleHandlerType = TypeConverter.GetNamedType(ilifecycleHandlerTypeSymbol);
@@ -90,6 +90,8 @@ internal static class CompilationDataProvider
                 false,
                 false);
             var objectType = new NamedType(ObjectName, string.Empty, string.Empty, false);
+            var intType = new NamedType(IntName, string.Empty, string.Empty, false);
+            var resolverItemType = TypeConverter.GetNamedType(resolverItemTypeSymbol);
             return R.Success(new CompilationData(
                 areNullableAnnotationsSupported,
                 iInitializableType,
@@ -103,15 +105,19 @@ internal static class CompilationDataProvider
                 ValueTaskType,
                 GenericTypeConverter.GetGenericType(task),
                 GenericTypeConverter.GetGenericType(func),
-                GenericTypeConverter.GetGenericType(typeResolverBinarySearchTypeSymbol),
-                GenericTypeConverter.GetGenericType(typeResolverLinearSearchTypeSymbol),
+                TypeConverter.GetNamedType(resolverItemsFactoryTypeSymbol),
+                resolverItemType,
+                new DefiniteArrayType(resolverItemType),
                 GetNamedType(typeof(Type)),
                 objectType,
+                intType,
+                GetNamedType(typeof(IServiceProvider)),
                 GetGenericType(typeof(Span<>), string.Empty).ToDefiniteClosedGenericType(ImmutableArray.Create(new DefiniteTypeArgument(objectType, new TypeMetadata(null, EnumerableMetadata.NonEnumerableMetadata, false)))),
-                GetGenericType(typeof(Resolver<>), string.Empty),
+                GetGenericType(typeof(ResolverItem), string.Empty),
                 GenericTypeConverter.GetGenericType(iEnumerableOfTSymbol),
                 GenericTypeConverter.GetGenericType(iEnumerableOfTSymbol),
-                compilation.AssemblyName ?? string.Empty));
+                compilation.AssemblyName ?? string.Empty,
+                TypeHelper.GetNamespace(compilation.GlobalNamespace)));
         }
 
         return R.Error(errors.Select(x => Diagnostic.Create(Diagnostics.RequiredTypeNotFoundError, null, x.Error)).ToValueList());

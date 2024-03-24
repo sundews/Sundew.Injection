@@ -9,14 +9,14 @@ namespace Sundew.Injection.Generator.Stages.OutputStage;
 
 using Microsoft.CodeAnalysis;
 using Sundew.Base.Collections.Immutable;
-using Sundew.Injection.Generator.Stages.CodeGenerationStage;
+using Sundew.Injection.Generator.Stages.CodeGeneration;
 
 internal static class OutputCodeGenerationProvider
 {
     private const string Generated = ".generated";
 
     public static void SetupOutputResultStage(
-        this IncrementalValuesProvider<ValueArray<GeneratedOutput>> generatedCodeProvider,
+        this IncrementalValuesProvider<ValueArray<GeneratedCodeOutput>> generatedCodeProvider,
         IncrementalGeneratorInitializationContext incrementalGeneratorInitializationContext)
     {
         incrementalGeneratorInitializationContext.RegisterSourceOutput(generatedCodeProvider, (sourceProductionContext, generatedOutputs) =>
@@ -25,6 +25,16 @@ internal static class OutputCodeGenerationProvider
             {
                 sourceProductionContext.AddSource(generatedOutput.FileName + Generated, generatedOutput.Source);
             }
+        });
+    }
+
+    public static void SetupOutputResultStage(
+        this IncrementalValuesProvider<GeneratedCodeOutput> generatedCodeProvider,
+        IncrementalGeneratorInitializationContext incrementalGeneratorInitializationContext)
+    {
+        incrementalGeneratorInitializationContext.RegisterSourceOutput(generatedCodeProvider, (sourceProductionContext, generatedOutput) =>
+        {
+            sourceProductionContext.AddSource(generatedOutput.FileName + Generated, generatedOutput.Source);
         });
     }
 }

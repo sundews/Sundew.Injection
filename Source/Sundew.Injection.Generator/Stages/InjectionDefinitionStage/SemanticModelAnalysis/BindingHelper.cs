@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Sundew.Base.Primitives.Computation;
+using Sundew.Base;
 using Sundew.Injection.Generator.TypeSystem;
 using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
 using Parameter = Sundew.Injection.Generator.TypeSystem.Parameter;

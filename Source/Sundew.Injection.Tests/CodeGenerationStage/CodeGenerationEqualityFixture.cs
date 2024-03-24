@@ -5,9 +5,9 @@ extern alias sbt;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using sbt::Sundew.Base.Text;
-using Sundew.Injection.Generator.Stages.CodeGenerationStage;
 using Sundew.Injection.Generator.Stages.CompilationDataStage;
-using Sundew.Injection.Generator.Stages.FactoryDataStage;
+using Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage;
+using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Testing;
 
@@ -34,10 +34,10 @@ public class CodeGenerationEqualityFixture
 
         var compilationData = CompilationDataProvider.GetCompilationData(compilation, CancellationToken.None).Value!;
 
-        var factoryDataArray = FactoryDataProvider.GetFactoryData(injectionDefinition.Value, compilationData, CancellationToken.None);
+        var factoryDataArray = FactoryResolvedGraphProvider.GetResolvedFactoryGraph(injectionDefinition.Value, compilationData, CancellationToken.None);
 
-        var lhs = factoryDataArray.Select(x => GeneratedCodeProvider.GetGeneratedOutput(x.Value!, compilationData, CancellationToken.None));
-        var rhs = factoryDataArray.Select(x => GeneratedCodeProvider.GetGeneratedOutput(x.Value!, compilationData, CancellationToken.None));
+        var lhs = factoryDataArray.Select(x => FactoryCodeGenerationProvider.GetGeneratedOutput(x.Value!, compilationData, CancellationToken.None));
+        var rhs = factoryDataArray.Select(x => FactoryCodeGenerationProvider.GetGeneratedOutput(x.Value!, compilationData, CancellationToken.None));
 
         lhs.Should().Equal(rhs);
     }

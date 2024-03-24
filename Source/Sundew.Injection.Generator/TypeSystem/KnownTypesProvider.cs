@@ -12,10 +12,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using global::Initialization.Interfaces;
 using Microsoft.CodeAnalysis;
-using Sundew.Base.Primitives.Computation;
+using Sundew.Base;
 
 public static class KnownTypesProvider
 {
+    public static readonly string BindableCreateMethodName = typeof(BindableCreateMethodAttribute).FullName!;
+    public static readonly string IndirectCreateMethodName = typeof(IndirectCreateMethodAttribute).FullName!;
+
     public static R<INamedTypeSymbol, string> GetIInitializableTypeSymbol(this Compilation compilation)
     {
         return R.From(compilation.GetTypeByMetadataName(typeof(IInitializable).FullName), () => "IInitializable was not found, Initialization.Interfaces must be referenced");
@@ -51,14 +54,14 @@ public static class KnownTypesProvider
         return R.From(compilation.GetTypesByMetadataName(typeof(LifecycleHandler).FullName).FirstOrDefault(), () => "LifecycleHandler was not found");
     }
 
-    public static R<INamedTypeSymbol, string> GetTypeResolverLinearSearch(this Compilation compilation)
+    public static R<INamedTypeSymbol, string> GetResolverItemsFactory(this Compilation compilation)
     {
-        return R.From(compilation.GetTypesByMetadataName(typeof(TypeResolverLinearSearch<>).FullName).FirstOrDefault(), () => "TypeResolverLinearSearch<> was not found");
+        return R.From(compilation.GetTypesByMetadataName(typeof(ResolverItemsFactory).FullName).FirstOrDefault(), () => "ResolverItemsFactoryType was not found");
     }
 
-    public static R<INamedTypeSymbol, string> GetTypeResolverBinarySearch(this Compilation compilation)
+    public static R<INamedTypeSymbol, string> GetResolverItem(this Compilation compilation)
     {
-        return R.From(compilation.GetTypesByMetadataName(typeof(TypeResolverBinarySearch<>).FullName).FirstOrDefault(), () => "TypeResolverBinarySearch<> was not found");
+        return R.From(compilation.GetTypesByMetadataName(typeof(ResolverItem).FullName).FirstOrDefault(), () => "ResolverItemType was not found");
     }
 
     public static R<INamedTypeSymbol, string> GetILifecycleHandler(this Compilation compilation)

@@ -11,9 +11,9 @@ using System.Collections;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Sundew.Base.Collections;
+using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
-using Sundew.Base.Primitives.Computation;
+using Sundew.Base.Collections.Linq;
 using Sundew.Injection.Generator.TypeSystem;
 
 public sealed class KnownAnalysisTypes : IKnownInjectableTypes
