@@ -147,7 +147,7 @@ internal static class TypeResolverSyntaxGenerator
         return Member._Raw(
 """
 
-        public override object GetService(Type serviceType)
+        public object GetService(System.Type serviceType)
         {
             var index = global::System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(serviceType) % BucketSize;
             do

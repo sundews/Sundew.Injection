@@ -11,8 +11,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
-using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefinitionBuilder

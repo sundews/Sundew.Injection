@@ -7,14 +7,13 @@
 
 namespace Sundew.Injection.Generator.Stages.FactoryDataStage;
 
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
+using Sundew.Base;
 using Sundew.Base.Collections;
 using Sundew.Base.Collections.Immutable;
-using Sundew.Base.Primitives.Computation;
 using Sundew.DiscriminatedUnions;
 using Sundew.Injection.Generator.Stages.CompilationDataStage;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Extensions;

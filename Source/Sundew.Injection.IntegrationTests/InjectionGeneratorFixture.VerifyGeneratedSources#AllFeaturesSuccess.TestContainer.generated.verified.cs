@@ -25,7 +25,7 @@ namespace AllFeaturesSuccess
                 new global::Sundew.Injection.ResolverItem(typeof(global::AllFeaturesSuccess.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory), () => resolveRootFactory.CreateInterfaceSingleInstancePerFactory()));
         }
 
-        public override object GetService(Type serviceType)
+        public object GetService(System.Type serviceType)
         {
             var index = global::System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(serviceType) % BucketSize;
             do

@@ -10,7 +10,7 @@ namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticMod
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Sundew.Base.Primitives;
+using Sundew.Base;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal class CreateFactoryVisitor : CSharpSyntaxWalker

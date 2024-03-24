@@ -28,12 +28,12 @@ public class InjectionGeneratorBenchmark
     [Benchmark(Baseline = true)]
     public GeneratorDriverRunResult BaselineGenerator()
     {
-
+        return default!;
     }
 
     [Benchmark]
     public GeneratorDriverRunResult WorkInProgressGenerator()
     {
-
+        return default!;
     }
 }

@@ -10,8 +10,8 @@ namespace Sundew.Injection.Generator.Stages.CodeGenerationStage;
 using System;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
+using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
-using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Syntax;
 using Sundew.Injection.Generator.Stages.FactoryDataStage;
 

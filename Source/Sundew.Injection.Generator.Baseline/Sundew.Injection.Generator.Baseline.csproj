@@ -25,44 +25,42 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ILRepack.Lib.MSBuild" Version="2.1.18" />
-    <PackageReference Include="PolySharp" Version="1.13.2">
+    <PackageReference Include="ILRepack.Lib.MSBuild" />
+    <PackageReference Include="PolySharp">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.507">
+    <PackageReference Include="StyleCop.Analyzers">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Packaging.Publish" Version="10.0.5">
+    <PackageReference Include="Sundew.Packaging.Publish">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <!-- Generator dependencies -->
+    <PackageReference Include="System.Collections.Immutable"  GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="System.Threading.Tasks"/>
+    <PackageReference Include="System.ValueTuple"  GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.Bcl.HashCode" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Features" />
+    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" />
+    <PackageReference Include="Sundew.Base.Collections" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Primitives" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Equality" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Memory" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Reporting" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.Base.Text" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Sundew.DiscriminatedUnions" GeneratePathProperty="true" PrivateAssets="all" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Sundew.Injection\Sundew.Injection.csproj" GeneratePathProperty="true" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="Sundew.Injection.Tests" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Generator dependencies -->
-    <PackageReference Include="System.Collections.Immutable" Version="8.0.0" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" GeneratePathProperty="true" />
-    <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Features" Version="4.3.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic" Version="4.3.1" />
-    <PackageReference Include="Sundew.Base.Collections" Version="12.0.4" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Primitives" Version="12.0.4" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Equality" Version="12.0.4" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Memory" Version="12.0.4" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Reporting" Version="12.0.4" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.Base.Text" Version="12.0.4" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Sundew.DiscriminatedUnions" Version="5.2.3" GeneratePathProperty="true" PrivateAssets="all" />
   </ItemGroup>
 
   <PropertyGroup>

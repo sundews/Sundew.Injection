@@ -11,30 +11,30 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" version="8.0.0" />
-    <PackageReference Include="Disposal.Interfaces" Version="1.0.1" />
-    <PackageReference Include="Initialization.Interfaces" Version="1.0.2" />
-    <PackageReference Include="FluentAssertions" Version="6.12.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.3.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="NUnit" Version="3.13.3" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
-    <PackageReference Include="NUnit.Analyzers" Version="3.9.0">
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces"/>
+    <PackageReference Include="Disposal.Interfaces"/>
+    <PackageReference Include="Initialization.Interfaces"/>
+    <PackageReference Include="FluentAssertions"/>
+    <PackageReference Include="Microsoft.CodeAnalysis"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+    <PackageReference Include="NUnit"/>
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="NUnit.Analyzers">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="6.0.0">
+    <PackageReference Include="coverlet.collector">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Sundew.Base.Collections" Version="12.0.6-u20240112-154618-local">
+    <PackageReference Include="Sundew.Base.Collections">
       <Aliases>sbc</Aliases>
     </PackageReference>
-    <PackageReference Include="Sundew.Base.Primitives" Version="12.0.6-u20240112-153102-local" />
-    <PackageReference Include="Sundew.Base.Text" Version="12.0.6-u20240112-154618-local">
+    <PackageReference Include="Sundew.Base.Primitives"/>
+    <PackageReference Include="Sundew.Base.Text">
       <Aliases>sbt</Aliases>
     </PackageReference>
-    <PackageReference Include="Sundew.Testing.CodeAnalysis" Version="0.3.0" />
+    <PackageReference Include="Sundew.Testing.CodeAnalysis"/>
   </ItemGroup>
 
   <ItemGroup>
