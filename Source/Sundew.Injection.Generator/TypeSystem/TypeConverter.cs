@@ -12,6 +12,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
 internal static class TypeConverter
@@ -30,7 +31,7 @@ internal static class TypeConverter
         {
             IErrorTypeSymbol errorTypeSymbol => (new ErrorType(errorTypeSymbol.MetadataName), ImmutableArray<IMethodSymbol>.Empty),
             IArrayTypeSymbol arrayTypeSymbol => (GetArrayOrTypeParameterArray(arrayTypeSymbol, knownInjectableTypes), ImmutableArray<IMethodSymbol>.Empty),
-            INamedTypeSymbol namedTypeSymbol => (GetNamedOrBoundGenericType(namedTypeSymbol, knownInjectableTypes), namedTypeSymbol.Constructors),
+            INamedTypeSymbol namedTypeSymbol => (GetNamedSymbol(namedTypeSymbol, knownInjectableTypes), namedTypeSymbol.Constructors),
             ITypeParameterSymbol typeParameterSymbol => (new TypeParameter(typeParameterSymbol.MetadataName), ImmutableArray<IMethodSymbol>.Empty),
             _ => throw new System.NotSupportedException($"The type {typeSymbol} is currently not supported."),
         };
@@ -52,14 +53,15 @@ internal static class TypeConverter
         {
             IErrorTypeSymbol errorTypeSymbol => (new ErrorType(errorTypeSymbol.MetadataName), default),
             IArrayTypeSymbol arrayTypeSymbol => (GetArrayType(arrayTypeSymbol, knownInjectableTypes), default),
-            INamedTypeSymbol namedTypeSymbol => (GetNamedOrBoundGenericType(namedTypeSymbol, knownInjectableTypes), namedTypeSymbol.Constructors),
+            INamedTypeSymbol namedTypeSymbol => (GetNamedOrClosedGenericType(namedTypeSymbol, knownInjectableTypes), namedTypeSymbol.Constructors),
             _ => throw new System.NotSupportedException($"The type {typeSymbol} is currently not supported."),
         };
     }
 
     public static ArrayType GetArrayType(IArrayTypeSymbol arrayTypeSymbol, IKnownInjectableTypes knownInjectableTypes)
     {
-        return new ArrayType(GetType(arrayTypeSymbol.ElementType, knownInjectableTypes).Type);
+        var type = GetType(arrayTypeSymbol.ElementType, knownInjectableTypes);
+        return new ArrayType(type.Type);
     }
 
     public static NamedType GetNamedType(INamedTypeSymbol namedTypeSymbol)
@@ -68,7 +70,8 @@ internal static class TypeConverter
         return new NamedType(
             name,
             @namespace,
-            namedTypeSymbol.ContainingAssembly.Identity.ToString());
+            namedTypeSymbol.ContainingAssembly.Identity.ToString(),
+            namedTypeSymbol.IsValueType);
     }
 
     public static Method? GetConstructor(IMethodSymbol? methodSymbol, Type? containingType, IKnownInjectableTypes knownInjectableTypes)
@@ -95,6 +98,20 @@ internal static class TypeConverter
                 methodSymbol.MetadataName,
                 GetType(methodSymbol.ContainingType, knownInjectableTypes).Type,
                 TypeConverter.GetMethodKind(methodSymbol, knownInjectableTypes));
+        }
+
+        return default;
+    }
+
+    [return: NotNullIfNotNull(nameof(methodSymbol))]
+    public static FactoryMethod GetFactoryMethod(IMethodSymbol? methodSymbol, IKnownInjectableTypes knownInjectableTypes)
+    {
+        if (methodSymbol != null)
+        {
+            return new FactoryMethod(
+                methodSymbol.MetadataName,
+                methodSymbol.Parameters.Select(x => GetParameter(x, knownInjectableTypes)).ToImmutableArray(),
+                GetType(methodSymbol.ReturnType, knownInjectableTypes).Type);
         }
 
         return default;
@@ -152,15 +169,20 @@ internal static class TypeConverter
                 containingType.MetadataName,
                 TypeHelper.GetNamespace(containingType.ContainingNamespace),
                 containingType.ContainingAssembly.Identity.ToString(),
-                containingType.TypeParameters.Select(x => new TypeParameter(x.MetadataName)).ToImmutableArray());
+                containingType.TypeParameters.Select(x => new TypeParameter(x.MetadataName)).ToImmutableArray(),
+                containingType.IsValueType);
         }
 
-        return new ContaineeType.NamedType(containingType.MetadataName, TypeHelper.GetNamespace(containingType.ContainingNamespace), containingType.ContainingAssembly.Identity.ToString());
+        return new ContaineeType.NamedType(containingType.MetadataName, TypeHelper.GetNamespace(containingType.ContainingNamespace), containingType.ContainingAssembly.Identity.ToString(), containingType.IsValueType);
     }
 
     public static TypeMetadata GetTypeMetadata(ITypeSymbol typeSymbol, Method? defaultConstructor, IKnownInjectableTypes knownInjectableTypes)
     {
-        return new TypeMetadata(defaultConstructor, typeSymbol.CanBeAssignedTo(knownInjectableTypes.IEnumerableTypeSymbol), HasLifecycle(typeSymbol, knownInjectableTypes), typeSymbol.IsValueType);
+        var implementIEnumerable = typeSymbol is IArrayTypeSymbol || typeSymbol.OriginalDefinition.CanBeAssignedTo(knownInjectableTypes.IEnumerableOfTTypeSymbol);
+        var enumerableMetadata = implementIEnumerable
+            ? new EnumerableMetadata(true, GetArrayMetadata(typeSymbol, knownInjectableTypes))
+            : new EnumerableMetadata(false, false, false);
+        return new TypeMetadata(defaultConstructor, enumerableMetadata, HasLifecycle(typeSymbol, knownInjectableTypes));
     }
 
     public static MethodKind GetMethodKind(IMethodSymbol methodSymbol, IKnownInjectableTypes knownInjectableTypes)
@@ -182,17 +204,42 @@ internal static class TypeConverter
                typeSymbol.CanBeAssignedTo(knownInjectableTypes.IInitializableTypeSymbol);
     }
 
-    private static Type GetNamedOrBoundGenericType(INamedTypeSymbol namedTypeSymbol, IKnownInjectableTypes knownInjectableTypes)
+    private static (bool IsArrayCompatible, bool IsArrayRequired) GetArrayMetadata(ITypeSymbol typeSymbol, IKnownInjectableTypes knownInjectableTypes)
+    {
+        var originalTypeSymbol = typeSymbol.OriginalDefinition;
+        var isIEnumerable = SymbolEqualityComparer.Default.Equals(originalTypeSymbol, knownInjectableTypes.IEnumerableOfTTypeSymbol);
+        var isReadOnlyList = SymbolEqualityComparer.Default.Equals(originalTypeSymbol, knownInjectableTypes.IReadOnlyListOfTTypeSymbol);
+        return (isReadOnlyList || isIEnumerable, !isIEnumerable);
+    }
+
+    private static Symbol GetNamedSymbol(INamedTypeSymbol namedTypeSymbol, IKnownInjectableTypes knownInjectableTypes)
+    {
+        if (namedTypeSymbol.TypeArguments.Any(x => x is ITypeParameterSymbol))
+        {
+            var (name, @namespace, _) = GetName(namedTypeSymbol);
+            return Symbol.OpenGenericType(
+                name,
+                @namespace,
+                namedTypeSymbol.ContainingAssembly.Identity.ToString(),
+                namedTypeSymbol.TypeParameters.Select(x => new TypeParameter(x.MetadataName)).ToValueArray(),
+                namedTypeSymbol.IsValueType);
+        }
+
+        return GetNamedOrClosedGenericType(namedTypeSymbol, knownInjectableTypes);
+    }
+
+    private static Type GetNamedOrClosedGenericType(INamedTypeSymbol namedTypeSymbol, IKnownInjectableTypes knownInjectableTypes)
     {
         if (namedTypeSymbol.IsGenericType && !namedTypeSymbol.IsUnboundGenericType)
         {
             var (name, @namespace, _) = GetName(namedTypeSymbol);
-            return Type.BoundGenericType(
+            return Type.ClosedGenericType(
                 name,
                 @namespace,
                 namedTypeSymbol.ContainingAssembly.Identity.ToString(),
                 namedTypeSymbol.TypeParameters.Select(x => new TypeParameter(x.MetadataName)).ToImmutableArray(),
-                namedTypeSymbol.TypeArguments.Select(x => GetTypeArgument(x, knownInjectableTypes)).ToImmutableArray());
+                namedTypeSymbol.TypeArguments.Select(x => GetTypeArgument(x, knownInjectableTypes)).ToImmutableArray(),
+                namedTypeSymbol.IsValueType);
         }
 
         return GetNamedType(namedTypeSymbol);
@@ -208,6 +255,7 @@ internal static class TypeConverter
     {
         switch (typeSymbol.SpecialType)
         {
+            case SpecialType.System_Object:
             case SpecialType.System_Boolean:
             case SpecialType.System_Char:
             case SpecialType.System_SByte:

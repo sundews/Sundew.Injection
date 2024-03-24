@@ -7,4 +7,4 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-internal readonly record struct UnboundGenericType(string Name, string Namespace, string AssemblyName);
+internal readonly record struct UnboundGenericType(string Name, int TypeParameterCount, string Namespace, string AssemblyName);

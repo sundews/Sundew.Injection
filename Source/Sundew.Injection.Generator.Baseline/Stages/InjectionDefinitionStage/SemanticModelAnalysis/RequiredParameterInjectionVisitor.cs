@@ -9,7 +9,7 @@ namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticMod
 
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Sundew.Base.Primitives;
+using Sundew.Base;
 
 internal class RequiredParameterInjectionVisitor : CSharpSyntaxWalker
 {

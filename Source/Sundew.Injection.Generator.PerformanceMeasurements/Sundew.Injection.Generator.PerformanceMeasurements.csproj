@@ -15,15 +15,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.8" />
-    <PackageReference Include="InfluxDB.Client" Version="4.13.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.4.0" />
-    <PackageReference Include="Sundew.Base.Primitives" Version="11.0.0-u20230913-225400-ci">
+    <PackageReference Include="BenchmarkDotNet"/>
+    <PackageReference Include="InfluxDB.Client"/>
+    <PackageReference Include="Microsoft.CodeAnalysis" />
+    <PackageReference Include="Sundew.Base.Primitives" >
       <Aliases>sundew</Aliases>
     </PackageReference>
-    <PackageReference Include="Sundew.CommandLine" Version="10.0.2" />
-    <PackageReference Include="Sundew.Testing.CodeAnalysis" Version="0.0.0-u20230521-013600-ci" />
-    <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
+    <PackageReference Include="Sundew.CommandLine" />
+    <PackageReference Include="Sundew.Testing.CodeAnalysis" />
+    <PackageReference Include="System.Collections.Immutable" />
   </ItemGroup>
 
   <ItemGroup>

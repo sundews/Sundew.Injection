@@ -11,7 +11,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Sundew.Base.Primitives;
+using Sundew.Base;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
 internal class CreateFactoryGenericVisitor : CSharpSyntaxWalker
@@ -29,7 +29,6 @@ internal class CreateFactoryGenericVisitor : CSharpSyntaxWalker
     {
         var typeArguments = this.methodSymbol.TypeArguments;
         var parameters = this.methodSymbol.Parameters;
-        var factoryMethods = new FactoryMethodRegistrationBuilder(this.analysisContext.TypeFactory);
         var i = 0;
         var factoryName = (string?)parameters[i++].ExplicitDefaultValue;
         var generateInterface = (bool?)parameters[i++].ExplicitDefaultValue ?? true;
@@ -78,26 +77,9 @@ internal class CreateFactoryGenericVisitor : CSharpSyntaxWalker
             }
         }
 
-        var implementationType = typeArguments.Last();
-        factoryMethods.Add(implementationType, implementationType, null, null, accessibility, false);
-
-        this.analysisContext.CompiletimeInjectionDefinitionBuilder.CreateFactory(factoryMethods, @namespace, factoryName, generateInterface, accessibility);
-    }
-
-    public override void VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
-    {
-        var symbolInfo = this.analysisContext.SemanticModel.GetSymbolInfo(node);
-        if (symbolInfo.Symbol != null)
-        {
-            switch (symbolInfo.Symbol.Kind)
-            {
-                case SymbolKind.Method:
-                    break;
-                case SymbolKind.Field:
-                    break;
-            }
-        }
-
-        base.VisitMemberAccessExpression(node);
+        var typeSymbol = typeArguments.Last();
+        var factoryMethodRegistrationBuilder = new FactoryMethodRegistrationBuilder();
+        this.analysisContext.AddDefaultFactoryMethodFromTypeSymbol(typeSymbol, accessibility, false, factoryMethodRegistrationBuilder);
+        this.analysisContext.CompiletimeInjectionDefinitionBuilder.CreateFactory(factoryMethodRegistrationBuilder, @namespace, factoryName, generateInterface, accessibility);
     }
 }

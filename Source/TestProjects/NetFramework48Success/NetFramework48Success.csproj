@@ -6,12 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Collections.Immutable" Version="6.0.0" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" version="7.0.0" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Initialization.Interfaces" Version="1.0.1" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Disposal.Interfaces" Version="1.0.0" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="PolySharp" Version="1.13.2">
+    <PackageReference Include="System.Collections.Immutable" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Bcl.HashCode" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Initialization.Interfaces" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Disposal.Interfaces"  GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="PolySharp" >
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

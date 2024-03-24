@@ -8,10 +8,12 @@ namespace AllFeaturesSuccess
     {
         global::AllFeaturesSuccess.ChildFactory.ConstructedChild Create(global::AllFeaturesSuccess.OptionalInterface.OptionalParameters optionalParameters);
 
+        [global::Sundew.Injection.IndirectCreateMethodAttribute]
         global::System.Threading.Tasks.Task<global::AllFeaturesSuccess.ChildFactory.ConstructedChild> CreateAsync(global::AllFeaturesSuccess.OptionalInterface.OptionalParameters optionalParameters);
 
         [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-        [global::Sundew.Injection.CreateMethod]
+        [global::Sundew.Injection.BindableCreateMethodAttribute]
+        [global::Sundew.Injection.IndirectCreateMethodAttribute]
         global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.ChildFactory.ConstructedChild> CreateUninitialized(global::AllFeaturesSuccess.OptionalInterface.OptionalParameters optionalParameters);
 
         void Dispose(global::AllFeaturesSuccess.ChildFactory.ConstructedChild constructedChild);

@@ -7,14 +7,13 @@
 
 namespace Sundew.Injection.Generator.Stages.FactoryDataStage;
 
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
+using Sundew.Base;
 using Sundew.Base.Collections;
 using Sundew.Base.Collections.Immutable;
-using Sundew.Base.Primitives.Computation;
 using Sundew.DiscriminatedUnions;
 using Sundew.Injection.Generator.Stages.CompilationDataStage;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Extensions;
@@ -46,7 +45,7 @@ internal sealed class InjectionTreeBuilder
         var diagnostics = ImmutableList.CreateBuilder<InjectionStageError>();
         var factoryConstructorParameters = ImmutableList.CreateBuilder<FactoryConstructorParameterInjectionNode>();
 
-        var injectionNodePair = this.GetInjectionNode(binding, null, Scope.NewInstance, O.None, factoryConstructorParameters, diagnostics, cancellationToken);
+        var injectionNodePair = this.GetInjectionNode(binding, null, Scope.NewInstance, null, factoryConstructorParameters, diagnostics, cancellationToken);
         if (diagnostics.IsEmpty())
         {
             return R.Success(new InjectionTree(injectionNodePair.InjectionNode, injectionNodePair.ImplementDisposable, factoryConstructorParameters.ToImmutable()));
@@ -59,7 +58,7 @@ internal sealed class InjectionTreeBuilder
         Binding binding,
         InjectionNode? parentInjectionNode,
         Scope parentScope,
-        O<DefiniteParameter> parameterOption,
+        DefiniteParameter? parameterOption,
         ImmutableList<FactoryConstructorParameterInjectionNode>.Builder factoryMethodParameters,
         ImmutableList<InjectionStageError>.Builder diagnostics,
         CancellationToken cancellationToken)
@@ -78,8 +77,8 @@ internal sealed class InjectionTreeBuilder
            parentInjectionNode,
            parentScope,
            implementIDisposable,
-           O.From(binding.IsNewOverridable, binding.Method.Parameters),
-           O.From(binding.IsInjectable, binding.CommonType).Combine(parameterOption, (type, parameter) => new ParameterNode(type, this.GetParameterSource(type, parameter, diagnostics), parameter.Name, parameter.TypeMetadata, scope == Scope.NewInstance, parentInjectionNode)),
+           binding.IsNewOverridable.ToOption(binding.Method.Parameters),
+           binding.IsInjectable.ToOption(binding.CommonType).Combine(parameterOption, (type, parameter) => new ParameterNode(type, this.GetParameterSource(type, parameter, diagnostics), parameter.Name, parameter.TypeMetadata, scope == Scope.NewInstance, parentInjectionNode)),
            diagnostics);
 
         foreach (var parameter in binding.Method.Parameters)
@@ -89,7 +88,7 @@ internal sealed class InjectionTreeBuilder
             {
                 case SingleParameter singleParameter:
                     {
-                        var injectionNodePair = this.GetInjectionNode(singleParameter.Binding, creationInjectionNode, scope, O.Some(parameter), factoryMethodParameters, diagnostics, cancellationToken);
+                        var injectionNodePair = this.GetInjectionNode(singleParameter.Binding, creationInjectionNode, scope, parameter, factoryMethodParameters, diagnostics, cancellationToken);
                         BooleanHelper.SetIfTrue(ref implementIDisposable, injectionNodePair.ImplementDisposable);
                         constructorParameterCreationNodes.Add(injectionNodePair.InjectionNode);
                         break;
@@ -99,8 +98,8 @@ internal sealed class InjectionTreeBuilder
                     {
                         var arrayScope = this.scopeResolver.ResolveScope(arrayParameter.ArrayType);
                         var arrayConstructorParameterCreationNodes = new List<InjectionNode>();
-                        var arrayInjectionNode = this.CreateInjectionNode(arrayParameter.ArrayType, arrayParameter.ArrayType, arrayScope, arrayConstructorParameterCreationNodes, CreationSource.ArrayCreation(arrayParameter.ArrayType.ElementType), creationInjectionNode, arrayScope, false, O.None, O.None, diagnostics);
-                        var parameterInjectionNodePairs = arrayParameter.Bindings.Select(x => this.GetInjectionNode(x, arrayInjectionNode, arrayScope, O.Some(parameter), factoryMethodParameters, diagnostics, cancellationToken)).ToArray();
+                        var arrayInjectionNode = this.CreateInjectionNode(arrayParameter.ArrayType, arrayParameter.ArrayType, arrayScope, arrayConstructorParameterCreationNodes, CreationSource.ArrayCreation(arrayParameter.ArrayType.ElementType), creationInjectionNode, arrayScope, false, null, null, diagnostics);
+                        var parameterInjectionNodePairs = arrayParameter.Bindings.Select(x => this.GetInjectionNode(x, arrayInjectionNode, arrayScope, parameter, factoryMethodParameters, diagnostics, cancellationToken)).ToArray();
                         arrayConstructorParameterCreationNodes.AddRange(parameterInjectionNodePairs.Select(x => x.InjectionNode));
                         BooleanHelper.SetIfTrue(ref implementIDisposable, parameterInjectionNodePairs.Any(x => x.ImplementDisposable));
                         constructorParameterCreationNodes.Add(arrayInjectionNode);
@@ -171,8 +170,8 @@ internal sealed class InjectionTreeBuilder
         InjectionNode? parentInjectionNode,
         Scope parentScope,
         bool implementsDisposable,
-        O<ValueArray<DefiniteParameter>> overridableNewParametersOption,
-        O<ParameterNode> parameterNodeOption,
+        ValueArray<DefiniteParameter>? overridableNewParametersOption,
+        ParameterNode? parameterNodeOption,
         ImmutableList<InjectionStageError>.Builder diagnostics)
     {
         switch (scope)

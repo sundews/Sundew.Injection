@@ -8,11 +8,11 @@
     public class InterfaceSingleInstancePerFactory : IInterfaceSingleInstancePerFactory
     {
         private readonly IInjectedSeparately injectedSeparately;
-        private readonly IMultipleImplementation[] formatters;
+        private readonly IMultipleImplementationForArray[] formatters;
         private readonly IGeneratedOperationFactory operationFactory;
         private readonly IInterfaceSegregationOverridableNewB interfaceSegregationOverridableNewB;
 
-        public InterfaceSingleInstancePerFactory(IInjectedSeparately injectedSeparately, IMultipleImplementation[] formatters, IGeneratedOperationFactory operationFactory, IInterfaceSegregationOverridableNewB interfaceSegregationOverridableNewB)
+        public InterfaceSingleInstancePerFactory(IInjectedSeparately injectedSeparately, IMultipleImplementationForArray[] formatters, IGeneratedOperationFactory operationFactory, IInterfaceSegregationOverridableNewB interfaceSegregationOverridableNewB)
         {
             this.injectedSeparately = injectedSeparately;
             this.formatters = formatters;

@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <PropertyGroup>
-    <MergedOutputFile>$(OutputPath)$(AssemblyName).dll</MergedOutputFile>
-  </PropertyGroup>
-
-  <Target Name="ILRepacker" 
-          AfterTargets="PostBuildEvent" BeforeTargets="GenerateNuspec">
-
-    <ItemGroup>
-      <RequiredFiles Include="$(OutputPath)**\Sundew.Injection.dll" />
-      <DestinationFiles Include="@(RequiredFiles->'$(OutputPath)%(Filename)-Copy%(Extension)')"/>
-
-      <InputAssemblies Include="$(OutputPath)**\Sundew*.dll" />
-      <InputAssemblies Remove="@(RequiredFiles)" />
-      <InputAssemblies Remove="$(OutputPath)**\*.m.dll" />
-      <InputAssemblies Remove="$(OutputPath)**\$(AssemblyName).dll" />
-    </ItemGroup>
-
-    <PropertyGroup Condition="$(Configuration) == DebugTests">
-      <MergedOutputFile>$(OutputPath)$(AssemblyName).m.dll</MergedOutputFile>
+    <PropertyGroup>
+        <MergedOutputFile>$(OutputPath)$(AssemblyName).dll</MergedOutputFile>
     </PropertyGroup>
 
-    <Copy SourceFiles="@(RequiredFiles)" DestinationFiles="@(DestinationFiles)" >
-      <Output PropertyName="CF" TaskParameter="CopiedFiles" />
-    </Copy>
+    <Target Name="ILRepacker"
+            AfterTargets="PostBuildEvent" BeforeTargets="GenerateNuspec">
 
-    <ILRepack
-      Parallel="true"
-      Internalize="true"
-      InputAssemblies="$(OutputPath)$(AssemblyName).dll;@(InputAssemblies)"
-      InternalizeExclude="$(AssemblyName)"
-      TargetKind="Dll"
-      LibraryPath="$(OutputPath)"
-      DebugInfo="true"
-      OutputFile="$(MergedOutputFile)" />
+        <ItemGroup>
+            <RequiredFiles Include="$(OutputPath)**\Sundew.Injection.dll" />
+            <DestinationFiles Include="@(RequiredFiles->'$(OutputPath)%(Filename)-Copy%(Extension)')"/>
 
-    <Move SourceFiles="@(DestinationFiles)" DestinationFiles="@(RequiredFiles)"  >
-      <Output PropertyName="MF" TaskParameter="MovedFiles" />
-    </Move>
-  </Target>
+            <InputAssemblies Include="$(OutputPath)**\Sundew*.dll" />
+            <InputAssemblies Remove="@(RequiredFiles)" />
+            <InputAssemblies Remove="$(OutputPath)**\*.m.dll" />
+            <InputAssemblies Remove="$(OutputPath)**\$(AssemblyName).dll" />
+        </ItemGroup>
+
+        <PropertyGroup Condition="$(Configuration) == DebugTests">
+            <MergedOutputFile>$(OutputPath)$(AssemblyName).m.dll</MergedOutputFile>
+        </PropertyGroup>
+
+        <Copy SourceFiles="@(RequiredFiles)" DestinationFiles="@(DestinationFiles)" >
+            <Output PropertyName="CF" TaskParameter="CopiedFiles" />
+        </Copy>
+
+        <ILRepack
+          Parallel="true"
+          Internalize="true"
+          InputAssemblies="$(OutputPath)$(AssemblyName).dll;@(InputAssemblies)"
+          InternalizeExclude="$(AssemblyName)"
+          TargetKind="Dll"
+          LibraryPath="$(OutputPath)"
+          DebugInfo="true"
+          OutputFile="$(MergedOutputFile)" />
+
+        <Move SourceFiles="@(DestinationFiles)" DestinationFiles="@(RequiredFiles)"  >
+            <Output PropertyName="MF" TaskParameter="MovedFiles" />
+        </Move>
+    </Target>
 </Project>

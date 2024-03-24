@@ -8,7 +8,12 @@
 namespace Sundew.Injection.Generator.TypeSystem;
 
 [DiscriminatedUnions.DiscriminatedUnion]
-internal abstract partial record Type(string Name) : Symbol(Name)
+internal abstract partial record Type(string Name, bool IsValueType) : Symbol(Name)
 {
     public abstract TypeId Id { get; }
+
+    public override string ToString()
+    {
+        return this.Id.ToString();
+    }
 }

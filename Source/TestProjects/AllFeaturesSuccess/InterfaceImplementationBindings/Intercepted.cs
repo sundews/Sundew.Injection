@@ -22,9 +22,15 @@ namespace AllFeaturesSuccess.InterfaceImplementationBindings
         private readonly ISelectConstructor selectConstructor;
         private readonly NewInstanceAndDisposable newInstanceAndDisposable;
         private readonly OverrideableNewImplementation overrideableNewImplementation;
-        private readonly IEnumerable<IMultipleImplementation> formatters;
+        private readonly IEnumerable<IMultipleImplementationForArray> formatters;
 
-        public Intercepted(IEnumerable<IMultipleImplementation> formatters, ISelectFactoryMethod selectFactoryMethod, ISelectConstructor selectConstructor, Resources resources, NewInstanceAndDisposable newInstanceAndDisposable, OverrideableNewImplementation overrideableNewImplementation)
+        public Intercepted(
+            IEnumerable<IMultipleImplementationForArray> formatters,
+            ISelectFactoryMethod selectFactoryMethod,
+            ISelectConstructor selectConstructor,
+            Resources resources,
+            NewInstanceAndDisposable newInstanceAndDisposable,
+            OverrideableNewImplementation overrideableNewImplementation)
         {
             this.Resources = resources;
             this.selectFactoryMethod = selectFactoryMethod;

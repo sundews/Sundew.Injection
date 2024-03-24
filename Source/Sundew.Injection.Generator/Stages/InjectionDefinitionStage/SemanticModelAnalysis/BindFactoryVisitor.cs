@@ -11,8 +11,9 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Sundew.Base.Collections;
+using Sundew.Base.Collections.Linq;
 using Sundew.Base.Text;
+using Sundew.Injection.Generator.TypeSystem;
 
 internal class BindFactoryVisitor : CSharpSyntaxWalker
 {
@@ -36,7 +37,7 @@ internal class BindFactoryVisitor : CSharpSyntaxWalker
             case Empty<IParameterSymbol>:
                 var createMethods = factoryTypeSymbol.GetMembers().OfType<IMethodSymbol>()
                     .Where(x => x.GetAttributes().FirstOrDefault(x =>
-                        x.AttributeClass?.ToDisplayString() == typeof(CreateMethodAttribute).FullName) != null).Select(x =>
+                        x.AttributeClass?.ToDisplayString() == KnownTypesProvider.BindableCreateMethodName) != null).Select(x =>
                         (Method: this.analysisContext.TypeFactory.CreateMethod(x), ReturnType: x.ReturnType));
                 this.analysisContext.BindFactory(this.analysisContext.TypeFactory.CreateType(factoryTypeSymbol), createMethods);
                 break;

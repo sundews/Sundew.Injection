@@ -8,7 +8,6 @@
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
 using Sundew.Injection.Generator.TypeSystem;
-using Scope = Sundew.Injection.Scope;
 
 internal readonly record struct FactoryMethodRegistration(
     (Type Type, TypeMetadata TypeMetadata) Return,

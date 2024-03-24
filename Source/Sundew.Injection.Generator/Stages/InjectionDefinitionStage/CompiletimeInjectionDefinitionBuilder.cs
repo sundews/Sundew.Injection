@@ -7,14 +7,16 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
-using Sundew.Base.Primitives.Computation;
 using Sundew.Injection.Generator.TypeSystem;
-using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
+using Accessibility = Sundew.Injection.Accessibility;
+using Type = Sundew.Injection.Generator.TypeSystem.Type;
 
 internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefinitionBuilder
 {
@@ -25,6 +27,8 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
     private readonly Dictionary<TypeId, List<ParameterSource>> requiredParameters = new();
 
     private readonly List<FactoryCreationDefinition> factoryDefinitions = new();
+
+    private readonly List<ResolverCreationDefinition> resolverDefinitions = new();
 
     private readonly List<Diagnostic> diagnostics = new();
 
@@ -40,6 +44,16 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
     public bool HasBinding(Type type)
     {
         return this.bindingRegistrations.ContainsKey(type.Id);
+    }
+
+    public IReadOnlyList<BindingRegistration> TryGetBindingRegistrations(Type type)
+    {
+        if (this.bindingRegistrations.TryGetValue(type.Id, out var registrations))
+        {
+            return registrations;
+        }
+
+        return Array.Empty<BindingRegistration>();
     }
 
     public void AddParameter(Type parameterType, Inject inject = Inject.ByType)
@@ -73,7 +87,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
 
         var targetReferencingType = interfaces.Length > 0 ? interfaces.Last().Type : target.Type;
 
-        var binding = new BindingRegistration(target.Type, targetReferencingType, scope ?? Scope.Auto, method, target.TypeMetadata.HasLifetime, isInjectable, isNewOverridable);
+        var binding = new BindingRegistration(target, targetReferencingType, scope ?? Scope._Auto, method, isInjectable, isNewOverridable);
         AddBinding(target.Type.Id, binding);
         foreach (var @interface in interfaces)
         {
@@ -81,7 +95,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         }
     }
 
-    public void BindGeneric(ImmutableArray<(UnboundGenericType Type, TypeMetadata TypeMetadata)> interfaces, (GenericType Type, TypeMetadata TypeMetadata) implementation, Scope scope, GenericMethod genericMethod)
+    public void BindGeneric(ImmutableArray<(UnboundGenericType Type, TypeMetadata TypeMetadata)> interfaces, (OpenGenericType Type, TypeMetadata TypeMetadata) implementation, Scope scope, GenericMethod genericMethod)
     {
         void AddBinding(UnboundGenericType type, GenericBindingRegistration genericBinding)
         {
@@ -107,9 +121,19 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         string? factoryClassNamespace = null,
         string? factoryClassName = null,
         bool generateInterface = true,
-        Injection.Accessibility accessibility = Injection.Accessibility.Public)
+        Accessibility accessibility = Injection.Accessibility.Public)
     {
         this.factoryDefinitions.Add(new FactoryCreationDefinition(factoryClassNamespace ?? this.DefaultNamespace, factoryClassName, generateInterface, factoryMethodRegistrationBuilder.Build(), accessibility));
+    }
+
+    public void CreateResolver(
+        FactoryRegistrationBuilder factoryRegistrationBuilder,
+        string? resolverClassNamespace = null,
+        string? resolverClassName = null,
+        bool generateInterface = true,
+        Accessibility accessibility = Accessibility.Public)
+    {
+        this.resolverDefinitions.Add(new ResolverCreationDefinition(resolverClassNamespace ?? this.DefaultNamespace, resolverClassName, generateInterface, factoryRegistrationBuilder.Build(), accessibility));
     }
 
     public void ReportDiagnostic(Diagnostic diagnostic)
@@ -130,7 +154,8 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
             this.factoryDefinitions.ToImmutableArray(),
             this.bindingRegistrations.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray().ToValueArray()),
             this.genericBindingRegistrations.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray().ToValueArray()),
-            this.requiredParameters.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray().ToValueArray())));
+            this.requiredParameters.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray().ToValueArray()),
+            this.resolverDefinitions.ToImmutableArray()));
     }
 
     private void AddParameterSource(Type parameterType, ParameterSource parameterSource)

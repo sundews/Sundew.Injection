@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Sundew.Base.Collections;
+using Sundew.Base.Collections.Linq;
 using Sundew.Injection.Generator.Extensions;
 using Sundew.Injection.Generator.TypeSystem;
 
@@ -106,7 +107,7 @@ internal class BindGenericVisitor : CSharpSyntaxWalker
             }
         }
 
-        this.analysisContext.CompiletimeInjectionDefinitionBuilder.BindGeneric(actualInterfaces, implementation, scope ?? Scope.Auto, actualMethod);
+        this.analysisContext.CompiletimeInjectionDefinitionBuilder.BindGeneric(actualInterfaces, implementation, scope ?? Scope._Auto, actualMethod);
     }
 
     private Scope GetScope(ArgumentSyntax argumentSyntax)

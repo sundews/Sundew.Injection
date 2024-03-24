@@ -1,7 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 extern alias sundew;
-using Result = sundew::Sundew.Base.Primitives.Computation.R;
+using Result = sundew::Sundew.Base.R;
 
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;

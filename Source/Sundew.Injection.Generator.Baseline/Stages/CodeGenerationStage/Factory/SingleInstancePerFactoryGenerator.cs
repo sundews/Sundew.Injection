@@ -9,6 +9,7 @@ namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory;
 
 using System.Collections.Immutable;
 using System.Linq;
+using Sundew.Base;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.Syntax;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Syntax;
@@ -69,15 +70,15 @@ internal class SingleInstancePerFactoryGenerator
         var factoryMethods = factoryNode.FactoryImplementation.FactoryMethods;
         if (wasAdded)
         {
-            (factoryMethods, var creationExpression) = singleInstancePerFactoryInjectionNode.OverridableNewParametersOption.Evaluate(
+            (factoryMethods, var creationExpression) = singleInstancePerFactoryInjectionNode.OverridableNewParametersOption.GetValueOrDefault(
                 factoryMethods,
                 (methodParameters, factoryMethods) => FactoryMethodHelper.GenerateFactoryMethod(factoryMethods, targetReferenceType, methodParameters, singleInstancePerFactoryInjectionNode.CreationSource, factoryNode.Arguments),
                 factoryMethods => (factoryMethods, new CreationExpression(singleInstancePerFactoryInjectionNode.CreationSource, factoryNode.Arguments)));
 
-            if (singleInstancePerFactoryInjectionNode.ParameterNodeOption.HasValue)
+            if (singleInstancePerFactoryInjectionNode.ParameterNodeOption.TryGetValue(out var parameterNode))
             {
                 var (parameterDeclarations, _, parameter, argument) = ParameterHelper.VisitParameter(
-                    singleInstancePerFactoryInjectionNode.ParameterNodeOption.Value,
+                    parameterNode,
                     null,
                     constructorParameters,
                     ImmutableList<ParameterDeclaration>.Empty,

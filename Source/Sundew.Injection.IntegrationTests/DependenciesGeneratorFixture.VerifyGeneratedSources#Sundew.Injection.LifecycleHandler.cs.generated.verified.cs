@@ -47,52 +47,61 @@ namespace Sundew.Injection
             this.perRequestDisposingDictionary = new WeakKeyDisposingDictionary<object>(disposalReporter);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public void TryAdd(object constructed)
         {
             this.sharedInitializingList.TryAdd(constructed);
             this.sharedDisposingList.TryAdd(constructed);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public void TryAdd(object constructed, object target)
         {
             this.perRequestInitializingDictionary.TryAdd(constructed, target);
             this.perRequestDisposingDictionary.TryAdd(constructed, target);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public void Initialize()
         {
             this.sharedInitializingList.Initialize();
             this.perRequestInitializingDictionary.Initialize();
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public async ValueTask InitializeAsync()
         {
             await this.sharedInitializingList.InitializeAsync().ConfigureAwait(false);
             await this.perRequestInitializingDictionary.InitializeAsync().ConfigureAwait(false);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public void Dispose()
         {
             this.perRequestDisposingDictionary.Dispose();
             this.sharedDisposingList.Dispose();
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public async ValueTask DisposeAsync()
         {
             await this.perRequestDisposingDictionary.DisposeAsync().ConfigureAwait(false);
             await this.sharedDisposingList.DisposeAsync().ConfigureAwait(false);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public void Dispose(object constructed)
         {
             this.perRequestDisposingDictionary.Dispose(constructed);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public ValueTask DisposeAsync(object constructed)
         {
             return this.perRequestDisposingDictionary.DisposeAsync(constructed);
         }
 
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public ChildLifecycleHandler CreateChildLifecycleHandler()
         {
             return new ChildLifecycleHandler(this.sharedInitializingList, this.initializeConcurrently, this.disposeConcurrently, this.initializationReporter, this.disposalReporter);

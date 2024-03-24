@@ -20,4 +20,8 @@ internal interface IKnownInjectableTypes
     INamedTypeSymbol IInitializableTypeSymbol { get; }
 
     INamedTypeSymbol IAsyncInitializableTypeSymbol { get; }
+
+    INamedTypeSymbol IReadOnlyListOfTTypeSymbol { get; }
+
+    INamedTypeSymbol IEnumerableOfTTypeSymbol { get; }
 }

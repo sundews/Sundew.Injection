@@ -42,7 +42,12 @@ internal sealed class TypeFactory
         return TypeConverter.GetMethod(methodSymbol, this.knownInjectableTypes);
     }
 
-    public (GenericType Type, TypeMetadata TypeMatadata) GetGenericType(INamedTypeSymbol namedTypeSymbol)
+    public FactoryMethod CreateFactoryMethod(IMethodSymbol methodSymbol)
+    {
+        return TypeConverter.GetFactoryMethod(methodSymbol, this.knownInjectableTypes);
+    }
+
+    public (OpenGenericType Type, TypeMetadata TypeMatadata) GetGenericType(INamedTypeSymbol namedTypeSymbol)
     {
         var genericTypeSymbol = namedTypeSymbol.ConstructedFrom;
         return (GenericTypeConverter.GetGenericType(genericTypeSymbol), this.GetTypeMetadata(genericTypeSymbol, default));

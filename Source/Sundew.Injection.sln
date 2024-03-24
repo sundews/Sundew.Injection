@@ -15,9 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AllFeaturesSuccess", "TestP
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{615FC6B8-170C-4588-8976-FD5B2C947B67}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		..\.gitignore = ..\.gitignore
 		..\.github\dependabot.yml = ..\.github\dependabot.yml
 		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
 		..\Documentation.md = ..\Documentation.md
 		..\.github\workflows\dotnet.yml = ..\.github\workflows\dotnet.yml
 		global.json = global.json
@@ -48,7 +50,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Injection.Testing", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Injection.GeneratorDependencies", "Sundew.Injection.GeneratorDependencies\Sundew.Injection.GeneratorDependencies.csproj", "{A28F8C05-648E-4999-B6B1-180CFB6E6C2A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllFeaturesSuccessDependency", "TestProjects\AllFeaturesSuccessDependency\AllFeaturesSuccessDependency.csproj", "{3A168BE4-80C2-49C2-89A2-3870CEABE9DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AllFeaturesSuccessDependency", "TestProjects\AllFeaturesSuccessDependency\AllFeaturesSuccessDependency.csproj", "{3A168BE4-80C2-49C2-89A2-3870CEABE9DB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Injection.PerformanceTests", "Sundew.Injection.PerformanceTests\Sundew.Injection.PerformanceTests.csproj", "{EA549FB4-6F3C-479A-B37F-0C2DC8D4EFD7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -147,6 +151,12 @@ Global
 		{3A168BE4-80C2-49C2-89A2-3870CEABE9DB}.DebugTests|Any CPU.Build.0 = Debug|Any CPU
 		{3A168BE4-80C2-49C2-89A2-3870CEABE9DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A168BE4-80C2-49C2-89A2-3870CEABE9DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA549FB4-6F3C-479A-B37F-0C2DC8D4EFD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA549FB4-6F3C-479A-B37F-0C2DC8D4EFD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA549FB4-6F3C-479A-B37F-0C2DC8D4EFD7}.DebugTests|Any CPU.ActiveCfg = DebugTests|Any CPU
+		{EA549FB4-6F3C-479A-B37F-0C2DC8D4EFD7}.DebugTests|Any CPU.Build.0 = DebugTests|Any CPU
+		{EA549FB4-6F3C-479A-B37F-0C2DC8D4EFD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA549FB4-6F3C-479A-B37F-0C2DC8D4EFD7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -162,6 +172,7 @@ Global
 		{203852C8-EAE8-45D1-96DC-8FD290C51F2F} = {9E41F070-F91D-4526-A6C9-AB3F454D3A8A}
 		{02472129-7EAE-4A4B-B98B-E04026D6DD30} = {2D0EABCE-E506-436E-8483-F598967B61AC}
 		{3A168BE4-80C2-49C2-89A2-3870CEABE9DB} = {9E41F070-F91D-4526-A6C9-AB3F454D3A8A}
+		{EA549FB4-6F3C-479A-B37F-0C2DC8D4EFD7} = {88F08C53-01F8-428F-BA00-B28B1DFEA880}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BC13742C-AB82-49EE-988E-1FF59BAF1BB2}

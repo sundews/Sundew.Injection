@@ -9,8 +9,8 @@ namespace Sundew.Injection.Generator.Stages.FactoryDataStage.Resolvers;
 
 using System.Collections.Immutable;
 using System.Linq;
+using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
-using Sundew.Base.Primitives.Computation;
 using Sundew.Base.Text;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.TypeSystem;

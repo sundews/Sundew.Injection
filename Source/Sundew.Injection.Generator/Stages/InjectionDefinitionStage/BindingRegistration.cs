@@ -10,10 +10,9 @@ namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed record BindingRegistration(
-    Type TargetType,
+    (Type Type, TypeMetadata TypeMetadata) TargetType,
     Type TargetReferencingType,
     Scope Scope,
     Method Method,
-    bool HasLifecycle,
     bool IsInjectable,
     bool IsNewOverridable);

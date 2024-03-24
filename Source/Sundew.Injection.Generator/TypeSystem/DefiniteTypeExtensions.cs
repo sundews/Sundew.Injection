@@ -17,12 +17,13 @@ public static class DefiniteTypeExtensions
         return definiteType switch
         {
             DefiniteArrayType definiteArrayType => definiteArrayType.ElementType.Name,
-            DefiniteBoundGenericType definiteBoundGenericType => GetDefiniteBoundGenericTypeName(
+            DefiniteClosedGenericType definiteBoundGenericType => GetDefiniteBoundGenericTypeName(
                 definiteBoundGenericType),
+            DefiniteNestedType definiteNestedType => definiteNestedType.Name,
             NamedType namedType => namedType.Name,
         };
 
-        string GetDefiniteBoundGenericTypeName(DefiniteBoundGenericType definiteBoundGenericType)
+        string GetDefiniteBoundGenericTypeName(DefiniteClosedGenericType definiteBoundGenericType)
         {
             var stringBuilder = new StringBuilder(definiteBoundGenericType.Name);
             stringBuilder.AppendItems(definiteBoundGenericType.TypeArguments, (builder, x) => builder.Append(GetDefiniteTypeName(x.Type)), string.Empty);

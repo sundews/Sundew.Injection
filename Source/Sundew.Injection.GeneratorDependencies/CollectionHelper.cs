@@ -14,6 +14,7 @@ namespace Sundew.Injection
 
     internal static class CollectionHelper
     {
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public static IReadOnlyCollection<TItem> ToReadOnly<TItem>(this IEnumerable<TItem> items)
         {
             if (items is IReadOnlyCollection<TItem> collection)

@@ -6,25 +6,36 @@ namespace AllFeaturesSuccess
     [global::Sundew.Injection.Factory]
     public interface IResolveRootFactory : global::System.IDisposable, global::System.IAsyncDisposable, global::Sundew.Injection.IGeneratedFactory
     {
-        global::AllFeaturesSuccess.IResolveRoot Create(
-            int[] defaultItems,
+        global::AllFeaturesSuccess.IResolveRoot CreateResolveRoot(
+            global::System.Collections.Generic.IEnumerable<int> integers,
+            int defaultItem,
             global::System.Func<global::AllFeaturesSuccess.RequiredInterface.IRequiredService> requiredService,
             global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest? injectableSingleInstancePerRequest = null,
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null);
 
-        global::System.Threading.Tasks.Task<global::AllFeaturesSuccess.IResolveRoot> CreateAsync(
-            int[] defaultItems,
+        [global::Sundew.Injection.IndirectCreateMethodAttribute]
+        global::System.Threading.Tasks.Task<global::AllFeaturesSuccess.IResolveRoot> CreateResolveRootAsync(
+            global::System.Collections.Generic.IEnumerable<int> integers,
+            int defaultItem,
             global::System.Func<global::AllFeaturesSuccess.RequiredInterface.IRequiredService> requiredService,
             global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest? injectableSingleInstancePerRequest = null,
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null);
 
         [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-        [global::Sundew.Injection.CreateMethod]
-        global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.IResolveRoot> CreateUninitialized(
-            int[] defaultItems,
+        [global::Sundew.Injection.BindableCreateMethodAttribute]
+        [global::Sundew.Injection.IndirectCreateMethodAttribute]
+        global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.IResolveRoot> CreateResolveRootUninitialized(
+            global::System.Collections.Generic.IEnumerable<int> integers,
+            int defaultItem,
             global::System.Func<global::AllFeaturesSuccess.RequiredInterface.IRequiredService> requiredService,
             global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest? injectableSingleInstancePerRequest = null,
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null);
+
+        [global::Sundew.Injection.BindableCreateMethodAttribute]
+        global::AllFeaturesSuccess.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory CreateInterfaceSingleInstancePerFactory();
+
+        [global::Sundew.Injection.BindableCreateMethodAttribute]
+        global::AllFeaturesSuccess.TypeResolver.IMultipleImplementationForTypeResolver CreateMultipleImplementationForTypeResolverC();
 
         void Dispose(global::AllFeaturesSuccess.IResolveRoot resolveRoot);
 

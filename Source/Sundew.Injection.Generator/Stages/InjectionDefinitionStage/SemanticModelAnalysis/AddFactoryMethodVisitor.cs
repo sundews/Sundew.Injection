@@ -10,7 +10,7 @@ namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticMod
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Sundew.Base.Primitives;
+using Sundew.Base;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal class AddFactoryMethodVisitor : CSharpSyntaxWalker
@@ -86,7 +86,13 @@ internal class AddFactoryMethodVisitor : CSharpSyntaxWalker
             }
         }
 
-        this.factoryMethodRegistrationBuilder.Add(interfaceType, implementationType, constructorSelector, createMethodName, accessibility, isNewOverridable);
+        if (typeArguments.Length == 1 && !implementationType.IsInstantiable() && constructorSelector == null)
+        {
+            this.analysisContext.AddDefaultFactoryMethodFromTypeSymbol(implementationType, accessibility, isNewOverridable, this.factoryMethodRegistrationBuilder);
+            return;
+        }
+
+        this.analysisContext.AddFactoryMethodFromTypeSymbol(interfaceType, implementationType, constructorSelector, createMethodName, accessibility, isNewOverridable, this.factoryMethodRegistrationBuilder);
     }
 
     private Method? GetMethod(ArgumentSyntax argumentSyntax)

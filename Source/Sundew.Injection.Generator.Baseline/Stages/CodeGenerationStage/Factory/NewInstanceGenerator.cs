@@ -9,7 +9,7 @@ namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory;
 
 using System.Collections.Immutable;
 using System.Linq;
-using Sundew.Base.Primitives.Computation;
+using Sundew.Base;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.Syntax;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Syntax;
@@ -61,13 +61,12 @@ internal sealed class NewInstanceGenerator
 
         var variables = factoryNode.CreateMethod.Variables;
         var statements = factoryNode.CreateMethod.Statements;
-        var (factoryMethods, creationExpression) = newInstanceInjectionNode.OverridableNewParametersOption.Evaluate(
+        var (factoryMethods, creationExpression) = newInstanceInjectionNode.OverridableNewParametersOption.GetValueOrDefault(
             factoryNode.FactoryImplementation.FactoryMethods,
             (methodParameters, factoryMethods) => FactoryMethodHelper.GenerateFactoryMethod(factoryMethods, commonType, methodParameters, newInstanceInjectionNode.CreationSource, factoryNode.Arguments),
             factoryMethods => (factoryMethods, new CreationExpression(newInstanceInjectionNode.CreationSource, factoryNode.Arguments)));
 
-        var variableDeclarationOption = O.From(
-            newInstanceInjectionNode.TargetImplementsDisposable || newInstanceInjectionNode.ParameterNodeOption.HasValue,
+        var variableDeclarationOption = (newInstanceInjectionNode.TargetImplementsDisposable || newInstanceInjectionNode.ParameterNodeOption.HasValue()).ToOption(
             () =>
             {
                 var variableName = NameHelper.GetUniqueName(newInstanceInjectionNode.Name, newInstanceInjectionNode.ParentInjectionNode);
@@ -79,10 +78,10 @@ internal sealed class NewInstanceGenerator
             });
 
         var factoryMethodParameters = factoryNode.CreateMethod.Parameters;
-        if (newInstanceInjectionNode.ParameterNodeOption.HasValue)
+        if (newInstanceInjectionNode.ParameterNodeOption.HasValue() && variableDeclarationOption.HasValue)
         {
             var (parameterDeclarations, wasAdded, parameter, argument) = ParameterHelper.VisitParameter(
-                newInstanceInjectionNode.ParameterNodeOption.Value,
+                newInstanceInjectionNode.ParameterNodeOption,
                 null,
                 factoryMethodParameters,
                 factoryImplementation.Constructor.Parameters,

@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFrameworks>net7.0;net48</TargetFrameworks>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Configurations>Debug;Release;DebugTests</Configurations>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AdditionalFiles Include="stylecop.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BenchmarkDotNet" />
+        <PackageReference Include="Sundew.Testing.CodeAnalysis" />
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces">
+            <Aliases>asyncinterfaces</Aliases>
+        </PackageReference>
+        <PackageReference Include="Initialization.Interfaces">
+            <Aliases>initialization</Aliases>
+        </PackageReference>
+        <PackageReference Include="Disposal.Interfaces">
+            <Aliases>disposal</Aliases>
+        </PackageReference>
+        <PackageReference Include="Sundew.Base.Collections" GeneratePathProperty="true" PrivateAssets="all" />
+        <PackageReference Include="Sundew.Base.Primitives" GeneratePathProperty="true" PrivateAssets="all" />
+        <PackageReference Include="Sundew.Base.Equality" GeneratePathProperty="true" PrivateAssets="all" />
+        <PackageReference Include="Sundew.Base.Memory" GeneratePathProperty="true" PrivateAssets="all" />
+        <PackageReference Include="Sundew.Base.Reporting" GeneratePathProperty="true" PrivateAssets="all" />
+        <PackageReference Include="Sundew.Base.Text" GeneratePathProperty="true" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Sundew.Injection.Generator.Baseline\Sundew.Injection.Generator.Baseline.csproj"  >
+            <Aliases>baseline</Aliases>
+        </ProjectReference>
+        <ProjectReference Include="..\Sundew.Injection.Generator\Sundew.Injection.Generator.csproj"/>
+        <ProjectReference Include="..\Sundew.Injection.Testing\Sundew.Injection.Testing.csproj"/>
+    </ItemGroup>
+
+</Project>

@@ -102,4 +102,22 @@ public static class Diagnostics
         DiagnosticSeverity.Error,
         true,
         Resources.MultipleParametersNotSupportedForBindFactoryErrorDescription);
+
+    public static DiagnosticDescriptor NoFactoryMethodFoundForTypeError { get; } = new(
+        "SI0010",
+        Resources.NoFactoryMethodFoundForTypeErrorTitle,
+        Resources.NoFactoryMethodFoundForTypeErrorMessageFormat,
+        CodeGeneration,
+        DiagnosticSeverity.Error,
+        true,
+        Resources.NoFactoryMethodFoundForTypeErrorDescription);
+
+    public static DiagnosticDescriptor NoBindingFoundForNonConstructableTypeError { get; } = new(
+        "SI0011",
+        Resources.NoBindingFoundForNonConstructableTypeErrorTitle,
+        Resources.NoBindingFoundForNonConstructableTypeErrorMessageFormat,
+        CodeGeneration,
+        DiagnosticSeverity.Error,
+        true,
+        Resources.NoBindingFoundForNonConstructableTypeErrorDescription);
 }

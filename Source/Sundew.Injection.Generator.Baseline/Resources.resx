@@ -121,19 +121,19 @@
     <value>Could not find exact match while resolving a required parameter.</value>
   </data>
   <data name="ResolveRequiredParameterErrorMessageFormat" xml:space="preserve">
-    <value>Cound not resolve exact match of parameter '{0}' '{1}' in type: '{3}'. Possible candicates are: '{4}'</value>
+    <value>Cound not Resolve exact match of parameter '{0}' '{1}' in type: '{3}'. Possible candicates are: '{4}'</value>
   </data>
   <data name="ResolveRequiredParameterErrorTitle" xml:space="preserve">
-    <value>Failed to resolve required parameter by an exact match.</value>
+    <value>Failed to Resolve required parameter by an exact match.</value>
   </data>
   <data name="ResolveTypeErrorDescription" xml:space="preserve">
     <value>A type could not be resolved while generating a factory. Verify that it has a binding or that the type has an accessible constructor.</value>
   </data>
   <data name="ResolveTypeErrorMessageFormat" xml:space="preserve">
-    <value>Could not resolve the type: '{0}', while constructing '{1}'-</value>
+    <value>Could not Resolve the type: '{0}', while constructing '{1}'-</value>
   </data>
   <data name="ResolveTypeErrorTitle" xml:space="preserve">
-    <value>Could not resolve type while generating factory.</value>
+    <value>Could not Resolve type while generating factory.</value>
   </data>
   <data name="ScopeErrorDescription" xml:space="preserve">
     <value>A scope error indicate that the scope of a binding is invalid. E.g. a SingleInstancePerFactory cannot inject a SingleInstancePerRequest.</value>

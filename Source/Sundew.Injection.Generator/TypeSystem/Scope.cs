@@ -10,30 +10,15 @@ namespace Sundew.Injection.Generator.TypeSystem;
 using Sundew.DiscriminatedUnions;
 
 [DiscriminatedUnion]
-internal abstract record Scope
+internal abstract partial record Scope
 {
-    [CaseType(typeof(AutoScope))]
-    public static Scope Auto { get; } = new AutoScope();
+    internal sealed record Auto : Scope;
 
-    [CaseType(typeof(NewInstanceScope))]
-    public static Scope NewInstance { get; } = new NewInstanceScope();
+    internal sealed record NewInstance : Scope;
 
-    [CaseType(typeof(SingleInstancePerRequestScope))]
-    public static Scope SingleInstancePerRequest { get; } = new SingleInstancePerRequestScope();
+    internal sealed record SingleInstancePerRequest : Scope;
 
-    [CaseType(typeof(SingleInstancePerFactoryScope))]
-    public static Scope SingleInstancePerFactory { get; } = new SingleInstancePerFactoryScope();
+    internal sealed record SingleInstancePerFuncResult(Method Method) : Scope;
 
-    [CaseType(typeof(SingleInstancePerFuncResultScope))]
-    public static Scope SingleInstancePerFuncResult(Method method) => new SingleInstancePerFuncResultScope(method);
-
-    internal sealed record AutoScope : Scope;
-
-    internal sealed record NewInstanceScope : Scope;
-
-    internal sealed record SingleInstancePerRequestScope : Scope;
-
-    internal sealed record SingleInstancePerFuncResultScope(Method Method) : Scope;
-
-    internal sealed record SingleInstancePerFactoryScope : Scope;
+    internal sealed record SingleInstancePerFactory : Scope;
 }

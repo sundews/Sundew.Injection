@@ -8,7 +8,7 @@
 namespace Sundew.Injection.Generator;
 
 using Microsoft.CodeAnalysis;
-using Sundew.Base.Primitives.Computation;
+using Sundew.Base;
 
 internal static class IncrementalValuesProviderSplitExtensions
 {

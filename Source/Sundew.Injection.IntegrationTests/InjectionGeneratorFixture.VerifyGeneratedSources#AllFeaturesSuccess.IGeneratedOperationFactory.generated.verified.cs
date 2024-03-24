@@ -6,10 +6,10 @@ namespace AllFeaturesSuccess
     [global::Sundew.Injection.Factory]
     public interface IGeneratedOperationFactory : global::Sundew.Injection.IGeneratedFactory
     {
-        [global::Sundew.Injection.CreateMethod]
+        [global::Sundew.Injection.BindableCreateMethodAttribute]
         global::AllFeaturesSuccess.Operations.IOperation CreateOperationA(int lhs, int rhs);
 
-        [global::Sundew.Injection.CreateMethod]
+        [global::Sundew.Injection.BindableCreateMethodAttribute]
         global::AllFeaturesSuccess.Operations.IOperation CreateOperationB(int lhs, int rhs);
     }
 }
