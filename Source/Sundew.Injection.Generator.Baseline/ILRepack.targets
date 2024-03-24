@@ -10,7 +10,6 @@
 
         <ItemGroup>
             <InputAssemblies Include="$(OutputPath)**\Sundew*.dll" />
-            <InputAssemblies Include="$(OutputPath)**\Initialization.Interfaces.dll" />
             <InputAssemblies Remove="$(OutputPath)**\*.m.dll" />
             <InputAssemblies Remove="$(OutputPath)**\$(AssemblyName).dll" />
         </ItemGroup>

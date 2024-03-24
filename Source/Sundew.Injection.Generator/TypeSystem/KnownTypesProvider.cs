@@ -7,12 +7,12 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-using global::Initialization.Interfaces;
-using Microsoft.CodeAnalysis;
-using Sundew.Base;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using global::Initialization.Interfaces;
+using Microsoft.CodeAnalysis;
+using Sundew.Base;
 
 public static class KnownTypesProvider
 {

@@ -13,6 +13,7 @@
         <RepositoryType>git</RepositoryType>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <NoWarn>CS1591</NoWarn>
     </PropertyGroup>
     <Import Project="Directory.Build.props.user" Condition="Exists('Directory.Build.props.user')"/>
