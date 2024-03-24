@@ -26,7 +26,7 @@ public class CodeGenerationEqualityFixture
         }
 
         var injectionDefinitionSemanticModel = compilation.GetSemanticModel(demoModuleDeclaration.DeclaringSyntaxReferences.First().SyntaxTree, true);
-        var injectionDefinition= InjectionDefinitionProvider.GetInjectionDefinition(injectionDefinitionSemanticModel, CancellationToken.None);
+        var injectionDefinition = InjectionDefinitionProvider.GetInjectionDefinition(injectionDefinitionSemanticModel, CancellationToken.None);
         if (!injectionDefinition.IsSuccess)
         {
             throw new AssertionFailedException($"InjectionDefinition should have been successful, but failed with errors: {injectionDefinition.Error.JoinToString((builder, item) => builder.Append(item), ", ")}");
@@ -34,7 +34,7 @@ public class CodeGenerationEqualityFixture
 
         var compilationData = CompilationDataProvider.GetCompilationData(compilation, CancellationToken.None).Value!;
 
-        var factoryDataArray = FactoryResolvedGraphProvider.GetResolvedFactoryGraph(injectionDefinition.Value, compilationData, CancellationToken.None);
+        var factoryDataArray = FactoryResolvedGraphProvider.GetResolvedFactoryGraph(injectionDefinition.Value!, compilationData, CancellationToken.None);
 
         var lhs = factoryDataArray.Select(x => FactoryCodeGenerationProvider.GetGeneratedOutput(x.Value!, compilationData, CancellationToken.None));
         var rhs = factoryDataArray.Select(x => FactoryCodeGenerationProvider.GetGeneratedOutput(x.Value!, compilationData, CancellationToken.None));
