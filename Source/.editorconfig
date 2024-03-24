@@ -1,3 +1,7 @@
+[*.xml]
+tab_width = 2
+indent_size = 2
+end_of_line = crlf
 
 [*.{cs,vb}]
 #### Naming styles ####

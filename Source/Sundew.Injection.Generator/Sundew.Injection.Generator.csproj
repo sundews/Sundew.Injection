@@ -41,7 +41,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="ILRepack.Lib.MSBuild"  />
+        <PackageReference Include="ILRepack.Lib.MSBuild.Task"/>
         <PackageReference Include="Newtonsoft.Json" />
         <PackageReference Include="PolySharp" >
             <PrivateAssets>all</PrivateAssets>

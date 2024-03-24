@@ -1,30 +1,31 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <PropertyGroup>
-    <MergedOutputFile>$(OutputPath)$(AssemblyName).dll</MergedOutputFile>
-  </PropertyGroup>
-
-  <Target Name="ILRepacker" 
-          AfterTargets="PostBuildEvent" BeforeTargets="GenerateNuspec">
-
-    <ItemGroup>
-      <InputAssemblies Include="$(OutputPath)**\Sundew*.dll" />
-      <InputAssemblies Remove="$(OutputPath)**\*.m.dll" />
-      <InputAssemblies Remove="$(OutputPath)**\$(AssemblyName).dll" />
-    </ItemGroup>
-
-    <PropertyGroup Condition="$(Configuration) == DebugTests">
-      <MergedOutputFile>$(OutputPath)$(AssemblyName).m.dll</MergedOutputFile>
+    <PropertyGroup>
+        <MergedOutputFile>$(OutputPath)$(AssemblyName).dll</MergedOutputFile>
     </PropertyGroup>
 
-    <ILRepack
-      Parallel="true"
-      Internalize="true"
-      InputAssemblies="$(OutputPath)$(AssemblyName).dll;@(InputAssemblies)"
-      InternalizeExclude="$(AssemblyName)"
-      TargetKind="Dll"
-      LibraryPath="$(OutputPath)"
-      OutputFile="$(MergedOutputFile)" />
-  </Target>
+    <Target Name="ILRepacker"
+            AfterTargets="PostBuildEvent" BeforeTargets="GenerateNuspec">
+
+        <ItemGroup>
+            <InputAssemblies Include="$(OutputPath)**\Sundew*.dll" />
+            <InputAssemblies Include="$(OutputPath)**\Initialization.Interfaces.dll" />
+            <InputAssemblies Remove="$(OutputPath)**\*.m.dll" />
+            <InputAssemblies Remove="$(OutputPath)**\$(AssemblyName).dll" />
+        </ItemGroup>
+
+        <PropertyGroup Condition="$(Configuration) == DebugTests">
+            <MergedOutputFile>$(OutputPath)$(AssemblyName).m.dll</MergedOutputFile>
+        </PropertyGroup>
+
+        <ILRepack
+          Parallel="true"
+          Internalize="true"
+          InputAssemblies="$(OutputPath)$(AssemblyName).dll;@(InputAssemblies)"
+          InternalizeExclude="$(AssemblyName)"
+          TargetKind="Dll"
+          LibraryPath="$(OutputPath)"
+          OutputFile="$(MergedOutputFile)" />
+    </Target>
 </Project>
