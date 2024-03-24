@@ -7,12 +7,12 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using global::Initialization.Interfaces;
 using Microsoft.CodeAnalysis;
 using Sundew.Base;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 public static class KnownTypesProvider
 {
@@ -21,12 +21,12 @@ public static class KnownTypesProvider
 
     public static R<INamedTypeSymbol, string> GetIInitializableTypeSymbol(this Compilation compilation)
     {
-        return R.From(compilation.GetTypeByMetadataName(typeof(IInitializable).FullName), () => "IInitializable was not found, Initialization.Interfaces must be referenced");
+        return R.From(compilation.GetTypesByMetadataName(typeof(IInitializable).FullName).FirstOrDefault(), () => "IInitializable was not found, Initialization.Interfaces must be referenced");
     }
 
     public static R<INamedTypeSymbol, string> GetIAsyncInitializableTypeSymbol(this Compilation compilation)
     {
-        return R.From(compilation.GetTypeByMetadataName(typeof(IAsyncInitializable).FullName), () => "IAsyncInitializable was not found, Initialization.Interfaces must be referenced");
+        return R.From(compilation.GetTypesByMetadataName(typeof(IAsyncInitializable).FullName).FirstOrDefault(), () => "IAsyncInitializable was not found, Initialization.Interfaces must be referenced");
     }
 
     public static R<INamedTypeSymbol, string> GetIDisposableTypeSymbol(this Compilation compilation)
