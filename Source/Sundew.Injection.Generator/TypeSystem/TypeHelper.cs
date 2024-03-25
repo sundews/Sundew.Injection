@@ -48,13 +48,18 @@ internal static class TypeHelper
 
     public static IMethodSymbol? GetDefaultMethodWithMostParameters(this ImmutableArray<IMethodSymbol> methods)
     {
+        if (methods == default)
+        {
+            return default;
+        }
+
         return methods
             .OrderByDescending(x => x.Parameters.Length)
             .SkipWhile(x =>
-                x.IsStatic &&
-                x.DeclaredAccessibility != Accessibility.Public &&
-                x.ContainingType.IsRecord &&
-                SymbolEqualityComparer.Default.Equals(x.Parameters.FirstOrDefault()?.Type, x.ContainingType))
+                x.IsStatic ||
+                x.DeclaredAccessibility != Accessibility.Public ||
+                (x.ContainingType.IsRecord &&
+                SymbolEqualityComparer.Default.Equals(x.Parameters.FirstOrDefault()?.Type, x.ContainingType)))
             .FirstOrDefault();
     }
 }
