@@ -1,39 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net480</TargetFrameworks>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <IsPackable>true</IsPackable>
-        <!-- Avoid ID conflicts with the package project. -->
-        <PackageId>Sundew.Injection.Interface</PackageId>
-        <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-        <Nullable>enable</Nullable>
-        <Configurations>Debug;Release;DebugTests</Configurations>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net480</TargetFrameworks>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <IsPackable>true</IsPackable>
+    <!-- Avoid ID conflicts with the package project. -->
+    <PackageId>Sundew.Injection.Interface</PackageId>
+    <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <Nullable>enable</Nullable>
+    <Configurations>Debug;Release;DebugTests</Configurations>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <AdditionalFiles Include="stylecop.json" />
-    </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="stylecop.json" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Disposal.Interfaces"/>
-        <PackageReference Include="Initialization.Interfaces"/>
-        <PackageReference Include="StyleCop.Analyzers">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Sundew.Packaging.Publish">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="System.Collections.Concurrent"/>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Disposal.Interfaces"/>
+    <PackageReference Include="Initialization.Interfaces"/>
+    <PackageReference Include="StyleCop.Analyzers">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Sundew.Packaging.Publish">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Collections.Concurrent"/>
+  </ItemGroup>
 
-    <ItemGroup>
-        <Folder Include="Interception\" />
-        <InternalsVisibleTo Include="Sundew.Injection.Tests" />
-        <InternalsVisibleTo Include="Sundew.Injection.IntegrationTests" />
-        <InternalsVisibleTo Include="Sundew.Injection.Generator.PerformanceTests" />
-    </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Interception\" />
+    <InternalsVisibleTo Include="Sundew.Injection.Tests" />
+    <InternalsVisibleTo Include="Sundew.Injection.IntegrationTests" />
+    <InternalsVisibleTo Include="Sundew.Injection.Generator.PerformanceTests" />
+  </ItemGroup>
 </Project>

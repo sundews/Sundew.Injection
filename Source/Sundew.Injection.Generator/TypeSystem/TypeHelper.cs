@@ -39,7 +39,14 @@ internal static class TypeHelper
     {
         if (typeSymbol is INamedTypeSymbol namedTypeSymbol)
         {
-            return namedTypeSymbol.Constructors.OrderByDescending(x => x.Parameters.Length).FirstOrDefault(x => !x.IsStatic && x.DeclaredAccessibility == Accessibility.Public);
+            return namedTypeSymbol.Constructors
+                .OrderByDescending(x => x.Parameters.Length)
+                .SkipWhile(x =>
+                    x.IsStatic &&
+                    x.DeclaredAccessibility != Accessibility.Public &&
+                    x.ContainingType.IsRecord &&
+                    SymbolEqualityComparer.Default.Equals(x.Parameters.FirstOrDefault()?.Type, x.ContainingType))
+                .FirstOrDefault();
         }
 
         return default;
