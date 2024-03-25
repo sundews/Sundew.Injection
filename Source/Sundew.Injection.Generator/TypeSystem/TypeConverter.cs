@@ -135,7 +135,7 @@ internal static class TypeConverter
     public static Parameter GetParameter(IParameterSymbol parameterSymbol, IKnownInjectableTypes knownInjectableTypes)
     {
         var fullType = GetType(parameterSymbol.Type, knownInjectableTypes);
-        return new Parameter(fullType.Type, parameterSymbol.MetadataName, GetTypeMetadata(parameterSymbol.Type, GetConstructor(fullType.Constructors.GetMethodWithMostParameters(), fullType.Type, knownInjectableTypes), knownInjectableTypes), GetParameterNecessity(parameterSymbol));
+        return new Parameter(fullType.Type, parameterSymbol.MetadataName, GetTypeMetadata(parameterSymbol.Type, GetConstructor(fullType.Constructors.GetDefaultMethodWithMostParameters(), fullType.Type, knownInjectableTypes), knownInjectableTypes), GetParameterNecessity(parameterSymbol));
     }
 
     public static ParameterNecessity GetParameterNecessity(IParameterSymbol parameterSymbol)
@@ -248,7 +248,7 @@ internal static class TypeConverter
     private static TypeArgument GetTypeArgument(ITypeSymbol typeSymbol, IKnownInjectableTypes knownInjectableTypes)
     {
         var fullType = GetType(typeSymbol, knownInjectableTypes);
-        return new TypeArgument(fullType.Type, GetTypeMetadata(typeSymbol, GetConstructor(fullType.Constructors.GetMethodWithMostParameters(), fullType.Type, knownInjectableTypes), knownInjectableTypes));
+        return new TypeArgument(fullType.Type, GetTypeMetadata(typeSymbol, GetConstructor(fullType.Constructors.GetDefaultMethodWithMostParameters(), fullType.Type, knownInjectableTypes), knownInjectableTypes));
     }
 
     private static (string Name, string Namespace, bool IsShortNameAlias) GetName(ITypeSymbol typeSymbol)

@@ -99,7 +99,7 @@ internal class BindGenericVisitor : CSharpSyntaxWalker
                 return;
             }
 
-            actualMethod = this.analysisContext.TypeFactory.GetGenericMethod(lastNamedTypeSymbol.Constructors.GetMethodWithMostParameters());
+            actualMethod = this.analysisContext.TypeFactory.GetGenericMethod(lastNamedTypeSymbol.Constructors.GetDefaultMethodWithMostParameters());
             if (actualMethod == default)
             {
                 this.analysisContext.CompiletimeInjectionDefinitionBuilder.ReportDiagnostic(Diagnostic.Create(Diagnostics.NoViableConstructorFoundError, default, last.ToDisplayString()));

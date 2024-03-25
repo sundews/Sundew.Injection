@@ -24,7 +24,7 @@ internal sealed class TypeFactory
     public (Type Type, TypeMetadata TypeMetadata) CreateType(ITypeSymbol typeSymbol)
     {
         var fullResolvableType = TypeConverter.GetType(typeSymbol, this.knownInjectableTypes);
-        return (fullResolvableType.Type, this.GetTypeMetadata(typeSymbol, TypeConverter.GetConstructor(fullResolvableType.Constructors.GetMethodWithMostParameters(), fullResolvableType.Type, this.knownInjectableTypes)));
+        return (fullResolvableType.Type, this.GetTypeMetadata(typeSymbol, TypeConverter.GetConstructor(fullResolvableType.Constructors.GetDefaultMethodWithMostParameters(), fullResolvableType.Type, this.knownInjectableTypes)));
     }
 
     public NamedType CreateNamedType(INamedTypeSymbol namedTypeSymbol)
@@ -61,7 +61,7 @@ internal sealed class TypeFactory
     public GenericParameter GetGenericParameter(IParameterSymbol parameterSymbol)
     {
         var fullSymbol = TypeConverter.GetSymbol(parameterSymbol.Type, this.knownInjectableTypes);
-        return new GenericParameter(fullSymbol.Symbol, parameterSymbol.MetadataName, this.GetTypeMetadata(parameterSymbol.Type, TypeConverter.GetConstructor(fullSymbol.Constructors.GetMethodWithMostParameters(), fullSymbol.Symbol as Type, this.knownInjectableTypes)));
+        return new GenericParameter(fullSymbol.Symbol, parameterSymbol.MetadataName, this.GetTypeMetadata(parameterSymbol.Type, TypeConverter.GetConstructor(fullSymbol.Constructors.GetDefaultMethodWithMostParameters(), fullSymbol.Symbol as Type, this.knownInjectableTypes)));
     }
 
     public (UnboundGenericType Type, TypeMetadata TypeMetadata) GetUnboundGenericType(INamedTypeSymbol unboundGenericTypeSymbol)

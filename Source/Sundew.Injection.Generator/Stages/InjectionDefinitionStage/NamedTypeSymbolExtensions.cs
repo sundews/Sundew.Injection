@@ -7,22 +7,11 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
-using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 
 public static class NamedTypeSymbolExtensions
 {
-    public static IMethodSymbol? GetMethodWithMostParameters(this ImmutableArray<IMethodSymbol> methods)
-    {
-        if (methods == default)
-        {
-            return default;
-        }
-
-        return methods.OrderByDescending(x => x.Parameters.Length).FirstOrDefault();
-    }
-
     public static bool IsInstantiable(this ITypeSymbol typeSymbol)
     {
         return !typeSymbol.IsAbstract && typeSymbol.TypeKind == TypeKind.Class && typeSymbol.SpecialType != SpecialType.System_String;

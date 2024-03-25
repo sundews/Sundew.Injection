@@ -7,6 +7,7 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -39,16 +40,21 @@ internal static class TypeHelper
     {
         if (typeSymbol is INamedTypeSymbol namedTypeSymbol)
         {
-            return namedTypeSymbol.Constructors
-                .OrderByDescending(x => x.Parameters.Length)
-                .SkipWhile(x =>
-                    x.IsStatic &&
-                    x.DeclaredAccessibility != Accessibility.Public &&
-                    x.ContainingType.IsRecord &&
-                    SymbolEqualityComparer.Default.Equals(x.Parameters.FirstOrDefault()?.Type, x.ContainingType))
-                .FirstOrDefault();
+            return GetDefaultMethodWithMostParameters(namedTypeSymbol.Constructors);
         }
 
         return default;
+    }
+
+    public static IMethodSymbol? GetDefaultMethodWithMostParameters(this ImmutableArray<IMethodSymbol> methods)
+    {
+        return methods
+            .OrderByDescending(x => x.Parameters.Length)
+            .SkipWhile(x =>
+                x.IsStatic &&
+                x.DeclaredAccessibility != Accessibility.Public &&
+                x.ContainingType.IsRecord &&
+                SymbolEqualityComparer.Default.Equals(x.Parameters.FirstOrDefault()?.Type, x.ContainingType))
+            .FirstOrDefault();
     }
 }
