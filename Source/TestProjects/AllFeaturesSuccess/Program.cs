@@ -23,7 +23,7 @@ public class Program
             injectedSeparately2,
             new OptionalParameters(),
             "Name");
-        var viewModelModule = viewModelModuleFactory.CreateResolveRoot(new int[] { 1, 2, 3, 4 }, 5, () => new RequiredService());
+        var viewModelModule = viewModelModuleFactory.CreateResolveRoot(new int[] { 1, 2, 3, 4 }, 5, () => new RequiredService(), new RequiredParameter("Test"));
         viewModelModule.InterfaceSingleInstancePerFactory.Start();
         viewModelModule.Intercepted.ToString();
         viewModelModule.PrintMe(0);

@@ -1,8 +1,7 @@
-﻿namespace AllFeaturesSuccess.ConstructorSelection
-{
-    using System;
+﻿namespace AllFeaturesSuccess.ConstructorSelection;
 
-    public interface ISelectConstructor : IAsyncDisposable, IPrint
-    {
-    }
+using System;
+
+public interface ISelectConstructor : IAsyncDisposable, IPrint
+{
 }

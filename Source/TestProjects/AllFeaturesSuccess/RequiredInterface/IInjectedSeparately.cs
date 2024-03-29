@@ -5,10 +5,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace AllFeaturesSuccess.RequiredInterface
-{
-    public interface IInjectedSeparately
-    {
+namespace AllFeaturesSuccess.RequiredInterface;
 
-    }
+public interface IInjectedSeparately
+{
+
 }

@@ -11,18 +11,9 @@
     <Configurations>Debug;Release;DebugTests</Configurations>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove=".editorconfig" />
-  </ItemGroup>
-
 
   <ItemGroup>
     <AdditionalFiles Include="stylecop.json" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <EditorConfigFiles Include=".editorconfig" />
   </ItemGroup>
 
 

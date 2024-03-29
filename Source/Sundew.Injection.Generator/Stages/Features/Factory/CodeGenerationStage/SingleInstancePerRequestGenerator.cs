@@ -88,7 +88,7 @@ internal class SingleInstancePerRequestGenerator
                 factoryNode = factoryNode.AddCreateMethodStatement(assignmentStatement);
                 if (singleInstancePerRequestInjectionNode.NeedsLifecycleHandling)
                 {
-                    factoryNode = factoryNode.AddCreateMethodStatement(new ExpressionStatement(new InvocationExpression(this.generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, new Expression[] { targetIdentifier })));
+                    factoryNode = factoryNode.AddCreateMethodStatement(Statement.ExpressionStatement(Expression.InvocationExpression(this.generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, new Expression[] { targetIdentifier })));
                 }
             }
         }

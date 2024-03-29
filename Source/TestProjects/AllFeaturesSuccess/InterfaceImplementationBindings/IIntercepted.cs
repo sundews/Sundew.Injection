@@ -1,9 +1,8 @@
-﻿namespace AllFeaturesSuccess.InterfaceImplementationBindings
-{
-    public interface IIntercepted : IPrint
-    {
-        public string Title { get; }
+﻿namespace AllFeaturesSuccess.InterfaceImplementationBindings;
 
-        public string Description { get; }
-    }
+public interface IIntercepted : IPrint
+{
+    public string Title { get; }
+
+    public string Description { get; }
 }

@@ -1,7 +1,6 @@
-﻿namespace AllFeaturesSuccess.RequiredInterface
-{
-    public interface ISingleModuleRequiredParameterCreateMethod
-    {
+﻿namespace AllFeaturesSuccess.RequiredInterface;
 
-    }
+public interface ISingleModuleRequiredParameterCreateMethod
+{
+
 }

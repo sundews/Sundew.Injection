@@ -5,62 +5,61 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace AllFeaturesSuccess.InterfaceImplementationBindings
+namespace AllFeaturesSuccess.InterfaceImplementationBindings;
+
+using System;
+using System.Collections.Generic;
+using AllFeaturesSuccess.ConstructorSelection;
+using AllFeaturesSuccess.MultipleImplementations;
+using AllFeaturesSuccess.NewInstance;
+using AllFeaturesSuccess.OverridableNew;
+using AllFeaturesSuccess.UnboundType;
+
+public class Intercepted : IIntercepted
 {
-    using System;
-    using System.Collections.Generic;
-    using AllFeaturesSuccess.ConstructorSelection;
-    using AllFeaturesSuccess.MultipleImplementations;
-    using AllFeaturesSuccess.NewInstance;
-    using AllFeaturesSuccess.OverridableNew;
-    using AllFeaturesSuccess.UnboundType;
+    public Resources Resources { get; }
+    private readonly ISelectFactoryMethod selectFactoryMethod;
+    private readonly ISelectConstructor selectConstructor;
+    private readonly NewInstanceAndDisposable newInstanceAndDisposable;
+    private readonly OverrideableNewImplementation overrideableNewImplementation;
+    private readonly IEnumerable<IMultipleImplementationForArray> formatters;
 
-    public class Intercepted : IIntercepted
+    public Intercepted(
+        IEnumerable<IMultipleImplementationForArray> formatters,
+        ISelectFactoryMethod selectFactoryMethod,
+        ISelectConstructor selectConstructor,
+        Resources resources,
+        NewInstanceAndDisposable newInstanceAndDisposable,
+        OverrideableNewImplementation overrideableNewImplementation)
     {
-        public Resources Resources { get; }
-        private readonly ISelectFactoryMethod selectFactoryMethod;
-        private readonly ISelectConstructor selectConstructor;
-        private readonly NewInstanceAndDisposable newInstanceAndDisposable;
-        private readonly OverrideableNewImplementation overrideableNewImplementation;
-        private readonly IEnumerable<IMultipleImplementationForArray> formatters;
+        this.Resources = resources;
+        this.selectFactoryMethod = selectFactoryMethod;
+        this.selectConstructor = selectConstructor;
+        this.newInstanceAndDisposable = newInstanceAndDisposable;
+        this.overrideableNewImplementation = overrideableNewImplementation;
+        this.formatters = formatters;
+        this.Title = "T";
+        this.Description = "D";
+        this.Link = "L";
+    }
 
-        public Intercepted(
-            IEnumerable<IMultipleImplementationForArray> formatters,
-            ISelectFactoryMethod selectFactoryMethod,
-            ISelectConstructor selectConstructor,
-            Resources resources,
-            NewInstanceAndDisposable newInstanceAndDisposable,
-            OverrideableNewImplementation overrideableNewImplementation)
+    public string Title { get; }
+
+    public string Description { get; }
+
+    internal string Link { get; }
+    public void PrintMe(int indent)
+    {
+        Console.WriteLine(new string(' ', indent) + this.GetType().Name);
+        this.Resources.PrintMe(indent + 2);
+        this.selectFactoryMethod.PrintMe(indent + 2);
+        this.selectConstructor.PrintMe(indent + 2);
+        this.newInstanceAndDisposable.PrintMe(indent + 2);
+        foreach (var formatter in this.formatters)
         {
-            this.Resources = resources;
-            this.selectFactoryMethod = selectFactoryMethod;
-            this.selectConstructor = selectConstructor;
-            this.newInstanceAndDisposable = newInstanceAndDisposable;
-            this.overrideableNewImplementation = overrideableNewImplementation;
-            this.formatters = formatters;
-            this.Title = "T";
-            this.Description = "D";
-            this.Link = "L";
+            formatter.PrintMe(indent + 2);
         }
 
-        public string Title { get; }
-
-        public string Description { get; }
-
-        internal string Link { get; }
-        public void PrintMe(int indent)
-        {
-            Console.WriteLine(new string(' ', indent) + this.GetType().Name);
-            this.Resources.PrintMe(indent + 2);
-            this.selectFactoryMethod.PrintMe(indent + 2);
-            this.selectConstructor.PrintMe(indent + 2);
-            this.newInstanceAndDisposable.PrintMe(indent + 2);
-            foreach (var formatter in this.formatters)
-            {
-                formatter.PrintMe(indent + 2);
-            }
-
-            this.overrideableNewImplementation.PrintMe(indent + 2);
-        }
+        this.overrideableNewImplementation.PrintMe(indent + 2);
     }
 }

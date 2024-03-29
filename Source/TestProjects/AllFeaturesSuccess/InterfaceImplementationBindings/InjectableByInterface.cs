@@ -5,28 +5,27 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace AllFeaturesSuccess.InterfaceImplementationBindings
+namespace AllFeaturesSuccess.InterfaceImplementationBindings;
+
+using System;
+using AllFeaturesSuccess.RequiredInterface;
+
+public class InjectableByInterface : IInjectableByInterface, IDisposable
 {
-    using System;
-    using AllFeaturesSuccess.RequiredInterface;
+    public ISingleModuleRequiredParameterConstructorMethod SingleModuleRequiredParameter { get; }
 
-    public class InjectableByInterface : IInjectableByInterface, IDisposable
+    public InjectableByInterface(ISingleModuleRequiredParameterConstructorMethod singleModuleRequiredParameterWithItsOwnName)
     {
-        public ISingleModuleRequiredParameterConstructorMethod SingleModuleRequiredParameter { get; }
+        this.SingleModuleRequiredParameter = singleModuleRequiredParameterWithItsOwnName;
+    }
 
-        public InjectableByInterface(ISingleModuleRequiredParameterConstructorMethod singleModuleRequiredParameterWithItsOwnName)
-        {
-            this.SingleModuleRequiredParameter = singleModuleRequiredParameterWithItsOwnName;
-        }
+    public void PrintMe(int indent)
+    {
+        Console.WriteLine(new string(' ', indent) + this.GetType().Name);
+        Console.WriteLine(new string(' ', indent + 2) + this.SingleModuleRequiredParameter.GetType().Name);
+    }
 
-        public void PrintMe(int indent)
-        {
-            Console.WriteLine(new string(' ', indent) + this.GetType().Name);
-            Console.WriteLine(new string(' ', indent + 2) + this.SingleModuleRequiredParameter.GetType().Name);
-        }
-
-        public void Dispose()
-        {
-        }
+    public void Dispose()
+    {
     }
 }

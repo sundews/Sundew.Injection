@@ -1,34 +1,33 @@
-﻿namespace AllFeaturesSuccess.ConstructorSelection
+﻿namespace AllFeaturesSuccess.ConstructorSelection;
+
+using System;
+using AllFeaturesSuccess.InterfaceSegregationBindings;
+using AllFeaturesSuccess.RequiredInterface;
+using AllFeaturesSuccess.SingleInstancePerFactory;
+using AllFeaturesSuccess.SingleInstancePerRequest;
+
+public class SelectFactoryMethod : ISelectFactoryMethod
 {
-    using System;
-    using AllFeaturesSuccess.InterfaceSegregationBindings;
-    using AllFeaturesSuccess.RequiredInterface;
-    using AllFeaturesSuccess.SingleInstancePerFactory;
-    using AllFeaturesSuccess.SingleInstancePerRequest;
+    private readonly IInterfaceSingleInstancePerFactory interfaceSingleInstancePerFactory;
+    private readonly IInjectableSingleInstancePerRequest injectableSingleInstancePerRequest;
+    private readonly IRequiredService requiredService;
+    private readonly IInterfaceSegregationB interfaceSegregationB;
 
-    public class SelectFactoryMethod : ISelectFactoryMethod
+    public SelectFactoryMethod(IInterfaceSingleInstancePerFactory interfaceSingleInstancePerFactory, IInjectableSingleInstancePerRequest injectableSingleInstancePerRequest, IRequiredService requiredService, IInterfaceSegregationB interfaceSegregationB)
     {
-        private readonly IInterfaceSingleInstancePerFactory interfaceSingleInstancePerFactory;
-        private readonly IInjectableSingleInstancePerRequest injectableSingleInstancePerRequest;
-        private readonly IRequiredService requiredService;
-        private readonly IInterfaceSegregationB interfaceSegregationB;
+        this.interfaceSingleInstancePerFactory = interfaceSingleInstancePerFactory;
+        this.injectableSingleInstancePerRequest = injectableSingleInstancePerRequest;
+        this.requiredService = requiredService;
+        this.interfaceSegregationB = interfaceSegregationB;
+        this.interfaceSingleInstancePerFactory.Start();
+    }
 
-        public SelectFactoryMethod(IInterfaceSingleInstancePerFactory interfaceSingleInstancePerFactory, IInjectableSingleInstancePerRequest injectableSingleInstancePerRequest, IRequiredService requiredService, IInterfaceSegregationB interfaceSegregationB)
-        {
-            this.interfaceSingleInstancePerFactory = interfaceSingleInstancePerFactory;
-            this.injectableSingleInstancePerRequest = injectableSingleInstancePerRequest;
-            this.requiredService = requiredService;
-            this.interfaceSegregationB = interfaceSegregationB;
-            this.interfaceSingleInstancePerFactory.Start();
-        }
-
-        public void PrintMe(int indent)
-        {
-            Console.WriteLine(new string(' ', indent) + this.GetType().Name);
-            Console.WriteLine(new string(' ', indent + 2) + this.requiredService.GetType().Name);
-            this.interfaceSingleInstancePerFactory.PrintMe(indent + 2);
-            this.interfaceSegregationB.PrintMe(indent + 2);
-            this.injectableSingleInstancePerRequest.PrintMe(indent + 2);
-        }
+    public void PrintMe(int indent)
+    {
+        Console.WriteLine(new string(' ', indent) + this.GetType().Name);
+        Console.WriteLine(new string(' ', indent + 2) + this.requiredService.GetType().Name);
+        this.interfaceSingleInstancePerFactory.PrintMe(indent + 2);
+        this.interfaceSegregationB.PrintMe(indent + 2);
+        this.injectableSingleInstancePerRequest.PrintMe(indent + 2);
     }
 }

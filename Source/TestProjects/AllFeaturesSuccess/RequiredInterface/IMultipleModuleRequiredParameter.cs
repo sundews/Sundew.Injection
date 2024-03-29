@@ -1,7 +1,6 @@
-﻿namespace AllFeaturesSuccess.RequiredInterface
-{
-    public interface IMultipleModuleRequiredParameter
-    {
+﻿namespace AllFeaturesSuccess.RequiredInterface;
 
-    }
+public interface IMultipleModuleRequiredParameter
+{
+
 }

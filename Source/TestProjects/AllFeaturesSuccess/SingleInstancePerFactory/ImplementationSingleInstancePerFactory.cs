@@ -5,32 +5,31 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace AllFeaturesSuccess.SingleInstancePerFactory
+namespace AllFeaturesSuccess.SingleInstancePerFactory;
+
+using System;
+using AllFeaturesSuccess.InterfaceImplementationBindings;
+using AllFeaturesSuccess.InterfaceSegregationBindings;
+using AllFeaturesSuccess.RequiredInterface;
+
+public class ImplementationSingleInstancePerFactory
 {
-    using System;
-    using AllFeaturesSuccess.InterfaceImplementationBindings;
-    using AllFeaturesSuccess.InterfaceSegregationBindings;
-    using AllFeaturesSuccess.RequiredInterface;
+    private readonly IInjectedSeparately injectedSeparately;
+    private readonly IInjectableByInterface injectableByInterface;
+    private readonly IInterfaceSegregationOverridableNewA interfaceSegregationOverridableNewA;
 
-    public class ImplementationSingleInstancePerFactory
+    public ImplementationSingleInstancePerFactory(IInjectedSeparately injectedSeparately, IInjectableByInterface injectableByInterface, IInterfaceSegregationOverridableNewA interfaceSegregationOverridableNewA, string name)
     {
-        private readonly IInjectedSeparately injectedSeparately;
-        private readonly IInjectableByInterface injectableByInterface;
-        private readonly IInterfaceSegregationOverridableNewA interfaceSegregationOverridableNewA;
+        this.injectedSeparately = injectedSeparately;
+        this.injectableByInterface = injectableByInterface;
+        this.interfaceSegregationOverridableNewA = interfaceSegregationOverridableNewA;
+    }
 
-        public ImplementationSingleInstancePerFactory(IInjectedSeparately injectedSeparately, IInjectableByInterface injectableByInterface, IInterfaceSegregationOverridableNewA interfaceSegregationOverridableNewA, string name)
-        {
-            this.injectedSeparately = injectedSeparately;
-            this.injectableByInterface = injectableByInterface;
-            this.interfaceSegregationOverridableNewA = interfaceSegregationOverridableNewA;
-        }
-
-        public void PrintMe(int indent)
-        {
-            Console.WriteLine(new string(' ', indent) + this.GetType().Name);
-            Console.WriteLine(new string(' ', indent + 2) + this.injectedSeparately.GetType().Name);
-            this.injectableByInterface.PrintMe(indent + 2);
-            this.interfaceSegregationOverridableNewA.PrintMe(indent + 2);
-        }
+    public void PrintMe(int indent)
+    {
+        Console.WriteLine(new string(' ', indent) + this.GetType().Name);
+        Console.WriteLine(new string(' ', indent + 2) + this.injectedSeparately.GetType().Name);
+        this.injectableByInterface.PrintMe(indent + 2);
+        this.interfaceSegregationOverridableNewA.PrintMe(indent + 2);
     }
 }

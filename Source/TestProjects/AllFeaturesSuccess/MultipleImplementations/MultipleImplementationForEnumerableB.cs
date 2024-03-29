@@ -5,19 +5,18 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace AllFeaturesSuccess.MultipleImplementations
+namespace AllFeaturesSuccess.MultipleImplementations;
+
+using System;
+
+public class MultipleImplementationForEnumerableB : IMultipleImplementationForEnumerable
 {
-    using System;
-
-    public class MultipleImplementationForEnumerableB : IMultipleImplementationForEnumerable
+    public MultipleImplementationForEnumerableB()
     {
-        public MultipleImplementationForEnumerableB()
-        {
-        }
+    }
 
-        public void PrintMe(int indent)
-        {
-            Console.WriteLine(new string(' ', indent) + this.GetType().Name);
-        }
+    public void PrintMe(int indent)
+    {
+        Console.WriteLine(new string(' ', indent) + this.GetType().Name);
     }
 }

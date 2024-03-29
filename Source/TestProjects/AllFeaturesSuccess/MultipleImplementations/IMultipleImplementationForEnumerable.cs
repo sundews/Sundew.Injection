@@ -1,6 +1,5 @@
-﻿namespace AllFeaturesSuccess.MultipleImplementations
+﻿namespace AllFeaturesSuccess.MultipleImplementations;
+
+public interface IMultipleImplementationForEnumerable : IPrint
 {
-    public interface IMultipleImplementationForEnumerable : IPrint
-    {
-    }
 }

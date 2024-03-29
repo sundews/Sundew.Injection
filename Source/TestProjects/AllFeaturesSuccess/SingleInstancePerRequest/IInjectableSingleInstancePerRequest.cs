@@ -5,9 +5,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace AllFeaturesSuccess.SingleInstancePerRequest
+namespace AllFeaturesSuccess.SingleInstancePerRequest;
+
+public interface IInjectableSingleInstancePerRequest : IPrint
 {
-    public interface IInjectableSingleInstancePerRequest : IPrint
-    {
-    }
 }

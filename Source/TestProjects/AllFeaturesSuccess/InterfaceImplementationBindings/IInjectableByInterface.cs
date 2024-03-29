@@ -5,9 +5,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace AllFeaturesSuccess.InterfaceImplementationBindings
+namespace AllFeaturesSuccess.InterfaceImplementationBindings;
+
+public interface IInjectableByInterface : IPrint
 {
-    public interface IInjectableByInterface : IPrint
-    {
-    }
 }

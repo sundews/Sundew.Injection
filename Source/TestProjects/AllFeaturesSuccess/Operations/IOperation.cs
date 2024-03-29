@@ -1,7 +1,6 @@
-﻿namespace AllFeaturesSuccess.Operations
+﻿namespace AllFeaturesSuccess.Operations;
+
+public interface IOperation
 {
-    public interface IOperation
-    {
-        int Execute();
-    }
+    int Execute();
 }

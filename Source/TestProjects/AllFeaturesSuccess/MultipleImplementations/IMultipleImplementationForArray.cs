@@ -1,8 +1,7 @@
-﻿namespace AllFeaturesSuccess.MultipleImplementations
-{
-    using System;
+﻿namespace AllFeaturesSuccess.MultipleImplementations;
 
-    public interface IMultipleImplementationForArray : IDisposable, IPrint
-    {
-    }
+using System;
+
+public interface IMultipleImplementationForArray : IDisposable, IPrint
+{
 }

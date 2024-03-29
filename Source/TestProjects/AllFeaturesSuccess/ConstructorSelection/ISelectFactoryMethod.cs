@@ -5,9 +5,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace AllFeaturesSuccess.ConstructorSelection
+namespace AllFeaturesSuccess.ConstructorSelection;
+
+public interface ISelectFactoryMethod : IPrint
 {
-    public interface ISelectFactoryMethod : IPrint
-    {
-    }
 }

@@ -1,9 +1,8 @@
-﻿namespace AllFeaturesSuccess
-{
-    public interface IResolveRoot : IPrint
-    {
-        global::AllFeaturesSuccess.InterfaceImplementationBindings.IIntercepted Intercepted { get; }
+﻿namespace AllFeaturesSuccess;
 
-        global::AllFeaturesSuccess.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory InterfaceSingleInstancePerFactory { get; }
-    }
+public interface IResolveRoot : IPrint
+{
+    global::AllFeaturesSuccess.InterfaceImplementationBindings.IIntercepted Intercepted { get; }
+
+    global::AllFeaturesSuccess.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory InterfaceSingleInstancePerFactory { get; }
 }

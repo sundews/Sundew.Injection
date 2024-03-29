@@ -1,9 +1,8 @@
-﻿namespace AllFeaturesSuccess.SingleInstancePerFactory
-{
-    using System;
+﻿namespace AllFeaturesSuccess.SingleInstancePerFactory;
 
-    public interface IInterfaceSingleInstancePerFactory : IDisposable, IPrint
-    {
-        void Start();
-    }
+using System;
+
+public interface IInterfaceSingleInstancePerFactory : IDisposable, IPrint
+{
+    void Start();
 }
