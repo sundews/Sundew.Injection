@@ -83,16 +83,16 @@ internal static class ExpressionAnalysisHelper
         return default;
     }
 
-    public static Scope GetScope(SemanticModel semanticModel, ArgumentSyntax argumentSyntax, TypeFactory typeFactory)
+    public static (Scope Scope, ScopeOrigin Origin) GetScope(SemanticModel semanticModel, ArgumentSyntax argumentSyntax, TypeFactory typeFactory)
     {
         var symbolInfo = semanticModel.GetSymbolInfo(argumentSyntax.Expression);
         return symbolInfo.Symbol?.Name switch
         {
-            nameof(Scope.SingleInstancePerFactory) => Scope._SingleInstancePerFactory,
-            nameof(Scope.SingleInstancePerRequest) => Scope._SingleInstancePerRequest,
-            nameof(Scope.SingleInstancePerFuncResult) => GetSingleInstancePerFuncResult(semanticModel, argumentSyntax, typeFactory),
-            nameof(Scope.NewInstance) => Scope._NewInstance,
-            _ => Scope._Auto,
+            nameof(Scope.SingleInstancePerFactory) => (Scope._SingleInstancePerFactory, ScopeOrigin.Explicit),
+            nameof(Scope.SingleInstancePerRequest) => (Scope._SingleInstancePerRequest, ScopeOrigin.Explicit),
+            nameof(Scope.SingleInstancePerFuncResult) => (GetSingleInstancePerFuncResult(semanticModel, argumentSyntax, typeFactory), ScopeOrigin.Explicit),
+            nameof(Scope.NewInstance) => (Scope._NewInstance, ScopeOrigin.Explicit),
+            _ => (Scope._Auto, ScopeOrigin.Implicit),
         };
     }
 
@@ -103,6 +103,6 @@ internal static class ExpressionAnalysisHelper
             return Scope._SingleInstancePerFuncResult(GetMethod(invocationExpressionSyntax.ArgumentList.Arguments.Single(), semanticModel, typeFactory)!);
         }
 
-        return null!;
+        return default!;
     }
 }

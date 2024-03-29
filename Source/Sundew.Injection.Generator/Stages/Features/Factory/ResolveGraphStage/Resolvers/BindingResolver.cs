@@ -49,7 +49,7 @@ internal sealed class BindingResolver
         var bindingsRegistry = new TypeRegistry<Binding[]>();
         foreach (var predefinedBinding in predefinedBindings)
         {
-            bindingsRegistry.Register(predefinedBinding.TargetType.Id, predefinedBinding.TargetReferenceType.Id, new[] { predefinedBinding }, true);
+            bindingsRegistry.Register(predefinedBinding.TargetType.Id, predefinedBinding.ReferencedType.Id, new[] { predefinedBinding }, true);
         }
 
         this.bindingFactory = new BindingFactory(this.typeResolver, this.methodFactory, typeRegistry, resolvedBindingRegistry, bindingsRegistry, knownEnumerableTypes);
@@ -79,6 +79,19 @@ internal sealed class BindingResolver
         {
             var bindingRegistration = foundBindingRegistrations.First();
             return this.bindingFactory.TryCreateSingleParameter(bindingRegistration, type);
+        }
+
+        if (parameterOption.HasValue)
+        {
+            var resolvedParameterSource = this.requiredParametersInjectionResolver.ResolveParameterSource(type, parameterOption.Value.Name);
+            if (resolvedParameterSource is Found found)
+            {
+                var resolveTypeResultRequiredParameter = this.typeResolver.ResolveType(type);
+                if (resolveTypeResultRequiredParameter.IsSuccess)
+                {
+                    return ResolvedBinding.ExternalParameter(resolveTypeResultRequiredParameter.Value, typeMetadata, found.ParameterSource);
+                }
+            }
         }
 
         if (typeMetadata.DefaultConstructor.TryGetValue(out var defaultConstructor))

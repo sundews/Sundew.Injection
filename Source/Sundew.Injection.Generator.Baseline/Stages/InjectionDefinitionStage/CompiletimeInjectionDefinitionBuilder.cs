@@ -10,8 +10,6 @@ namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Runtime.InteropServices;
-using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.TypeSystem;
 
@@ -34,7 +32,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
 
     public Inject RequiredParameterInjection { get; set; }
 
-    public void AddParameter(Type parameterType, Inject inject = Inject.ByType)
+    public void AddParameter(Type parameterType, Inject inject = Inject.Shared)
     {
         this.AddParameterSource(parameterType, ParameterSource.DirectParameter(inject));
     }

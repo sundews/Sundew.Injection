@@ -42,9 +42,9 @@ internal static class ParameterHelper
     {
         switch (inject)
         {
-            case Inject.ByType:
+            case Inject.Shared:
                 return (name.Uncapitalize(), false);
-            case Inject.ByTypeAndName:
+            case Inject.ByParameterName:
                 return (name.Uncapitalize(), true);
             case Inject.Separately:
                 return (NameHelper.GetUniqueName(name, parentCreationNode), true); // check for conflict

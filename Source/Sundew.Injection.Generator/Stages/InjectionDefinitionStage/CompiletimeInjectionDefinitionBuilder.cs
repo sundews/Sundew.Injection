@@ -24,7 +24,9 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
 
     private readonly Dictionary<UnboundGenericType, List<GenericBindingRegistration>> genericBindingRegistrations = new();
 
-    private readonly Dictionary<TypeId, List<ParameterSource>> requiredParameters = new();
+    private readonly Dictionary<TypeId, List<ParameterSource>> requiredParameterSources = new();
+
+    private readonly Dictionary<TypeId, (Scope Scope, ScopeOrigin Origin)> requiredParameterScopes = new();
 
     private readonly List<FactoryCreationDefinition> factoryDefinitions = new();
 
@@ -56,14 +58,16 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         return Array.Empty<BindingRegistration>();
     }
 
-    public void AddParameter(Type parameterType, Inject inject = Inject.ByType)
+    public void AddParameter(Type parameterType, Inject inject = Inject.Shared, (Scope? Scope, ScopeOrigin Origin) scope = default)
     {
         this.AddParameterSource(parameterType, ParameterSource.DirectParameter(inject));
+        this.AddParameterScope(parameterType, scope);
     }
 
-    public void AddPropertyParameter(Type parameterType, AccessorProperty accessorProperty)
+    public void AddPropertyParameter(Type parameterType, AccessorProperty accessorProperty, bool needsInvocation, (Scope? Scope, ScopeOrigin Origin) scope = default)
     {
-        this.AddParameterSource(parameterType, ParameterSource.PropertyAccessorParameter(accessorProperty));
+        this.AddParameterSource(parameterType, ParameterSource.PropertyAccessorParameter(accessorProperty, needsInvocation));
+        this.AddParameterScope(parameterType, scope);
     }
 
     public void Bind(
@@ -154,19 +158,25 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
             this.factoryDefinitions.ToImmutableArray(),
             this.bindingRegistrations.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray().ToValueArray()),
             this.genericBindingRegistrations.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray().ToValueArray()),
-            this.requiredParameters.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray().ToValueArray()),
+            this.requiredParameterSources.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray().ToValueArray()),
+            this.requiredParameterScopes.ToImmutableDictionary(),
             this.resolverDefinitions.ToImmutableArray()));
     }
 
     private void AddParameterSource(Type parameterType, ParameterSource parameterSource)
     {
         var parameterTypeId = parameterType.Id;
-        if (!this.requiredParameters.TryGetValue(parameterTypeId, out var parameterSources))
+        if (!this.requiredParameterSources.TryGetValue(parameterTypeId, out var parameterSources))
         {
             parameterSources = new List<ParameterSource>();
-            this.requiredParameters.Add(parameterTypeId, parameterSources);
+            this.requiredParameterSources.Add(parameterTypeId, parameterSources);
         }
 
         parameterSources.Add(parameterSource);
+    }
+
+    private void AddParameterScope(Type parameterType, (Scope? Scope, ScopeOrigin Origin) scope)
+    {
+        this.requiredParameterScopes[parameterType.Id] = scope == default || scope.Scope == default ? (Scope._SingleInstancePerRequest, ScopeOrigin.Implicit) : (scope.Scope, scope.Origin);
     }
 }

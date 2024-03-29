@@ -35,10 +35,11 @@ namespace Sundew.Injection
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        public void TryAdd(object constructed)
+        public TConstructed TryAdd<TConstructed>(TConstructed constructed)
         {
             this.initializingList.TryAdd(constructed);
             this.disposingList.TryAdd(constructed);
+            return constructed;
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]

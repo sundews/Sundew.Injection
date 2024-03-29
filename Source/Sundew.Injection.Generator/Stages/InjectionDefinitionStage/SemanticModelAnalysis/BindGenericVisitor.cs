@@ -43,7 +43,7 @@ internal class BindGenericVisitor : CSharpSyntaxWalker
                 switch (argumentSyntax.NameColon.Name.ToString())
                 {
                     case nameof(scope):
-                        scope = this.GetScope(argumentSyntax);
+                        scope = this.GetScope(argumentSyntax).Scope;
                         break;
                     case nameof(method):
                         method = this.GetGenericMethod(argumentSyntax);
@@ -55,7 +55,7 @@ internal class BindGenericVisitor : CSharpSyntaxWalker
                 switch (argumentIndex)
                 {
                     case 0:
-                        scope = this.GetScope(argumentSyntax);
+                        scope = this.GetScope(argumentSyntax).Scope;
                         break;
                     case 1:
                         method = this.GetGenericMethod(argumentSyntax);
@@ -110,7 +110,7 @@ internal class BindGenericVisitor : CSharpSyntaxWalker
         this.analysisContext.CompiletimeInjectionDefinitionBuilder.BindGeneric(actualInterfaces, implementation, scope ?? Scope._Auto, actualMethod);
     }
 
-    private Scope GetScope(ArgumentSyntax argumentSyntax)
+    private (Scope Scope, ScopeOrigin Origin) GetScope(ArgumentSyntax argumentSyntax)
     {
         return ExpressionAnalysisHelper.GetScope(this.analysisContext.SemanticModel, argumentSyntax, this.analysisContext.TypeFactory);
     }

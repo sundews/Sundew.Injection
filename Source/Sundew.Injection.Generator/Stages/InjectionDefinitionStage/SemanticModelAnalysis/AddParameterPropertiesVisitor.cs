@@ -29,40 +29,69 @@ internal class AddParameterPropertiesVisitor : CSharpSyntaxWalker
         this.argumentTypeSymbol = methodSymbol.TypeArguments.First();
     }
 
-    public override void VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
+    public override void VisitArgumentList(ArgumentListSyntax node)
     {
-        var symbolInfo = this.analysisContext.SemanticModel.GetSymbolInfo(node);
-        if (symbolInfo.Symbol != null)
+        var parameters = this.methodSymbol.Parameters;
+        var i = 0;
+        var scope = (Scope: (Scope?)parameters[i++].ExplicitDefaultValue ?? Scope._SingleInstancePerRequest, Origin: ScopeOrigin.Default);
+        var argumentIndex = 0;
+        foreach (var argumentSyntax in node.Arguments)
         {
-            switch (symbolInfo.Symbol.Kind)
+            if (argumentSyntax.NameColon != null)
             {
-                case SymbolKind.Method:
-                    foreach (var accessorProperty in this.argumentTypeSymbol.GetMembers().OfType<IPropertySymbol>()
-                        .Where(x => !x.IsStatic && x.GetMethod != null && x.DeclaredAccessibility == Accessibility.Public).Select(x =>
-                        {
-                            var propertyType = this.analysisContext.TypeFactory.CreateType(x.Type);
-                            var resultType = propertyType;
-                            var registerBoth = false;
-                            if (x.Type is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.IsGenericType && SymbolEqualityComparer.Default.Equals(namedTypeSymbol.OriginalDefinition, this.analysisContext.KnownAnalysisTypes.FuncTypeSymbol))
-                            {
-                                registerBoth = true;
-                                resultType = this.analysisContext.TypeFactory.CreateType(namedTypeSymbol.TypeArguments.First());
-                            }
+                switch (argumentSyntax.NameColon.Name.ToString())
+                {
+                    case nameof(scope):
+                        scope = this.GetScope(argumentSyntax);
+                        break;
+                }
+            }
+            else
+            {
+                switch (argumentIndex)
+                {
+                    case 0:
+                        scope = this.GetScope(argumentSyntax);
+                        break;
+                }
 
-                            return (registerBoth, Accessor: new AccessorProperty(this.analysisContext.TypeFactory.CreateNamedType(x.ContainingType), resultType, propertyType, x.Name));
-                        }))
-                    {
-                        this.analysisContext.CompiletimeInjectionDefinitionBuilder.AddPropertyParameter(accessorProperty.Accessor.Property.Type, accessorProperty.Accessor);
-                        if (accessorProperty.registerBoth)
-                        {
-                            this.analysisContext.CompiletimeInjectionDefinitionBuilder.AddPropertyParameter(accessorProperty.Accessor.Result.Type, accessorProperty.Accessor);
-                        }
-                    }
-
-                    break;
+                argumentIndex++;
             }
         }
 
-        base.VisitMemberAccessExpression(node);
+        foreach (var accessorProperty in this.argumentTypeSymbol.GetMembers().OfType<IPropertySymbol>()
+                     .Where(x => !x.IsStatic && x.GetMethod != null && x.DeclaredAccessibility == Accessibility.Public).Select(x =>
+                     {
+                         var propertyType = this.analysisContext.TypeFactory.CreateType(x.Type);
+                         var resultType = propertyType;
+                         var isFunc = false;
+                         if (x.Type is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.IsGenericType && SymbolEqualityComparer.Default.Equals(namedTypeSymbol.OriginalDefinition, this.analysisContext.KnownAnalysisTypes.FuncTypeSymbol))
+                         {
+                             isFunc = true;
+                             resultType = this.analysisContext.TypeFactory.CreateType(namedTypeSymbol.TypeArguments.First());
+                         }
+
+                         return (isFunc: isFunc, Accessor: new AccessorProperty(this.analysisContext.TypeFactory.CreateNamedType(x.ContainingType), resultType, propertyType, x.Name));
+                     }))
+        {
+            if (accessorProperty.isFunc)
+            {
+                if (scope.Origin == ScopeOrigin.Default)
+                {
+                    scope = (Scope._NewInstance, ScopeOrigin.Implicit);
+                }
+
+                this.analysisContext.CompiletimeInjectionDefinitionBuilder.AddPropertyParameter(accessorProperty.Accessor.Result.Type, accessorProperty.Accessor, true, scope);
+            }
+
+            this.analysisContext.CompiletimeInjectionDefinitionBuilder.AddPropertyParameter(accessorProperty.Accessor.Property.Type, accessorProperty.Accessor, false, scope);
+        }
+
+        base.VisitArgumentList(node);
+    }
+
+    private (Scope Scope, ScopeOrigin Origin) GetScope(ArgumentSyntax argumentSyntax)
+    {
+        return ExpressionAnalysisHelper.GetScope(this.analysisContext.SemanticModel, argumentSyntax, this.analysisContext.TypeFactory);
     }
 }

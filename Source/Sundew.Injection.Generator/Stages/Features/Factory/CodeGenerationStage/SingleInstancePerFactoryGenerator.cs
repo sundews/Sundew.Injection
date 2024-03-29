@@ -40,8 +40,8 @@ internal class SingleInstancePerFactoryGenerator
         var factoryNode = new FactoryNode(in factoryImplementation, in method, ImmutableList<Expression>.Empty);
 
         var targetType = singleInstancePerFactoryInjectionNode.TargetType;
-        var targetReferenceType = singleInstancePerFactoryInjectionNode.TargetReferenceType;
-        var fieldType = singleInstancePerFactoryInjectionNode.ParameterNodeOption.GetValueOrDefault(x => x.Type, targetReferenceType);
+        var referencedType = singleInstancePerFactoryInjectionNode.ReferencedType;
+        var fieldType = singleInstancePerFactoryInjectionNode.ParameterNodeOption.GetValueOrDefault(x => x.Type, referencedType);
 
         (factoryNode, var wasAdded, var targetTypeFieldDeclaration) = factoryNode.GetOrAddField(
             NameHelper.GetIdentifierNameForType(targetType),
@@ -79,7 +79,7 @@ internal class SingleInstancePerFactoryGenerator
             (factoryNode, var creationExpression) = this.generatorFeatures.OptionalOverridableCreationGenerator.Generate(singleInstancePerFactoryInjectionNode, in factoryNode);
             if (singleInstancePerFactoryInjectionNode.ParameterNodeOption.TryGetValue(out var parameterNode))
             {
-                (factoryNode, _, var parameter, var argument, var needsFieldAssignment) = factoryNode.GetOrAddConstructorParameter(
+                (factoryNode, _, var parameter, var parameterArgument, var needsFieldAssignment) = factoryNode.GetOrAddConstructorParameter(
                     parameterNode,
                     NameHelper.GetIdentifierNameForType(parameterNode.Type),
                     ImmutableList<ParameterDeclaration>.Empty,
@@ -99,21 +99,13 @@ internal class SingleInstancePerFactoryGenerator
                     factoryNode = factoryNode.AddConstructorStatement(optionalParameterFieldAssignment);
                 }
 
-                var localDeclarationStatement = new LocalDeclarationStatement(Owned + targetType.Name, creationExpression);
-                var localDeclarationIdentifier = new Identifier(localDeclarationStatement.Name);
-                var localDeclarationAssignmentStatement = new ExpressionStatement(new AssignmentExpression(targetMemberAccessExpression, localDeclarationIdentifier));
-                var trueStatements = ImmutableList.Create<Statement>(localDeclarationStatement);
                 if (singleInstancePerFactoryInjectionNode.NeedsLifecycleHandling)
                 {
-                    var addInvocationStatement = new ExpressionStatement(new InvocationExpression(this.generatorContext.KnownSyntax.SharedLifecycleHandler.TryAddMethod, new Expression[] { localDeclarationIdentifier }));
-                    trueStatements = trueStatements.Add(addInvocationStatement);
+                    creationExpression = new InvocationExpression(this.generatorContext.KnownSyntax.SharedLifecycleHandler.TryAddMethod, new Expression[] { creationExpression });
                 }
 
-                trueStatements = trueStatements.Add(localDeclarationAssignmentStatement);
-
-                var falseStatements = ImmutableList.Create<Statement>(new ExpressionStatement(new AssignmentExpression(targetMemberAccessExpression, argument)));
-
-                factoryNode = factoryNode.AddConstructorStatement(new CreateOptionalParameterIfStatement(argument, trueStatements, falseStatements));
+                var nullCoalescingOperatorExpression = Expression.NullCoalescingOperatorExpression(parameterArgument, creationExpression);
+                factoryNode = factoryNode.AddConstructorStatement(Statement.ExpressionStatement(Expression.AssignmentExpression(targetMemberAccessExpression, nullCoalescingOperatorExpression)));
             }
             else
             {

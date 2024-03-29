@@ -5,28 +5,27 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace AllFeaturesSuccess.MultipleImplementations
+namespace AllFeaturesSuccess.MultipleImplementations;
+
+using System;
+using AllFeaturesSuccess.RequiredInterface;
+
+public class MultipleImplementationForArrayB : IMultipleImplementationForArray
 {
-    using System;
-    using AllFeaturesSuccess.RequiredInterface;
+    private readonly IMultipleModuleRequiredParameter firstSpecificallyNamedModuleParameter;
 
-    public class MultipleImplementationForArrayB : IMultipleImplementationForArray
+    public MultipleImplementationForArrayB(IMultipleModuleRequiredParameter firstSpecificallyNamedModuleParameter)
     {
-        private readonly IMultipleModuleRequiredParameter firstSpecificallyNamedModuleParameter;
+        this.firstSpecificallyNamedModuleParameter = firstSpecificallyNamedModuleParameter;
+    }
 
-        public MultipleImplementationForArrayB(IMultipleModuleRequiredParameter firstSpecificallyNamedModuleParameter)
-        {
-            this.firstSpecificallyNamedModuleParameter = firstSpecificallyNamedModuleParameter;
-        }
+    public void Dispose()
+    {
+    }
 
-        public void Dispose()
-        {
-        }
-
-        public void PrintMe(int indent)
-        {
-            Console.WriteLine(new string(' ', indent) + this.GetType().Name);
-            Console.WriteLine(new string(' ', indent + 2) + this.firstSpecificallyNamedModuleParameter.GetType().Name);
-        }
+    public void PrintMe(int indent)
+    {
+        Console.WriteLine(new string(' ', indent) + this.GetType().Name);
+        Console.WriteLine(new string(' ', indent + 2) + this.firstSpecificallyNamedModuleParameter.GetType().Name);
     }
 }

@@ -10,6 +10,7 @@ namespace AllFeaturesSuccess
             global::System.Collections.Generic.IEnumerable<int> integers,
             int defaultItem,
             global::System.Func<global::AllFeaturesSuccess.RequiredInterface.IRequiredService> requiredService,
+            global::AllFeaturesSuccess.RequiredInterface.RequiredParameter requiredParameter,
             global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest? injectableSingleInstancePerRequest = null,
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null);
 
@@ -18,6 +19,7 @@ namespace AllFeaturesSuccess
             global::System.Collections.Generic.IEnumerable<int> integers,
             int defaultItem,
             global::System.Func<global::AllFeaturesSuccess.RequiredInterface.IRequiredService> requiredService,
+            global::AllFeaturesSuccess.RequiredInterface.RequiredParameter requiredParameter,
             global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest? injectableSingleInstancePerRequest = null,
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null);
 
@@ -28,6 +30,7 @@ namespace AllFeaturesSuccess
             global::System.Collections.Generic.IEnumerable<int> integers,
             int defaultItem,
             global::System.Func<global::AllFeaturesSuccess.RequiredInterface.IRequiredService> requiredService,
+            global::AllFeaturesSuccess.RequiredInterface.RequiredParameter requiredParameter,
             global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest? injectableSingleInstancePerRequest = null,
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null);
 

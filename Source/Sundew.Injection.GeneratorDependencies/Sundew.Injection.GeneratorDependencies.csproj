@@ -11,9 +11,18 @@
     <Configurations>Debug;Release;DebugTests</Configurations>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove=".editorconfig" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <AdditionalFiles Include="stylecop.json" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <EditorConfigFiles Include=".editorconfig" />
   </ItemGroup>
 
 
@@ -24,8 +33,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Disposal.Interfaces" />
-    <PackageReference Include="Initialization.Interfaces"  />
-    <PackageReference Include="StyleCop.Analyzers" >
+    <PackageReference Include="Initialization.Interfaces" />
+    <PackageReference Include="StyleCop.Analyzers">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

@@ -67,7 +67,7 @@ internal sealed class BindingResolver
             return this.bindingFactory.TryCreateSingleParameter(bindingRegistration, type);
         }
 
-        if (typeMetadata.DefaultConstructor != null)
+        if (typeMetadata.DefaultConstructor != default)
         {
             return this.bindingFactory.TryCreateSingleParameter(new BindingRegistration(type, type, Scope.Auto, typeMetadata.DefaultConstructor, typeMetadata.ImplementsIDisposable, false, false));
         }
@@ -77,7 +77,7 @@ internal sealed class BindingResolver
             if (type is DefiniteArrayType definiteArrayType)
             {
                 var resolvedBinding = this.ResolveArrayBinding(definiteArrayType.ElementType, type);
-                if (resolvedBinding != null)
+                if (resolvedBinding != default)
                 {
                     return resolvedBinding;
                 }
@@ -85,7 +85,7 @@ internal sealed class BindingResolver
             else if (type is ArrayType arrayType)
             {
                 var resolvedBinding = this.ResolveArrayBinding(arrayType.ElementType, type);
-                if (resolvedBinding != null)
+                if (resolvedBinding != default)
                 {
                     return resolvedBinding;
                 }
@@ -94,7 +94,7 @@ internal sealed class BindingResolver
             {
                 var firstTypeArgumentType = definiteBoundGenericType.TypeArguments.First().Type;
                 var resolvedBinding = this.ResolveArrayBinding(firstTypeArgumentType, type);
-                if (resolvedBinding != null)
+                if (resolvedBinding != default)
                 {
                     return resolvedBinding;
                 }
@@ -178,7 +178,7 @@ internal sealed class BindingResolver
             factoryNamespace,
             assemblyName);
 
-        NamedType? factoryInterfaceType = null;
+        NamedType? factoryInterfaceType = default;
         if (factoryCreationDefinition.GenerateInterface)
         {
             factoryInterfaceType = new NamedType(interfaceTypeName, factoryNamespace, assemblyName);
@@ -206,6 +206,6 @@ internal sealed class BindingResolver
             return this.bindingFactory.TryCreateArrayParameter(parameterType, elementTypeLookupResult.Value, resolvedBindingRegistrationsForArray);
         }
 
-        return null;
+        return default;
     }
 }

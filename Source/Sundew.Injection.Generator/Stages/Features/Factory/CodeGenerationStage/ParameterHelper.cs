@@ -40,8 +40,8 @@ internal static class ParameterHelper
     {
         return inject switch
         {
-            Inject.ByType => (name.Uncapitalize(), false),
-            Inject.ByTypeAndName => (name.Uncapitalize(), true),
+            Inject.Shared => (name.Uncapitalize(), false),
+            Inject.ByParameterName => (name.Uncapitalize(), true),
             Inject.Separately => (NameHelper.GetDependeeScopedName(name, parentName), true), // check for conflict
             _ => throw new ArgumentOutOfRangeException(nameof(inject), inject, $"Case not handled: {inject}"),
         };
@@ -113,7 +113,7 @@ internal static class ParameterHelper
         var parameter = new Parameter(parameterDeclaration.Type, parameterDeclaration.Name, true);
         Expression argument = isMember
             ? new MemberAccessExpression(new MemberAccessExpression(Identifier.This, variableName), accessorName) : new MemberAccessExpression(new Identifier(variableName), accessorName);
-        if (parameterNode.RequiresNewInstance)
+        if (parameterNode.RequiresNewInstance || propertyAccessorParameter.NeedsInvocation)
         {
             argument = new FuncInvocationExpression(argument, true);
         }

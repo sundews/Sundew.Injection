@@ -43,7 +43,7 @@ internal class BindVisitor : CSharpSyntaxWalker
                 switch (argumentSyntax.NameColon.Name.ToString())
                 {
                     case nameof(scope):
-                        scope = this.GetScope(argumentSyntax);
+                        scope = this.GetScope(argumentSyntax).Scope;
                         break;
                     case nameof(constructorSelector):
                         constructorSelector = this.GetMethod(argumentSyntax);
@@ -61,7 +61,7 @@ internal class BindVisitor : CSharpSyntaxWalker
                 switch (argumentIndex)
                 {
                     case 0:
-                        scope = this.GetScope(argumentSyntax);
+                        scope = this.GetScope(argumentSyntax).Scope;
                         break;
                     case 1:
                         constructorSelector = this.GetMethod(argumentSyntax);
@@ -96,7 +96,7 @@ internal class BindVisitor : CSharpSyntaxWalker
         return argumentSyntax.Expression is LiteralExpressionSyntax literalExpressionSyntax && ((bool?)literalExpressionSyntax.Token.Value ?? false);
     }
 
-    private Scope GetScope(ArgumentSyntax argumentSyntax)
+    private (Scope Scope, ScopeOrigin Origin) GetScope(ArgumentSyntax argumentSyntax)
     {
         return ExpressionAnalysisHelper.GetScope(this.analysisContext.SemanticModel, argumentSyntax, this.analysisContext.TypeFactory);
     }

@@ -7,4 +7,4 @@
 
 namespace Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 
-internal sealed record NullCoalescingOperatorExpression(Expression Lhs, Expression Rhs) : Expression;
+internal sealed record NullCoalescingOperatorExpression(Expression Lhs, Expression Rhs, bool IsAssignment = false) : Expression;

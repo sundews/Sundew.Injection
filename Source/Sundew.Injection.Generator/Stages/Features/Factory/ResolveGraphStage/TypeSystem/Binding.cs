@@ -11,7 +11,7 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed record Binding(
     DefiniteType TargetType,
-    DefiniteType TargetReferenceType,
+    DefiniteType ReferencedType,
     Scope Scope,
     DefiniteMethod Method,
     bool HasLifecycle,

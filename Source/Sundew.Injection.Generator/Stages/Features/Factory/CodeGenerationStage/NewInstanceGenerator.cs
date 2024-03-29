@@ -51,7 +51,7 @@ internal sealed class NewInstanceGenerator
             });
 
         var dependeeArguments = ImmutableList.Create<Expression>();
-        var targetReferenceType = newInstanceInjectionNode.TargetReferenceType;
+        var targetReferenceType = newInstanceInjectionNode.ReferencedType;
 
         (factoryNode, var creationExpression) = newInstanceInjectionNode.OverridableNewParametersOption.GetValueOrDefault(
             factoryNode.FactoryImplementation.FactoryMethods,
@@ -85,15 +85,14 @@ internal sealed class NewInstanceGenerator
                 this.generatorContext.CompilationData);
             var (newVariables, _, declaration) = variableDeclaration;
             variables = newVariables;
-            var localDeclarationStatement = new LocalDeclarationStatement(declaration.Name, new NullCoalescingOperatorExpression(argument, creationExpression));
-            statements = statements.Add(localDeclarationStatement);
-            var localDeclarationIdentifier = new Identifier(localDeclarationStatement.Name);
             if (newInstanceInjectionNode.NeedsLifecycleHandling)
             {
-                var addInvocationStatement = new ExpressionStatement(new InvocationExpression(this.generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, new Expression[] { localDeclarationIdentifier }));
-                statements = statements.Add(addInvocationStatement);
+                creationExpression = new InvocationExpression(this.generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, new Expression[] { creationExpression });
             }
 
+            var localDeclarationStatement = new LocalDeclarationStatement(declaration.Name, new NullCoalescingOperatorExpression(argument, creationExpression, false));
+            statements = statements.Add(localDeclarationStatement);
+            var localDeclarationIdentifier = new Identifier(localDeclarationStatement.Name);
             dependeeArguments = dependeeArguments.Add(localDeclarationIdentifier);
             factoryMethodParameters = parameterDeclarations;
         }

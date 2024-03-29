@@ -66,7 +66,7 @@ internal sealed class InjectionTreeBuilder
         cancellationToken.ThrowIfCancellationRequested();
         var constructorParameterCreationNodes = new RecordList<InjectionNode>();
 
-        var scope = this.scopeResolver.ResolveScope(binding);
+        var scope = this.scopeResolver.ResolveScope(binding.ReferencedType);
         var needsLifecycleHandling = binding.HasLifecycle | binding.IsNewOverridable;
         var creationResult = this.GetCreationSource(binding, dependeeInjectionNode, cancellationToken);
         if (!creationResult.IsSuccess)
@@ -87,7 +87,7 @@ internal sealed class InjectionTreeBuilder
 
         var (creationInjectionNode, scopeError) = this.CreateInjectionNode(
             binding.TargetType,
-            binding.TargetReferenceType,
+            binding.ReferencedType,
             scope,
             constructorParameterCreationNodes,
             creation.CreationSource,
@@ -95,7 +95,16 @@ internal sealed class InjectionTreeBuilder
             dependeeScope,
             needsLifecycleHandling,
             binding.IsNewOverridable.ToOption(binding.Method.Parameters),
-            binding.IsInjectable.ToOption(binding.TargetReferenceType).Combine(parameterOption, (targetReferenceType, parameter) => new ParameterNode(targetReferenceType, this.GetParameterSource(targetReferenceType, parameter.Name, errors), parameter.Name, parameter.TypeMetadata, scope == Scope._NewInstance, scope == Scope._SingleInstancePerFactory, dependeeInjectionNode?.GetInjectionNodeName())));
+            binding.IsInjectable.ToOption(binding.ReferencedType)
+                .Combine(parameterOption, (targetReferenceType, parameter) =>
+                    new ParameterNode(
+                        targetReferenceType,
+                        this.GetParameterSource(targetReferenceType, parameter.Name, errors),
+                        parameter.Name,
+                        parameter.TypeMetadata,
+                        scope == Scope._NewInstance,
+                        scope == Scope._SingleInstancePerFactory,
+                        dependeeInjectionNode?.GetInjectionNodeName())));
 
         errors.TryAdd(scopeError);
 
@@ -126,8 +135,8 @@ internal sealed class InjectionTreeBuilder
                     {
                         var multiItemScope = this.scopeResolver.ResolveScope(multiItemParameter.Type);
                         var creationSource = multiItemScope == Scope._NewInstance && !multiItemParameter.IsArrayRequired
-                            ? CreationSource._IteratorMethodCall(multiItemParameter.Type, multiItemParameter.ElementType)
-                            : CreationSource._ArrayCreation(multiItemParameter.ElementType);
+                                ? CreationSource._IteratorMethodCall(multiItemParameter.Type, multiItemParameter.ElementType)
+                                : CreationSource._ArrayCreation(multiItemParameter.ElementType);
                         var arrayConstructorInjectionNodes = new RecordList<InjectionNode>();
                         var (arrayInjectionNode, arrayScopeError) = this.CreateInjectionNode(multiItemParameter.Type, multiItemParameter.Type, multiItemScope, arrayConstructorInjectionNodes, creationSource, creationInjectionNode, multiItemScope, false, null, null);
                         errors.TryAdd(arrayScopeError);
@@ -204,7 +213,7 @@ internal sealed class InjectionTreeBuilder
                         var requiredExternalInjectionNode = this.CreateParameterInjectionNode(externalParameter.Type, (externalParameter.Type.Name, externalParameter.TypeMetadata), string.Empty, requiredExternalParameterScope, externalParameter.ParameterSource);
                         return R.Success(new CreationModel(CreationSource._InstanceMethodCall(type, bindingMethod, requiredExternalInjectionNode.InjectionNode, instance.IsProperty), false, ImmutableList<FactoryConstructorParameter>.Empty.TryAdd(requiredExternalInjectionNode.FactoryConstructorParameterOption)));
                     case SingleParameter singleParameter:
-                        var factoryScope = this.scopeResolver.ResolveScope(singleParameter.Binding);
+                        var factoryScope = this.scopeResolver.ResolveScope(singleParameter.Binding.ReferencedType);
                         var injectionModelResult = this.GetInjectionModel(singleParameter.Binding, dependeeInjectionNode, factoryScope, (singleParameter.Binding.TargetType, singleParameter.Binding.TargetType.Name, TypeMetadata: instance.ContainingTypeMetadata), cancellationToken);
                         return injectionModelResult.With(injectionModel =>
                             new CreationModel(CreationSource._InstanceMethodCall(bindingMethod.ContainingType, bindingMethod, injectionModel.InjectionNode, instance.IsProperty), injectionModel.NeedsLifecycleHandling, injectionModel.FactoryConstructorParameters));
@@ -266,7 +275,7 @@ internal sealed class InjectionTreeBuilder
 
     private (InjectionNode InjectionNode, R<InjectionStageError> ScopeError) CreateInjectionNode(
         DefiniteType targetType,
-        DefiniteType targetReferenceType,
+        DefiniteType referencedType,
         Scope scope,
         RecordList<InjectionNode> parameterCreationNodes,
         CreationSource creationSource,
@@ -281,7 +290,7 @@ internal sealed class InjectionTreeBuilder
             Scope.Auto => (
                 InjectionNode.NewInstanceInjectionNode(
                     targetType,
-                    targetReferenceType,
+                    referencedType,
                     needsLifecycleHandling,
                     parameterCreationNodes,
                     creationSource,
@@ -296,7 +305,7 @@ internal sealed class InjectionTreeBuilder
             Scope.NewInstance => (
                 InjectionNode.NewInstanceInjectionNode(
                     targetType,
-                    targetReferenceType,
+                    referencedType,
                     needsLifecycleHandling,
                     parameterCreationNodes,
                     creationSource,
@@ -311,7 +320,7 @@ internal sealed class InjectionTreeBuilder
             Scope.SingleInstancePerRequest => (
                 InjectionNode.SingleInstancePerRequestInjectionNode(
                     targetType,
-                    targetReferenceType,
+                    referencedType,
                     needsLifecycleHandling,
                     parameterCreationNodes,
                     creationSource,
@@ -325,7 +334,7 @@ internal sealed class InjectionTreeBuilder
             Scope.SingleInstancePerFuncResult => (
                 InjectionNode.SingleInstancePerFactoryInjectionNode(
                     targetType,
-                    targetReferenceType,
+                    referencedType,
                     needsLifecycleHandling,
                     parameterCreationNodes,
                     creationSource,
@@ -338,7 +347,7 @@ internal sealed class InjectionTreeBuilder
             Scope.SingleInstancePerFactory => (
                 InjectionNode.SingleInstancePerFactoryInjectionNode(
                     targetType,
-                    targetReferenceType,
+                    referencedType,
                     needsLifecycleHandling,
                     parameterCreationNodes,
                     creationSource,

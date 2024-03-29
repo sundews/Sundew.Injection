@@ -38,14 +38,14 @@ internal static class FactoryResolvedGraphProvider
         try
         {
             var requiredParametersInjectionResolver = new RequiredParametersInjectionResolver(
-                injectionDefinition.RequiredParameterInjection, injectionDefinition.RequiredParameters);
+                injectionDefinition.RequiredParameterInjection, injectionDefinition.RequiredParameterSources);
             var bindingResolver = new BindingResolver(
                 injectionDefinition.BindingRegistrations,
                 injectionDefinition.GenericBindingRegistrations,
                 requiredParametersInjectionResolver,
                 ImmutableArray.Create(compilationData.LifecycleHandlerBinding),
                 new KnownEnumerableTypes(compilationData.IEnumerableOfTType, compilationData.IReadOnlyListOfTType));
-            var scopeResolverBuilder = new ScopeResolverBuilder(bindingResolver);
+            var scopeResolverBuilder = new ScopeResolverBuilder(bindingResolver, injectionDefinition.RequiredParameterScopes);
             foreach (var factoryCreationDefinition in injectionDefinition.FactoryCreationDefinitions)
             {
                 var useTargetTypeNameForCreateMethod =
@@ -125,8 +125,8 @@ internal static class FactoryResolvedGraphProvider
                 }
                 else
                 {
-                        factoryDefinitionResults.Add(R.Error(failed.GetErrors().SelectMany(x => x)
-                            .Select(GetDiagnostic).ToImmutableArray().ToValueList()));
+                    factoryDefinitionResults.Add(R.Error(failed.GetErrors().SelectMany(x => x)
+                        .Select(GetDiagnostic).ToImmutableArray().ToValueList()));
                 }
             }
 

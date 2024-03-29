@@ -12,7 +12,7 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed record NewInstanceInjectionNode(
     DefiniteType TargetType,
-    DefiniteType TargetReferenceType,
+    DefiniteType ReferencedType,
     bool NeedsLifecycleHandling,
     IReadOnlyRecordList<InjectionNode> Parameters,
     CreationSource CreationSource,

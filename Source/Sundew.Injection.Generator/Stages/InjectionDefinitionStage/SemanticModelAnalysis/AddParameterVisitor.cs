@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Sundew.Base;
 using Sundew.Injection.Generator.TypeSystem;
+using Type = Sundew.Injection.Generator.TypeSystem.Type;
 
 internal class AddParameterVisitor : CSharpSyntaxWalker
 {
@@ -27,22 +28,62 @@ internal class AddParameterVisitor : CSharpSyntaxWalker
         this.type = this.analysisContext.TypeFactory.CreateType(methodSymbol.TypeArguments.First()).Type;
     }
 
-    public override void VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
+    public override void VisitArgumentList(ArgumentListSyntax node)
     {
-        var symbolInfo = this.analysisContext.SemanticModel.GetSymbolInfo(node);
-        if (symbolInfo.Symbol != null)
+        var parameters = this.methodSymbol.Parameters;
+        var i = 0;
+        var inject = (Inject?)(int?)parameters[i++].ExplicitDefaultValue ?? Inject.Shared;
+        var scope = ((Scope?)parameters[i++].ExplicitDefaultValue ?? Scope._SingleInstancePerRequest, ScopeOrigin.Explicit);
+        var argumentIndex = 0;
+        foreach (var argumentSyntax in node.Arguments)
         {
-            switch (symbolInfo.Symbol.Kind)
+            if (argumentSyntax.NameColon != null)
             {
-                case SymbolKind.Method:
-                    break;
-                case SymbolKind.Field:
-                    var inject = symbolInfo.Symbol.Name.ParseEnum<Inject>();
-                    this.analysisContext.CompiletimeInjectionDefinitionBuilder.AddParameter(this.type, inject);
-                    break;
+                switch (argumentSyntax.NameColon.Name.ToString())
+                {
+                    case nameof(inject):
+                        inject = this.GetInject(argumentSyntax);
+                        break;
+                    case nameof(scope):
+                        scope = this.GetScope(argumentSyntax);
+                        break;
+                }
+            }
+            else
+            {
+                switch (argumentIndex)
+                {
+                    case 0:
+                        inject = this.GetInject(argumentSyntax);
+                        break;
+                    case 1:
+                        scope = this.GetScope(argumentSyntax);
+                        break;
+                }
+
+                argumentIndex++;
             }
         }
 
-        base.VisitMemberAccessExpression(node);
+        this.analysisContext.CompiletimeInjectionDefinitionBuilder.AddParameter(this.type, inject, scope);
+    }
+
+    private (TypeSystem.Scope Scope, ScopeOrigin ScopeOrigin) GetScope(ArgumentSyntax argumentSyntax)
+    {
+        return ExpressionAnalysisHelper.GetScope(this.analysisContext.SemanticModel, argumentSyntax, this.analysisContext.TypeFactory);
+    }
+
+    private Inject GetInject(ArgumentSyntax argumentSyntax)
+    {
+        if (argumentSyntax is { Expression: MemberAccessExpressionSyntax memberAccessExpressionSyntax })
+        {
+            var symbolInfo = this.analysisContext.SemanticModel.GetSymbolInfo(memberAccessExpressionSyntax);
+            if (symbolInfo.Symbol != null)
+            {
+                return symbolInfo.Symbol.Name.ParseEnum<Inject>();
+            }
+        }
+
+        return Inject.Shared;
     }
 }

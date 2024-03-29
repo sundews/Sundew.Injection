@@ -8,37 +8,25 @@
 namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Resolvers;
 
 using System.Collections.Generic;
-using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal class ScopeResolver
 {
-    private readonly IReadOnlyDictionary<Binding, Scope> bindingScopes;
-    private readonly IReadOnlyDictionary<Type, Scope> externalParameterScopes;
+    private readonly IReadOnlyDictionary<TypeId, ScopeContext> scopes;
 
-    public ScopeResolver(IReadOnlyDictionary<Binding, Scope> bindingScopes, IReadOnlyDictionary<Type, Scope> externalParameterScopes)
+    public ScopeResolver(
+        IReadOnlyDictionary<TypeId, ScopeContext> scopes)
     {
-        this.bindingScopes = bindingScopes;
-        this.externalParameterScopes = externalParameterScopes;
+        this.scopes = scopes;
     }
 
-    public Scope ResolveScope(Binding binding)
+    public Scope ResolveScope(Type type)
     {
-        if (!this.bindingScopes.TryGetValue(binding, out var scope))
+        if (!this.scopes.TryGetValue(type.Id, out var scope))
         {
             // TODO what if not found
         }
 
-        return scope;
-    }
-
-    public Scope ResolveScope(Type externalType)
-    {
-        if (!this.externalParameterScopes.TryGetValue(externalType, out var scope))
-        {
-            // TODO what if not found
-        }
-
-        return scope;
+        return scope?.Scope ?? Scope._NewInstance;
     }
 }

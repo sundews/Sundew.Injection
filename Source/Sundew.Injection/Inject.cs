@@ -14,8 +14,8 @@ namespace Sundew.Injection
     /// </summary>
     public enum Inject
     {
-        ByType,
-        ByTypeAndName,
+        Shared,
+        ByParameterName,
         Separately,
     }
 }

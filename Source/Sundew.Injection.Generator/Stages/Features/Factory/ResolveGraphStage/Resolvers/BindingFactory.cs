@@ -10,6 +10,7 @@ namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.R
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Base.Collections.Linq;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
@@ -41,7 +42,7 @@ internal class BindingFactory
         this.knownEnumerableTypes = knownEnumerableTypes;
     }
 
-    public ResolvedBinding TryCreateSingleParameter(BindingRegistration bindingRegistration, Type? returnType = null)
+    public ResolvedBinding TryCreateSingleParameter(BindingRegistration bindingRegistration, Type? returnType = default)
     {
         var resolveTypeResult = this.typeResolver.ResolveType(bindingRegistration.TargetType.Type);
         if (!resolveTypeResult.IsSuccess)
@@ -56,14 +57,14 @@ internal class BindingFactory
             return Resolvers.ResolvedBinding._Error(createMethodResult.Error);
         }
 
-        var commonTypeResult = this.typeResolver.ResolveType(bindingRegistration.TargetReferencingType);
-        if (!commonTypeResult.IsSuccess)
+        var referencedTypeResult = this.typeResolver.ResolveType(bindingRegistration.ReferencedType);
+        if (!referencedTypeResult.IsSuccess)
         {
-            return Resolvers.ResolvedBinding._Error(new BindingError.FailedResolveError(commonTypeResult.Error));
+            return Resolvers.ResolvedBinding._Error(new BindingError.FailedResolveError(referencedTypeResult.Error));
         }
 
         var resolvedTargetType = resolveTypeResult.Value;
-        var newBinding = new Binding(resolvedTargetType, commonTypeResult.Value, bindingRegistration.Scope, createMethodResult.Value, bindingRegistration.TargetType.TypeMetadata.HasLifetime, bindingRegistration.IsInjectable, bindingRegistration.IsNewOverridable);
+        var newBinding = new Binding(resolvedTargetType, referencedTypeResult.Value, bindingRegistration.Scope, createMethodResult.Value, bindingRegistration.TargetType.TypeMetadata.HasLifetime, bindingRegistration.IsInjectable, bindingRegistration.IsNewOverridable);
         var newResolvedBinding = Resolvers.ResolvedBinding.SingleParameter(newBinding);
         var returnTypeId = returnType?.Id;
         var resolvedTargetTypeId = resolvedTargetType.Id;
@@ -115,8 +116,12 @@ internal class BindingFactory
 
         if (createBindingsResult.TryGet(out var all, out var failed))
         {
-            this.bindingsTypeRegistrar.Register(requestedType.Id, null, all.Items, true);
-            return this.CreateMultiItemParameter(requestedType, elementType, all.Items, isArrayRequired);
+            this.bindingsTypeRegistrar.Register(requestedType.Id, default, all.Items, true);
+            return this.CreateMultiItemParameter(
+                requestedType,
+                elementType,
+                all.Items,
+                isArrayRequired);
         }
 
         return Resolvers.ResolvedBinding._Error(BindingError.ResolveArrayElementsError(failed.Items.Select(x => x.Error).ToArray()));
@@ -130,14 +135,14 @@ internal class BindingFactory
     {
         var referencingType = isArrayRequired ? new DefiniteArrayType(definiteElementType) : requestedParameterType;
         var multiItemParameter = Resolvers.ResolvedBinding.MultiItemParameter(referencingType, definiteElementType, bindings, isArrayRequired);
-        this.resolvedBindingTypeRegistrar.Register(requestedParameterType.Id, null, multiItemParameter, isArrayRequired);
+        this.resolvedBindingTypeRegistrar.Register(requestedParameterType.Id, default, multiItemParameter, isArrayRequired);
         if (isArrayRequired)
         {
-            var definiteItemTypeArguments = ImmutableArray.Create(new DefiniteTypeArgument(definiteElementType, new TypeMetadata(null, EnumerableMetadata.NonEnumerableMetadata, false)));
+            var definiteItemTypeArguments = ImmutableArray.Create(new DefiniteTypeArgument(definiteElementType, new TypeMetadata(default, EnumerableMetadata.NonEnumerableMetadata, false)));
             var iEnumerableOfItemType = this.knownEnumerableTypes.IEnumerableOfT.ToDefiniteClosedGenericType(definiteItemTypeArguments);
             var iReadOnlyListOfItemType = this.knownEnumerableTypes.IReadOnlyListOfT.ToDefiniteClosedGenericType(definiteItemTypeArguments);
-            this.resolvedBindingTypeRegistrar.Register(iEnumerableOfItemType.Id, null, multiItemParameter, true);
-            this.resolvedBindingTypeRegistrar.Register(iReadOnlyListOfItemType.Id, null, multiItemParameter, true);
+            this.resolvedBindingTypeRegistrar.Register(iEnumerableOfItemType.Id, default, multiItemParameter, true);
+            this.resolvedBindingTypeRegistrar.Register(iReadOnlyListOfItemType.Id, default, multiItemParameter, true);
         }
 
         return multiItemParameter;
@@ -158,7 +163,7 @@ internal class BindingFactory
         var resolvedBinding = Resolvers.ResolvedBinding.SingleParameter(binding);
         this.resolvedBindingTypeRegistrar.Register(factoryTypeId, factoryInterfaceTypeId, resolvedBinding, true);
         this.nameTypeRegistrar.Register(factoryType.Name, factoryType);
-        if (factoryInterfaceType != null)
+        if (factoryInterfaceType.HasValue())
         {
             this.nameTypeRegistrar.Register(factoryInterfaceType.Name, factoryInterfaceType);
         }

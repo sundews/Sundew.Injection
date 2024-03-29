@@ -260,7 +260,10 @@ internal static class ImplementationSourceCodeEmitter
                 stringBuilder.AppendExpression(memberAccessExpression.Expression, indentation, formattingOptions).Append('.').Append(memberAccessExpression.Name);
                 break;
             case NullCoalescingOperatorExpression nullCoalescingOperatorExpression:
-                stringBuilder.AppendExpression(nullCoalescingOperatorExpression.Lhs, indentation, formattingOptions).Append(' ').Append(Trivia.NullCoalescing).Append(' ').AppendExpression(nullCoalescingOperatorExpression.Rhs, indentation, formattingOptions);
+                stringBuilder
+                    .AppendExpression(nullCoalescingOperatorExpression.Lhs, indentation, formattingOptions)
+                    .Append(' ').Append(Trivia.NullCoalescing).If(nullCoalescingOperatorExpression.IsAssignment, builder => builder.Append('=')).Append(' ')
+                    .AppendExpression(nullCoalescingOperatorExpression.Rhs, indentation, formattingOptions);
                 break;
             case Lambda lambda:
                 stringBuilder.Append('(')

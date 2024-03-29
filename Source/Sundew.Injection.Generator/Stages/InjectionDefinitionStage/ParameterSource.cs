@@ -18,7 +18,7 @@ internal sealed record DirectParameter(Inject Inject) : ParameterSource
     }
 }
 
-internal sealed record PropertyAccessorParameter(AccessorProperty AccessorProperty) : ParameterSource
+internal sealed record PropertyAccessorParameter(AccessorProperty AccessorProperty, bool NeedsInvocation) : ParameterSource
 {
     public override string ToString()
     {

@@ -11,6 +11,6 @@ namespace Sundew.Injection
 {
     public interface IRequiresSelector
     {
-        IRequires Require<T>(string? name = null, Inject inject = Inject.ByType);
+        IRequires Require<T>(string? name = null, Inject inject = Inject.Shared);
     }
 }

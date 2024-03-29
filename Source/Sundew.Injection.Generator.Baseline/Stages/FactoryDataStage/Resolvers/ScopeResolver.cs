@@ -32,7 +32,7 @@ internal class ScopeResolver
         return scope;
     }
 
-    public Scope ResolveScope(Type externalType)
+    public Scope ResolveExternalParameterScope(Type externalType)
     {
         if (!this.externalParameterScopes.TryGetValue(externalType, out var scope))
         {

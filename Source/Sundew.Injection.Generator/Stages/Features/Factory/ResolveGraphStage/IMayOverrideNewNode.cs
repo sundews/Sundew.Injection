@@ -12,7 +12,7 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal interface IMayOverrideNewNode
 {
-    DefiniteType TargetReferenceType { get; }
+    DefiniteType ReferencedType { get; }
 
     CreationSource CreationSource { get; }
 

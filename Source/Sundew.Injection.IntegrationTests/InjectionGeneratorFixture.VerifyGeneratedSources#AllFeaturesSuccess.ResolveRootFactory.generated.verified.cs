@@ -36,20 +36,11 @@ namespace AllFeaturesSuccess
             string name,
             global::Sundew.Injection.ILifecycleParameters? lifecycleParameters = null)
         {
-            if (lifecycleParameters == null)
-            {
-                var ownedLifecycleParameters = new global::Sundew.Injection.LifecycleParameters(
-                    false,
-                    false,
-                    default(global::Initialization.Interfaces.IInitializationReporter),
-                    default(global::Disposal.Interfaces.IDisposalReporter));
-                this.lifecycleParameters = ownedLifecycleParameters;
-            }
-            else
-            {
-                this.lifecycleParameters = lifecycleParameters;
-            }
-
+            this.lifecycleParameters = lifecycleParameters ?? new global::Sundew.Injection.LifecycleParameters(
+                false,
+                false,
+                default(global::Initialization.Interfaces.IInitializationReporter),
+                default(global::Disposal.Interfaces.IDisposalReporter));
             this.lifecycleHandler = new global::Sundew.Injection.LifecycleHandler(this.lifecycleParameters, this.lifecycleParameters);
             this.requiredParameters = requiredParameters;
             this.multipleImplementationForArrayA = new global::AllFeaturesSuccess.MultipleImplementations.MultipleImplementationForArrayA(this.requiredParameters.SecondSpecificallyNamedModuleParameter);
@@ -70,17 +61,7 @@ namespace AllFeaturesSuccess
             this.lifecycleHandler.TryAdd(this.interfaceSingleInstancePerFactory);
             this.injectedSeparatelyForImplementationSingleInstancePerFactory = injectedSeparatelyForImplementationSingleInstancePerFactory;
             this.optionalParameters = optionalParameters;
-            if (this.optionalParameters.InjectableByInterface == null)
-            {
-                var ownedInjectableByInterface = new global::AllFeaturesSuccess.InterfaceImplementationBindings.InjectableByInterface(this.requiredParameters.SingleModuleRequiredConstructorMethodParameter);
-                this.lifecycleHandler.TryAdd(ownedInjectableByInterface);
-                this.injectableByInterface = ownedInjectableByInterface;
-            }
-            else
-            {
-                this.injectableByInterface = this.optionalParameters.InjectableByInterface;
-            }
-
+            this.injectableByInterface = this.optionalParameters.InjectableByInterface ?? this.lifecycleHandler.TryAdd(new global::AllFeaturesSuccess.InterfaceImplementationBindings.InjectableByInterface(this.requiredParameters.SingleModuleRequiredConstructorMethodParameter));
             this.name = name;
             this.implementationSingleInstancePerFactory = new global::AllFeaturesSuccess.SingleInstancePerFactory.ImplementationSingleInstancePerFactory(
                 this.injectedSeparatelyForImplementationSingleInstancePerFactory,
@@ -97,6 +78,7 @@ namespace AllFeaturesSuccess
             global::System.Collections.Generic.IEnumerable<int> integers,
             int defaultItem,
             global::System.Func<global::AllFeaturesSuccess.RequiredInterface.IRequiredService> requiredService,
+            global::AllFeaturesSuccess.RequiredInterface.RequiredParameter requiredParameter,
             global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest? injectableSingleInstancePerRequest = null,
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null)
         {
@@ -104,6 +86,7 @@ namespace AllFeaturesSuccess
                 integers,
                 defaultItem,
                 requiredService,
+                requiredParameter,
                 injectableSingleInstancePerRequest,
                 interfaceSegregation);
             this.lifecycleHandler.Initialize();
@@ -116,6 +99,7 @@ namespace AllFeaturesSuccess
             global::System.Collections.Generic.IEnumerable<int> integers,
             int defaultItem,
             global::System.Func<global::AllFeaturesSuccess.RequiredInterface.IRequiredService> requiredService,
+            global::AllFeaturesSuccess.RequiredInterface.RequiredParameter requiredParameter,
             global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest? injectableSingleInstancePerRequest = null,
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null)
         {
@@ -123,6 +107,7 @@ namespace AllFeaturesSuccess
                 integers,
                 defaultItem,
                 requiredService,
+                requiredParameter,
                 injectableSingleInstancePerRequest,
                 interfaceSegregation);
             await this.lifecycleHandler.InitializeAsync().ConfigureAwait(false);
@@ -137,37 +122,23 @@ namespace AllFeaturesSuccess
             global::System.Collections.Generic.IEnumerable<int> integers,
             int defaultItem,
             global::System.Func<global::AllFeaturesSuccess.RequiredInterface.IRequiredService> requiredService,
+            global::AllFeaturesSuccess.RequiredInterface.RequiredParameter requiredParameter,
             global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest? injectableSingleInstancePerRequest = null,
             global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregation? interfaceSegregation = null)
         {
             var childLifecycleHandler = this.lifecycleHandler.CreateChildLifecycleHandler();
             var generic = global::AllFeaturesSuccess.FactoryDeclaration.CreateGeneric<int>(defaultItem);
-            if (injectableSingleInstancePerRequest == null)
-            {
-                var ownedInjectableSingleInstancePerRequest = new global::AllFeaturesSuccess.SingleInstancePerRequest.InjectableSingleInstancePerRequest(this.requiredParameters.SingleModuleRequiredCreateMethodParameter, integers, generic);
-                childLifecycleHandler.TryAdd(ownedInjectableSingleInstancePerRequest);
-                injectableSingleInstancePerRequest = ownedInjectableSingleInstancePerRequest;
-            }
-
-            if (interfaceSegregation == null)
-            {
-                var ownedInterfaceSegregationImplementation = new global::AllFeaturesSuccess.InterfaceSegregationBindings.InterfaceSegregationImplementation(injectableSingleInstancePerRequest);
-                childLifecycleHandler.TryAdd(ownedInterfaceSegregationImplementation);
-                interfaceSegregation = ownedInterfaceSegregationImplementation;
-            }
-
+            injectableSingleInstancePerRequest ??= childLifecycleHandler.TryAdd(new global::AllFeaturesSuccess.SingleInstancePerRequest.InjectableSingleInstancePerRequest(this.requiredParameters.SingleModuleRequiredCreateMethodParameter, integers, generic));
+            interfaceSegregation ??= childLifecycleHandler.TryAdd(new global::AllFeaturesSuccess.InterfaceSegregationBindings.InterfaceSegregationImplementation(injectableSingleInstancePerRequest));
             var selectConstructorForIntercepted = new global::AllFeaturesSuccess.ConstructorSelection.SelectConstructor(this.implementationSingleInstancePerFactory, injectableSingleInstancePerRequest, interfaceSegregation);
             childLifecycleHandler.TryAdd(selectConstructorForIntercepted);
-            var newInstanceAndDisposableForResources = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional));
-            childLifecycleHandler.TryAdd(newInstanceAndDisposableForResources);
-            var newInstanceAndDisposableForIntercepted = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional));
-            childLifecycleHandler.TryAdd(newInstanceAndDisposableForIntercepted);
-            var overrideableNewImplementationForIntercepted = this.OnCreateOverrideableNewImplementation(injectableSingleInstancePerRequest, this.injectableByInterface);
+            var newInstanceAndDisposableForResources = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? childLifecycleHandler.TryAdd(new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional)));
+            var newInstanceAndDisposableForIntercepted = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? childLifecycleHandler.TryAdd(new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional)));
+            var overrideableNewImplementationForIntercepted = this.OnCreateOverrideableNewImplementation(injectableSingleInstancePerRequest, this.injectableByInterface, requiredParameter);
             childLifecycleHandler.TryAdd(overrideableNewImplementationForIntercepted);
-            var overrideableNewImplementationForResolveRoot = this.OnCreateOverrideableNewImplementation(injectableSingleInstancePerRequest, this.injectableByInterface);
+            var overrideableNewImplementationForResolveRoot = this.OnCreateOverrideableNewImplementation(injectableSingleInstancePerRequest, this.injectableByInterface, requiredParameter);
             childLifecycleHandler.TryAdd(overrideableNewImplementationForResolveRoot);
-            var newInstanceAndDisposableForConstructedChild = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional));
-            childLifecycleHandler.TryAdd(newInstanceAndDisposableForConstructedChild);
+            var newInstanceAndDisposableForConstructedChild = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? childLifecycleHandler.TryAdd(new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional)));
             var constructedDependencyForConstructedChild = this.dependencyFactory.CreateUninitialized();
             childLifecycleHandler.TryAdd(constructedDependencyForConstructedChild);
             var dependencyForConstructedChild = constructedDependencyForConstructedChild.Object;
@@ -248,9 +219,9 @@ namespace AllFeaturesSuccess
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        protected virtual global::AllFeaturesSuccess.OverridableNew.OverrideableNewImplementation OnCreateOverrideableNewImplementation(global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest injectableSingleInstancePerRequest, global::AllFeaturesSuccess.InterfaceImplementationBindings.IInjectableByInterface injectableByInterface)
+        protected virtual global::AllFeaturesSuccess.OverridableNew.OverrideableNewImplementation OnCreateOverrideableNewImplementation(global::AllFeaturesSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest injectableSingleInstancePerRequest, global::AllFeaturesSuccess.InterfaceImplementationBindings.IInjectableByInterface injectableByInterface, global::AllFeaturesSuccess.RequiredInterface.RequiredParameter requiredParameter)
         {
-            return new global::AllFeaturesSuccess.OverridableNew.OverrideableNewImplementation(injectableSingleInstancePerRequest, injectableByInterface);
+            return new global::AllFeaturesSuccess.OverridableNew.OverrideableNewImplementation(injectableSingleInstancePerRequest, injectableByInterface, requiredParameter);
         }
     }
 }

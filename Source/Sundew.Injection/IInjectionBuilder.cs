@@ -27,13 +27,15 @@ namespace Sundew.Injection
         /// </summary>
         /// <typeparam name="TParameter">The type parameter.</typeparam>
         /// <param name="inject">Indicates how to inject the parameter.</param>
-        void AddParameter<TParameter>(Inject inject = Inject.ByType);
+        /// <param name="scope">Indicates the scope of the parameter.</param>
+        void AddParameter<TParameter>(Inject inject = Inject.Shared, Scope? scope = null);
 
         /// <summary>
         /// Indicates that a type and its properties are a part of the required interface and should be accepted as a parameter to the generated factory.
         /// </summary>
         /// <typeparam name="TProperties">The properties type.</typeparam>
-        void AddParameterProperties<TProperties>();
+        /// <param name="scope">Indicates the scope of the properties.</param>
+        void AddParameterProperties<TProperties>(Scope? scope = null);
 
         /// <summary>
         /// Configures usage of the default initialization reporter.

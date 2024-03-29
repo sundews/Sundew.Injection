@@ -1,13 +1,12 @@
-﻿namespace AllFeaturesSuccess.RequiredInterface
+﻿namespace AllFeaturesSuccess.RequiredInterface;
+
+public interface IRequiredParameters
 {
-    public interface IRequiredParameters
-    {
-        IMultipleModuleRequiredParameter FirstSpecificallyNamedModuleParameter { get; }
+    IMultipleModuleRequiredParameter FirstSpecificallyNamedModuleParameter { get; }
 
-        IMultipleModuleRequiredParameter SecondSpecificallyNamedModuleParameter { get; }
+    IMultipleModuleRequiredParameter SecondSpecificallyNamedModuleParameter { get; }
 
-        ISingleModuleRequiredParameterConstructorMethod SingleModuleRequiredConstructorMethodParameter { get; }
+    ISingleModuleRequiredParameterConstructorMethod SingleModuleRequiredConstructorMethodParameter { get; }
 
-        ISingleModuleRequiredParameterCreateMethod SingleModuleRequiredCreateMethodParameter { get; }
-    }
+    ISingleModuleRequiredParameterCreateMethod SingleModuleRequiredCreateMethodParameter { get; }
 }

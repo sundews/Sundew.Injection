@@ -5,10 +5,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace AllFeaturesSuccess.RequiredInterface
-{
-    public interface IRequiredService
-    {
+namespace AllFeaturesSuccess.RequiredInterface;
 
-    }
+public interface IRequiredService
+{
+
 }

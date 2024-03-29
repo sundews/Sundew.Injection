@@ -96,7 +96,7 @@ internal sealed class InjectionTreeBuilder
 
                 case ArrayParameter arrayParameter:
                     {
-                        var arrayScope = this.scopeResolver.ResolveScope(arrayParameter.ArrayType);
+                        var arrayScope = scope;
                         var arrayConstructorParameterCreationNodes = new List<InjectionNode>();
                         var arrayInjectionNode = this.CreateInjectionNode(arrayParameter.ArrayType, arrayParameter.ArrayType, arrayScope, arrayConstructorParameterCreationNodes, CreationSource.ArrayCreation(arrayParameter.ArrayType.ElementType), creationInjectionNode, arrayScope, false, null, null, diagnostics);
                         var parameterInjectionNodePairs = arrayParameter.Bindings.Select(x => this.GetInjectionNode(x, arrayInjectionNode, arrayScope, parameter, factoryMethodParameters, diagnostics, cancellationToken)).ToArray();
@@ -107,7 +107,7 @@ internal sealed class InjectionTreeBuilder
                     }
 
                 case ExternalParameter externalParameter:
-                    var externalParameterScope = this.scopeResolver.ResolveScope(externalParameter.Type);
+                    var externalParameterScope = this.scopeResolver.ResolveExternalParameterScope(externalParameter.Type);
                     constructorParameterCreationNodes.Add(this.CreateParameterInjectionNode(externalParameter.Type, factoryMethodParameters, parameter, creationInjectionNode, externalParameterScope, diagnostics));
                     break;
                 case Error error:

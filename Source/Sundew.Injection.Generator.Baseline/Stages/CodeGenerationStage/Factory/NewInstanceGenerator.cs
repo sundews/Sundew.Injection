@@ -57,7 +57,7 @@ internal sealed class NewInstanceGenerator
             });
 
         var parentArguments = ImmutableList.Create<Expression>();
-        var commonType = newInstanceInjectionNode.TargetReferenceType;
+        var commonType = newInstanceInjectionNode.ReferencedType;
 
         var variables = factoryNode.CreateMethod.Variables;
         var statements = factoryNode.CreateMethod.Statements;

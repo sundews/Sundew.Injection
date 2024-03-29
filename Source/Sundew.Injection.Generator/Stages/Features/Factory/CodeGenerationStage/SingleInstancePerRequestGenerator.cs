@@ -15,7 +15,6 @@ using Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Mod
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Nodes;
 using Expression = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Expression;
 using MethodImplementation = Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model.MethodImplementation;
-using Statement = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Statement;
 
 internal class SingleInstancePerRequestGenerator
 {
@@ -39,7 +38,7 @@ internal class SingleInstancePerRequestGenerator
     {
         var factoryNode = new FactoryNode(in factoryImplementation, in method, ImmutableList<Expression>.Empty);
         var targetType = singleInstancePerRequestInjectionNode.TargetType;
-        var targetReferenceType = singleInstancePerRequestInjectionNode.TargetReferenceType;
+        var targetReferenceType = singleInstancePerRequestInjectionNode.ReferencedType;
         var variableType = singleInstancePerRequestInjectionNode.ParameterNodeOption.GetValueOrDefault(x => x.Type, targetReferenceType);
         (factoryNode, var wasAdded, var variableDeclaration) = factoryNode.GetOrAddVariable(
             NameHelper.GetIdentifierNameForType(variableType),
@@ -75,19 +74,13 @@ internal class SingleInstancePerRequestGenerator
             (factoryNode, var creationExpression) = this.generatorFeatures.OptionalOverridableCreationGenerator.Generate(singleInstancePerRequestInjectionNode, factoryNode);
             if (singleInstancePerRequestInjectionNode.ParameterNodeOption.TryGetValue(out var parameterNode))
             {
-                (factoryNode, _, var parameter, var argument, _) = factoryNode.GetOrAddCreateMethodParameter(parameterNode, variableDeclaration.Name, this.generatorContext.CompilationData);
-                var localDeclarationStatement = new LocalDeclarationStatement(Owned + targetType.Name, creationExpression);
-                var localDeclarationIdentifier = new Identifier(localDeclarationStatement.Name);
-                var localDeclarationAssignmentStatement = new ExpressionStatement(new AssignmentExpression(new Identifier(parameter.Name), localDeclarationIdentifier));
-                var trueStatements = ImmutableList.Create<Statement>(localDeclarationStatement);
+                (factoryNode, _, var parameter, var parameterArgument, _) = factoryNode.GetOrAddCreateMethodParameter(parameterNode, variableDeclaration.Name, this.generatorContext.CompilationData);
                 if (singleInstancePerRequestInjectionNode.NeedsLifecycleHandling)
                 {
-                    var addInvocationStatement = new ExpressionStatement(new InvocationExpression(this.generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, new Expression[] { localDeclarationIdentifier }));
-                    trueStatements = trueStatements.Add(addInvocationStatement);
+                    creationExpression = new InvocationExpression(this.generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, new Expression[] { creationExpression });
                 }
 
-                trueStatements = trueStatements.Add(localDeclarationAssignmentStatement);
-                factoryNode = factoryNode.AddCreateMethodStatement(Statement.CreateOptionalParameterIfStatement(argument, trueStatements));
+                factoryNode = factoryNode.AddCreateMethodStatement(Statement.ExpressionStatement(Expression.NullCoalescingOperatorExpression(parameterArgument, creationExpression, true)));
             }
             else
             {

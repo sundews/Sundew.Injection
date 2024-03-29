@@ -37,7 +37,7 @@ internal class KnownSyntax
         this.childLifecycleHandler = new Lazy<LifecycleHandlerSyntax>(() =>
         {
             var memberAccessExpression = new Identifier(ChildLifecycleHandlerName);
-            return new LifecycleHandlerSyntax(compilationData.LifecycleHandlerBinding.TargetReferenceType, compilationData.LifecycleHandlerBinding.TargetReferenceType, memberAccessExpression, ChildLifecycleHandlerName);
+            return new LifecycleHandlerSyntax(compilationData.LifecycleHandlerBinding.ReferencedType, compilationData.LifecycleHandlerBinding.ReferencedType, memberAccessExpression, ChildLifecycleHandlerName);
         });
     }
 

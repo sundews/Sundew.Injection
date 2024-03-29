@@ -15,20 +15,11 @@ namespace AllFeaturesSuccess
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public ConstructedChildFactory(global::Sundew.Injection.ILifecycleParameters? lifecycleParameters = null)
         {
-            if (lifecycleParameters == null)
-            {
-                var ownedLifecycleParameters = new global::Sundew.Injection.LifecycleParameters(
-                    false,
-                    false,
-                    default(global::Initialization.Interfaces.IInitializationReporter),
-                    default(global::Disposal.Interfaces.IDisposalReporter));
-                this.lifecycleParameters = ownedLifecycleParameters;
-            }
-            else
-            {
-                this.lifecycleParameters = lifecycleParameters;
-            }
-
+            this.lifecycleParameters = lifecycleParameters ?? new global::Sundew.Injection.LifecycleParameters(
+                false,
+                false,
+                default(global::Initialization.Interfaces.IInitializationReporter),
+                default(global::Disposal.Interfaces.IDisposalReporter));
             this.lifecycleHandler = new global::Sundew.Injection.LifecycleHandler(this.lifecycleParameters, this.lifecycleParameters);
             this.dependencyFactory = new global::AllFeaturesSuccessDependency.DependencyFactory();
             this.lifecycleHandler.TryAdd(this.dependencyFactory);
@@ -59,8 +50,7 @@ namespace AllFeaturesSuccess
         public global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.ChildFactory.ConstructedChild> CreateUninitialized(global::AllFeaturesSuccess.OptionalInterface.OptionalParameters optionalParameters)
         {
             var childLifecycleHandler = this.lifecycleHandler.CreateChildLifecycleHandler();
-            var newInstanceAndDisposableForConstructedChild = optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional));
-            childLifecycleHandler.TryAdd(newInstanceAndDisposableForConstructedChild);
+            var newInstanceAndDisposableForConstructedChild = optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? childLifecycleHandler.TryAdd(new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional)));
             var constructedDependencyForConstructedChild = this.dependencyFactory.CreateUninitialized();
             childLifecycleHandler.TryAdd(constructedDependencyForConstructedChild);
             var dependencyForConstructedChild = constructedDependencyForConstructedChild.Object;
