@@ -169,7 +169,8 @@ namespace AllFeaturesSuccess
                 this.interfaceSingleInstancePerFactory,
                 overrideableNewImplementationForResolveRoot,
                 constructedChildForResolveRoot,
-                CreateMultipleImplementationForEnumerable());
+                CreateMultipleImplementationForEnumerable(),
+                new global::AllFeaturesSuccess.NestingTypes.NestedConsumer(new global::AllFeaturesSuccess.NestingTypes.Nestee.Nested()));
             this.lifecycleHandler.TryAdd(resolveRootResult, childLifecycleHandler);
             return new global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.IResolveRoot>(resolveRootResult, childLifecycleHandler);
         }

@@ -277,7 +277,14 @@ internal static class TypeConverter
                     return (typeSymbol.ToDisplayString(NameQualifiedTypeFormat), string.Empty, true);
                 }
 
-                return (typeSymbol.Name, TypeHelper.GetNamespace(typeSymbol.ContainingNamespace), false);
+                var format = new SymbolDisplayFormat(
+                    globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
+                    typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypes,
+                    genericsOptions: SymbolDisplayGenericsOptions.None,
+                    miscellaneousOptions: SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers | SymbolDisplayMiscellaneousOptions.UseSpecialTypes);
+
+                var name = typeSymbol.ToDisplayString(format);
+                return (name, TypeHelper.GetNamespace(typeSymbol.ContainingNamespace), false);
         }
     }
 }

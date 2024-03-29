@@ -35,6 +35,9 @@ internal static class NameHelper
 
     public static string GetVariableNameForType(DefiniteType type)
     {
+        const string Empty = "";
+        const string Dot = ".";
+
         var name = type.Name.AsSpan();
         if (IsInterfaceName(name))
         {
@@ -51,14 +54,14 @@ internal static class NameHelper
                     name = name.Slice(0, name.Length - arraySign.Length);
                 }
 
-                return name.ToString().Uncapitalize() + arrayName;
+                return name.ToString().Replace(Dot, Empty).Uncapitalize() + arrayName;
             case DefiniteBoundGenericType genericType:
                 break;
             case NamedType namedType:
                 break;
         }
 
-        return name.ToString().Uncapitalize();
+        return name.ToString().Replace(Dot, Empty).Uncapitalize();
     }
 
     public static string GetFactoryMethodName(string name)
