@@ -16,6 +16,18 @@
     <tags>$tags$</tags>
     <repository type="$repositoryType$" url="$repositoryUrl$"></repository>
     <dependencies>
+      <group targetFramework="net8.0">
+          <dependency id="Microsoft.Bcl.AsyncInterfaces" version="8.0.0" exclude="Build,Analyzers" />
+          <dependency id="Initialization.Interfaces" version="1.0.1" exclude="Build,Analyzers" />
+          <dependency id="Disposal.Interfaces" version="1.0.0" exclude="Build,Analyzers" />
+          <dependency id="Sundew.Injection.Interface" version="$version$" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net7.0">
+        <dependency id="Microsoft.Bcl.AsyncInterfaces" version="7.0.0" exclude="Build,Analyzers" />
+        <dependency id="Initialization.Interfaces" version="1.0.1" exclude="Build,Analyzers" />
+        <dependency id="Disposal.Interfaces" version="1.0.0" exclude="Build,Analyzers" />
+        <dependency id="Sundew.Injection.Interface" version="$version$" exclude="Build,Analyzers" />
+      </group>
       <group targetFramework=".NETStandard2.0">
         <dependency id="Microsoft.Bcl.AsyncInterfaces" version="6.0.0" exclude="Build,Analyzers" />
         <dependency id="Initialization.Interfaces" version="1.0.1" exclude="Build,Analyzers" />
