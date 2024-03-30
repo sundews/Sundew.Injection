@@ -57,6 +57,11 @@ internal sealed class BindingResolver
         this.bindingsCache = bindingsRegistry;
     }
 
+    public void RegisterThisFactory(NamedType factoryType, NamedType? factoryInterfaceType)
+    {
+        this.bindingFactory.RegisterThisFactory(factoryType, factoryInterfaceType);
+    }
+
     public ResolvedBinding ResolveBinding(DefiniteParameter definiteParameter)
     {
         if (this.resolvedBindingsCache.TryGet(definiteParameter.Type.Id, out var cachedBinding))
@@ -89,7 +94,7 @@ internal sealed class BindingResolver
                 var resolveTypeResultRequiredParameter = this.typeResolver.ResolveType(type);
                 if (resolveTypeResultRequiredParameter.IsSuccess)
                 {
-                    return ResolvedBinding.ExternalParameter(resolveTypeResultRequiredParameter.Value, typeMetadata, found.ParameterSource);
+                    return ResolvedBinding.RequiredParameter(resolveTypeResultRequiredParameter.Value, typeMetadata, found.ParameterSource);
                 }
             }
         }
@@ -214,31 +219,11 @@ internal sealed class BindingResolver
 
     public (NamedType FactoryType, NamedType? InterfaceType) CreateFactoryBinding(
         FactoryCreationDefinition factoryCreationDefinition,
-        NamedType fallbackFactoryType,
         ImmutableList<FactoryConstructorParameter>.Builder factoryConstructorParameters,
-        bool needLifecycleHandling,
-        string assemblyName)
+        bool needLifecycleHandling)
     {
-        var (classTypeName, interfaceTypeName, factoryNamespace) = FactoryNameHelper.GetFactoryNames(
-            factoryCreationDefinition.FactoryClassNamespace,
-            factoryCreationDefinition.FactoryClassName,
-            fallbackFactoryType.Namespace,
-            fallbackFactoryType.Name);
-
-        var factoryType = new NamedType(
-            classTypeName,
-            factoryNamespace,
-            assemblyName,
-            false);
-
-        NamedType? factoryInterfaceType = null;
-        if (factoryCreationDefinition.GenerateInterface)
-        {
-            factoryInterfaceType = new NamedType(interfaceTypeName, factoryNamespace, assemblyName, false);
-        }
-
-        this.bindingFactory.CreateFactoryBinding(factoryType, factoryInterfaceType, factoryConstructorParameters, needLifecycleHandling);
-        return (factoryType, factoryInterfaceType);
+        this.bindingFactory.CreateFactoryBinding(factoryCreationDefinition.FactoryType, factoryCreationDefinition.FactoryInterfaceType, factoryConstructorParameters, needLifecycleHandling);
+        return (factoryCreationDefinition.FactoryType, factoryCreationDefinition.FactoryInterfaceType);
     }
 
     private ResolvedBinding? ResolveMultiItemBinding(
@@ -264,7 +249,7 @@ internal sealed class BindingResolver
     {
         if (!parameterOption.HasValue)
         {
-            return ResolvedBinding.ExternalParameter(definiteType, typeMetadata, ParameterSource.DirectParameter(this.requiredParametersInjectionResolver.Inject));
+            return ResolvedBinding.RequiredParameter(definiteType, typeMetadata, ParameterSource.DirectParameter(this.requiredParametersInjectionResolver.Inject));
         }
 
         return parameterOption.Value.Necessity switch
@@ -279,9 +264,9 @@ internal sealed class BindingResolver
             var resolvedParameterSource = this.requiredParametersInjectionResolver.ResolveParameterSource(definiteType, parameterName);
             return resolvedParameterSource switch
             {
-                Found found => ResolvedBinding.ExternalParameter(definiteType, typeMetadata, found.ParameterSource),
-                NotFound notFound => optionalOption.HasValue() ? ResolvedBinding.DefaultParameter(optionalOption.DefaultValue, definiteType, typeMetadata) : ResolvedBinding.ExternalParameter(definiteType, typeMetadata, notFound.ProposedParameterSource),
-                NoExactMatch noExactMatch => optionalOption.HasValue() ? ResolvedBinding.DefaultParameter(optionalOption.DefaultValue, definiteType, typeMetadata) : ResolvedBinding._ParameterError(definiteType, parameterName, noExactMatch.ParameterSources),
+                Found found => ResolvedBinding.RequiredParameter(definiteType, typeMetadata, found.ParameterSource),
+                NotFound notFound => optionalOption.HasValue() ? ResolvedBinding.OptionalParameter(optionalOption.DefaultValue, definiteType, typeMetadata) : ResolvedBinding.RequiredParameter(definiteType, typeMetadata, notFound.ProposedParameterSource),
+                NoExactMatch noExactMatch => optionalOption.HasValue() ? ResolvedBinding.OptionalParameter(optionalOption.DefaultValue, definiteType, typeMetadata) : ResolvedBinding._ParameterError(definiteType, parameterName, noExactMatch.ParameterSources),
             };
         }
     }

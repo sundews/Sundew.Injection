@@ -86,14 +86,16 @@ internal class FactoryDeclaration : IInjectionDeclaration
         injectionBuilder.Bind<IIntercepted, Intercepted>();
 
         // Creates a factory for ConstructedChild
-        injectionBuilder.CreateFactory<ConstructedChild>();
+        injectionBuilder.CreateFactory<ConstructedChildFactory, IConstructedChildFactory>(
+            x => x.Add<ConstructedChild>());
 
         injectionBuilder.Bind<IMultipleImplementationForTypeResolver, MultipleImplementationForTypeResolverA>();
         injectionBuilder.Bind<IMultipleImplementationForTypeResolver, MultipleImplementationForTypeResolverB>();
 
         injectionBuilder.Bind<DependencyShared>(Scope.SingleInstancePerFactory);
 
-        injectionBuilder.CreateFactory<IMultipleImplementationForTypeResolver>();
+        injectionBuilder.CreateFactory<MultipleImplementationForTypeResolverFactory, IMultipleImplementationForTypeResolverFactory>(
+            x => x.Add<IMultipleImplementationForTypeResolver>());
 
         // Binding to a generated factory in another assembly
         injectionBuilder.BindFactory<DependencyFactory>();
@@ -102,28 +104,24 @@ internal class FactoryDeclaration : IInjectionDeclaration
         injectionBuilder.BindFactory<ManualDependencyFactory>(x => x.Create());
 
         // Creates a factory with a create method for each of the added operations
-        injectionBuilder.CreateFactory(
+        injectionBuilder.CreateFactory<GeneratedOperationFactory, IGeneratedOperationFactory>(
             factories => factories
                     .Add<IOperation, OperationA>()
-                    .Add<IOperation, OperationB>(),
-            "GeneratedOperationFactory",
-            generateInterface: true);
+                    .Add<IOperation, OperationB>());
 
         // Creates a factory for ResolveRoot and generates an interface for it as well
-        injectionBuilder.CreateFactory(
+        injectionBuilder.CreateFactory<ResolveRootFactory, IResolveRootFactory>(
             factories => factories
                 .Add<IResolveRoot, ResolveRoot>()
                 .Add<IInterfaceSingleInstancePerFactory>()
-                .Add<IMultipleImplementationForTypeResolver, MultipleImplementationForTypeResolverC>(),
-            generateInterface: true);
+                .Add<IMultipleImplementationForTypeResolver, MultipleImplementationForTypeResolverC>());
 
-        injectionBuilder.CreateResolver(x => x
+        injectionBuilder.CreateResolver<Container>(x => x
                 .Add<MultipleImplementationForTypeResolverFactory>()
                 .Add<DependencyFactory>()
                 .Add<ManualDependencyFactory>()
                 .Add<GeneratedOperationFactory>()
-                .Add<ResolveRootFactory>(),
-            "TestContainer");
+                .Add<ResolveRootFactory>());
     }
 
     internal static Generic<T> CreateGeneric<T>(T defaultItem)

@@ -39,7 +39,7 @@ internal static class InjectionDefinitionProvider
                 return R.Error(errors);
             }
 
-            var compiletimeInjectionDefinitionBuilder = new CompiletimeInjectionDefinitionBuilder(string.Empty);
+            var compiletimeInjectionDefinitionBuilder = new CompiletimeInjectionDefinitionBuilder();
             var typeFactory = new TypeFactory(knownAnalysisTypes);
             var injectionDeclarationVisitor = new InjectionDeclarationVisitor(new AnalysisContext(injectionDeclarationSemanticModel, knownAnalysisTypes, typeFactory, compiletimeInjectionDefinitionBuilder), cancellationToken);
             injectionDeclarationVisitor.Visit(injectionDeclarationSemanticModel.SyntaxTree.GetRoot());

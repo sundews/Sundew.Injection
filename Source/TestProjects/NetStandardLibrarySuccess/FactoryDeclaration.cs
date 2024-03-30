@@ -7,8 +7,12 @@ public class FactoryDeclaration : IInjectionDeclaration
 {
     public void Configure(IInjectionBuilder injectionBuilder)
     {
-        injectionBuilder.CreateFactory<T>();
+        injectionBuilder.CreateFactory<TFactory>(x => x.Add<T>());
     }
+}
+
+public partial class TFactory
+{
 }
 
 public class T

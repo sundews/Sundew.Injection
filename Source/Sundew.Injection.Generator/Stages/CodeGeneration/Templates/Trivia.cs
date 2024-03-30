@@ -17,6 +17,7 @@ public class Trivia
     public const string Private = "private";
     public const string PrivateName = "Private";
     public const string Sealed = "sealed";
+    public const string Partial = "partial";
     public const string Interface = "interface";
     public const string Class = "class";
     public const string Global = "global";

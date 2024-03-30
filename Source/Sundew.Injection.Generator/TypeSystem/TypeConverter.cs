@@ -12,6 +12,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
@@ -54,6 +55,17 @@ internal static class TypeConverter
             IErrorTypeSymbol errorTypeSymbol => (new ErrorType(errorTypeSymbol.MetadataName), default),
             IArrayTypeSymbol arrayTypeSymbol => (GetArrayType(arrayTypeSymbol, knownInjectableTypes), default),
             INamedTypeSymbol namedTypeSymbol => (GetNamedOrClosedGenericType(namedTypeSymbol, knownInjectableTypes), namedTypeSymbol.Constructors),
+            _ => throw new System.NotSupportedException($"The type {typeSymbol} is currently not supported."),
+        };
+    }
+
+    public static R<NamedType, string> GetNamedType(ITypeSymbol typeSymbol)
+    {
+        return typeSymbol switch
+        {
+            IErrorTypeSymbol errorTypeSymbol => R.Error($"{errorTypeSymbol.Name} must be a normal type."),
+            IArrayTypeSymbol arrayTypeSymbol => R.Error($"{arrayTypeSymbol.Name} arrays are not supported."),
+            INamedTypeSymbol namedTypeSymbol => R.Success(GetNamedType(namedTypeSymbol)),
             _ => throw new System.NotSupportedException($"The type {typeSymbol} is currently not supported."),
         };
     }

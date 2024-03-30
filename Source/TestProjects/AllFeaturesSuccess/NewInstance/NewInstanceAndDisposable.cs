@@ -5,10 +5,12 @@ using AllFeaturesSuccess.OptionalInterface;
 
 public class NewInstanceAndDisposable : IPrint, IDisposable
 {
+    private readonly IResolveRootFactory resolveRootFactory;
     private readonly IOmittedOptional? optionalImplementation;
 
-    public NewInstanceAndDisposable(IOmittedOptional? optionalImplementation = null)
+    public NewInstanceAndDisposable(IResolveRootFactory resolveRootFactory, IOmittedOptional? optionalImplementation = null)
     {
+        this.resolveRootFactory = resolveRootFactory;
         this.optionalImplementation = optionalImplementation;
     }
 

@@ -21,6 +21,7 @@ internal static class InjectionNodeExtensions
             SingleInstancePerFactoryInjectionNode singleInstancePerFactoryInjectionNode => singleInstancePerFactoryInjectionNode.TargetType.GetDefiniteTypeName(),
             SingleInstancePerObjectInjectionNode singleInstancePerObjectInjectionNode => singleInstancePerObjectInjectionNode.TargetType.GetDefiniteTypeName(),
             SingleInstancePerRequestInjectionNode singleInstancePerRequestInjectionNode => singleInstancePerRequestInjectionNode.TargetType.GetDefiniteTypeName(),
+            ThisFactoryInjectionNode thisFactoryInjectionNode => thisFactoryInjectionNode.FactoryType.GetDefiniteTypeName(),
         };
     }
 }

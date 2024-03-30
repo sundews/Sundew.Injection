@@ -4,7 +4,7 @@ namespace AllFeaturesSuccess
 {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Sundew.Injection.Generator", "0.1.0.0")]
     [global::Sundew.Injection.Factory]
-    public interface IResolveRootFactory : global::System.IDisposable, global::System.IAsyncDisposable, global::Sundew.Injection.IGeneratedFactory
+    public partial interface IResolveRootFactory : global::System.IDisposable, global::System.IAsyncDisposable, global::Sundew.Injection.IGeneratedFactory
     {
         global::AllFeaturesSuccess.IResolveRoot CreateResolveRoot(
             global::System.Collections.Generic.IEnumerable<int> integers,

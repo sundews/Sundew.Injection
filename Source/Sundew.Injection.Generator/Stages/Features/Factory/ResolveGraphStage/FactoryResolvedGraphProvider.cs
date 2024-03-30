@@ -19,7 +19,6 @@ using Sundew.Injection.Generator.Stages.CompilationDataStage;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Extensions;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Resolvers;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
-using Sundew.Injection.Generator.TypeSystem;
 
 internal static class FactoryResolvedGraphProvider
 {
@@ -45,13 +44,14 @@ internal static class FactoryResolvedGraphProvider
                 requiredParametersInjectionResolver,
                 ImmutableArray.Create(compilationData.LifecycleHandlerBinding),
                 new KnownEnumerableTypes(compilationData.IEnumerableOfTType, compilationData.IReadOnlyListOfTType));
-            var scopeResolverBuilder = new ScopeResolverBuilder(bindingResolver, injectionDefinition.RequiredParameterScopes);
+            var scopeResolverBuilder = new ScopeResolverBuilder(bindingResolver, injectionDefinition.RequiredParameterScopes, injectionDefinition.FactoryCreationDefinitions);
             foreach (var factoryCreationDefinition in injectionDefinition.FactoryCreationDefinitions)
             {
                 var useTargetTypeNameForCreateMethod =
                     factoryCreationDefinition.FactoryMethodRegistrations.Count > 1;
                 var factoryConstructorParameters = ImmutableList.CreateBuilder<FactoryConstructorParameter>();
                 var needsLifecycleHandling = false;
+                bindingResolver.RegisterThisFactory(factoryCreationDefinition.FactoryType, factoryCreationDefinition.FactoryInterfaceType);
                 var factoryMethodRegistrationsResult = factoryCreationDefinition.FactoryMethodRegistrations.AllOrFailed(x =>
                 {
                     var createBindingResult = bindingResolver.CreateBindingRoot(x, useTargetTypeNameForCreateMethod)
@@ -95,9 +95,7 @@ internal static class FactoryResolvedGraphProvider
 
                 if (factoryMethodRegistrationsResult.TryGet(out var all, out var failed))
                 {
-                    var fallbackFactoryMethodData = all.First();
-                    var fallbackFactoryType = new NamedType(fallbackFactoryMethodData.Return.Type.Name, fallbackFactoryMethodData.Target.Type.Namespace, compilationData.AssemblyName, false);
-                    var (factoryType, factoryInterfaceType) = bindingResolver.CreateFactoryBinding(factoryCreationDefinition, fallbackFactoryType, factoryConstructorParameters, needsLifecycleHandling, compilationData.AssemblyName);
+                    var (factoryType, factoryInterfaceType) = bindingResolver.CreateFactoryBinding(factoryCreationDefinition, factoryConstructorParameters, needsLifecycleHandling);
 
                     var lifecycleInjectionNodeResult = TryCreateLifecycleInjectionNode(
                         needsLifecycleHandling,
@@ -115,7 +113,6 @@ internal static class FactoryResolvedGraphProvider
                     var factoryDefinition = new FactoryResolvedGraph(
                         factoryType,
                         factoryInterfaceType,
-                        factoryCreationDefinition.GenerateInterface,
                         factoryCreationDefinition.Accessibility,
                         needsLifecycleHandling,
                         lifecycleInjectionNodeResult.Value,

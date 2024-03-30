@@ -1,12 +1,15 @@
-﻿namespace AllFeaturesSuccessDependency
-{
-    using Sundew.Injection;
+﻿namespace AllFeaturesSuccessDependency;
 
-    public class FactoryDeclaration : IInjectionDeclaration
+using Sundew.Injection;
+
+public class FactoryDeclaration : IInjectionDeclaration
+{
+    public void Configure(IInjectionBuilder injectionBuilder)
     {
-        public void Configure(IInjectionBuilder injectionBuilder)
-        {
-            injectionBuilder.CreateFactory<Dependency>();
-        }
+        injectionBuilder.CreateFactory<DependencyFactory>(x => x.Add<Dependency>());
     }
+}
+
+public partial class DependencyFactory : IGeneratedFactory
+{
 }

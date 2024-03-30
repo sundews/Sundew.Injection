@@ -36,7 +36,7 @@ internal static class FactoryCodeGenerationProvider
             var options = new Options(compilationData.AreNullableAnnotationsSupported);
             var classText = ImplementationSourceCodeEmitter.Emit(Sundew.Injection.Accessibility.Public, factoryDeclarations.ClassNamespaceDeclaration, options);
             var generatedOutputs = ImmutableArray.Create(new GeneratedCodeOutput(factoryResolvedGraph.FactoryType.FullName, classText));
-            if (factoryResolvedGraph.GenerateInterface && factoryResolvedGraph.FactoryInterfaceType != null && factoryDeclarations.InterfaceNamespaceDeclaration != null)
+            if (factoryResolvedGraph.FactoryInterfaceType != null && factoryDeclarations.InterfaceNamespaceDeclaration != null)
             {
                 var interfaceText = InterfaceSourceCodeEmitter.Emit(Sundew.Injection.Accessibility.Public, factoryDeclarations.InterfaceNamespaceDeclaration, options);
                 generatedOutputs = generatedOutputs.Add(new GeneratedCodeOutput(factoryResolvedGraph.FactoryInterfaceType.FullName, interfaceText));

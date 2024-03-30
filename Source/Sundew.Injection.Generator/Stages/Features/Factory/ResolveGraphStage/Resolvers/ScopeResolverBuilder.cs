@@ -25,19 +25,33 @@ internal sealed class ScopeResolverBuilder
 
     public ScopeResolverBuilder(
         BindingResolver bindingResolver,
-        ValueDictionary<TypeId, (Scope Scope, ScopeOrigin Origin)> requiredParameterScopes)
+        ValueDictionary<TypeId, (Scope Scope, ScopeOrigin Origin)> requiredParameterScopes,
+        ValueArray<FactoryCreationDefinition> factoryCreationDefinitions)
     : this(
         bindingResolver,
         requiredParameterScopes.ToDictionary(
             x => x.Key,
-            x => new ScopeContext { Scope = x.Value.Scope, Origin = x.Value.Origin }))
+            x => new ScopeContext { Scope = x.Value.Scope, Origin = x.Value.Origin }),
+        factoryCreationDefinitions)
     {
     }
 
-    internal ScopeResolverBuilder(BindingResolver bindingResolver, Dictionary<TypeId, ScopeContext> scopes)
+    internal ScopeResolverBuilder(
+        BindingResolver bindingResolver,
+        Dictionary<TypeId, ScopeContext> scopes,
+        ValueArray<FactoryCreationDefinition> factoryCreationDefinitions)
     {
         this.bindingResolver = bindingResolver;
         this.scopes = scopes;
+        foreach (var factoryCreationDefinition in factoryCreationDefinitions)
+        {
+            var scope = new ScopeContext { Scope = Scope._SingleInstancePerRequest, Origin = ScopeOrigin.Explicit };
+            this.scopes.Add(factoryCreationDefinition.FactoryType.Id, scope);
+            if (factoryCreationDefinition.FactoryInterfaceType.TryGetValue(out var factoryInterfaceType))
+            {
+                this.scopes.Add(factoryInterfaceType.Id, scope);
+            }
+        }
     }
 
     public Scope UpdateBindingScope(Binding binding, Scope parentScope)
@@ -107,6 +121,14 @@ internal sealed class ScopeResolverBuilder
 
         switch (resolvedBinding)
         {
+            case ThisFactoryParameter thisFactoryParameter:
+                this.UpdateParameterScope(thisFactoryParameter.FactoryType, Scope._SingleInstancePerFactory);
+                if (thisFactoryParameter.FactoryInterfaceType.HasValue())
+                {
+                    this.UpdateParameterScope(thisFactoryParameter.FactoryInterfaceType, Scope._SingleInstancePerFactory);
+                }
+
+                break;
             case SingleParameter singleParameter:
                 if (singleParameter.Binding.Method.Kind is MethodKind.Instance instance)
                 {
@@ -126,10 +148,10 @@ internal sealed class ScopeResolverBuilder
                 this.UpdateParameterScope(multiItemParameter.Type, dependeeScope);
 
                 break;
-            case DefaultParameter defaultParameter:
+            case OptionalParameter defaultParameter:
                 this.UpdateParameterScope(defaultParameter.Type, Scope._NewInstance);
                 break;
-            case ExternalParameter externalParameter:
+            case RequiredParameter externalParameter:
                 this.UpdateParameterScope(externalParameter.Type, dependeeScope);
                 break;
             case ResolvedBindingError.ParameterError parameterError:

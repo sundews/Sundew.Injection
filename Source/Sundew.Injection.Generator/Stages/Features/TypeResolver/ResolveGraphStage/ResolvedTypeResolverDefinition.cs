@@ -8,10 +8,10 @@
 namespace Sundew.Injection.Generator.Stages.Features.TypeResolver.ResolveGraphStage;
 
 using Sundew.Base.Collections.Immutable;
+using Sundew.Injection.Generator.TypeSystem;
 
 internal readonly record struct ResolvedTypeResolverDefinition(
-    string TypeResolverClassNamespace,
-    string TypeResolverClassName,
+    NamedType ResolverType,
     bool GenerateInterface,
     ValueArray<ResolvedFactoryRegistration> FactoryRegistrations,
     Accessibility Accessibility);

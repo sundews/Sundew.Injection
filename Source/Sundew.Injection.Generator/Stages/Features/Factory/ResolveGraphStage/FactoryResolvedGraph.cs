@@ -13,7 +13,6 @@ using Sundew.Injection.Generator.TypeSystem;
 internal sealed record FactoryResolvedGraph(
     NamedType FactoryType,
     NamedType? FactoryInterfaceType,
-    bool GenerateInterface,
     Accessibility Accessibility,
     bool NeedsLifecycleHandling,
     InjectionTree? LifecycleHandlingInjectionTree,

@@ -55,9 +55,8 @@ public static class TypeContainerResolvedGraphProvider
                 if (createMethods.TryGet(out var all, out var failed))
                 {
                     return R.Success(new ResolvedTypeResolverDefinition(
-                        resolverCreationDefinition.FactoryClassNamespace ?? compilationData.AssemblyNamespace,
-                        resolverCreationDefinition.FactoryClassName ?? all.First().DefiniteType.Name,
-                        resolverCreationDefinition.GenerateInterface,
+                        resolverCreationDefinition.ResolverType,
+                        true,
                         all.Select(x => new ResolvedFactoryRegistration(x.DefiniteType, x.CreateMethods))
                             .ToValueArray(),
                         resolverCreationDefinition.Accessibility));

@@ -21,6 +21,7 @@ internal class InjectionNodeEvaluator
     private readonly SingleInstancePerObjectGenerator singleInstancePerObjectGenerator;
     private readonly FactoryMethodParameterGenerator factoryMethodParameterGenerator;
     private readonly FactoryConstructorParameterGenerator factoryConstructorParameterGenerator;
+    private readonly ThisFactoryGenerator thisFactoryGenerator;
 
     public InjectionNodeEvaluator(GeneratorFeatures generatorFeatures, GeneratorContext generatorContext)
     {
@@ -30,6 +31,8 @@ internal class InjectionNodeEvaluator
         this.singleInstancePerObjectGenerator = new SingleInstancePerObjectGenerator(generatorFeatures, generatorContext);
         this.factoryMethodParameterGenerator = new FactoryMethodParameterGenerator(generatorFeatures, generatorContext);
         this.factoryConstructorParameterGenerator = new FactoryConstructorParameterGenerator(generatorFeatures, generatorContext);
+        this.thisFactoryGenerator = new ThisFactoryGenerator(generatorFeatures, generatorContext);
+        this.cancellationToken = generatorContext.CancellationToken;
     }
 
     public FactoryNode Generate(
@@ -46,6 +49,10 @@ internal class InjectionNodeEvaluator
                 in methodImplementation),
             SingleInstancePerRequestInjectionNode singleInstancePerRequestCreationNode => this.singleInstancePerRequestGenerator.VisitSingleInstancePerRequest(
                 singleInstancePerRequestCreationNode,
+                in factoryImplementation,
+                in methodImplementation),
+            ThisFactoryInjectionNode thisFactoryInjectionNode => this.thisFactoryGenerator.VisitThisFactory(
+                thisFactoryInjectionNode,
                 in factoryImplementation,
                 in methodImplementation),
             SingleInstancePerFactoryInjectionNode singleInstancePerFactoryCreationNode => this.singleInstancePerFactoryGenerator.VisitSingleInstancePerFactory(

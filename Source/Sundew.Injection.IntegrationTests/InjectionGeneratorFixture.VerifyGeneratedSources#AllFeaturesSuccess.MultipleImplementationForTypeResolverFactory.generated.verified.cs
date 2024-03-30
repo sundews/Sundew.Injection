@@ -5,7 +5,7 @@ namespace AllFeaturesSuccess
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Sundew.Injection.Generator", "0.1.0.0")]
     [global::Sundew.Injection.Factory]
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed class MultipleImplementationForTypeResolverFactory : global::AllFeaturesSuccess.IMultipleImplementationForTypeResolverFactory
+    public sealed partial class MultipleImplementationForTypeResolverFactory : global::AllFeaturesSuccess.IMultipleImplementationForTypeResolverFactory
     {
         private readonly global::AllFeaturesSuccess.TypeResolver.DependencyShared dependencyShared;
 

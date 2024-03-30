@@ -113,6 +113,9 @@ internal sealed class InjectionTreeBuilder
             var resolvedBinding = this.bindingResolver.ResolveBinding(parameter);
             switch (resolvedBinding)
             {
+                case ThisFactoryParameter thisFactoryParameter:
+                    constructorParameterCreationNodes.TryAdd(InjectionNode.ThisFactoryInjectionNode(thisFactoryParameter.FactoryType, creationInjectionNode.GetInjectionNodeName()));
+                    break;
                 case SingleParameter singleParameter:
                     {
                         var injectionModelResult = this.GetInjectionModel(singleParameter.Binding, creationInjectionNode, scope, (parameter.Type, parameter.Name, parameter.TypeMetadata), cancellationToken);
@@ -153,7 +156,7 @@ internal sealed class InjectionTreeBuilder
                         break;
                     }
 
-                case DefaultParameter defaultParameter:
+                case OptionalParameter defaultParameter:
                     constructorParameterCreationNodes.Add(
                         new NewInstanceInjectionNode(
                             parameter.Type,
@@ -166,7 +169,7 @@ internal sealed class InjectionTreeBuilder
                             creationInjectionNode.GetInjectionNodeName()));
                     break;
 
-                case ExternalParameter externalParameter:
+                case RequiredParameter externalParameter:
                     var externalParameterScope = this.scopeResolver.ResolveScope(externalParameter.Type);
                     var externalParameterInjectionNode = this.CreateParameterInjectionNode(
                         externalParameter.Type,
@@ -206,7 +209,9 @@ internal sealed class InjectionTreeBuilder
                 var resolvedBinding = this.bindingResolver.ResolveBinding(bindingMethod.ContainingType, instance.ContainingTypeMetadata, null);
                 switch (resolvedBinding)
                 {
-                    case ExternalParameter externalParameter:
+                    case ThisFactoryParameter thisFactoryParameter:
+                        throw new System.NotImplementedException();
+                    case RequiredParameter externalParameter:
                         var type = externalParameter.Type;
 
                         var requiredExternalParameterScope = this.scopeResolver.ResolveScope(externalParameter.Type);
@@ -219,7 +224,7 @@ internal sealed class InjectionTreeBuilder
                             new CreationModel(CreationSource._InstanceMethodCall(bindingMethod.ContainingType, bindingMethod, injectionModel.InjectionNode, instance.IsProperty), injectionModel.NeedsLifecycleHandling, injectionModel.FactoryConstructorParameters));
                     case MultiItemParameter multiItemParameter:
                         return R.Error(ImmutableList.Create(InjectionStageError._UnsupportedInstanceMethod(bindingMethod, multiItemParameter.Type, Root)));
-                    case DefaultParameter:
+                    case OptionalParameter:
                         return R.Error(ImmutableList.Create(InjectionStageError._UnsupportedInstanceMethod(bindingMethod, bindingMethod.ContainingType, Root)));
                     case ResolvedBindingError.Error error:
                         return R.Error(ImmutableList.Create(InjectionStageError._ResolveTypeError(error.BindingError, Root)));

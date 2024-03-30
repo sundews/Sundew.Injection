@@ -8,10 +8,9 @@
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
 using Sundew.Base.Collections.Immutable;
+using Sundew.Injection.Generator.TypeSystem;
 
 internal readonly record struct ResolverCreationDefinition(
-    string? FactoryClassNamespace,
-    string? FactoryClassName,
-    bool GenerateInterface,
+    NamedType ResolverType,
     ValueArray<FactoryRegistration> FactoryRegistrations,
     Accessibility Accessibility);

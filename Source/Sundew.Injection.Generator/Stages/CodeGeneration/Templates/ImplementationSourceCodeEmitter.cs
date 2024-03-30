@@ -46,6 +46,8 @@ internal static class ImplementationSourceCodeEmitter
             .If(
                 classDeclaration.IsSealed,
                 x => x.Append(Trivia.Sealed).Append(' '))
+            .Append(Trivia.Partial)
+            .Append(' ')
             .Append(Trivia.Class)
             .Append(' ')
             .Append(classDeclaration.Type.Name)

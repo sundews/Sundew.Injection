@@ -287,106 +287,29 @@ namespace Sundew.Injection
         /// Specifies a factory to be generated and which factory methods are available.
         /// </summary>
         /// <param name="factoryMethods">A selector of the factory methods to be supported by the factory.</param>
-        /// <param name="factoryName">The factory name.</param>
-        /// <param name="generateInterface">Indicates whether an interface should also be generated for the factory.</param>
         /// <param name="accessibility">The accessibility of the generated types.</param>
-        /// <param name="namespace">The namespace for the generated types.</param>
-        void CreateFactory(
+        void CreateFactory<TFactory>(
             Func<IFactoryMethodSelector, IFactoryMethods> factoryMethods,
-            string? factoryName = null,
-            bool generateInterface = true,
-            Accessibility accessibility = Accessibility.Public,
-            string? @namespace = null);
+            Accessibility accessibility = Accessibility.Public);
 
         /// <summary>
         /// Specifies a factory to be generated and which factory methods are available.
         /// </summary>
-        /// <typeparam name="TReturn">The return type.</typeparam>
-        /// <param name="factoryName">The factory name.</param>
-        /// <param name="generateInterface">Indicates whether an interface should also be generated for the factory.</param>
+        /// <param name="factoryMethods">A selector of the factory methods to be supported by the factory.</param>
         /// <param name="accessibility">The accessibility of the generated types.</param>
-        /// <param name="namespace">The namespace for the generated types.</param>
-        void CreateFactory<TReturn>(
-            string? factoryName = null,
-            bool generateInterface = true,
-            Accessibility accessibility = Accessibility.Public,
-            string? @namespace = null);
-
-        /// <summary>
-        /// Specifies a resolver to be generated with access to the specified factory.
-        /// </summary>
-        /// <typeparam name="TFactory">The factory type.</typeparam>
-        /// <param name="resolverName">The resolver name.</param>
-        /// <param name="generateInterface">Indicates whether an interface should also be generated for the factory.</param>
-        /// <param name="accessibility">The accessibility of the generated types.</param>
-        /// <param name="namespace">The namespace for the generated types.</param>
-        void CreateResolver<TFactory>(
-            string resolverName,
-            bool generateInterface = true,
-            Accessibility accessibility = Accessibility.Public,
-            string? @namespace = null);
+        void CreateFactory<TFactory, TFactoryInterface>(
+            Func<IFactoryMethodSelector, IFactoryMethods> factoryMethods,
+            Accessibility accessibility = Accessibility.Public)
+            where TFactory : TFactoryInterface;
 
         /// <summary>
         /// Specifies a resolver to be generated with access to the specified factories.
         /// </summary>
-        /// <typeparam name="TFactory1">The factory 1 type.</typeparam>
-        /// <typeparam name="TFactory2">The factory 2 type.</typeparam>
-        /// <param name="resolverName">The resolver name.</param>
-        /// <param name="generateInterface">Indicates whether an interface should also be generated for the factory.</param>
-        /// <param name="accessibility">The accessibility of the generated types.</param>
-        /// <param name="namespace">The namespace for the generated types.</param>
-        void CreateResolver<TFactory1, TFactory2>(
-            string resolverName,
-            bool generateInterface = true,
-            Accessibility accessibility = Accessibility.Public,
-            string? @namespace = null);
-
-        /// <summary>
-        /// Specifies a resolver to be generated with access to the specified factories.
-        /// </summary>
-        /// <typeparam name="TFactory1">The factory 1 type.</typeparam>
-        /// <typeparam name="TFactory2">The factory 2 type.</typeparam>
-        /// <typeparam name="TFactory3">The factory 3 type.</typeparam>
-        /// <param name="resolverName">The resolver name.</param>
-        /// <param name="generateInterface">Indicates whether an interface should also be generated for the factory.</param>
-        /// <param name="accessibility">The accessibility of the generated types.</param>
-        /// <param name="namespace">The namespace for the generated types.</param>
-        void CreateResolver<TFactory1, TFactory2, TFactory3>(
-            string resolverName,
-            bool generateInterface = true,
-            Accessibility accessibility = Accessibility.Public,
-            string? @namespace = null);
-
-        /// <summary>
-        /// Specifies a resolver to be generated with access to the specified factories.
-        /// </summary>
-        /// <typeparam name="TFactory1">The factory 1 type.</typeparam>
-        /// <typeparam name="TFactory2">The factory 2 type.</typeparam>
-        /// <typeparam name="TFactory3">The factory 3 type.</typeparam>
-        /// <typeparam name="TFactory4">The factory 4 type.</typeparam>
-        /// <param name="resolverName">The resolver name.</param>
-        /// <param name="generateInterface">Indicates whether an interface should also be generated for the factory.</param>
-        /// <param name="accessibility">The accessibility of the generated types.</param>
-        /// <param name="namespace">The namespace for the generated types.</param>
-        void CreateResolver<TFactory1, TFactory2, TFactory3, TFactory4>(
-            string resolverName,
-            bool generateInterface = true,
-            Accessibility accessibility = Accessibility.Public,
-            string? @namespace = null);
-
-        /// <summary>
-        /// Specifies a resolver to be generated with access to the specified factories.
-        /// </summary>
+        /// <typeparam name="TResolver">The factory 1 type.</typeparam>
         /// <param name="factories">The factories.</param>
-        /// <param name="resolverName">The resolver name.</param>
-        /// <param name="generateInterface">Indicates whether an interface should also be generated for the factory.</param>
         /// <param name="accessibility">The accessibility of the generated types.</param>
-        /// <param name="namespace">The namespace for the generated types.</param>
-        void CreateResolver(
+        void CreateResolver<TResolver>(
             Func<IFactorySelector, IFactories> factories,
-            string resolverName,
-            bool generateInterface = true,
-            Accessibility accessibility = Accessibility.Public,
-            string? @namespace = null);
+            Accessibility accessibility = Accessibility.Public);
     }
 }

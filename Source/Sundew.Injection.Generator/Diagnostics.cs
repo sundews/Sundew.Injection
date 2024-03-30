@@ -14,13 +14,22 @@ public static class Diagnostics
     private const string CodeGeneration = "CodeGeneration";
 
     public static DiagnosticDescriptor UnknownError { get; } = new(
-        "SI0001",
+        "SI0100",
         Resources.UnknownErrorTitle,
         Resources.UnknownErrorMessageFormat,
         CodeGeneration,
         DiagnosticSeverity.Error,
         true,
         Resources.UnknownErrorDescription);
+
+    public static DiagnosticDescriptor InvalidFactoryTypeError { get; } = new(
+        "SI0001",
+        Resources.InvalidFactoryTypeTitle,
+        Resources.InvalidFactoryTypeMessageFormat,
+        CodeGeneration,
+        DiagnosticSeverity.Error,
+        true,
+        Resources.InvalidFactoryTypeDescription);
 
     public static DiagnosticDescriptor ScopeError { get; } = new(
         "SI0002",

@@ -15,10 +15,12 @@ using Sundew.Injection.Generator.TypeSystem;
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record ResolvedBinding;
 
-internal sealed record ExternalParameter(DefiniteType Type, TypeMetadata TypeMetadata, ParameterSource ParameterSource) : ResolvedBinding;
+internal sealed record ThisFactoryParameter(NamedType FactoryType, NamedType? FactoryInterfaceType) : ResolvedBinding;
 
 internal sealed record SingleParameter(Binding Binding) : ResolvedBinding;
 
-internal sealed record DefaultParameter(object? Literal, DefiniteType Type, TypeMetadata TypeMetadata) : ResolvedBinding;
-
 internal sealed record MultiItemParameter(DefiniteType Type, DefiniteType ElementType, IReadOnlyList<Binding> Bindings, bool IsArrayRequired) : ResolvedBinding;
+
+internal sealed record RequiredParameter(DefiniteType Type, TypeMetadata TypeMetadata, ParameterSource ParameterSource) : ResolvedBinding;
+
+internal sealed record OptionalParameter(object? Literal, DefiniteType Type, TypeMetadata TypeMetadata) : ResolvedBinding;

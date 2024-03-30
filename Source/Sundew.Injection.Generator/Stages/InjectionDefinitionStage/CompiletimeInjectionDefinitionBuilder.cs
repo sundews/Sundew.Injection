@@ -34,13 +34,6 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
 
     private readonly List<Diagnostic> diagnostics = new();
 
-    public CompiletimeInjectionDefinitionBuilder(string defaultNamespace)
-    {
-        this.DefaultNamespace = defaultNamespace;
-    }
-
-    public string DefaultNamespace { get; set; }
-
     public Inject RequiredParameterInjection { get; set; }
 
     public bool HasBinding(Type type)
@@ -121,23 +114,20 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
     }
 
     public void CreateFactory(
+        NamedType factoryType,
+        NamedType? factoryInterface,
         FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder,
-        string? factoryClassNamespace = null,
-        string? factoryClassName = null,
-        bool generateInterface = true,
-        Accessibility accessibility = Injection.Accessibility.Public)
+        Accessibility accessibility)
     {
-        this.factoryDefinitions.Add(new FactoryCreationDefinition(factoryClassNamespace ?? this.DefaultNamespace, factoryClassName, generateInterface, factoryMethodRegistrationBuilder.Build(), accessibility));
+        this.factoryDefinitions.Add(new FactoryCreationDefinition(factoryType, factoryInterface, factoryMethodRegistrationBuilder.Build(), accessibility));
     }
 
     public void CreateResolver(
         FactoryRegistrationBuilder factoryRegistrationBuilder,
-        string? resolverClassNamespace = null,
-        string? resolverClassName = null,
-        bool generateInterface = true,
+        NamedType resolverType,
         Accessibility accessibility = Accessibility.Public)
     {
-        this.resolverDefinitions.Add(new ResolverCreationDefinition(resolverClassNamespace ?? this.DefaultNamespace, resolverClassName, generateInterface, factoryRegistrationBuilder.Build(), accessibility));
+        this.resolverDefinitions.Add(new ResolverCreationDefinition(resolverType, factoryRegistrationBuilder.Build(), accessibility));
     }
 
     public void ReportDiagnostic(Diagnostic diagnostic)
@@ -153,7 +143,6 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         }
 
         return R.Success(new InjectionDefinition(
-            this.DefaultNamespace,
             this.RequiredParameterInjection,
             this.factoryDefinitions.ToImmutableArray(),
             this.bindingRegistrations.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray().ToValueArray()),

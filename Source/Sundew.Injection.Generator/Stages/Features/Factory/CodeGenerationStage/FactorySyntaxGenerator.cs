@@ -88,7 +88,7 @@ internal class FactorySyntaxGenerator
             });
 
         InterfaceDeclaration? interfaceDeclaration = null;
-        if (this.factoryResolvedGraph.GenerateInterface && this.factoryResolvedGraph.FactoryInterfaceType != null)
+        if (this.factoryResolvedGraph.FactoryInterfaceType != null)
         {
             interfaceDeclaration = new InterfaceDeclaration(
                 this.factoryResolvedGraph.FactoryInterfaceType,
@@ -242,11 +242,11 @@ internal class FactorySyntaxGenerator
         }
 
         return (factoryNode.FactoryImplementation with
-            {
-                Fields = fields,
-                CreateMethods = factoryMethods,
-                DisposeMethodImplementations = disposeMethodImplementations,
-            },
+        {
+            Fields = fields,
+            CreateMethods = factoryMethods,
+            DisposeMethodImplementations = disposeMethodImplementations,
+        },
             new DefiniteFactoryMethod(createMethodDeclaration.Name, createMethodDeclaration.Parameters, factoryMethodData.Return.Type));
     }
 }

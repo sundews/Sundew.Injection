@@ -5,7 +5,7 @@ namespace AllFeaturesSuccess
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Sundew.Injection.Generator", "0.1.0.0")]
     [global::Sundew.Injection.Factory]
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public class ResolveRootFactory : global::AllFeaturesSuccess.IResolveRootFactory
+    public partial class ResolveRootFactory : global::AllFeaturesSuccess.IResolveRootFactory
     {
         private readonly global::Sundew.Injection.ILifecycleParameters lifecycleParameters;
         private readonly global::Sundew.Injection.LifecycleHandler lifecycleHandler;
@@ -14,7 +14,7 @@ namespace AllFeaturesSuccess
         private readonly global::AllFeaturesSuccess.MultipleImplementations.IMultipleImplementationForArray multipleImplementationForArrayB;
         private readonly global::AllFeaturesSuccess.MultipleImplementations.IMultipleImplementationForArray[] multipleImplementationForArrayArray;
         private readonly global::AllFeaturesSuccess.RequiredInterface.IInjectedSeparately injectedSeparatelyForInterfaceSingleInstancePerFactory;
-        private readonly global::AllFeaturesSuccess.GeneratedOperationFactory generatedOperationFactory;
+        private readonly global::AllFeaturesSuccess.IGeneratedOperationFactory generatedOperationFactory;
         private readonly global::AllFeaturesSuccess.RequiredInterface.IInjectedByType injectedByType;
         private readonly global::AllFeaturesSuccess.InterfaceSegregationBindings.IInterfaceSegregationOverridableNew interfaceSegregationOverridableNewImplementation;
         private readonly global::AllFeaturesSuccess.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory interfaceSingleInstancePerFactory;
@@ -132,13 +132,13 @@ namespace AllFeaturesSuccess
             interfaceSegregation ??= childLifecycleHandler.TryAdd(new global::AllFeaturesSuccess.InterfaceSegregationBindings.InterfaceSegregationImplementation(injectableSingleInstancePerRequest));
             var selectConstructorForIntercepted = new global::AllFeaturesSuccess.ConstructorSelection.SelectConstructor(this.implementationSingleInstancePerFactory, injectableSingleInstancePerRequest, interfaceSegregation);
             childLifecycleHandler.TryAdd(selectConstructorForIntercepted);
-            var newInstanceAndDisposableForResources = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? childLifecycleHandler.TryAdd(new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional)));
-            var newInstanceAndDisposableForIntercepted = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? childLifecycleHandler.TryAdd(new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional)));
+            var newInstanceAndDisposableForResources = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? childLifecycleHandler.TryAdd(new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(this, default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional)));
+            var newInstanceAndDisposableForIntercepted = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? childLifecycleHandler.TryAdd(new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(this, default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional)));
             var overrideableNewImplementationForIntercepted = this.OnCreateOverrideableNewImplementation(injectableSingleInstancePerRequest, this.injectableByInterface, requiredParameter);
             childLifecycleHandler.TryAdd(overrideableNewImplementationForIntercepted);
             var overrideableNewImplementationForResolveRoot = this.OnCreateOverrideableNewImplementation(injectableSingleInstancePerRequest, this.injectableByInterface, requiredParameter);
             childLifecycleHandler.TryAdd(overrideableNewImplementationForResolveRoot);
-            var newInstanceAndDisposableForConstructedChild = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? childLifecycleHandler.TryAdd(new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional)));
+            var newInstanceAndDisposableForConstructedChild = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? childLifecycleHandler.TryAdd(new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(this, default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional)));
             var constructedDependencyForConstructedChild = this.dependencyFactory.CreateUninitialized();
             childLifecycleHandler.TryAdd(constructedDependencyForConstructedChild);
             var dependencyForConstructedChild = constructedDependencyForConstructedChild.Object;

@@ -24,7 +24,7 @@
     <PackageVersion Include="NUnit" Version="4.1.0" />
     <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageVersion Include="PolySharp" Version="1.14.1" />
-    <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.507" />
+    <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
     <PackageVersion Include="Sundew.Base.Collections" Version="12.0.9" />
     <PackageVersion Include="Sundew.Base.Equality" Version="12.0.9" />
     <PackageVersion Include="Sundew.Base.Memory" Version="12.0.9" />

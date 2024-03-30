@@ -5,7 +5,7 @@ namespace AllFeaturesSuccess
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Sundew.Injection.Generator", "0.1.0.0")]
     [global::Sundew.Injection.Factory]
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed class ConstructedChildFactory : global::AllFeaturesSuccess.IConstructedChildFactory
+    public sealed partial class ConstructedChildFactory : global::AllFeaturesSuccess.IConstructedChildFactory
     {
         private readonly global::Sundew.Injection.ILifecycleParameters lifecycleParameters;
         private readonly global::Sundew.Injection.LifecycleHandler lifecycleHandler;
@@ -27,18 +27,18 @@ namespace AllFeaturesSuccess
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        public global::AllFeaturesSuccess.ChildFactory.ConstructedChild Create(global::AllFeaturesSuccess.OptionalInterface.OptionalParameters optionalParameters)
+        public global::AllFeaturesSuccess.ChildFactory.ConstructedChild Create(global::AllFeaturesSuccess.IResolveRootFactory resolveRootFactory, global::AllFeaturesSuccess.OptionalInterface.OptionalParameters optionalParameters)
         {
-            var constructedConstructedChild = this.CreateUninitialized(optionalParameters);
+            var constructedConstructedChild = this.CreateUninitialized(resolveRootFactory, optionalParameters);
             this.lifecycleHandler.Initialize();
             return constructedConstructedChild.Object;
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         [global::Sundew.Injection.IndirectCreateMethodAttribute]
-        public async global::System.Threading.Tasks.Task<global::AllFeaturesSuccess.ChildFactory.ConstructedChild> CreateAsync(global::AllFeaturesSuccess.OptionalInterface.OptionalParameters optionalParameters)
+        public async global::System.Threading.Tasks.Task<global::AllFeaturesSuccess.ChildFactory.ConstructedChild> CreateAsync(global::AllFeaturesSuccess.IResolveRootFactory resolveRootFactory, global::AllFeaturesSuccess.OptionalInterface.OptionalParameters optionalParameters)
         {
-            var constructedConstructedChild = this.CreateUninitialized(optionalParameters);
+            var constructedConstructedChild = this.CreateUninitialized(resolveRootFactory, optionalParameters);
             await this.lifecycleHandler.InitializeAsync().ConfigureAwait(false);
             return constructedConstructedChild.Object;
         }
@@ -47,10 +47,10 @@ namespace AllFeaturesSuccess
         [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
         [global::Sundew.Injection.BindableCreateMethodAttribute]
         [global::Sundew.Injection.IndirectCreateMethodAttribute]
-        public global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.ChildFactory.ConstructedChild> CreateUninitialized(global::AllFeaturesSuccess.OptionalInterface.OptionalParameters optionalParameters)
+        public global::Sundew.Injection.Constructed<global::AllFeaturesSuccess.ChildFactory.ConstructedChild> CreateUninitialized(global::AllFeaturesSuccess.IResolveRootFactory resolveRootFactory, global::AllFeaturesSuccess.OptionalInterface.OptionalParameters optionalParameters)
         {
             var childLifecycleHandler = this.lifecycleHandler.CreateChildLifecycleHandler();
-            var newInstanceAndDisposableForConstructedChild = optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? childLifecycleHandler.TryAdd(new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional)));
+            var newInstanceAndDisposableForConstructedChild = optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? childLifecycleHandler.TryAdd(new global::AllFeaturesSuccess.NewInstance.NewInstanceAndDisposable(resolveRootFactory, default(global::AllFeaturesSuccess.OptionalInterface.IOmittedOptional)));
             var constructedDependencyForConstructedChild = this.dependencyFactory.CreateUninitialized();
             childLifecycleHandler.TryAdd(constructedDependencyForConstructedChild);
             var dependencyForConstructedChild = constructedDependencyForConstructedChild.Object;

@@ -82,12 +82,6 @@ internal class ConfigureInvocationMemberAccessExpressionVisitor : CSharpSyntaxWa
                 break;
             case nameof(IInjectionBuilder.CreateFactory):
                 var methodSymbol = methodSymbols.First();
-                if (methodSymbol.IsGenericMethod)
-                {
-                    new CreateFactoryGenericVisitor(methodSymbol, this.analysisContext).Visit(node);
-                    return;
-                }
-
                 new CreateFactoryVisitor(methodSymbol, this.analysisContext).Visit(node);
                 break;
             case nameof(IInjectionBuilder.BindFactory):
@@ -103,12 +97,6 @@ internal class ConfigureInvocationMemberAccessExpressionVisitor : CSharpSyntaxWa
 
                 if (!methodSymbol2.HasValue())
                 {
-                    return;
-                }
-
-                if (methodSymbol2.IsGenericMethod)
-                {
-                    new CreateResolverGenericVisitor(methodSymbol2, this.analysisContext).Visit(node);
                     return;
                 }
 

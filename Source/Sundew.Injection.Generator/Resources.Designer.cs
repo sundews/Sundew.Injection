@@ -61,6 +61,33 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Occurs when CreateFactory is called with invalid type parameters.
+        /// </summary>
+        internal static string InvalidFactoryTypeDescription {
+            get {
+                return ResourceManager.GetString("InvalidFactoryTypeDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The type {0} must be a regular class.
+        /// </summary>
+        internal static string InvalidFactoryTypeMessageFormat {
+            get {
+                return ResourceManager.GetString("InvalidFactoryTypeMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Factory types must be a regular class.
+        /// </summary>
+        internal static string InvalidFactoryTypeTitle {
+            get {
+                return ResourceManager.GetString("InvalidFactoryTypeTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to .
         /// </summary>
         internal static string MultipleParametersNotSupportedForBindFactoryErrorDescription {
@@ -124,7 +151,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not resolve factory method for type {0}.
+        ///   Looks up a localized string similar to Could not Resolve factory method for type {0}.
         /// </summary>
         internal static string NoFactoryMethodFoundForTypeErrorMessageFormat {
             get {
@@ -241,7 +268,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not resolve the following parameters for type: {0} - parameters: {1}.
+        ///   Looks up a localized string similar to Could not Resolve the following parameters for type: {0} - parameters: {1}.
         /// </summary>
         internal static string ResolveGenericMethodMessageFormat {
             get {
@@ -268,7 +295,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not resolve the following parameters for type: {0} - parameters: {1}.
+        ///   Looks up a localized string similar to Could not Resolve the following parameters for type: {0} - parameters: {1}.
         /// </summary>
         internal static string ResolveMethodMessageFormat {
             get {
@@ -286,7 +313,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not resolve the type: {0} as a parameter for: {1} from the available parameter sources: {2}.
+        ///   Looks up a localized string similar to Could not Resolve the type: {0} as a parameter for: {1} from the available parameter sources: {2}.
         /// </summary>
         internal static string ResolveRequiredParameterErrorMessageFormat {
             get {
@@ -295,7 +322,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not resolve required parameter.
+        ///   Looks up a localized string similar to Could not Resolve required parameter.
         /// </summary>
         internal static string ResolveRequiredParameterErrorTitle {
             get {
@@ -313,7 +340,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed to resolve the type: {0}.
+        ///   Looks up a localized string similar to Failed to Resolve the type: {0}.
         /// </summary>
         internal static string ResolveTypeErrorMessageFormat {
             get {
@@ -322,7 +349,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not resolve type.
+        ///   Looks up a localized string similar to Could not Resolve type.
         /// </summary>
         internal static string ResolveTypeErrorTitle {
             get {

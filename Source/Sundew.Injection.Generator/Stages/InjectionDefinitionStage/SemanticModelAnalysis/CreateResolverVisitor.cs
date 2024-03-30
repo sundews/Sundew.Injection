@@ -27,12 +27,9 @@ internal class CreateResolverVisitor : CSharpSyntaxWalker
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
         var parameters = this.methodSymbol.Parameters;
-        var i = 2;
+        var i = 1;
         var factories = new FactoryRegistrationBuilder();
-        string? resolverName = null;
-        var generateInterface = (bool?)parameters[i++].ExplicitDefaultValue ?? true;
         var accessibility = parameters[i++].ExplicitDefaultValue.ToEnumOrDefault(Injection.Accessibility.Public);
-        var @namespace = (string?)parameters[i++].ExplicitDefaultValue;
         var argumentIndex = 0;
         foreach (var argumentSyntax in node.Arguments)
         {
@@ -43,17 +40,8 @@ internal class CreateResolverVisitor : CSharpSyntaxWalker
                     case nameof(factories):
                         new FactoryVisitor(factories, this.analysisContext).Visit(argumentSyntax);
                         break;
-                    case nameof(resolverName):
-                        resolverName = (string?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
-                        break;
-                    case nameof(generateInterface):
-                        generateInterface = (bool?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value ?? true;
-                        break;
                     case nameof(accessibility):
                         accessibility = this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value.ToEnumOrDefault(Injection.Accessibility.Public);
-                        break;
-                    case nameof(@namespace):
-                        @namespace = (string?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
                         break;
                 }
             }
@@ -65,16 +53,7 @@ internal class CreateResolverVisitor : CSharpSyntaxWalker
                         new FactoryVisitor(factories, this.analysisContext).Visit(argumentSyntax);
                         break;
                     case 1:
-                        resolverName = (string?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
-                        break;
-                    case 2:
-                        generateInterface = (bool?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value ?? true;
-                        break;
-                    case 3:
                         accessibility = this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value.ToEnumOrDefault(Injection.Accessibility.Public);
-                        break;
-                    case 4:
-                        @namespace = (string?)this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
                         break;
                 }
 
@@ -82,6 +61,14 @@ internal class CreateResolverVisitor : CSharpSyntaxWalker
             }
         }
 
-        this.analysisContext.CompiletimeInjectionDefinitionBuilder.CreateResolver(factories, @namespace, resolverName, generateInterface, accessibility);
+        var typeArguments = this.methodSymbol.TypeArguments;
+        var resolverTypeResult = this.analysisContext.TypeFactory.GetType(typeArguments[0]);
+        if (resolverTypeResult.TryGetError(out var factoryTypeError))
+        {
+            this.analysisContext.CompiletimeInjectionDefinitionBuilder.ReportDiagnostic(Diagnostic.Create(Diagnostics.InvalidFactoryTypeError, Location.None, factoryTypeError));
+            return;
+        }
+
+        this.analysisContext.CompiletimeInjectionDefinitionBuilder.CreateResolver(factories, resolverTypeResult.Value, accessibility);
     }
 }

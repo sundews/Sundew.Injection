@@ -36,6 +36,8 @@ internal static class InterfaceSourceCodeEmitter
             .Append(' ', indentation)
             .Append(accessibility.ToString().ToLowerInvariant())
             .Append(' ')
+            .Append(Trivia.Partial)
+            .Append(' ')
             .Append(Trivia.Interface)
             .Append(' ')
             .Append(interfaceDeclaration.Type.Name)

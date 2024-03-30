@@ -31,11 +31,7 @@ internal static class TypeResolverSyntaxGenerator
         var (constructor, registrationCount) = CreateConstructor(resolvedTypeResolverDefinition, compilationData);
 
         return new ClassDeclaration(
-            new NamedType(
-                resolvedTypeResolverDefinition.TypeResolverClassName,
-                resolvedTypeResolverDefinition.TypeResolverClassNamespace,
-                string.Empty,
-                false),
+            resolvedTypeResolverDefinition.ResolverType,
             true,
             new Member[]
             {
@@ -86,7 +82,7 @@ internal static class TypeResolverSyntaxGenerator
                 DeclaredAccessibility.Public,
                 false,
                 false,
-                resolvedTypeResolverDefinition.TypeResolverClassName,
+                resolvedTypeResolverDefinition.ResolverType.Name,
                 factoryRegistrationWithParameters.Select(x => x.ParameterDeclaration).ToValueList(),
                 ValueList<AttributeDeclaration>.Empty),
             new[]

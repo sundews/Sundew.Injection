@@ -10,6 +10,7 @@ namespace Sundew.Injection.Generator.TypeSystem;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Sundew.Base;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
 internal sealed class TypeFactory
@@ -19,6 +20,11 @@ internal sealed class TypeFactory
     public TypeFactory(IKnownInjectableTypes knownInjectableTypes)
     {
         this.knownInjectableTypes = knownInjectableTypes;
+    }
+
+    public R<NamedType, string> GetType(ITypeSymbol typeSymbol)
+    {
+        return TypeConverter.GetNamedType(typeSymbol);
     }
 
     public (Type Type, TypeMetadata TypeMetadata) CreateType(ITypeSymbol typeSymbol)

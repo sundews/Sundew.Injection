@@ -13,7 +13,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Sundew.Base;
-using Sundew.Base.Collections.Linq;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
 internal class InjectionDeclarationVisitor : CSharpSyntaxWalker
@@ -34,7 +33,6 @@ internal class InjectionDeclarationVisitor : CSharpSyntaxWalker
         var classSymbol = this.analysisContext.SemanticModel.GetDeclaredSymbol(node);
         if (classSymbol != null && classSymbol.AllInterfaces.Any(@interface => SymbolEqualityComparer.Default.Equals(this.analysisContext.KnownAnalysisTypes.InjectionDeclarationType, @interface)))
         {
-            this.analysisContext.CompiletimeInjectionDefinitionBuilder.DefaultNamespace = classSymbol.ContainingNamespace.ToDisplayString();
             base.VisitClassDeclaration(node);
         }
     }
@@ -48,7 +46,7 @@ internal class InjectionDeclarationVisitor : CSharpSyntaxWalker
             var parameterSymbol = symbol.Parameters.FirstOrDefault();
             if (parameterSyntax.HasValue() && parameterSymbol.HasValue() && parameterSymbol.DeclaringSyntaxReferences.Any(x => x.GetSyntax(this.cancellationToken) == parameterSyntax))
             {
-               new ConfigureInvocationExpressionVisitor(parameterSyntax, this.analysisContext, this.cancellationToken).VisitMethodDeclaration(node);
+                new ConfigureInvocationExpressionVisitor(parameterSyntax, this.analysisContext, this.cancellationToken).VisitMethodDeclaration(node);
             }
         }
     }

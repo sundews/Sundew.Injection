@@ -8,10 +8,10 @@
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
 using Sundew.Base.Collections.Immutable;
+using Sundew.Injection.Generator.TypeSystem;
 
 internal readonly record struct FactoryCreationDefinition(
-    string? FactoryClassNamespace,
-    string? FactoryClassName,
-    bool GenerateInterface,
+    NamedType FactoryType,
+    NamedType? FactoryInterfaceType,
     ValueArray<FactoryMethodRegistration> FactoryMethodRegistrations,
     Accessibility Accessibility);

@@ -10,7 +10,7 @@ namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal record InjectionDefinition(string DefaultNamespace,
+internal record InjectionDefinition(
     Inject RequiredParameterInjection,
     ValueArray<FactoryCreationDefinition> FactoryCreationDefinitions,
     ValueDictionary<TypeId, ValueArray<BindingRegistration>> BindingRegistrations,
