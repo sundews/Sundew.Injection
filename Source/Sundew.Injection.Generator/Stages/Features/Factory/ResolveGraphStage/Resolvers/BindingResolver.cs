@@ -49,7 +49,7 @@ internal sealed class BindingResolver
         var bindingsRegistry = new TypeRegistry<Binding[]>();
         foreach (var predefinedBinding in predefinedBindings)
         {
-            bindingsRegistry.Register(predefinedBinding.TargetType.Id, predefinedBinding.ReferencedType.Id, new[] { predefinedBinding }, true);
+            bindingsRegistry.Register(predefinedBinding.TargetType.Id, predefinedBinding.ReferencedType.Id, [predefinedBinding], true);
         }
 
         this.bindingFactory = new BindingFactory(this.typeResolver, this.methodFactory, typeRegistry, resolvedBindingRegistry, bindingsRegistry, knownEnumerableTypes);

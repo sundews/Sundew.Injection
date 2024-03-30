@@ -17,19 +17,11 @@ using Expression = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Expre
 using MethodImplementation = Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model.MethodImplementation;
 using Statement = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Statement;
 
-internal class SingleInstancePerFactoryGenerator
+internal class SingleInstancePerFactoryGenerator(
+    GeneratorFeatures generatorFeatures,
+    GeneratorContext generatorContext)
 {
     private const string Owned = "owned";
-    private readonly GeneratorFeatures generatorFeatures;
-    private readonly GeneratorContext generatorContext;
-
-    public SingleInstancePerFactoryGenerator(
-        GeneratorFeatures generatorFeatures,
-        GeneratorContext generatorContext)
-    {
-        this.generatorFeatures = generatorFeatures;
-        this.generatorContext = generatorContext;
-    }
 
     public FactoryNode
        VisitSingleInstancePerFactory(
@@ -58,7 +50,7 @@ internal class SingleInstancePerFactoryGenerator
                             var factory = nextFactoryNode.FactoryImplementation;
                             var factoryMethod = nextFactoryNode.CreateMethod;
                             var result =
-                                this.generatorFeatures.InjectionNodeExpressionGenerator.Generate(nextInjectionNode, in factory, in factoryMethod);
+                                generatorFeatures.InjectionNodeExpressionGenerator.Generate(nextInjectionNode, in factory, in factoryMethod);
                             return nextFactoryNode with
                             {
                                 FactoryImplementation = result.FactoryImplementation,
@@ -76,19 +68,19 @@ internal class SingleInstancePerFactoryGenerator
         var dependeeArguments = ImmutableList.Create<Expression>(targetMemberAccessExpression);
         if (wasAdded)
         {
-            (factoryNode, var creationExpression) = this.generatorFeatures.OptionalOverridableCreationGenerator.Generate(singleInstancePerFactoryInjectionNode, in factoryNode);
+            (factoryNode, var creationExpression) = generatorFeatures.OptionalOverridableCreationGenerator.Generate(singleInstancePerFactoryInjectionNode, in factoryNode);
             if (singleInstancePerFactoryInjectionNode.ParameterNodeOption.TryGetValue(out var parameterNode))
             {
                 (factoryNode, _, var parameter, var parameterArgument, var needsFieldAssignment) = factoryNode.GetOrAddConstructorParameter(
                     parameterNode,
                     NameHelper.GetIdentifierNameForType(parameterNode.Type),
                     ImmutableList<ParameterDeclaration>.Empty,
-                    this.generatorContext.CompilationData);
+                    generatorContext.CompilationData);
 
                 (factoryNode, _, var parameterField) = factoryNode.GetOrAddField(
                     parameter.Name,
                     parameter.Type,
-                    (fieldName) => new FieldDeclaration(parameter.Type, fieldName, FieldModifier.Instance, null));
+                    (fieldName) => new FieldDeclaration(parameter.Type, fieldName, FieldModifier.Instance));
 
                 if (needsFieldAssignment)
                 {
@@ -101,7 +93,7 @@ internal class SingleInstancePerFactoryGenerator
 
                 if (singleInstancePerFactoryInjectionNode.NeedsLifecycleHandling)
                 {
-                    creationExpression = new InvocationExpression(this.generatorContext.KnownSyntax.SharedLifecycleHandler.TryAddMethod, new Expression[] { creationExpression });
+                    creationExpression = new InvocationExpression(generatorContext.KnownSyntax.SharedLifecycleHandler.TryAddMethod, [creationExpression]);
                 }
 
                 var nullCoalescingOperatorExpression = Expression.NullCoalescingOperatorExpression(parameterArgument, creationExpression);
@@ -116,8 +108,8 @@ internal class SingleInstancePerFactoryGenerator
                 if (singleInstancePerFactoryInjectionNode.NeedsLifecycleHandling)
                 {
                     factoryNode = factoryNode.AddConstructorStatement(new ExpressionStatement(new InvocationExpression(
-                        this.generatorContext.KnownSyntax.SharedLifecycleHandler.TryAddMethod,
-                        new Expression[] { targetMemberAccessExpression })));
+                        generatorContext.KnownSyntax.SharedLifecycleHandler.TryAddMethod,
+                        [targetMemberAccessExpression])));
                 }
             }
         }

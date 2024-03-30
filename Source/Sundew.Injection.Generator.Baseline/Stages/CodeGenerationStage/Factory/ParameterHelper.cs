@@ -17,7 +17,6 @@ using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 using Parameter = Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.Parameter;
-using Type = Sundew.Injection.Generator.TypeSystem.Type;
 
 internal static class ParameterHelper
 {
@@ -34,23 +33,19 @@ internal static class ParameterHelper
         return parameterNode.ParameterSource switch
         {
             DirectParameter direct => HandleDirect(direct, parameterNode, expectedParameterName, parameters, additionalParameters, isMember, isOptional, compilationData),
-            PropertyAccessorParameter property => HandleProperty(property, parameterNode, parameterType, parameters, additionalParameters, isMember),
+            PropertyAccessorParameter property => HandleProperty(property, parameterNode, parameters, additionalParameters, isMember),
         };
     }
 
     private static (string ParameterName, bool MustNameMatchForEquality) GetParameterName(string name, IInjectionNode? parentCreationNode, Inject inject)
     {
-        switch (inject)
+        return inject switch
         {
-            case Inject.Shared:
-                return (name.Uncapitalize(), false);
-            case Inject.ByParameterName:
-                return (name.Uncapitalize(), true);
-            case Inject.Separately:
-                return (NameHelper.GetUniqueName(name, parentCreationNode), true); // check for conflict
-            default:
-                throw new ArgumentOutOfRangeException(nameof(inject), inject, $"Case not handled: {inject}");
-        }
+            Inject.Shared => (name.Uncapitalize(), false),
+            Inject.ByParameterName => (name.Uncapitalize(), true),
+            Inject.Separately => (NameHelper.GetUniqueName(name, parentCreationNode), true), // check for conflict
+            _ => throw new ArgumentOutOfRangeException(nameof(inject), inject, $"Case not handled: {inject}"),
+        };
     }
 
     private static (ImmutableList<ParameterDeclaration> Parameters, bool WasAdded, Parameter Parameter, Expression Argument) HandleDirect(
@@ -97,7 +92,6 @@ internal static class ParameterHelper
     private static (ImmutableList<ParameterDeclaration> Parameters, bool WasAdded, Parameter Parameter, Expression Argument) HandleProperty(
         PropertyAccessorParameter propertyAccessorParameter,
         IParameterNode parameterNode,
-        Type parameterType,
         ImmutableList<ParameterDeclaration> parameters,
         ImmutableList<ParameterDeclaration> additionalParameters,
         bool isMember)

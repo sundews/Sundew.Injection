@@ -139,16 +139,6 @@ internal static class CompilationDataProvider
             genericType.IsValueType);
     }
 
-    private static UnboundGenericType GetUnboundGenericType(System.Type genericType, string assemblyName)
-    {
-        var name = GetGenericName(genericType);
-        return new UnboundGenericType(
-            name,
-            genericType.GetTypeInfo().GenericTypeParameters.Length,
-            genericType.Namespace,
-            assemblyName);
-    }
-
     private static string GetGenericName(Type genericType)
     {
         var name = genericType.Name;

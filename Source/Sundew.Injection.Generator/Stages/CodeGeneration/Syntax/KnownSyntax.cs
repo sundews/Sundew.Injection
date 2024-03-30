@@ -87,7 +87,7 @@ internal class KnownSyntax
                 new LocalDeclarationStatement(ChildLifecycleHandlerName, new InvocationExpression(new MemberAccessExpression(lifetimeHandlerAccess, CreateChildLifecycleHandler))),
                 new MemberAccessExpression(lifetimeHandlerAccess, TryAdd),
                 new MemberAccessExpression(lifetimeHandlerAccess, Initialize),
-                new AwaitExpression(new InvocationExpression(new MemberAccessExpression(new InvocationExpression(new MemberAccessExpression(lifetimeHandlerAccess, InitializeAsync)), ConfigureAwait), new Expression[] { Literal.False })),
+                new AwaitExpression(new InvocationExpression(new MemberAccessExpression(new InvocationExpression(new MemberAccessExpression(lifetimeHandlerAccess, InitializeAsync)), ConfigureAwait), [Literal.False])),
                 new MemberAccessExpression(lifetimeHandlerAccess, Dispose),
                 new MemberAccessExpression(lifetimeHandlerAccess, DisposeAsync))
         {

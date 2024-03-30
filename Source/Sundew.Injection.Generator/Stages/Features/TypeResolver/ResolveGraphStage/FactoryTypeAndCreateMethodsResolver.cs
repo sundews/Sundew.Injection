@@ -16,14 +16,10 @@ using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal class FactoryTypeAndCreateMethodsResolver
+internal class FactoryTypeAndCreateMethodsResolver(
+    ICache<string, (DefiniteType DefiniteType, ValueArray<DefiniteFactoryMethod> Methods)> typeRegistry)
 {
-    private readonly ICache<string, (DefiniteType DefiniteType, ValueArray<DefiniteFactoryMethod> CreateMethods)> typeRegistry;
-
-    public FactoryTypeAndCreateMethodsResolver(ICache<string, (DefiniteType DefiniteType, ValueArray<DefiniteFactoryMethod> Methods)> typeRegistry)
-    {
-        this.typeRegistry = typeRegistry;
-    }
+    private readonly ICache<string, (DefiniteType DefiniteType, ValueArray<DefiniteFactoryMethod> CreateMethods)> typeRegistry = typeRegistry;
 
     public R<(DefiniteType DefiniteType, ValueArray<DefiniteFactoryMethod> CreateMethods), FailedResolve> ResolveFactoryRegistration(FactoryRegistration factoryRegistration)
     {

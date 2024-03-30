@@ -20,8 +20,6 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal static class TypeResolverSyntaxGenerator
 {
-    private const string GetService = "GetService";
-    private const string Type = "type";
     private const string BucketSize = "BucketSize";
     private const string ResolverItems = "resolverItems";
     private const string CreateName = "Create";
@@ -33,14 +31,13 @@ internal static class TypeResolverSyntaxGenerator
         return new ClassDeclaration(
             resolvedTypeResolverDefinition.ResolverType,
             true,
-            new Member[]
-            {
+            [
                 Member._Field(new FieldDeclaration(compilationData.IntType, BucketSize, FieldModifier.Const, CreationExpression.Literal(GetBucketSize(registrationCount).ToString()))),
                 Member._Field(new FieldDeclaration(compilationData.ResolverItemArrayType, ResolverItems, FieldModifier.Instance, null)),
                 constructor,
-                CreateResolveMethod(compilationData),
-            },
-            Array.Empty<AttributeDeclaration>(),
+                CreateResolveMethod(),
+            ],
+            [],
             ImmutableArray.Create(compilationData.ServiceProviderType));
     }
 
@@ -85,8 +82,7 @@ internal static class TypeResolverSyntaxGenerator
                 resolvedTypeResolverDefinition.ResolverType.Name,
                 factoryRegistrationWithParameters.Select(x => x.ParameterDeclaration).ToValueList(),
                 ValueList<AttributeDeclaration>.Empty),
-            new[]
-            {
+            [
                 Statement.ExpressionStatement(
                     Expression.AssignmentExpression(
                         Expression.MemberAccessExpression(Identifier.This, ResolverItems),
@@ -100,15 +96,14 @@ internal static class TypeResolverSyntaxGenerator
                                     {
                                         return Expression._ConstructorCall(
                                             compilationData.ResolverItemType,
-                                            new[]
-                                            {
+                                            [
                                                 Expression.TypeOf(factoryMethod.ReturnType),
                                                 Expression.Lambda(
-                                                    Array.Empty<Expression>(),
+                                                    [],
                                                     CreateObjectExpression(factoryMethod.FactoryMethods, compilationData)),
-                                            });
+                                            ]);
                                     })).ToValueArray()))),
-            }), supportedFactoryMethods.Length);
+            ]), supportedFactoryMethods.Length);
     }
 
     private static Expression CreateObjectExpression(
@@ -123,7 +118,7 @@ internal static class TypeResolverSyntaxGenerator
                     Expression.Identifier(single.Item.ParameterDeclaration.Name),
                     single.Item.FactoryMethod.Name,
                     ValueArray<DefiniteTypeArgument>.Empty,
-                    Array.Empty<Expression>()),
+                    []),
 
             Multiple<(ParameterDeclaration ParameterDeclaration, DefiniteFactoryMethod FactoryMethod)> multiple =>
                 CreationExpression._Array(
@@ -132,18 +127,18 @@ internal static class TypeResolverSyntaxGenerator
                         Expression.Identifier(x.ParameterDeclaration.Name),
                         x.FactoryMethod.Name,
                         ValueArray<DefiniteTypeArgument>.Empty,
-                        Array.Empty<Expression>())).ToArray()),
+                        [])).ToArray()),
 
             Empty<(ParameterDeclaration ParameterDeclaration, DefiniteFactoryMethod FactoryMethod)> empty => throw new System.NotImplementedException(),
         };
     }
 
-    private static Member CreateResolveMethod(CompilationData compilationData)
+    private static Member CreateResolveMethod()
     {
         return Member._Raw(
 """
 
-        public object GetService(System.Type serviceType)
+        public object GetService(global::System.Type serviceType)
         {
             var index = global::System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(serviceType) % BucketSize;
             do

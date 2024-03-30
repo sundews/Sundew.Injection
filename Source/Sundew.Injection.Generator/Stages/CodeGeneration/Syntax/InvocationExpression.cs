@@ -13,7 +13,7 @@ using System.Collections.Generic;
 internal sealed record InvocationExpression(Expression Expression, IReadOnlyList<Expression> Arguments) : InvocationExpressionBase(Arguments)
 {
     public InvocationExpression(Expression expression)
-    : this(expression, Array.Empty<Expression>())
+    : this(expression, [])
     {
     }
 }

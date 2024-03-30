@@ -60,7 +60,7 @@ internal class BindingFactory(
         var newResolvedBinding = ResolvedBinding.SingleParameter(newBinding);
         var returnTypeId = returnType?.Id;
         var resolvedTargetTypeId = resolvedTargetType.Id;
-        bindingsTypeRegistrar.Register(resolvedTargetTypeId, returnTypeId, new[] { newBinding }, true);
+        bindingsTypeRegistrar.Register(resolvedTargetTypeId, returnTypeId, [newBinding], true);
         resolvedBindingTypeRegistrar.Register(resolvedTargetTypeId, returnTypeId, newResolvedBinding, true);
         return newResolvedBinding;
     }
@@ -156,10 +156,9 @@ internal class BindingFactory(
             ImmutableArray<DefiniteTypeArgument>.Empty,
             MethodKind._Constructor);
         var binding = new Binding(factoryType, factoryInterfaceType, Scope._SingleInstancePerRequest, constructorMethod, hasLifecycle, false, false);
-        var bindings = new[] { binding };
         var factoryInterfaceTypeId = factoryInterfaceType?.Id;
         var factoryTypeId = factoryType.Id;
-        bindingsTypeRegistrar.Register(factoryTypeId, factoryInterfaceTypeId, bindings, true);
+        bindingsTypeRegistrar.Register(factoryTypeId, factoryInterfaceTypeId, [binding], true);
         var resolvedBinding = ResolvedBinding.SingleParameter(binding);
         resolvedBindingTypeRegistrar.Register(factoryTypeId, factoryInterfaceTypeId, resolvedBinding, true);
         nameTypeRegistrar.Register(factoryType.Name, factoryType);

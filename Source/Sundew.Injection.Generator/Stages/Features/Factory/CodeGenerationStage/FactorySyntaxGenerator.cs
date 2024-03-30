@@ -163,7 +163,7 @@ internal class FactorySyntaxGenerator
                     new ExpressionStatement(
                         new InvocationExpression(
                             this.knownSyntax.SharedLifecycleHandler.TryAddMethod,
-                            new[] { constructedValueIdentifier, this.knownSyntax.ChildLifecycleHandler.Access, })));
+                            [constructedValueIdentifier, this.knownSyntax.ChildLifecycleHandler.Access,])));
 
             var constructedType =
                 this.compilationData.ConstructedType.ToDefiniteClosedGenericType(
@@ -222,7 +222,7 @@ internal class FactorySyntaxGenerator
                     ImmutableList.Create<Statement>(new ExpressionStatement(
                         new InvocationExpression(
                             this.knownSyntax.SharedLifecycleHandler.DisposeMethod,
-                            new Expression[] { new Identifier(targetTypeParameterName) })))));
+                            [new Identifier(targetTypeParameterName)])))));
 
             disposeMethodImplementations = disposeMethodImplementations.Add(
                 new DeclaredDisposeMethodImplementation(
@@ -230,7 +230,7 @@ internal class FactorySyntaxGenerator
                     ImmutableList.Create<Statement>(new ReturnStatement(
                         new InvocationExpression(
                             this.knownSyntax.SharedLifecycleHandler.DisposeAsyncMethod,
-                            new Expression[] { new Identifier(targetTypeParameterName) })))));
+                            [new Identifier(targetTypeParameterName)])))));
         }
         else
         {

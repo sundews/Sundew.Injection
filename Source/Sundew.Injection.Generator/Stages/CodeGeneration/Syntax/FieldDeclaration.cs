@@ -9,4 +9,4 @@ namespace Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 
 using Sundew.Injection.Generator.TypeSystem;
 
-internal readonly record struct FieldDeclaration(DefiniteType Type, string Name, FieldModifier FieldModifier, CreationExpression? CreationExpression) : IDeclaration;
+internal readonly record struct FieldDeclaration(DefiniteType Type, string Name, FieldModifier FieldModifier, CreationExpression? CreationExpression = default) : IDeclaration;

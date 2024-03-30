@@ -46,7 +46,7 @@ internal static class NameHelper
 
         switch (type)
         {
-            case DefiniteArrayType arrayType:
+            case DefiniteArrayType:
                 const string arraySign = "[]";
                 const string arrayName = "Array";
                 if (name.EndsWith(arraySign.AsSpan()))
@@ -55,9 +55,9 @@ internal static class NameHelper
                 }
 
                 return name.ToString().Replace(Dot, Empty).Uncapitalize() + arrayName;
-            case DefiniteBoundGenericType genericType:
+            case DefiniteBoundGenericType:
                 break;
-            case NamedType namedType:
+            case NamedType:
                 break;
         }
 

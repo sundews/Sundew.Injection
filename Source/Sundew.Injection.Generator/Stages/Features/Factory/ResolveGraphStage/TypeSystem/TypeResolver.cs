@@ -14,15 +14,8 @@ using Sundew.Base.Collections.Linq;
 using Sundew.Injection.Generator.Stages.Features;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal sealed class TypeResolver
+internal sealed class TypeResolver(ICache<string, NamedType> typeRegistry)
 {
-    private readonly ICache<string, NamedType> typeRegistry;
-
-    public TypeResolver(ICache<string, NamedType> typeRegistry)
-    {
-        this.typeRegistry = typeRegistry;
-    }
-
     public R<DefiniteType, FailedResolve> ResolveType(Type type)
     {
         return type switch
@@ -73,6 +66,6 @@ internal sealed class TypeResolver
 
     private R<DefiniteType, FailedResolve> TryResolveErrorType(ErrorType errorType)
     {
-        return this.typeRegistry.TryGet(errorType.Name, out var resolvableType) ? R.Success<DefiniteType>(resolvableType) : R.Error(new FailedResolve(errorType));
+        return typeRegistry.TryGet(errorType.Name, out var resolvableType) ? R.Success<DefiniteType>(resolvableType) : R.Error(new FailedResolve(errorType));
     }
 }

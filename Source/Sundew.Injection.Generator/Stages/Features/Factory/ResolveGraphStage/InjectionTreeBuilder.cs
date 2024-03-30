@@ -26,22 +26,12 @@ using NewInstanceInjectionNode = Sundew.Injection.Generator.Stages.Features.Fact
 using ParameterNode = Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Nodes.ParameterNode;
 using Scope = Sundew.Injection.Generator.TypeSystem.Scope;
 
-internal sealed class InjectionTreeBuilder
+internal sealed class InjectionTreeBuilder(
+    BindingResolver bindingResolver,
+    RequiredParametersInjectionResolver requiredParametersInjectionResolver,
+    ScopeResolver scopeResolver)
 {
     private const string Root = "<root>";
-    private readonly BindingResolver bindingResolver;
-    private readonly RequiredParametersInjectionResolver requiredParametersInjectionResolver;
-    private readonly ScopeResolver scopeResolver;
-
-    public InjectionTreeBuilder(
-        BindingResolver bindingResolver,
-        RequiredParametersInjectionResolver requiredParametersInjectionResolver,
-        ScopeResolver scopeResolver)
-    {
-        this.bindingResolver = bindingResolver;
-        this.requiredParametersInjectionResolver = requiredParametersInjectionResolver;
-        this.scopeResolver = scopeResolver;
-    }
 
     public R<InjectionTree, ImmutableList<InjectionStageError>> Build(Binding binding, CancellationToken cancellationToken)
     {
@@ -66,7 +56,7 @@ internal sealed class InjectionTreeBuilder
         cancellationToken.ThrowIfCancellationRequested();
         var constructorParameterCreationNodes = new RecordList<InjectionNode>();
 
-        var scope = this.scopeResolver.ResolveScope(binding.ReferencedType);
+        var scope = scopeResolver.ResolveScope(binding.ReferencedType);
         var needsLifecycleHandling = binding.HasLifecycle | binding.IsNewOverridable;
         var creationResult = this.GetCreationSource(binding, dependeeInjectionNode, cancellationToken);
         if (!creationResult.IsSuccess)
@@ -110,7 +100,7 @@ internal sealed class InjectionTreeBuilder
 
         foreach (var parameter in binding.Method.Parameters)
         {
-            var resolvedBinding = this.bindingResolver.ResolveBinding(parameter);
+            var resolvedBinding = bindingResolver.ResolveBinding(parameter);
             switch (resolvedBinding)
             {
                 case ThisFactoryParameter thisFactoryParameter:
@@ -136,7 +126,7 @@ internal sealed class InjectionTreeBuilder
 
                 case MultiItemParameter multiItemParameter:
                     {
-                        var multiItemScope = this.scopeResolver.ResolveScope(multiItemParameter.Type);
+                        var multiItemScope = scopeResolver.ResolveScope(multiItemParameter.Type);
                         var creationSource = multiItemScope == Scope._NewInstance && !multiItemParameter.IsArrayRequired
                                 ? CreationSource._IteratorMethodCall(multiItemParameter.Type, multiItemParameter.ElementType)
                                 : CreationSource._ArrayCreation(multiItemParameter.ElementType);
@@ -170,7 +160,7 @@ internal sealed class InjectionTreeBuilder
                     break;
 
                 case RequiredParameter externalParameter:
-                    var externalParameterScope = this.scopeResolver.ResolveScope(externalParameter.Type);
+                    var externalParameterScope = scopeResolver.ResolveScope(externalParameter.Type);
                     var externalParameterInjectionNode = this.CreateParameterInjectionNode(
                         externalParameter.Type,
                         (parameter.Name, parameter.TypeMetadata),
@@ -206,7 +196,7 @@ internal sealed class InjectionTreeBuilder
             case MethodKind.Static:
                 return R.Success(new CreationModel(CreationSource._StaticMethodCall(bindingMethod.ContainingType, bindingMethod), false, ImmutableList<FactoryConstructorParameter>.Empty));
             case MethodKind.Instance instance:
-                var resolvedBinding = this.bindingResolver.ResolveBinding(bindingMethod.ContainingType, instance.ContainingTypeMetadata, null);
+                var resolvedBinding = bindingResolver.ResolveBinding(bindingMethod.ContainingType, instance.ContainingTypeMetadata, null);
                 switch (resolvedBinding)
                 {
                     case ThisFactoryParameter thisFactoryParameter:
@@ -214,11 +204,11 @@ internal sealed class InjectionTreeBuilder
                     case RequiredParameter externalParameter:
                         var type = externalParameter.Type;
 
-                        var requiredExternalParameterScope = this.scopeResolver.ResolveScope(externalParameter.Type);
+                        var requiredExternalParameterScope = scopeResolver.ResolveScope(externalParameter.Type);
                         var requiredExternalInjectionNode = this.CreateParameterInjectionNode(externalParameter.Type, (externalParameter.Type.Name, externalParameter.TypeMetadata), string.Empty, requiredExternalParameterScope, externalParameter.ParameterSource);
                         return R.Success(new CreationModel(CreationSource._InstanceMethodCall(type, bindingMethod, requiredExternalInjectionNode.InjectionNode, instance.IsProperty), false, ImmutableList<FactoryConstructorParameter>.Empty.TryAdd(requiredExternalInjectionNode.FactoryConstructorParameterOption)));
                     case SingleParameter singleParameter:
-                        var factoryScope = this.scopeResolver.ResolveScope(singleParameter.Binding.ReferencedType);
+                        var factoryScope = scopeResolver.ResolveScope(singleParameter.Binding.ReferencedType);
                         var injectionModelResult = this.GetInjectionModel(singleParameter.Binding, dependeeInjectionNode, factoryScope, (singleParameter.Binding.TargetType, singleParameter.Binding.TargetType.Name, TypeMetadata: instance.ContainingTypeMetadata), cancellationToken);
                         return injectionModelResult.With(injectionModel =>
                             new CreationModel(CreationSource._InstanceMethodCall(bindingMethod.ContainingType, bindingMethod, injectionModel.InjectionNode, instance.IsProperty), injectionModel.NeedsLifecycleHandling, injectionModel.FactoryConstructorParameters));
@@ -257,8 +247,8 @@ internal sealed class InjectionTreeBuilder
 
     private ParameterSource GetParameterSource(DefiniteType type, string parameterName, ImmutableList<InjectionStageError>.Builder diagnostics)
     {
-        var resolveParameterSource = this.requiredParametersInjectionResolver.ResolveParameterSource(type, parameterName);
-        var parameterSource = ParameterSource.DirectParameter(this.requiredParametersInjectionResolver.Inject);
+        var resolveParameterSource = requiredParametersInjectionResolver.ResolveParameterSource(type, parameterName);
+        var parameterSource = ParameterSource.DirectParameter(requiredParametersInjectionResolver.Inject);
         switch (resolveParameterSource)
         {
             case ResolvedParameterSource.NoExactMatch noExactMatch:

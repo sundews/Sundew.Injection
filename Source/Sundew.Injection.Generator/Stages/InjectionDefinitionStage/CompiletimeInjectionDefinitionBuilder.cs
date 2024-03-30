@@ -7,7 +7,6 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -20,19 +19,19 @@ using Type = Sundew.Injection.Generator.TypeSystem.Type;
 
 internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefinitionBuilder
 {
-    private readonly Dictionary<TypeId, List<BindingRegistration>> bindingRegistrations = new();
+    private readonly Dictionary<TypeId, List<BindingRegistration>> bindingRegistrations = [];
 
-    private readonly Dictionary<UnboundGenericType, List<GenericBindingRegistration>> genericBindingRegistrations = new();
+    private readonly Dictionary<UnboundGenericType, List<GenericBindingRegistration>> genericBindingRegistrations = [];
 
-    private readonly Dictionary<TypeId, List<ParameterSource>> requiredParameterSources = new();
+    private readonly Dictionary<TypeId, List<ParameterSource>> requiredParameterSources = [];
 
-    private readonly Dictionary<TypeId, (Scope Scope, ScopeOrigin Origin)> requiredParameterScopes = new();
+    private readonly Dictionary<TypeId, (Scope Scope, ScopeOrigin Origin)> requiredParameterScopes = [];
 
-    private readonly List<FactoryCreationDefinition> factoryDefinitions = new();
+    private readonly List<FactoryCreationDefinition> factoryDefinitions = [];
 
-    private readonly List<ResolverCreationDefinition> resolverDefinitions = new();
+    private readonly List<ResolverCreationDefinition> resolverDefinitions = [];
 
-    private readonly List<Diagnostic> diagnostics = new();
+    private readonly List<Diagnostic> diagnostics = [];
 
     public Inject RequiredParameterInjection { get; set; }
 
@@ -48,7 +47,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
             return registrations;
         }
 
-        return Array.Empty<BindingRegistration>();
+        return [];
     }
 
     public void AddParameter(Type parameterType, Inject inject = Inject.Shared, (Scope? Scope, ScopeOrigin Origin) scope = default)
@@ -75,7 +74,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         {
             if (!this.bindingRegistrations.TryGetValue(typeId, out var bindingList))
             {
-                bindingList = new List<BindingRegistration>();
+                bindingList = [];
                 this.bindingRegistrations.Add(typeId, bindingList);
             }
 
@@ -98,7 +97,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         {
             if (!this.genericBindingRegistrations.TryGetValue(type, out var bindingList))
             {
-                bindingList = new List<GenericBindingRegistration>();
+                bindingList = [];
                 this.genericBindingRegistrations.Add(type, bindingList);
             }
 
@@ -157,7 +156,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         var parameterTypeId = parameterType.Id;
         if (!this.requiredParameterSources.TryGetValue(parameterTypeId, out var parameterSources))
         {
-            parameterSources = new List<ParameterSource>();
+            parameterSources = [];
             this.requiredParameterSources.Add(parameterTypeId, parameterSources);
         }
 

@@ -7,7 +7,6 @@
 
 namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory;
 
-using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -77,14 +76,14 @@ internal class FactorySyntaxGenerator
             new ClassDeclaration(
                 factoryData.FactoryType,
                 !factoryImplementation.FactoryMethods.Any(),
-                factoryImplementation.Fields.Select(x => new Field(x))
+                [.. factoryImplementation.Fields.Select(x => new Field(x))
                     .Concat(
                         new Model.Syntax.MethodImplementation(
                             new MethodDeclaration(DeclaredAccessibility.Public, false, factoryData.FactoryType.Name, factoryImplementation.Constructor.Parameters), factoryImplementation.Constructor.Statements).ToEnumerable<Member>(),
                         factoryImplementation.CreateMethods.Select(x => new Model.Syntax.MethodImplementation(x.Declaration, x.MethodImplementation.Statements)),
                         factoryImplementation.FactoryMethods.Select(x => new Model.Syntax.MethodImplementation(x.Declaration, x.MethodImplementation.Statements)),
                         factoryImplementation.DisposeForMethodImplementations.Select(x => new Model.Syntax.MethodImplementation(x.Declaration, x.Statements)),
-                        disposeMethods).ToArray(),
+                        disposeMethods)],
                 interfaces);
         return new FactoryDeclarations(interfaceDeclaration, classDeclaration);
     }
@@ -110,7 +109,7 @@ internal class FactorySyntaxGenerator
                 FactoryConstructorDisposingListName,
                 this.compilationData.DisposableListType,
                 (s, i) => s + i,
-                name => new FieldDeclaration(this.compilationData.DisposableListType, name, new CreationExpression(CreationSource.ConstructorCall(this.compilationData.DisposableListType), ImmutableList<Expression>.Empty)));
+                name => new FieldDeclaration(this.compilationData.DisposableListType, name, new CreationExpression(CreationSource.ConstructorCall(this.compilationData.DisposableListType), [])));
 
             disposeMethodStatements = disposeMethodStatements.Add(
                 new ExpressionStatement(
@@ -129,7 +128,7 @@ internal class FactorySyntaxGenerator
                 FactoryMethodDisposingDictionaryName,
                 weakKeyDisposingDictionaryType,
                 (s, i) => s + i,
-                name => new FieldDeclaration(weakKeyDisposingDictionaryType, name, new CreationExpression(CreationSource.ConstructorCall(weakKeyDisposingDictionaryType), ImmutableList<Expression>.Empty)));
+                name => new FieldDeclaration(weakKeyDisposingDictionaryType, name, new CreationExpression(CreationSource.ConstructorCall(weakKeyDisposingDictionaryType), [])));
             fields = newFields;
 
             var returnValueVariableName = injectionNode.Name.Uncapitalize();
@@ -142,12 +141,12 @@ internal class FactorySyntaxGenerator
                     new ExpressionStatement(
                         new InvocationExpression(
                             this.knownSyntax.FactoryMethodWeakKeyDisposingDictionarySyntax.TryAddMethod,
-                            new[] { returnValueIdentifier, this.knownSyntax.LocalDisposingListSyntax.DisposableListAccess })))
+                            [returnValueIdentifier, this.knownSyntax.LocalDisposingListSyntax.DisposableListAccess])))
                 .Add(new ReturnStatement(returnValueIdentifier));
 
             disposeMethodStatements = disposeMethodStatements.Add(
                 new ExpressionStatement(
-                    new InvocationExpression(this.knownSyntax.FactoryMethodWeakKeyDisposingDictionarySyntax.DisposeMethod, Array.Empty<Expression>())));
+                    new InvocationExpression(this.knownSyntax.FactoryMethodWeakKeyDisposingDictionarySyntax.DisposeMethod, [])));
 
             var disposeForParameterName = NameHelper.GetVariableNameForType(factoryMethodData.Target.Type);
             disposeMethodImplementations = disposeMethodImplementations.Add(
@@ -156,7 +155,7 @@ internal class FactorySyntaxGenerator
                     ImmutableList.Create<Statement>(new ExpressionStatement(
                         new InvocationExpression(
                             this.knownSyntax.FactoryMethodWeakKeyDisposingDictionarySyntax.DisposeMethod,
-                            new Expression[] { new Identifier(disposeForParameterName) })))));
+                            [new Identifier(disposeForParameterName)])))));
         }
         else
         {

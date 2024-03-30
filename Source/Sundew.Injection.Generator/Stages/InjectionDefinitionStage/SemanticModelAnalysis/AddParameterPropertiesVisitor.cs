@@ -71,7 +71,7 @@ internal class AddParameterPropertiesVisitor : CSharpSyntaxWalker
                              resultType = this.analysisContext.TypeFactory.CreateType(namedTypeSymbol.TypeArguments.First());
                          }
 
-                         return (isFunc: isFunc, Accessor: new AccessorProperty(this.analysisContext.TypeFactory.CreateNamedType(x.ContainingType), resultType, propertyType, x.Name));
+                         return (isFunc, Accessor: new AccessorProperty(this.analysisContext.TypeFactory.CreateNamedType(x.ContainingType), resultType, propertyType, x.Name));
                      }))
         {
             if (accessorProperty.isFunc)

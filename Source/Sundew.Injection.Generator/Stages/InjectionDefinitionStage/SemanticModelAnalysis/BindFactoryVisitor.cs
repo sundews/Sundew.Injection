@@ -15,38 +15,30 @@ using Sundew.Base.Collections.Linq;
 using Sundew.Base.Text;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal class BindFactoryVisitor : CSharpSyntaxWalker
+internal class BindFactoryVisitor(
+    IMethodSymbol methodSymbol,
+    AnalysisContext analysisContext)
+    : CSharpSyntaxWalker
 {
-    private readonly IMethodSymbol methodSymbol;
-    private readonly AnalysisContext analysisContext;
-
-    public BindFactoryVisitor(
-        IMethodSymbol methodSymbol,
-        AnalysisContext analysisContext)
-    {
-        this.methodSymbol = methodSymbol;
-        this.analysisContext = analysisContext;
-    }
-
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
-        var factoryTypeSymbol = this.methodSymbol.TypeArguments.Single();
-        var parameters = this.methodSymbol.Parameters.ByCardinality();
+        var factoryTypeSymbol = methodSymbol.TypeArguments.Single();
+        var parameters = methodSymbol.Parameters.ByCardinality();
         switch (parameters)
         {
             case Empty<IParameterSymbol>:
                 var createMethods = factoryTypeSymbol.GetMembers().OfType<IMethodSymbol>()
                     .Where(x => x.GetAttributes().FirstOrDefault(x =>
                         x.AttributeClass?.ToDisplayString() == KnownTypesProvider.BindableCreateMethodName) != null).Select(x =>
-                        (Method: this.analysisContext.TypeFactory.CreateMethod(x), ReturnType: x.ReturnType));
-                this.analysisContext.BindFactory(this.analysisContext.TypeFactory.CreateType(factoryTypeSymbol), createMethods);
+                        (Method: analysisContext.TypeFactory.CreateMethod(x), ReturnType: x.ReturnType));
+                analysisContext.BindFactory(analysisContext.TypeFactory.CreateType(factoryTypeSymbol), createMethods);
                 break;
             case Single<IParameterSymbol>:
-                new BindMethodVisitor(factoryTypeSymbol, this.analysisContext).Visit(node);
+                new BindMethodVisitor(factoryTypeSymbol, analysisContext).Visit(node);
                 break;
             case Multiple<IParameterSymbol> multiple:
                 const string separator = ", ";
-                this.analysisContext.CompiletimeInjectionDefinitionBuilder.ReportDiagnostic(Diagnostic.Create(Diagnostics.MultipleParametersNotSupportedForBindFactoryError, node.GetLocation(), DiagnosticSeverity.Error, multiple.Items.Select(x => x.Name).JoinToString(separator)));
+                analysisContext.CompiletimeInjectionDefinitionBuilder.ReportDiagnostic(Diagnostic.Create(Diagnostics.MultipleParametersNotSupportedForBindFactoryError, node.GetLocation(), DiagnosticSeverity.Error, multiple.Items.Select(x => x.Name).JoinToString(separator)));
                 break;
         }
     }

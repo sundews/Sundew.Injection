@@ -16,19 +16,10 @@ using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Nodes
 using Expression = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Expression;
 using MethodImplementation = Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model.MethodImplementation;
 
-internal sealed class NewInstanceGenerator
+internal sealed class NewInstanceGenerator(
+    GeneratorFeatures generatorFeatures,
+    GeneratorContext generatorContext)
 {
-    private readonly GeneratorContext generatorContext;
-    private readonly GeneratorFeatures generatorFeatures;
-
-    public NewInstanceGenerator(
-        GeneratorFeatures generatorFeatures,
-        GeneratorContext generatorContext)
-    {
-        this.generatorContext = generatorContext;
-        this.generatorFeatures = generatorFeatures;
-    }
-
     public FactoryNode
         VisitNewInstance(
             NewInstanceInjectionNode newInstanceInjectionNode,
@@ -41,7 +32,7 @@ internal sealed class NewInstanceGenerator
             {
                 var factory = factoryNode.FactoryImplementation;
                 var factoryMethod = factoryNode.CreateMethod;
-                var result = this.generatorFeatures.InjectionNodeExpressionGenerator.Generate(nextCreationNode, in factory, in factoryMethod);
+                var result = generatorFeatures.InjectionNodeExpressionGenerator.Generate(nextCreationNode, in factory, in factoryMethod);
                 return factoryNode with
                 {
                     FactoryImplementation = result.FactoryImplementation,
@@ -55,10 +46,10 @@ internal sealed class NewInstanceGenerator
 
         (factoryNode, var creationExpression) = newInstanceInjectionNode.OverridableNewParametersOption.GetValueOrDefault(
             factoryNode.FactoryImplementation.FactoryMethods,
-            (creationParameters, factoryMethods) => this.generatorFeatures.OnCreateMethodGenerator.Generate(factoryMethods, targetReferenceType, creationParameters, newInstanceInjectionNode.CreationSource, factoryNode),
+            (creationParameters, factoryMethods) => generatorFeatures.OnCreateMethodGenerator.Generate(factoryMethods, targetReferenceType, creationParameters, newInstanceInjectionNode.CreationSource, factoryNode),
             factoryMethods =>
             {
-                var creationResult = this.generatorFeatures.CreationExpressionGenerator.Generate(in factoryNode, newInstanceInjectionNode.CreationSource, factoryNode.DependeeArguments);
+                var creationResult = generatorFeatures.CreationExpressionGenerator.Generate(in factoryNode, newInstanceInjectionNode.CreationSource, factoryNode.DependeeArguments);
                 return creationResult;
             });
 
@@ -82,12 +73,12 @@ internal sealed class NewInstanceGenerator
                 null,
                 factoryMethodParameters,
                 factoryImplementation.Constructor.Parameters,
-                this.generatorContext.CompilationData);
+                generatorContext.CompilationData);
             var (newVariables, _, declaration) = variableDeclaration;
             variables = newVariables;
             if (newInstanceInjectionNode.NeedsLifecycleHandling)
             {
-                creationExpression = new InvocationExpression(this.generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, new Expression[] { creationExpression });
+                creationExpression = new InvocationExpression(generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, [creationExpression]);
             }
 
             var localDeclarationStatement = new LocalDeclarationStatement(declaration.Name, new NullCoalescingOperatorExpression(argument, creationExpression, false));
@@ -107,7 +98,7 @@ internal sealed class NewInstanceGenerator
                 if (wasAdded)
                 {
                     statements = statements.Add(new LocalDeclarationStatement(variableIdentifier.Name, creationExpression))
-                        .Add(new ExpressionStatement(new InvocationExpression(this.generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, new Expression[] { variableIdentifier })));
+                        .Add(new ExpressionStatement(new InvocationExpression(generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, [variableIdentifier])));
                 }
             }
             else

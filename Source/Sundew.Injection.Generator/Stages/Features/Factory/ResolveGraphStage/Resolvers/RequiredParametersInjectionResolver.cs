@@ -13,17 +13,13 @@ using Sundew.Base.Text;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal class RequiredParametersInjectionResolver
+internal class RequiredParametersInjectionResolver(
+    Inject inject,
+    ValueDictionary<TypeId, ValueArray<ParameterSource>> injectTypes)
 {
-    public RequiredParametersInjectionResolver(Inject inject, ValueDictionary<TypeId, ValueArray<ParameterSource>> injectTypes)
-    {
-        this.Inject = inject;
-        this.InjectTypes = injectTypes;
-    }
+    public Inject Inject { get; } = inject;
 
-    public Inject Inject { get; }
-
-    public ValueDictionary<TypeId, ValueArray<ParameterSource>> InjectTypes { get; }
+    public ValueDictionary<TypeId, ValueArray<ParameterSource>> InjectTypes { get; } = injectTypes;
 
     public ResolvedParameterSource ResolveParameterSource(Type type, string name)
     {

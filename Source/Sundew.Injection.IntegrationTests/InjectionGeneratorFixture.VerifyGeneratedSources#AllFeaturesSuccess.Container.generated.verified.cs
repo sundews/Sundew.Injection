@@ -20,7 +20,7 @@ namespace AllFeaturesSuccess
             this.resolverItems = global::Sundew.Injection.ResolverItemsFactory.Create(BucketSize, new global::Sundew.Injection.ResolverItem(typeof(global::AllFeaturesSuccessDependency.Dependency), () => dependencyFactory.Create()), new global::Sundew.Injection.ResolverItem(typeof(global::AllFeaturesSuccessDependency.ManualDependency), () => manualDependencyFactory.Create()));
         }
 
-        public object GetService(System.Type serviceType)
+        public object GetService(global::System.Type serviceType)
         {
             var index = global::System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(serviceType) % BucketSize;
             do

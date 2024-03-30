@@ -12,7 +12,7 @@ using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
-internal abstract record ResolvedParameterSource
+internal abstract partial record ResolvedParameterSource
 {
     internal sealed record Found(ParameterSource ParameterSource) : ResolvedParameterSource;
 

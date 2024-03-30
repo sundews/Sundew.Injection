@@ -77,7 +77,7 @@ internal class SingleInstancePerRequestGenerator
                 (factoryNode, _, var parameter, var parameterArgument, _) = factoryNode.GetOrAddCreateMethodParameter(parameterNode, variableDeclaration.Name, this.generatorContext.CompilationData);
                 if (singleInstancePerRequestInjectionNode.NeedsLifecycleHandling)
                 {
-                    creationExpression = new InvocationExpression(this.generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, new Expression[] { creationExpression });
+                    creationExpression = new InvocationExpression(this.generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, [creationExpression]);
                 }
 
                 factoryNode = factoryNode.AddCreateMethodStatement(Statement.ExpressionStatement(Expression.NullCoalescingOperatorExpression(parameterArgument, creationExpression, true)));
@@ -88,7 +88,7 @@ internal class SingleInstancePerRequestGenerator
                 factoryNode = factoryNode.AddCreateMethodStatement(assignmentStatement);
                 if (singleInstancePerRequestInjectionNode.NeedsLifecycleHandling)
                 {
-                    factoryNode = factoryNode.AddCreateMethodStatement(Statement.ExpressionStatement(Expression.InvocationExpression(this.generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, new Expression[] { targetIdentifier })));
+                    factoryNode = factoryNode.AddCreateMethodStatement(Statement.ExpressionStatement(Expression.InvocationExpression(this.generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, [targetIdentifier])));
                 }
             }
         }
