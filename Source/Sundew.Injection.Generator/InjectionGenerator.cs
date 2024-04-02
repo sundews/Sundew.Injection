@@ -7,11 +7,8 @@
 
 namespace Sundew.Injection.Generator;
 
-using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Sundew.Base.Collections;
-using Sundew.Base.Collections.Immutable;
-using Sundew.Injection.Generator.Stages.CodeGeneration;
 using Sundew.Injection.Generator.Stages.CompilationDataStage;
 using Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage;

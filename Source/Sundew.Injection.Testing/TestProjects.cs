@@ -8,29 +8,13 @@ using AssemblyReference = Sundew.Testing.CodeAnalysis.AssemblyReference;
 
 public static class TestProjects
 {
-    public static Project AllFeatureSuccess = new Project(@"TestProjects/AllFeaturesSuccess");
-    public static Project TestPlayground = new Project(@"TestProjects/TestPlayground");
+    public static Project AllFeatureSuccess = new(@"TestProjects/AllFeaturesSuccess");
+    public static Project NetStandardLibraryErrors = new(@"TestProjects/AllErrors");
+    public static Project TestPlayground = new(@"TestProjects/TestPlayground");
 
-    public class Project
+    public class Project(string path)
     {
-        public Project(string path)
-        {
-            this.FromEntryAssembly = new Lazy<Compilation>(() =>
-            {
-                var project = new CSharpProject(
-                    Paths.FindPathUpwards(path)!,
-                    null,
-                    new Paths("bin", "obj"),
-                    new References(
-                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("AllFeaturesSuccessDependency.dll")!),
-                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Sundew.Injection.dll")!),
-                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Microsoft.Bcl.AsyncInterfaces.dll")!),
-                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Initialization.Interfaces.dll")!),
-                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Disposal.Interfaces.dll")!)));
-                return project.Compile();
-            });
-
-            this.FromCurrentDirectory = new Lazy<Compilation>(() =>
+        public Lazy<Compilation> FromCurrentDirectory { get; } = new Lazy<Compilation>(() =>
             {
                 var project = new CSharpProject(
                     Paths.FindPathUpwards(path)!,
@@ -44,10 +28,20 @@ public static class TestProjects
                         new AssemblyReference(Paths.FindPathUpwards("Disposal.Interfaces.dll")!)));
                 return project.Compile();
             });
-        }
 
-        public Lazy<Compilation> FromCurrentDirectory { get; }
-
-        public Lazy<Compilation> FromEntryAssembly { get; }
+        public Lazy<Compilation> FromEntryAssembly { get; } = new Lazy<Compilation>(() =>
+            {
+                var project = new CSharpProject(
+                    Paths.FindPathUpwards(path)!,
+                    null,
+                    new Paths("bin", "obj"),
+                    new References(
+                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("AllFeaturesSuccessDependency.dll")!),
+                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Sundew.Injection.dll")!),
+                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Microsoft.Bcl.AsyncInterfaces.dll")!),
+                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Initialization.Interfaces.dll")!),
+                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Disposal.Interfaces.dll")!)));
+                return project.Compile();
+            });
     }
 }

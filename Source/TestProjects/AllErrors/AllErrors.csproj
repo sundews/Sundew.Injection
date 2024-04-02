@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>11</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
+    <PackageReference Include="System.Collections.Immutable" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Disposal.Interfaces" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="Initialization.Interfaces" GeneratePathProperty="true" PrivateAssets="all" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Sundew.Injection\Sundew.Injection.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
+    <ProjectReference Include="..\AllFeaturesSuccessDependency\AllFeaturesSuccessDependency.csproj" />
+  </ItemGroup>
+
+</Project>

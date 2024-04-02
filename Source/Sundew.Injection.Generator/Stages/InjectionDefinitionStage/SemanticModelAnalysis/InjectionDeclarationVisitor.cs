@@ -15,23 +15,15 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Sundew.Base;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
-internal class InjectionDeclarationVisitor : CSharpSyntaxWalker
+internal class InjectionDeclarationVisitor(
+    AnalysisContext analysisContext,
+    CancellationToken cancellationToken)
+    : CSharpSyntaxWalker
 {
-    private readonly AnalysisContext analysisContext;
-    private readonly CancellationToken cancellationToken;
-
-    public InjectionDeclarationVisitor(
-        AnalysisContext analysisContext,
-        CancellationToken cancellationToken)
-    {
-        this.analysisContext = analysisContext;
-        this.cancellationToken = cancellationToken;
-    }
-
     public override void VisitClassDeclaration(ClassDeclarationSyntax node)
     {
-        var classSymbol = this.analysisContext.SemanticModel.GetDeclaredSymbol(node);
-        if (classSymbol != null && classSymbol.AllInterfaces.Any(@interface => SymbolEqualityComparer.Default.Equals(this.analysisContext.KnownAnalysisTypes.InjectionDeclarationType, @interface)))
+        var classSymbol = analysisContext.SemanticModel.GetDeclaredSymbol(node);
+        if (classSymbol != null && classSymbol.AllInterfaces.Any(@interface => SymbolEqualityComparer.Default.Equals(analysisContext.KnownAnalysisTypes.InjectionDeclarationType, @interface)))
         {
             base.VisitClassDeclaration(node);
         }
@@ -39,14 +31,14 @@ internal class InjectionDeclarationVisitor : CSharpSyntaxWalker
 
     public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
     {
-        var symbol = this.analysisContext.SemanticModel.GetDeclaredSymbol(node);
+        var symbol = analysisContext.SemanticModel.GetDeclaredSymbol(node);
         if (symbol != null && symbol.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Public && Equals(symbol.Name, nameof(IInjectionDeclaration.Configure)))
         {
             var parameterSyntax = node.ParameterList.Parameters.FirstOrDefault();
             var parameterSymbol = symbol.Parameters.FirstOrDefault();
-            if (parameterSyntax.HasValue() && parameterSymbol.HasValue() && parameterSymbol.DeclaringSyntaxReferences.Any(x => x.GetSyntax(this.cancellationToken) == parameterSyntax))
+            if (parameterSyntax.HasValue() && parameterSymbol.HasValue() && parameterSymbol.DeclaringSyntaxReferences.Any(x => x.GetSyntax(cancellationToken) == parameterSyntax))
             {
-                new ConfigureInvocationExpressionVisitor(parameterSyntax, this.analysisContext, this.cancellationToken).VisitMethodDeclaration(node);
+                new ConfigureInvocationExpressionVisitor(parameterSyntax, analysisContext, cancellationToken).VisitMethodDeclaration(node);
             }
         }
     }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using AllFeaturesSuccess.SingleInstancePerRequest;
+using AllFeaturesSuccessDependency;
 
 public sealed class InterfaceSegregationImplementation : IDisposable, IInterfaceSegregation
 {
@@ -11,7 +12,10 @@ public sealed class InterfaceSegregationImplementation : IDisposable, IInterface
 
     public InterfaceSegregationImplementation(IInjectableSingleInstancePerRequest injectableSingleInstancePerRequest)
     {
+        this.Id = FactoryLifetime.Created(this);
     }
+
+    public int Id { get; }
 
     public bool TryGet(string key, [NotNullWhen(true)] out string? value)
     {
@@ -31,5 +35,6 @@ public sealed class InterfaceSegregationImplementation : IDisposable, IInterface
 
     public void Dispose()
     {
+        FactoryLifetime.Disposed(this);
     }
 }

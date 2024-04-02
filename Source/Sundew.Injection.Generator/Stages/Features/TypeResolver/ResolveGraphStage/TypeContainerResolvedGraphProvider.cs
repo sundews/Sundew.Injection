@@ -24,7 +24,7 @@ using Sundew.Injection.Generator.TypeSystem;
 
 public static class TypeContainerResolvedGraphProvider
 {
-    internal static IncrementalValuesProvider<ValueArray<R<ResolvedTypeResolverDefinition, ValueList<Diagnostic>>>>
+    internal static IncrementalValuesProvider<ValueArray<R<ResolvedTypeResolverDefinition, Diagnostics>>>
         SetupResolveTypeResolverStage(
             this IncrementalValuesProvider<(ValueArray<ResolverCreationDefinition> ResolverCreationDefinitions,
                 ImmutableArray<GeneratedTypeDeclaration> GeneratedFactoryDeclarations, CompilationData CompilationData)> typeResolverInputsProvider)
@@ -59,11 +59,10 @@ public static class TypeContainerResolvedGraphProvider
                         true,
                         all.Select(x => new ResolvedFactoryRegistration(x.DefiniteType, x.CreateMethods))
                             .ToValueArray(),
-                        resolverCreationDefinition.Accessibility));
+                        resolverCreationDefinition.Accessibility)).Omits<Diagnostics>();
                 }
 
-                return R.Error(failed.GetErrors().Select(GetDiagnostic).ToValueList())
-                    .Omits<ResolvedTypeResolverDefinition>();
+                return R.Error(new Diagnostics(failed.GetErrors().Select(GetDiagnostic)));
             }).ToValueArray();
         });
     }

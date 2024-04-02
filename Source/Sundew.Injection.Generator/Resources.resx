@@ -121,16 +121,16 @@
     <value>Occurs when a required parameter cannot be resolved</value>
   </data>
   <data name="ResolveRequiredParameterErrorMessageFormat" xml:space="preserve">
-    <value>Could not Resolve the type: {0} as a parameter for: {1} from the available parameter sources: {2}</value>
+    <value>Could not resolve type: '{0}' as a parameter for: '{1}' from the available parameter sources: '{2}'</value>
   </data>
   <data name="ResolveRequiredParameterErrorTitle" xml:space="preserve">
-    <value>Could not Resolve required parameter</value>
+    <value>Could not resolve required parameter</value>
   </data>
   <data name="ResolveTypeErrorDescription" xml:space="preserve">
     <value>Occurs when type could not be resolved</value>
   </data>
   <data name="ResolveTypeErrorMessageFormat" xml:space="preserve">
-    <value>Failed to Resolve the type: {0}</value>
+    <value>Failed to Resolve type: '{0}'</value>
   </data>
   <data name="ResolveTypeErrorTitle" xml:space="preserve">
     <value>Could not Resolve type</value>
@@ -139,7 +139,7 @@
     <value>Occurs when an factory instance method is not supported</value>
   </data>
   <data name="UnsupportedInstanceMethodErrorMessageFormat" xml:space="preserve">
-    <value>The instance method: {0} is not supported on the type: {1} for injecting into: {2}</value>
+    <value>The instance method: '{0}' is not supported on the type: '{1}' for injecting into: '{2}'</value>
   </data>
   <data name="UnsupportedInstanceMethodErrorTitle" xml:space="preserve">
     <value>Unsupported instance method.</value>
@@ -148,7 +148,7 @@
     <value>Occurs when failing to resolves a method and its parameters</value>
   </data>
   <data name="ResolveMethodMessageFormat" xml:space="preserve">
-    <value>Could not Resolve the following parameters for type: {0} - parameters: {1}</value>
+    <value>Could not resolve the following parameters for type: '{0}' - parameters: '{1}'</value>
   </data>
   <data name="ResolveMethodErrorTitle" xml:space="preserve">
     <value>Method could not be resolved</value>
@@ -157,7 +157,7 @@
     <value>Occurs when failing to resolves a generic method and its parameters</value>
   </data>
   <data name="ResolveGenericMethodMessageFormat" xml:space="preserve">
-    <value>Could not Resolve the following parameters for type: {0} - parameters: {1}</value>
+    <value>Could not resolve the following parameters for type: '{0}' - parameters: '{1}'</value>
   </data>
   <data name="ResolveGenericMethodErrorTitle" xml:space="preserve">
     <value>Generic method could not be resolved</value>
@@ -166,7 +166,7 @@
     <value>Occurs when a type is registered with an invalid lifetime scope </value>
   </data>
   <data name="ScopeErrorMessageFormat" xml:space="preserve">
-    <value>The type: {0} with scope: {1} is invalid due to the parent: {2} with scope: {3}</value>
+    <value>Type: '{0}' with scope: '{1}' is invalid due to the parent: {2} with scope: {3}</value>
   </data>
   <data name="ScopeErrorTitle" xml:space="preserve">
     <value>Invalid lifetime scope</value>
@@ -175,7 +175,7 @@
     <value>Used when an unknown error occurs</value>
   </data>
   <data name="UnknownErrorMessageFormat" xml:space="preserve">
-    <value>Unknown error: {0}</value>
+    <value>Unknown error: '{0}'</value>
   </data>
   <data name="UnknownErrorTitle" xml:space="preserve">
     <value>Unknown error occured in Sundew.Injection.Generator</value>
@@ -184,7 +184,7 @@
     <value>Types without a viable constructor are not supported</value>
   </data>
   <data name="NoViableConstructorFoundErrorMessageFormat" xml:space="preserve">
-    <value>The type {0} did not contain a viable constructor</value>
+    <value>Type: '{0}' did not contain a viable constructor</value>
   </data>
   <data name="NoViableConstructorFoundErrorTitle" xml:space="preserve">
     <value>No viable constructor could be found</value>
@@ -193,19 +193,19 @@
     <value>Only generic types are supported</value>
   </data>
   <data name="OnlyGenericTypeSupportedErrorMessageFormat" xml:space="preserve">
-    <value>The type {0} is not a generic type</value>
+    <value>Type: '{0}' is not a generic type</value>
   </data>
   <data name="OnlyGenericTypeSupportedErrorTitle" xml:space="preserve">
-    <value>ImplementationType must be generic.</value>
+    <value>TImplementationType must be generic.</value>
   </data>
   <data name="TypeNotInstantiableErrorDescription" xml:space="preserve">
-    <value>The type is either an abstract classes or a string, which cannot be instantiated</value>
+    <value>Type is either an abstract class or a string, which cannot be instantiated</value>
   </data>
   <data name="TypeNotInstantiableErrorMessageFormat" xml:space="preserve">
-    <value>The type {0} cannot be instantiated</value>
+    <value>Type: '{0}' cannot be instantiated</value>
   </data>
   <data name="TypeNotInstantiableErrorTitle" xml:space="preserve">
-    <value>ImplementationType must be instantiable</value>
+    <value>TImplementationType must be instantiable</value>
   </data>
   <data name="RequiredTypeNotFoundErrorDescription" xml:space="preserve">
     <value>Some types are required for the code generator, when not found in the compilation, this error is reported</value>
@@ -229,7 +229,7 @@
     <value>Occurs when there is no way to construct a type, either by missing a binding, the type not having a constructor or being abstract/interface</value>
   </data>
   <data name="NoBindingFoundForNonConstructableTypeErrorMessageFormat" xml:space="preserve">
-    <value>Binding not found for type {0} and type is not constructable</value>
+    <value>Binding not found for type: '{0}' and type is not constructable</value>
   </data>
   <data name="NoBindingFoundForNonConstructableTypeErrorTitle" xml:space="preserve">
     <value>Binding not found</value>
@@ -238,16 +238,16 @@
     <value>Occurs when a binding does not specify a factory method or constructor and no constructor could be resovled automatically</value>
   </data>
   <data name="NoFactoryMethodFoundForTypeErrorMessageFormat" xml:space="preserve">
-    <value>Could not Resolve factory method for type {0}</value>
+    <value>Could not Resolve factory method for type: '{0}'</value>
   </data>
   <data name="NoFactoryMethodFoundForTypeErrorTitle" xml:space="preserve">
     <value>No factory method was found to instanciate type</value>
   </data>
   <data name="InvalidFactoryTypeDescription" xml:space="preserve">
-    <value>Occurs when CreateFactory is called with invalid type parameters</value>
+    <value>Occurs when ImplementFactory is called with invalid type parameters</value>
   </data>
   <data name="InvalidFactoryTypeMessageFormat" xml:space="preserve">
-    <value>The type {0} must be a regular class</value>
+    <value>Type '{0}' must be a regular class</value>
   </data>
   <data name="InvalidFactoryTypeTitle" xml:space="preserve">
     <value>Factory types must be a regular class</value>

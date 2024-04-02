@@ -8,12 +8,16 @@
 namespace AllFeaturesSuccess.MultipleImplementations;
 
 using System;
+using AllFeaturesSuccessDependency;
 
 public class MultipleImplementationForEnumerableB : IMultipleImplementationForEnumerable
 {
     public MultipleImplementationForEnumerableB()
     {
+        this.Id = FactoryLifetime.Created(this);
     }
+
+    public int Id { get; }
 
     public void PrintMe(int indent)
     {

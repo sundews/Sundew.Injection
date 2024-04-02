@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AllFeaturesSuccess.InterfaceSegregationBindings;
 using AllFeaturesSuccess.SingleInstancePerFactory;
 using AllFeaturesSuccess.SingleInstancePerRequest;
+using AllFeaturesSuccessDependency;
 
 public class SelectConstructor : ISelectConstructor
 {
@@ -17,10 +18,15 @@ public class SelectConstructor : ISelectConstructor
         this.implementationSingleInstancePerFactory = implementationSingleInstancePerFactory;
         this.injectableSingleInstancePerRequest = injectableSingleInstancePerRequest;
         this.interfaceSegregationA = interfaceSegregationA;
+        this.Id = FactoryLifetime.Created(this);
     }
+
+    public int Id { get; }
 
     public ValueTask DisposeAsync()
     {
+        GC.SuppressFinalize(this);
+        FactoryLifetime.Disposed(this);
         return default;
     }
 

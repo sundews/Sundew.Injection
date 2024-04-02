@@ -11,21 +11,15 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-internal class FactoryMethodVisitor : CSharpSyntaxWalker
+internal class FactoryMethodVisitor(
+    FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder,
+    AnalysisContext analysisContext)
+    : CSharpSyntaxWalker
 {
-    private readonly FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder;
-    private readonly AnalysisContext analysisContext;
-
-    public FactoryMethodVisitor(FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder, AnalysisContext analysisContext)
-    {
-        this.factoryMethodRegistrationBuilder = factoryMethodRegistrationBuilder;
-        this.analysisContext = analysisContext;
-    }
-
     public override void VisitInvocationExpression(InvocationExpressionSyntax node)
     {
         base.VisitInvocationExpression(node);
-        var symbolInfo = this.analysisContext.SemanticModel.GetSymbolInfo(node);
+        var symbolInfo = analysisContext.SemanticModel.GetSymbolInfo(node);
         if (symbolInfo.Symbol is IMethodSymbol methodSymbol)
         {
             this.VisitBuilderCall(node, methodSymbol);
@@ -33,7 +27,7 @@ internal class FactoryMethodVisitor : CSharpSyntaxWalker
         else if (symbolInfo.CandidateReason == CandidateReason.OverloadResolutionFailure &&
                  symbolInfo.CandidateSymbols.Length == 1)
         {
-            if (symbolInfo.CandidateSymbols[0] is IMethodSymbol methodSymbol2 && SymbolEqualityComparer.Default.Equals(methodSymbol2.ContainingType, this.analysisContext.KnownAnalysisTypes.FactoryMethodSelectorTypeSymbol))
+            if (symbolInfo.CandidateSymbols[0] is IMethodSymbol methodSymbol2 && SymbolEqualityComparer.Default.Equals(methodSymbol2.ContainingType, analysisContext.KnownAnalysisTypes.FactoryMethodSelectorTypeSymbol))
             {
                 this.VisitBuilderCall(node, methodSymbol2);
             }
@@ -45,7 +39,7 @@ internal class FactoryMethodVisitor : CSharpSyntaxWalker
         switch (methodSymbol.Name)
         {
             case nameof(IFactoryMethodSelector.Add):
-                new AddFactoryMethodVisitor(methodSymbol, this.factoryMethodRegistrationBuilder, this.analysisContext).Visit(node);
+                new AddFactoryMethodVisitor(methodSymbol, factoryMethodRegistrationBuilder, analysisContext).Visit(node);
                 break;
         }
     }

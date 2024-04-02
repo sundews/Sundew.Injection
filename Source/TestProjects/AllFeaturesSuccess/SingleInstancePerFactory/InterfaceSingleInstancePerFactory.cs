@@ -4,6 +4,7 @@ using System;
 using AllFeaturesSuccess.InterfaceSegregationBindings;
 using AllFeaturesSuccess.MultipleImplementations;
 using AllFeaturesSuccess.RequiredInterface;
+using AllFeaturesSuccessDependency;
 
 public class InterfaceSingleInstancePerFactory : IInterfaceSingleInstancePerFactory
 {
@@ -18,7 +19,10 @@ public class InterfaceSingleInstancePerFactory : IInterfaceSingleInstancePerFact
         this.formatters = formatters;
         this.operationFactory = operationFactory;
         this.interfaceSegregationOverridableNewB = interfaceSegregationOverridableNewB;
+        this.Id = FactoryLifetime.Created(this);
     }
+
+    public int Id { get; }
 
     public void Start()
     {
@@ -26,6 +30,8 @@ public class InterfaceSingleInstancePerFactory : IInterfaceSingleInstancePerFact
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
+        FactoryLifetime.Disposed(this);
     }
 
     public void PrintMe(int indent)

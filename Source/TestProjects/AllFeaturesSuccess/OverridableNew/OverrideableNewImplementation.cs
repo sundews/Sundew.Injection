@@ -4,6 +4,7 @@ using System;
 using AllFeaturesSuccess.InterfaceImplementationBindings;
 using AllFeaturesSuccess.RequiredInterface;
 using AllFeaturesSuccess.SingleInstancePerRequest;
+using AllFeaturesSuccessDependency;
 
 public class OverrideableNewImplementation : IPrint
 {
@@ -16,7 +17,11 @@ public class OverrideableNewImplementation : IPrint
         this.injectableSingleInstancePerRequest = injectableSingleInstancePerRequest;
         this.injectableByInterface = injectableByInterface;
         this.requiredParameter = requiredParameter;
+        this.Id = FactoryLifetime.Created(this);
     }
+
+    public int Id { get; }
+
     public void PrintMe(int indent)
     {
         Console.WriteLine(new string(' ', indent) + this.GetType().Name);

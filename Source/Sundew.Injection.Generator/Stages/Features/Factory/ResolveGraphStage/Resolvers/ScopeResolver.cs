@@ -10,19 +10,12 @@ namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.R
 using System.Collections.Generic;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal class ScopeResolver
+internal class ScopeResolver(
+    IReadOnlyDictionary<TypeId, ScopeContext> scopes)
 {
-    private readonly IReadOnlyDictionary<TypeId, ScopeContext> scopes;
-
-    public ScopeResolver(
-        IReadOnlyDictionary<TypeId, ScopeContext> scopes)
-    {
-        this.scopes = scopes;
-    }
-
     public Scope ResolveScope(Type type)
     {
-        if (!this.scopes.TryGetValue(type.Id, out var scope))
+        if (!scopes.TryGetValue(type.Id, out var scope))
         {
             // TODO what if not found
         }

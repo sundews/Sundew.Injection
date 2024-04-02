@@ -172,10 +172,10 @@ internal sealed class InjectionTreeBuilder(
                     constructorParameterCreationNodes.Add(externalParameterInjectionNode.InjectionNode);
                     break;
                 case ResolvedBindingError.ParameterError parameterError:
-                    errors.Add(new InjectionStageError.ResolveParameterError(parameterError.Type, dependeeInjectionNode?.GetInjectionNodeName() ?? Root, parameterError.ParameterSources));
+                    errors.Add(InjectionStageError._ResolveParameterError(parameterError.Type, dependeeInjectionNode?.GetInjectionNodeName() ?? Root, parameterError.ParameterSources));
                     break;
                 case ResolvedBindingError.Error error:
-                    errors.Add(new InjectionStageError.ResolveTypeError(error.BindingError, dependeeInjectionNode?.GetInjectionNodeName() ?? Root));
+                    errors.Add(InjectionStageError._ResolveTypeError(error.BindingError, dependeeInjectionNode?.GetInjectionNodeName() ?? Root));
                     break;
             }
         }
@@ -200,7 +200,7 @@ internal sealed class InjectionTreeBuilder(
                 switch (resolvedBinding)
                 {
                     case ThisFactoryParameter thisFactoryParameter:
-                        throw new System.NotImplementedException();
+                        return R.Error(ImmutableList.Create(InjectionStageError._UnsupportedInstanceMethod(bindingMethod, thisFactoryParameter.FactoryType, Root)));
                     case RequiredParameter externalParameter:
                         var type = externalParameter.Type;
 
@@ -253,7 +253,7 @@ internal sealed class InjectionTreeBuilder(
         {
             case ResolvedParameterSource.NoExactMatch noExactMatch:
                 diagnostics.Add(
-                    new InjectionStageError.ResolveParameterError(
+                    InjectionStageError._ResolveParameterError(
                         noExactMatch.Type,
                         noExactMatch.Name,
                         noExactMatch.ParameterSources));

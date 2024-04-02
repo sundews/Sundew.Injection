@@ -1,6 +1,13 @@
 ﻿namespace AllFeaturesSuccess.TypeResolver;
 
-public class DependencyShared
+using AllFeaturesSuccessDependency;
+
+public class DependencyShared : IIdentifiable
 {
-    
+    public DependencyShared()
+    {
+        this.Id = FactoryLifetime.Created(this);
+    }
+
+    public int Id { get; }
 }

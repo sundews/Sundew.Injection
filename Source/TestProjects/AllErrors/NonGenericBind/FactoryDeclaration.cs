@@ -1,5 +1,4 @@
-﻿
-namespace NetStandardLibrarySuccess;
+﻿namespace AllErrors.NonGenericBind;
 
 using Sundew.Injection;
 
@@ -7,14 +6,10 @@ public class FactoryDeclaration : IInjectionDeclaration
 {
     public void Configure(IInjectionBuilder injectionBuilder)
     {
-        injectionBuilder.CreateFactory<TFactory>(x => x.Add<T>());
+        injectionBuilder.BindGeneric<NonGenericType>();
     }
 }
 
-public partial class TFactory
-{
-}
-
-public class T
+public class NonGenericType
 {
 }

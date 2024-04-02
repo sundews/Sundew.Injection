@@ -6,6 +6,7 @@ using AllFeaturesSuccess.ChildFactory;
 using AllFeaturesSuccess.MultipleImplementations;
 using AllFeaturesSuccess.NestingTypes;
 using AllFeaturesSuccess.OverridableNew;
+using AllFeaturesSuccessDependency;
 
 public class ResolveRoot : global::AllFeaturesSuccess.IResolveRoot
 {
@@ -28,7 +29,10 @@ public class ResolveRoot : global::AllFeaturesSuccess.IResolveRoot
         this.constructedChild = constructedChild;
         this.multipleImplementationForEnumerables = multipleImplementationForEnumerables;
         this.nestingConsumer = nestingConsumer;
+        this.Id = FactoryLifetime.Created(this);
     }
+
+    public int Id { get; }
 
     public global::AllFeaturesSuccess.InterfaceImplementationBindings.IIntercepted Intercepted { get; }
 

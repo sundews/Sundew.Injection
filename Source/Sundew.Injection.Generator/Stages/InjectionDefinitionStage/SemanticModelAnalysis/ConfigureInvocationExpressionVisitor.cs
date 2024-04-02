@@ -24,7 +24,9 @@ internal class ConfigureInvocationExpressionVisitor(
         {
             case MemberAccessExpressionSyntax memberAccessExpressionSyntax:
                 var symbolInfo = analysisContext.SemanticModel.GetSymbolInfo(memberAccessExpressionSyntax.Expression);
-                if (symbolInfo.Symbol is IParameterSymbol parameterSymbol && SymbolEqualityComparer.Default.Equals(parameterSymbol.Type, analysisContext.KnownAnalysisTypes.InjectionBuilderType) && memberAccessExpressionSyntax.Name.Identifier.Text == nameof(IInjectionBuilder.RequiredParameterInjection))
+                if (symbolInfo.Symbol is IParameterSymbol parameterSymbol
+                    && SymbolEqualityComparer.Default.Equals(parameterSymbol.Type, analysisContext.KnownAnalysisTypes.InjectionBuilderType)
+                    && memberAccessExpressionSyntax.Name.Identifier.Text == nameof(IInjectionBuilder.RequiredParameterInjection))
                 {
                     new RequiredParameterInjectionVisitor(analysisContext.CompiletimeInjectionDefinitionBuilder).Visit(node.Right);
                 }

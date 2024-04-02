@@ -24,7 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ILRepack.Lib.MSBuild.Task" />
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="PolySharp">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -38,9 +41,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <!-- Generator dependencies -->
-    <PackageReference Include="System.Collections.Immutable"  GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="System.Threading.Tasks"/>
-    <PackageReference Include="System.ValueTuple"  GeneratePathProperty="true" />
+    <PackageReference Include="System.Collections.Immutable" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="System.Threading.Tasks" />
+    <PackageReference Include="System.ValueTuple" GeneratePathProperty="true" />
     <PackageReference Include="Microsoft.Bcl.HashCode" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     <PackageReference Include="Microsoft.CodeAnalysis.Features" />

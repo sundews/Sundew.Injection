@@ -29,7 +29,6 @@ internal static class ParameterHelper
         bool isOptional,
         CompilationData compilationData)
     {
-        var parameterType = parameterNode.Type;
         return parameterNode.ParameterSource switch
         {
             DirectParameter direct => HandleDirect(direct, parameterNode, expectedParameterName, parameters, additionalParameters, isMember, isOptional, compilationData),

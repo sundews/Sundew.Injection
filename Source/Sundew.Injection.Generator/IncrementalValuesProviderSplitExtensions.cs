@@ -25,7 +25,7 @@ internal static class IncrementalValuesProviderSplitExtensions
         return (successProvider, errorsProvider);
     }
 
-    public static (IncrementalValueProvider<TSuccess> SuccessProvider, IncrementalValuesProvider<ValueList<Diagnostic>> ErrorProvider) SegregateByResult<TSuccess>(this IncrementalValueProvider<R<TSuccess, ValueList<Diagnostic>>> resultProvider)
+    public static (IncrementalValueProvider<TSuccess> SuccessProvider, IncrementalValuesProvider<Diagnostics> ErrorProvider) SegregateByResult<TSuccess>(this IncrementalValueProvider<R<TSuccess, Diagnostics>> resultProvider)
     {
         var many = resultProvider.SelectMany((x, _) => ImmutableArray.Create(x));
         var successProvider = resultProvider.Select((x, _) =>
@@ -41,7 +41,7 @@ internal static class IncrementalValuesProviderSplitExtensions
         return (successProvider, errorProvider);
     }
 
-    public static (IncrementalValuesProvider<TSuccess> SuccessProvider, IncrementalValuesProvider<ValueList<Diagnostic>> ErrorProvider) SegregateByResult<TSuccess>(this IncrementalValuesProvider<ValueArray<R<TSuccess, ValueList<Diagnostic>>>> resultProvider)
+    public static (IncrementalValuesProvider<TSuccess> SuccessProvider, IncrementalValuesProvider<Diagnostics> ErrorProvider) SegregateByResult<TSuccess>(this IncrementalValuesProvider<ValueArray<R<TSuccess, Diagnostics>>> resultProvider)
     {
         var many = resultProvider.SelectMany((x, _) => x);
         var successProvider = many.Where(x => x.IsSuccess).Select((x, c) => x.Value!);

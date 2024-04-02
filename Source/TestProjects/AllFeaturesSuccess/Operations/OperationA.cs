@@ -1,5 +1,7 @@
 ﻿namespace AllFeaturesSuccess.Operations;
 
+using AllFeaturesSuccessDependency;
+
 public class OperationA : IOperation
 {
     private readonly int lhs;
@@ -9,7 +11,10 @@ public class OperationA : IOperation
     {
         this.lhs = lhs;
         this.rhs = rhs;
+        this.Id = FactoryLifetime.Created((IIdentifiable)this);
     }
+
+    public int Id { get; }
 
     public int Execute()
     {

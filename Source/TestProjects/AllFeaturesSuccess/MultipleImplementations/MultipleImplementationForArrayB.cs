@@ -9,6 +9,7 @@ namespace AllFeaturesSuccess.MultipleImplementations;
 
 using System;
 using AllFeaturesSuccess.RequiredInterface;
+using AllFeaturesSuccessDependency;
 
 public class MultipleImplementationForArrayB : IMultipleImplementationForArray
 {
@@ -17,10 +18,15 @@ public class MultipleImplementationForArrayB : IMultipleImplementationForArray
     public MultipleImplementationForArrayB(IMultipleModuleRequiredParameter firstSpecificallyNamedModuleParameter)
     {
         this.firstSpecificallyNamedModuleParameter = firstSpecificallyNamedModuleParameter;
+        this.Id = FactoryLifetime.Created(this);
     }
+
+    public int Id { get; }
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
+        FactoryLifetime.Disposed(this);
     }
 
     public void PrintMe(int indent)

@@ -1,7 +1,8 @@
 ﻿namespace AllFeaturesSuccess.InterfaceSegregationBindings;
 
-using AllFeaturesSuccess.RequiredInterface;
 using System;
+using AllFeaturesSuccess.RequiredInterface;
+using AllFeaturesSuccessDependency;
 
 public sealed class InterfaceSegregationOverridableNewImplementation : IInterfaceSegregationOverridableNew, IDisposable
 {
@@ -10,7 +11,10 @@ public sealed class InterfaceSegregationOverridableNewImplementation : IInterfac
     public InterfaceSegregationOverridableNewImplementation(IInjectedByType injectedByType)
     {
         this.injectedByType = injectedByType;
+        this.Id = FactoryLifetime.Created(this);
     }
+
+    public int Id { get; }
 
     public void PrintMe(int indent)
     {
@@ -20,5 +24,6 @@ public sealed class InterfaceSegregationOverridableNewImplementation : IInterfac
 
     public void Dispose()
     {
+        FactoryLifetime.Disposed(this);
     }
 }

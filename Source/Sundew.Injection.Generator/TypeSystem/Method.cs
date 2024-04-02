@@ -13,4 +13,10 @@ internal sealed record class Method(
     ValueArray<Parameter> Parameters,
     string Name,
     Type ContainingType,
-    MethodKind Kind);
+    MethodKind Kind)
+{
+    public Method(string name, Type containingType, MethodKind kind)
+        : this(ValueArray<Parameter>.Empty, name, containingType, kind)
+    {
+    }
+}

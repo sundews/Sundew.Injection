@@ -10,18 +10,19 @@ public class FactoryDeclaration : IInjectionDeclaration
     {
         injectionBuilder.Bind<IAbstract, Concrete1>();
         injectionBuilder.Bind<IAbstract, Concrete2>();
-        injectionBuilder.CreateFactory<TFactory>(x => x.Add<T>());
+        injectionBuilder.ImplementFactory<MainFactory>(x => x.Add<Root>());
     }
 }
 
-public partial class TFactory
+public partial class MainFactory
 {
 }
 
-public class T
+public class Root
 {
     private readonly IEnumerable<IAbstract> abstracts;
-    public T(IEnumerable<IAbstract> abstracts)
+
+    public Root(IEnumerable<IAbstract> abstracts)
     {
         this.abstracts = abstracts;
     }

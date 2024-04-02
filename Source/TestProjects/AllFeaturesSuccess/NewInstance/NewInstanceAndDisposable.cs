@@ -2,6 +2,7 @@
 
 using System;
 using AllFeaturesSuccess.OptionalInterface;
+using AllFeaturesSuccessDependency;
 
 public class NewInstanceAndDisposable : IPrint, IDisposable
 {
@@ -12,10 +13,15 @@ public class NewInstanceAndDisposable : IPrint, IDisposable
     {
         this.resolveRootFactory = resolveRootFactory;
         this.optionalImplementation = optionalImplementation;
+        this.Id = FactoryLifetime.Created(this);
     }
+
+    public int Id { get; }
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
+        FactoryLifetime.Disposed(this);
     }
 
     public void PrintMe(int indent)

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using AllFeaturesSuccess.Generics;
 using AllFeaturesSuccess.RequiredInterface;
+using AllFeaturesSuccessDependency;
 
 public class InjectableSingleInstancePerRequest : IInjectableSingleInstancePerRequest, IDisposable
 {
@@ -16,7 +17,10 @@ public class InjectableSingleInstancePerRequest : IInjectableSingleInstancePerRe
         this.singleModuleRequiredParameterCreateMethod = singleModuleRequiredParameterCreateMethod;
         this.integers = integers;
         this.generic = generic;
+        this.Id = FactoryLifetime.Created(this);
     }
+
+    public int Id { get; }
 
     public void PrintMe(int indent)
     {
@@ -29,5 +33,7 @@ public class InjectableSingleInstancePerRequest : IInjectableSingleInstancePerRe
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
+        FactoryLifetime.Disposed(this);
     }
 }

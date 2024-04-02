@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="CreateResolverVisitor.cs" company="Sundews">
+// <copyright file="ImplementServiceProviderVisitor.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -13,20 +13,15 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Sundew.Base;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
-internal class CreateResolverVisitor : CSharpSyntaxWalker
+internal class ImplementServiceProviderVisitor(
+    GenericNameSyntax genericNameSyntax,
+    IMethodSymbol methodSymbol,
+    AnalysisContext analysisContext)
+    : CSharpSyntaxWalker
 {
-    private readonly IMethodSymbol methodSymbol;
-    private readonly AnalysisContext analysisContext;
-
-    public CreateResolverVisitor(IMethodSymbol methodSymbol, AnalysisContext analysisContext)
-    {
-        this.methodSymbol = methodSymbol;
-        this.analysisContext = analysisContext;
-    }
-
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
-        var parameters = this.methodSymbol.Parameters;
+        var parameters = methodSymbol.Parameters;
         var i = 1;
         var factories = new FactoryRegistrationBuilder();
         var accessibility = parameters[i++].ExplicitDefaultValue.ToEnumOrDefault(Injection.Accessibility.Public);
@@ -38,10 +33,10 @@ internal class CreateResolverVisitor : CSharpSyntaxWalker
                 switch (argumentSyntax.NameColon.Name.ToString())
                 {
                     case nameof(factories):
-                        new FactoryVisitor(factories, this.analysisContext).Visit(argumentSyntax);
+                        new FactoryVisitor(factories, analysisContext).Visit(argumentSyntax);
                         break;
                     case nameof(accessibility):
-                        accessibility = this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value.ToEnumOrDefault(Injection.Accessibility.Public);
+                        accessibility = analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value.ToEnumOrDefault(Injection.Accessibility.Public);
                         break;
                 }
             }
@@ -50,10 +45,10 @@ internal class CreateResolverVisitor : CSharpSyntaxWalker
                 switch (argumentIndex)
                 {
                     case 0:
-                        new FactoryVisitor(factories, this.analysisContext).Visit(argumentSyntax);
+                        new FactoryVisitor(factories, analysisContext).Visit(argumentSyntax);
                         break;
                     case 1:
-                        accessibility = this.analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value.ToEnumOrDefault(Injection.Accessibility.Public);
+                        accessibility = analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value.ToEnumOrDefault(Injection.Accessibility.Public);
                         break;
                 }
 
@@ -61,14 +56,14 @@ internal class CreateResolverVisitor : CSharpSyntaxWalker
             }
         }
 
-        var typeArguments = this.methodSymbol.TypeArguments;
-        var resolverTypeResult = this.analysisContext.TypeFactory.GetType(typeArguments[0]);
-        if (resolverTypeResult.TryGetError(out var factoryTypeError))
+        var typeArguments = methodSymbol.MapTypeArguments(genericNameSyntax);
+        var resolverTypeResult = analysisContext.TypeFactory.GetNamedType(typeArguments[0]);
+        if (resolverTypeResult.TryGetError(out var invalidFactoryTypeSymbol))
         {
-            this.analysisContext.CompiletimeInjectionDefinitionBuilder.ReportDiagnostic(Diagnostic.Create(Diagnostics.InvalidFactoryTypeError, Location.None, factoryTypeError));
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InvalidFactoryTypeError, invalidFactoryTypeSymbol);
             return;
         }
 
-        this.analysisContext.CompiletimeInjectionDefinitionBuilder.CreateResolver(factories, resolverTypeResult.Value, accessibility);
+        analysisContext.CompiletimeInjectionDefinitionBuilder.CreateResolver(factories, resolverTypeResult.Value, accessibility);
     }
 }

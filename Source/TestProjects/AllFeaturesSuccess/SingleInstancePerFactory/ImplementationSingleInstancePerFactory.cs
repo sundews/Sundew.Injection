@@ -11,8 +11,9 @@ using System;
 using AllFeaturesSuccess.InterfaceImplementationBindings;
 using AllFeaturesSuccess.InterfaceSegregationBindings;
 using AllFeaturesSuccess.RequiredInterface;
+using AllFeaturesSuccessDependency;
 
-public class ImplementationSingleInstancePerFactory
+public class ImplementationSingleInstancePerFactory : IPrint
 {
     private readonly IInjectedSeparately injectedSeparately;
     private readonly IInjectableByInterface injectableByInterface;
@@ -23,7 +24,10 @@ public class ImplementationSingleInstancePerFactory
         this.injectedSeparately = injectedSeparately;
         this.injectableByInterface = injectableByInterface;
         this.interfaceSegregationOverridableNewA = interfaceSegregationOverridableNewA;
+        this.Id = FactoryLifetime.Created(this);
     }
+
+    public int Id { get; }
 
     public void PrintMe(int indent)
     {

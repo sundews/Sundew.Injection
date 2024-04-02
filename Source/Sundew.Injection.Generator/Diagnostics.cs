@@ -7,11 +7,27 @@
 
 namespace Sundew.Injection.Generator;
 
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis;
+using Sundew.Base;
+using Sundew.Base.Collections.Immutable;
+using Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticModelAnalysis;
 
-public static class Diagnostics
+public sealed record Diagnostics(ValueList<Diagnostic> Items) : IEnumerable<Diagnostic>
 {
     private const string CodeGeneration = "CodeGeneration";
+
+    public Diagnostics(params Diagnostic[] diagnostics)
+        : this(diagnostics.ToValueList())
+    {
+    }
+
+    public Diagnostics(IEnumerable<Diagnostic> diagnostics)
+        : this(diagnostics.ToValueList())
+    {
+    }
 
     public static DiagnosticDescriptor UnknownError { get; } = new(
         "SI0100",
@@ -129,4 +145,35 @@ public static class Diagnostics
         DiagnosticSeverity.Error,
         true,
         Resources.NoBindingFoundForNonConstructableTypeErrorDescription);
+
+    public static Diagnostics Create(DiagnosticDescriptor diagnosticDescriptor, MappedTypeSymbol mappedTypeSymbol)
+    {
+        return Create(diagnosticDescriptor, mappedTypeSymbol.TypeSymbol, mappedTypeSymbol.OriginatingSyntaxNode);
+    }
+
+    public static Diagnostics Create(DiagnosticDescriptor diagnosticDescriptor, ISymbol symbol, SyntaxNode? originatingSyntaxNode = default)
+    {
+        if (originatingSyntaxNode.HasValue())
+        {
+            return new Diagnostics(Diagnostic.Create(diagnosticDescriptor, originatingSyntaxNode.GetLocation(), symbol.ToDisplayString()));
+        }
+
+        if (symbol.DeclaringSyntaxReferences.IsEmpty)
+        {
+            return new Diagnostics(Diagnostic.Create(diagnosticDescriptor, Location.None, symbol.ToDisplayString()));
+        }
+
+        return new Diagnostics(symbol.DeclaringSyntaxReferences.Select(x =>
+            Diagnostic.Create(diagnosticDescriptor, x.GetSyntax().GetLocation(), symbol.ToDisplayString())));
+    }
+
+    public IEnumerator<Diagnostic> GetEnumerator()
+    {
+        return this.Items.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return this.GetEnumerator();
+    }
 }

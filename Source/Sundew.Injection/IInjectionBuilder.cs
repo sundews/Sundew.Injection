@@ -288,7 +288,7 @@ namespace Sundew.Injection
         /// </summary>
         /// <param name="factoryMethods">A selector of the factory methods to be supported by the factory.</param>
         /// <param name="accessibility">The accessibility of the generated types.</param>
-        void CreateFactory<TFactory>(
+        void ImplementFactory<TFactory>(
             Func<IFactoryMethodSelector, IFactoryMethods> factoryMethods,
             Accessibility accessibility = Accessibility.Public);
 
@@ -297,7 +297,7 @@ namespace Sundew.Injection
         /// </summary>
         /// <param name="factoryMethods">A selector of the factory methods to be supported by the factory.</param>
         /// <param name="accessibility">The accessibility of the generated types.</param>
-        void CreateFactory<TFactory, TFactoryInterface>(
+        void ImplementFactory<TFactory, TFactoryInterface>(
             Func<IFactoryMethodSelector, IFactoryMethods> factoryMethods,
             Accessibility accessibility = Accessibility.Public)
             where TFactory : TFactoryInterface;
@@ -308,7 +308,7 @@ namespace Sundew.Injection
         /// <typeparam name="TResolver">The factory 1 type.</typeparam>
         /// <param name="factories">The factories.</param>
         /// <param name="accessibility">The accessibility of the generated types.</param>
-        void CreateResolver<TResolver>(
+        void ImplementServiceProvider<TResolver>(
             Func<IFactorySelector, IFactories> factories,
             Accessibility accessibility = Accessibility.Public);
     }

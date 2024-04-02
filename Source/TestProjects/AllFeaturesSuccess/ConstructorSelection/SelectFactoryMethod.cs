@@ -5,6 +5,7 @@ using AllFeaturesSuccess.InterfaceSegregationBindings;
 using AllFeaturesSuccess.RequiredInterface;
 using AllFeaturesSuccess.SingleInstancePerFactory;
 using AllFeaturesSuccess.SingleInstancePerRequest;
+using AllFeaturesSuccessDependency;
 
 public class SelectFactoryMethod : ISelectFactoryMethod
 {
@@ -20,7 +21,10 @@ public class SelectFactoryMethod : ISelectFactoryMethod
         this.requiredService = requiredService;
         this.interfaceSegregationB = interfaceSegregationB;
         this.interfaceSingleInstancePerFactory.Start();
+        this.Id = FactoryLifetime.Created(this);
     }
+
+    public int Id { get; }
 
     public void PrintMe(int indent)
     {

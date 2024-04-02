@@ -28,12 +28,12 @@ internal static class CompilationDataProvider
     private static readonly NamedType VoidType = new("void", string.Empty, string.Empty, true);
     private static readonly NamedType ValueTaskType = new("ValueTask", "System.Threading.Tasks", string.Empty, true);
 
-    public static IncrementalValueProvider<R<CompilationData, ValueList<Diagnostic>>> SetupCompilationDataStage(this IncrementalValueProvider<Compilation> compilationProvider)
+    public static IncrementalValueProvider<R<CompilationData, Diagnostics>> SetupCompilationDataStage(this IncrementalValueProvider<Compilation> compilationProvider)
     {
         return compilationProvider.Select(GetCompilationData);
     }
 
-    internal static R<CompilationData, ValueList<Diagnostic>> GetCompilationData(Compilation compilation, CancellationToken cancellationToken)
+    internal static R<CompilationData, Diagnostics> GetCompilationData(Compilation compilation, CancellationToken cancellationToken)
     {
         var areNullableAnnotationsSupported = compilation.Options.NullableContextOptions != NullableContextOptions.Disable;
 
@@ -120,7 +120,7 @@ internal static class CompilationDataProvider
                 TypeHelper.GetNamespace(compilation.GlobalNamespace)));
         }
 
-        return R.Error(errors.Select(x => Diagnostic.Create(Diagnostics.RequiredTypeNotFoundError, null, x.Error)).ToValueList());
+        return R.Error(new Diagnostics(errors.Select(x => Diagnostic.Create(Diagnostics.RequiredTypeNotFoundError, null, x.Error))));
     }
 
     private static NamedType GetNamedType(Type type)

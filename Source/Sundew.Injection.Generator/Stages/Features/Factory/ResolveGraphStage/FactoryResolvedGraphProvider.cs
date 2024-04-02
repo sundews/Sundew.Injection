@@ -13,7 +13,6 @@ using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Sundew.Base;
-using Sundew.Base.Collections.Immutable;
 using Sundew.Base.Collections.Linq;
 using Sundew.Injection.Generator.Stages.CompilationDataStage;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Extensions;
@@ -24,16 +23,16 @@ internal static class FactoryResolvedGraphProvider
 {
     private const string RootNodeName = "root";
 
-    public static IncrementalValuesProvider<R<FactoryResolvedGraph, ValueList<Diagnostic>>> SetupResolveFactoryGraphStage(
+    public static IncrementalValuesProvider<R<FactoryResolvedGraph, Diagnostics>> SetupResolveFactoryGraphStage(
         this IncrementalValuesProvider<(InjectionDefinition InjectionDefinition, CompilationData CompilationData, ImmutableArray<SyntaxNode> AccessibleConstructors)> tupleForCodeGenerationProvider)
     {
         return tupleForCodeGenerationProvider.SelectMany((x, cancellationToken) => GetResolvedFactoryGraph(x.InjectionDefinition, x.CompilationData, cancellationToken));
     }
 
-    internal static ImmutableArray<R<FactoryResolvedGraph, ValueList<Diagnostic>>> GetResolvedFactoryGraph(
+    internal static ImmutableArray<R<FactoryResolvedGraph, Diagnostics>> GetResolvedFactoryGraph(
         InjectionDefinition injectionDefinition, CompilationData compilationData, CancellationToken cancellationToken)
     {
-        var factoryDefinitionResults = ImmutableArray.CreateBuilder<R<FactoryResolvedGraph, ValueList<Diagnostic>>>();
+        var factoryDefinitionResults = ImmutableArray.CreateBuilder<R<FactoryResolvedGraph, Diagnostics>>();
         try
         {
             var requiredParametersInjectionResolver = new RequiredParametersInjectionResolver(
@@ -106,7 +105,7 @@ internal static class FactoryResolvedGraphProvider
                         cancellationToken);
                     if (lifecycleInjectionNodeResult.TryGetError(out var diagnostics))
                     {
-                        factoryDefinitionResults.Add(R.Error(diagnostics.ToValueList()));
+                        factoryDefinitionResults.Add(R.Error(new Diagnostics(diagnostics)));
                         break;
                     }
 
@@ -122,8 +121,11 @@ internal static class FactoryResolvedGraphProvider
                 }
                 else
                 {
-                    factoryDefinitionResults.Add(R.Error(failed.GetErrors().SelectMany(x => x)
-                        .Select(GetDiagnostic).ToImmutableArray().ToValueList()));
+                    factoryDefinitionResults.Add(R.Error(
+                        new Diagnostics(
+                            failed.GetErrors()
+                                .SelectMany(x => x)
+                                .Select(GetDiagnostic).ToImmutableArray())));
                 }
             }
 
@@ -135,8 +137,7 @@ internal static class FactoryResolvedGraphProvider
         }
         catch (Exception e)
         {
-            factoryDefinitionResults.Add(R.Error(ImmutableArray
-                .Create(Diagnostic.Create(Diagnostics.UnknownError, default, e.ToString())).ToValueList()));
+            factoryDefinitionResults.Add(R.Error(new Diagnostics(Diagnostic.Create(Diagnostics.UnknownError, default, e.ToString()))));
             return factoryDefinitionResults.ToImmutable();
         }
     }

@@ -8,13 +8,11 @@
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
 using System;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Sundew.Base;
-using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticModelAnalysis;
 using Sundew.Injection.Generator.TypeSystem;
 
@@ -22,14 +20,14 @@ internal static class InjectionDefinitionProvider
 {
     public static
         IncrementalValuesProvider<R<InjectionDefinition,
-            ValueList<Diagnostic>>> SetupInjectionDefinitionStage(this SyntaxValueProvider syntaxValueProvider)
+            Diagnostics>> SetupInjectionDefinitionStage(this SyntaxValueProvider syntaxValueProvider)
     {
         return syntaxValueProvider.CreateSyntaxProvider(
             static (syntaxNode, _) => IsInjectionDeclaration(syntaxNode),
             static (generatorContextSyntax, cancellationToken) => GetInjectionDefinition(generatorContextSyntax.SemanticModel, cancellationToken));
     }
 
-    internal static R<InjectionDefinition, ValueList<Diagnostic>> GetInjectionDefinition(SemanticModel injectionDeclarationSemanticModel, CancellationToken cancellationToken)
+    internal static R<InjectionDefinition, Diagnostics> GetInjectionDefinition(SemanticModel injectionDeclarationSemanticModel, CancellationToken cancellationToken)
     {
         try
         {
@@ -51,7 +49,7 @@ internal static class InjectionDefinitionProvider
         }
         catch (Exception e)
         {
-            return R.Error(ImmutableArray.Create(Diagnostic.Create(Diagnostics.UnknownError, default, e.ToString())).ToValueList());
+            return R.Error(new Diagnostics(Diagnostic.Create(Diagnostics.UnknownError, default, e.ToString())));
         }
     }
 

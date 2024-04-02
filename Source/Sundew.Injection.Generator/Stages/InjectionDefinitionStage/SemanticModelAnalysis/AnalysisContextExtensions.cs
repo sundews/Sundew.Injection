@@ -9,7 +9,6 @@ namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticMod
 
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
@@ -64,7 +63,7 @@ internal static class AnalysisContextExtensions
             }
             else
             {
-                analysisContext.CompiletimeInjectionDefinitionBuilder.ReportDiagnostic(Diagnostic.Create(Diagnostics.NoBindingFoundForNonConstructableTypeError, null, typeSymbol.ToDisplayString()));
+                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.NoBindingFoundForNonConstructableTypeError, typeSymbol);
             }
         }
     }
@@ -95,6 +94,9 @@ internal static class AnalysisContextExtensions
             return analysisContext.TypeFactory.CreateMethod(defaultConstructor);
         }
 
-        return new Method(ImmutableArray<Parameter>.Empty, implementationType.MetadataName, analysisContext.TypeFactory.CreateType(implementationType).Type, MethodKind._Constructor);
+        return new Method(
+            implementationType.MetadataName,
+            analysisContext.TypeFactory.CreateType(implementationType).Type,
+            MethodKind._Constructor);
     }
 }

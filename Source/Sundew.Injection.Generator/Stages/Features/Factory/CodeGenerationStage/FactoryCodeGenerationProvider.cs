@@ -21,12 +21,12 @@ using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage;
 
 internal static class FactoryCodeGenerationProvider
 {
-    public static IncrementalValuesProvider<R<GeneratedOutput, ValueList<Diagnostic>>> SetupFactoryCodeGenerationStage(this IncrementalValuesProvider<(FactoryResolvedGraph FactoryData, CompilationData CompilationData)> factoryDataInput)
+    public static IncrementalValuesProvider<R<GeneratedOutput, Diagnostics>> SetupFactoryCodeGenerationStage(this IncrementalValuesProvider<(FactoryResolvedGraph FactoryData, CompilationData CompilationData)> factoryDataInput)
     {
         return factoryDataInput.Select((valueProvider, cancellationToken) => GetGeneratedOutput(valueProvider.FactoryData, valueProvider.CompilationData, cancellationToken));
     }
 
-    internal static R<GeneratedOutput, ValueList<Diagnostic>> GetGeneratedOutput(FactoryResolvedGraph factoryResolvedGraph, CompilationData compilationData, CancellationToken cancellationToken)
+    internal static R<GeneratedOutput, Diagnostics> GetGeneratedOutput(FactoryResolvedGraph factoryResolvedGraph, CompilationData compilationData, CancellationToken cancellationToken)
     {
         try
         {
@@ -50,8 +50,7 @@ internal static class FactoryCodeGenerationProvider
         }
         catch (Exception e)
         {
-            return R.Error(ImmutableArray.Create(Diagnostic.Create(Diagnostics.UnknownError, default, e.ToString()))
-                .ToValueList());
+            return R.Error(new Diagnostics(Diagnostic.Create(Diagnostics.UnknownError, default, e.ToString())));
         }
     }
 }

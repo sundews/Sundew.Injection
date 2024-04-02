@@ -14,6 +14,7 @@ using AllFeaturesSuccess.MultipleImplementations;
 using AllFeaturesSuccess.NewInstance;
 using AllFeaturesSuccess.OverridableNew;
 using AllFeaturesSuccess.UnboundType;
+using AllFeaturesSuccessDependency;
 
 public class Intercepted : IIntercepted
 {
@@ -41,7 +42,10 @@ public class Intercepted : IIntercepted
         this.Title = "T";
         this.Description = "D";
         this.Link = "L";
+        this.Id = FactoryLifetime.Created(this);
     }
+
+    public int Id { get; }
 
     public string Title { get; }
 

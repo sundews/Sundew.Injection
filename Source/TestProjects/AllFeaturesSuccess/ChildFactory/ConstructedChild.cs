@@ -17,10 +17,14 @@ public class ConstructedChild : IAsyncInitializable, IPrint
         this.newInstanceAndDisposable = newInstanceAndDisposable;
         this.dependency = dependency;
         this.manualDependency = manualDependency;
+        this.Id = FactoryLifetime.Created(this);
     }
+
+    public int Id { get; }
 
     public ValueTask InitializeAsync()
     {
+        FactoryLifetime.Initialized(this);
         return default;
     }
 

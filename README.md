@@ -7,7 +7,7 @@ The overarching goal of Sundew.Injection is to increase performance related to o
 1. Install nuget package [Sundew.Injection](https://www.nuget.org/packages/Sundew.Injection)
 2. Create a class and implement the ```IInjectionDeclaration``` interface
 3. Create type bindings using the Bind* methods on the ```IInjectionBuilder``` in the Configure method
-4. Use CreateFactory for the code generator to implement the factory class
+4. Use ImplementFactory for the code generator to implement the factory class
 ```csharp
 internal class FactoryDeclaration : IInjectionDeclaration
 {
@@ -18,8 +18,12 @@ internal class FactoryDeclaration : IInjectionDeclaration
         injectionBuilder.Bind<IInterface, ImplementationDependency>(Scope.Auto, () => new ImplementationDependency(default!, default!));
 
         // Declare that a factory should be generated
-        injectionBuilder.CreateFactory(factories => factories.Add<IResolveRoot, ResolveRoot>(), generateInterface: true);
+        injectionBuilder.ImplementFactory<ResolveRootFactory>(factories => factories.Add<IResolveRoot, ResolveRoot>(), generateInterface: true);
     }
+}
+
+public partial class ResolveRootFactory
+{
 }
 ```
 5. Use the generated factory in the application
@@ -31,7 +35,7 @@ IResolveRoot resolveRoot = resolveRootFactory.Create();
 
 ## Specific examples
 
-* All features: [FactoryDeclaration](/Source/TestProjects/AllFeaturesSuccess/FactoryDeclaration.cs) and the [generated result](/Source/Sundew.Injection.IntegrationTests/InjectionGeneratorFixture.VerifyGeneratedSources%23AllFeaturesSuccess.ResolveRootFactory.generated.verified.cs)
+* All features: [FactoryDeclaration](/Source/TestProjects/AllFeaturesSuccess/FactoryDeclaration.cs) and the [generated result](/Source/Sundew.Injection.IntegrationTests/InjectionGeneratorSuccessFixture.VerifyGeneratedSources%23AllFeaturesSuccess.ResolveRootFactory.generated.verified.cs)
 
 ## Documentation
 TODO
@@ -98,7 +102,7 @@ Generally, short-lived applications can benefit the most from Pure DI during sta
 
 ## Factory or Dependency Injection Container?
 
-An issue with the factory pattern is that it is only conceptually reusable. Hence DICs provide a productivity improvement as a reusable pattern for instantiating object graphs.
+The issue with the factory pattern is that it is only conceptually reusable. Hence DICs provide a productivity improvement as a reusable pattern for instantiating object graphs.
 Although the output of Sundew.Injection resembles the Factory pattern more closely, the declaration resemble the usage of a DICs. Therefore the name Sundew.Injection was chosen.
 
 With this, an instantiated Factory is conceptually similar to a configured DIC instance.
@@ -111,16 +115,13 @@ An IDisposable/IAsyncDisposable object is considered owned by a factory in the f
 
 ## Not implemented yet:
 * First Beta
-  * Optional reflection type resolver performance
-  * Local function ienumerable optimization
+  * Test error cases
   * Fix nuget package need interface project explicitly
-  * Generating documentation
-  * Rework generics
-  * Test correctness of generated code
   * Place generator dependencies in own namespace
-* Test error cases
-* Custom lifetime scope, to support implementing something like single instance per thread or per session
+* Generating documentation
+* IServiceProvider support (ASP.NET)
 * Interception
+* Custom lifetime scope, to support implementing something like single instance per thread or per session
 
 ### Challenges/Risk
 * Build performance
@@ -129,16 +130,11 @@ An IDisposable/IAsyncDisposable object is considered owned by a factory in the f
 * Versioning across multiple projects, since the library contains some required types internal and public types.
   * Internal types are added to the project, by public types like IInterceptor can only be included as a PackageReferences, so that other projects have a chance to implement an interceptor.
   * Only expose generated factories? How can this work with a non-code-generated fallback? (It probably can't, as the generator has to run to determine the public interface (Only a problem if build performance is a problem))
-* Hard to integrate with application framework the dictate a the use of a dynamic DIC.
-  * Generate code to integrate with DICs
-  * Explore how these could be changed to rely less on reflection
 
 ### Integration with application frameworks
-| Framework            | Comments                                                                                                                                                                                                                                                |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ASP.NET/Blazor/Razor | Currently, there is no good answer for ASP.NET, but it does allow replacing it middleware at various interception points.<br/>Here Sundew.Injection could be used, although some reflection would still be involved to determine which factory to call. |
-| ReactiveUI           | TODO.                                                                                                                                                                                                                                                   |
-| LightMVVM            | TODO.                                                                                                                                                                                                                                                   |
-| Maui                 | TODO.                                                                                                                                                                                                                                                   |
-| Uno                  | TODO.                                                                                                                                                                                                                                                   |
-| Console              | New it and use it.                                                                                                                                                                                                                                      |
+| Framework            | Comments                                        |
+| -------------------- | ------------------------------------------------|
+| ASP.NET/Blazor/Razor | Integrate through IServiceProvider              |
+| ReactiveUI           | Use factories directly or use IServiceProvider. |                                                                                                                                                                                                                                                 |
+| Maui                 | Use factories directly or use IServiceProvider. |
+| Console              | Use factories directly.                         |

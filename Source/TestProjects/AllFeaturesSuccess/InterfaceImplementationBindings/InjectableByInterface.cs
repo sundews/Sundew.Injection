@@ -9,6 +9,7 @@ namespace AllFeaturesSuccess.InterfaceImplementationBindings;
 
 using System;
 using AllFeaturesSuccess.RequiredInterface;
+using AllFeaturesSuccessDependency;
 
 public class InjectableByInterface : IInjectableByInterface, IDisposable
 {
@@ -17,7 +18,10 @@ public class InjectableByInterface : IInjectableByInterface, IDisposable
     public InjectableByInterface(ISingleModuleRequiredParameterConstructorMethod singleModuleRequiredParameterWithItsOwnName)
     {
         this.SingleModuleRequiredParameter = singleModuleRequiredParameterWithItsOwnName;
+        this.Id = FactoryLifetime.Created(this);
     }
+
+    public int Id { get; }
 
     public void PrintMe(int indent)
     {
@@ -27,5 +31,7 @@ public class InjectableByInterface : IInjectableByInterface, IDisposable
 
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
+        FactoryLifetime.Disposed(this);
     }
 }

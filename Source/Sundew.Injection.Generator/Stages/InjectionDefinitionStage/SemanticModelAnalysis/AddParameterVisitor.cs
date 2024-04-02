@@ -17,12 +17,14 @@ using Type = Sundew.Injection.Generator.TypeSystem.Type;
 
 internal class AddParameterVisitor : CSharpSyntaxWalker
 {
+    private readonly InvocationExpressionSyntax originatingSyntax;
     private readonly IMethodSymbol methodSymbol;
     private readonly AnalysisContext analysisContext;
     private readonly Type type;
 
-    public AddParameterVisitor(IMethodSymbol methodSymbol, AnalysisContext analysisContext)
+    public AddParameterVisitor(InvocationExpressionSyntax originatingSyntax, IMethodSymbol methodSymbol, AnalysisContext analysisContext)
     {
+        this.originatingSyntax = originatingSyntax;
         this.methodSymbol = methodSymbol;
         this.analysisContext = analysisContext;
         this.type = this.analysisContext.TypeFactory.CreateType(methodSymbol.TypeArguments.First()).Type;

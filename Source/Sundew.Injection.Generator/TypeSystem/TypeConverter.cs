@@ -15,6 +15,7 @@ using Microsoft.CodeAnalysis;
 using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
+using Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticModelAnalysis;
 
 internal static class TypeConverter
 {
@@ -59,14 +60,12 @@ internal static class TypeConverter
         };
     }
 
-    public static R<NamedType, string> GetNamedType(ITypeSymbol typeSymbol)
+    public static R<NamedType, MappedTypeSymbol> GetNamedType(MappedTypeSymbol typeSymbol)
     {
-        return typeSymbol switch
+        return typeSymbol.TypeSymbol switch
         {
-            IErrorTypeSymbol errorTypeSymbol => R.Error($"{errorTypeSymbol.Name} must be a normal type."),
-            IArrayTypeSymbol arrayTypeSymbol => R.Error($"{arrayTypeSymbol.Name} arrays are not supported."),
             INamedTypeSymbol namedTypeSymbol => R.Success(GetNamedType(namedTypeSymbol)),
-            _ => throw new System.NotSupportedException($"The type {typeSymbol} is currently not supported."),
+            _ => R.Error(typeSymbol),
         };
     }
 

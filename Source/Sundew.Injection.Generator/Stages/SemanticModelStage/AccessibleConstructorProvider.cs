@@ -27,7 +27,7 @@ internal static class AccessibleConstructorProvider
             return generatorContextSyntax.Node;
         }
 
-        return null;
+        return default;
     }
 
     private static bool IsConstructor(SyntaxNode syntaxNode)

@@ -28,7 +28,7 @@ public class FactoryDataEqualityFixture
         var injectionDefinition = InjectionDefinitionProvider.GetInjectionDefinition(injectionDefinitionSemanticModel, CancellationToken.None);
         if (!injectionDefinition.IsSuccess)
         {
-            throw new AssertionFailedException($"InjectionDefinition should have been successful, but failed with errors: {injectionDefinition.Error.JoinToString((builder, item) => builder.Append(item), ", ")}");
+            throw new AssertionFailedException($"InjectionDefinition should have been successful, but failed with errors: {injectionDefinition.Error!.JoinToString((builder, item) => builder.Append(item), ", ")}");
         }
 
         var compilationData = CompilationDataProvider.GetCompilationData(compilation, CancellationToken.None).Value!;

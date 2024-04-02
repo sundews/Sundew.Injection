@@ -2,6 +2,7 @@
 
 using System;
 using AllFeaturesSuccess.NewInstance;
+using AllFeaturesSuccessDependency;
 
 public class Resources : IPrint
 {
@@ -10,7 +11,10 @@ public class Resources : IPrint
     public Resources(NewInstanceAndDisposable newInstanceAndDisposable)
     {
         this.newInstanceAndDisposable = newInstanceAndDisposable;
+        this.Id = FactoryLifetime.Created(this);
     }
+
+    public int Id { get; }
 
     public void PrintMe(int indent)
     {

@@ -8,11 +8,9 @@
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
 using System.Collections;
-using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Sundew.Base;
-using Sundew.Base.Collections.Immutable;
 using Sundew.Base.Collections.Linq;
 using Sundew.Injection.Generator.TypeSystem;
 
@@ -74,7 +72,7 @@ public sealed class KnownAnalysisTypes : IKnownInjectableTypes
 
     public INamedTypeSymbol ConstructedTypeSymbol { get; }
 
-    public static R<KnownAnalysisTypes, ValueList<Diagnostic>> Get(Compilation compilation)
+    public static R<KnownAnalysisTypes, Diagnostics> Get(Compilation compilation)
     {
         var requiredTypes = new[]
         {
@@ -111,7 +109,7 @@ public sealed class KnownAnalysisTypes : IKnownInjectableTypes
                 all[index++]));
         }
 
-        return R.Error((ValueList<Diagnostic>)errors
-            .Select(x => Diagnostic.Create(Diagnostics.RequiredTypeNotFoundError, null, x.Error)).ToImmutableList());
+        return R.Error(new Diagnostics(errors
+            .Select(x => Diagnostic.Create(Diagnostics.RequiredTypeNotFoundError, null, x.Error))));
     }
 }

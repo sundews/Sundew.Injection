@@ -15,21 +15,25 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces"/>
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
     <PackageReference Include="Disposal.Interfaces" />
     <PackageReference Include="Initialization.Interfaces" />
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Microsoft.CodeAnalysis" />
-    <PackageReference Include="NUnit"  />
+    <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit3TestAdapter" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
-    <PackageReference Include="StyleCop.Analyzers" >
+    <PackageReference Include="StyleCop.Analyzers">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Sundew.Testing.CodeAnalysis" />
-    <PackageReference Include="Verify.NUnit"/>
-    <PackageReference Include="Verify.SourceGenerators"/>
+    <PackageReference Include="Verify.NUnit" />
+    <PackageReference Include="Verify.SourceGenerators" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,6 +41,7 @@
     <ProjectReference Include="..\Sundew.Injection.Generator\Sundew.Injection.Generator.csproj" />
     <ProjectReference Include="..\Sundew.Injection.Tests\Sundew.Injection.Tests.csproj" />
     <ProjectReference Include="..\Sundew.Injection\Sundew.Injection.csproj" />
+    <ProjectReference Include="..\TestProjects\AllFeaturesSuccess\AllFeaturesSuccess.csproj" />
   </ItemGroup>
 
 </Project>

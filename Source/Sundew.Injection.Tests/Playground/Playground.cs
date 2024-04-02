@@ -7,10 +7,10 @@ using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Testing;
 
 [TestFixture]
-public class NestedTests
+public class Playground
 {
     [Test]
-    public void T()
+    public void Test()
     {
         var compilation = TestProjects.TestPlayground.FromCurrentDirectory.Value;
         var demoModuleDeclaration = compilation.GetTypeByMetadataName("TestPlayground.FactoryDeclaration");
@@ -24,7 +24,7 @@ public class NestedTests
         var injectionDefinition = InjectionDefinitionProvider.GetInjectionDefinition(injectionDefinitionSemanticModel, CancellationToken.None);
         if (!injectionDefinition.IsSuccess)
         {
-            throw new AssertionFailedException($"InjectionDefinition should have been successful, but failed with errors: {injectionDefinition.Error.JoinToString((builder, item) => builder.Append(item), ", ")}");
+            throw new AssertionFailedException($"InjectionDefinition should have been successful, but failed with errors: {injectionDefinition.Error!.JoinToString((builder, item) => builder.Append(item), ", ")}");
         }
     }
 }

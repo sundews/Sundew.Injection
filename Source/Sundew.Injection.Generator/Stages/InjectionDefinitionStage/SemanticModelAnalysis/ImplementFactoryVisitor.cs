@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="CreateFactoryVisitor.cs" company="Sundews">
+// <copyright file="ImplementFactoryVisitor.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -15,7 +15,8 @@ using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 using Accessibility = Sundew.Injection.Accessibility;
 
-internal class CreateFactoryVisitor(
+internal class ImplementFactoryVisitor(
+    GenericNameSyntax genericNameSyntax,
     IMethodSymbol methodSymbol,
     AnalysisContext analysisContext)
     : CSharpSyntaxWalker
@@ -58,19 +59,20 @@ internal class CreateFactoryVisitor(
             }
         }
 
-        var typeArguments = methodSymbol.TypeArguments;
-        var factoryType = analysisContext.TypeFactory.GetType(typeArguments[0]);
-        R<NamedType, string>? factoryInterfaceTypeResult = typeArguments.Length == 2 ? analysisContext.TypeFactory.GetType(typeArguments[1]) : null;
-        if (factoryType.TryGetError(out var factoryTypeError))
+        var typeArguments = methodSymbol.MapTypeArguments(genericNameSyntax);
+        var factoryType = analysisContext.TypeFactory.GetNamedType(typeArguments[0]);
+        R<NamedType, MappedTypeSymbol>? factoryInterfaceTypeResult = typeArguments.Length == 2 ? analysisContext.TypeFactory.GetNamedType(typeArguments[1]) : null;
+        if (factoryType.TryGetError(out var invalidFactoryTypeSymbol))
         {
-            analysisContext.CompiletimeInjectionDefinitionBuilder.ReportDiagnostic(Diagnostic.Create(Diagnostics.InvalidFactoryTypeError, Location.None, factoryTypeError));
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InvalidFactoryTypeError, invalidFactoryTypeSymbol);
             return;
         }
 
         NamedType? factoryInterfaceType = default;
-        if (factoryInterfaceTypeResult.TryGetValue(out var result) && !result.TryGet(out factoryInterfaceType, out var factoryInterfaceTypeError))
+        if (factoryInterfaceTypeResult.TryGetValue(out var result)
+            && !result.TryGet(out factoryInterfaceType, out var invalidFactoryInterfaceTypeSymbol))
         {
-            analysisContext.CompiletimeInjectionDefinitionBuilder.ReportDiagnostic(Diagnostic.Create(Diagnostics.InvalidFactoryTypeError, Location.None, factoryInterfaceTypeError));
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InvalidFactoryTypeError, invalidFactoryInterfaceTypeSymbol);
             return;
         }
 

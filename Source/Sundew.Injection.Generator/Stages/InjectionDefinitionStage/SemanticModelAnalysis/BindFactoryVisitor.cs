@@ -38,7 +38,7 @@ internal class BindFactoryVisitor(
                 break;
             case Multiple<IParameterSymbol> multiple:
                 const string separator = ", ";
-                analysisContext.CompiletimeInjectionDefinitionBuilder.ReportDiagnostic(Diagnostic.Create(Diagnostics.MultipleParametersNotSupportedForBindFactoryError, node.GetLocation(), DiagnosticSeverity.Error, multiple.Items.Select(x => x.Name).JoinToString(separator)));
+                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostic.Create(Diagnostics.MultipleParametersNotSupportedForBindFactoryError, node.GetLocation(), DiagnosticSeverity.Error, multiple.Items.Select(x => x.Name).JoinToString(separator)));
                 break;
         }
     }

@@ -61,7 +61,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Occurs when CreateFactory is called with invalid type parameters.
+        ///   Looks up a localized string similar to Occurs when ImplementFactory is called with invalid type parameters.
         /// </summary>
         internal static string InvalidFactoryTypeDescription {
             get {
@@ -70,7 +70,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The type {0} must be a regular class.
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; must be a regular class.
         /// </summary>
         internal static string InvalidFactoryTypeMessageFormat {
             get {
@@ -124,7 +124,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Binding not found for type {0} and type is not constructable.
+        ///   Looks up a localized string similar to Binding not found for type: &apos;{0}&apos; and type is not constructable.
         /// </summary>
         internal static string NoBindingFoundForNonConstructableTypeErrorMessageFormat {
             get {
@@ -151,7 +151,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not Resolve factory method for type {0}.
+        ///   Looks up a localized string similar to Could not Resolve factory method for type: &apos;{0}&apos;.
         /// </summary>
         internal static string NoFactoryMethodFoundForTypeErrorMessageFormat {
             get {
@@ -178,7 +178,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The type {0} did not contain a viable constructor.
+        ///   Looks up a localized string similar to Type: &apos;{0}&apos; did not contain a viable constructor.
         /// </summary>
         internal static string NoViableConstructorFoundErrorMessageFormat {
             get {
@@ -205,7 +205,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The type {0} is not a generic type.
+        ///   Looks up a localized string similar to Type: &apos;{0}&apos; is not a generic type.
         /// </summary>
         internal static string OnlyGenericTypeSupportedErrorMessageFormat {
             get {
@@ -214,7 +214,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ImplementationType must be generic..
+        ///   Looks up a localized string similar to TImplementationType must be generic..
         /// </summary>
         internal static string OnlyGenericTypeSupportedErrorTitle {
             get {
@@ -268,7 +268,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not Resolve the following parameters for type: {0} - parameters: {1}.
+        ///   Looks up a localized string similar to Could not resolve the following parameters for type: &apos;{0}&apos; - parameters: &apos;{1}&apos;.
         /// </summary>
         internal static string ResolveGenericMethodMessageFormat {
             get {
@@ -295,7 +295,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not Resolve the following parameters for type: {0} - parameters: {1}.
+        ///   Looks up a localized string similar to Could not resolve the following parameters for type: &apos;{0}&apos; - parameters: &apos;{1}&apos;.
         /// </summary>
         internal static string ResolveMethodMessageFormat {
             get {
@@ -313,7 +313,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not Resolve the type: {0} as a parameter for: {1} from the available parameter sources: {2}.
+        ///   Looks up a localized string similar to Could not resolve type: &apos;{0}&apos; as a parameter for: &apos;{1}&apos; from the available parameter sources: &apos;{2}&apos;.
         /// </summary>
         internal static string ResolveRequiredParameterErrorMessageFormat {
             get {
@@ -322,7 +322,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not Resolve required parameter.
+        ///   Looks up a localized string similar to Could not resolve required parameter.
         /// </summary>
         internal static string ResolveRequiredParameterErrorTitle {
             get {
@@ -340,7 +340,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed to Resolve the type: {0}.
+        ///   Looks up a localized string similar to Failed to Resolve type: &apos;{0}&apos;.
         /// </summary>
         internal static string ResolveTypeErrorMessageFormat {
             get {
@@ -367,7 +367,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The type: {0} with scope: {1} is invalid due to the parent: {2} with scope: {3}.
+        ///   Looks up a localized string similar to Type: &apos;{0}&apos; with scope: &apos;{1}&apos; is invalid due to the parent: {2} with scope: {3}.
         /// </summary>
         internal static string ScopeErrorMessageFormat {
             get {
@@ -385,7 +385,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The type is either an abstract classes or a string, which cannot be instantiated.
+        ///   Looks up a localized string similar to Type is either an abstract class or a string, which cannot be instantiated.
         /// </summary>
         internal static string TypeNotInstantiableErrorDescription {
             get {
@@ -394,7 +394,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The type {0} cannot be instantiated.
+        ///   Looks up a localized string similar to Type: &apos;{0}&apos; cannot be instantiated.
         /// </summary>
         internal static string TypeNotInstantiableErrorMessageFormat {
             get {
@@ -403,7 +403,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ImplementationType must be instantiable.
+        ///   Looks up a localized string similar to TImplementationType must be instantiable.
         /// </summary>
         internal static string TypeNotInstantiableErrorTitle {
             get {
@@ -421,7 +421,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unknown error: {0}.
+        ///   Looks up a localized string similar to Unknown error: &apos;{0}&apos;.
         /// </summary>
         internal static string UnknownErrorMessageFormat {
             get {
@@ -448,7 +448,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The instance method: {0} is not supported on the type: {1} for injecting into: {2}.
+        ///   Looks up a localized string similar to The instance method: &apos;{0}&apos; is not supported on the type: &apos;{1}&apos; for injecting into: &apos;{2}&apos;.
         /// </summary>
         internal static string UnsupportedInstanceMethodErrorMessageFormat {
             get {

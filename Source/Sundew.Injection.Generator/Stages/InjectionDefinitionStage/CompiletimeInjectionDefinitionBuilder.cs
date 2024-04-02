@@ -13,6 +13,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
+using Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticModelAnalysis;
 using Sundew.Injection.Generator.TypeSystem;
 using Accessibility = Sundew.Injection.Accessibility;
 using Type = Sundew.Injection.Generator.TypeSystem.Type;
@@ -129,16 +130,37 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         this.resolverDefinitions.Add(new ResolverCreationDefinition(resolverType, factoryRegistrationBuilder.Build(), accessibility));
     }
 
-    public void ReportDiagnostic(Diagnostic diagnostic)
+    public void AddDiagnostics(IEnumerable<Diagnostic> diagnostics)
+    {
+        foreach (var diagnostic in diagnostics)
+        {
+            this.diagnostics.Add(diagnostic);
+        }
+    }
+
+    public void AddDiagnostic(Diagnostic diagnostic)
     {
         this.diagnostics.Add(diagnostic);
     }
 
-    public R<InjectionDefinition, ValueList<Diagnostic>> Build()
+    public void AddDiagnostic(DiagnosticDescriptor diagnosticDescriptor, MappedTypeSymbol mappedTypeSymbol)
+    {
+        this.AddDiagnostic(diagnosticDescriptor, mappedTypeSymbol.TypeSymbol, mappedTypeSymbol.OriginatingSyntaxNode);
+    }
+
+    public void AddDiagnostic(DiagnosticDescriptor diagnosticDescriptor, ISymbol symbol, SyntaxNode? originatingSyntaxNode = default)
+    {
+        foreach (var diagnostic in Diagnostics.Create(diagnosticDescriptor, symbol, originatingSyntaxNode))
+        {
+            this.AddDiagnostic(diagnostic);
+        }
+    }
+
+    public R<InjectionDefinition, Diagnostics> Build()
     {
         if (this.diagnostics.Any())
         {
-            return R.Error((ValueList<Diagnostic>)this.diagnostics.ToImmutableList());
+            return R.Error(new Diagnostics(this.diagnostics.ToImmutableList()));
         }
 
         return R.Success(new InjectionDefinition(

@@ -15,15 +15,9 @@ using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Syntax;
 using Sundew.Injection.Generator.Stages.FactoryDataStage;
 
-internal class GeneratedCodeProvider
+internal class GeneratedCodeProvider(
+    FactorySourceTextGenerator factorySourceTextGenerator)
 {
-    private readonly FactorySourceTextGenerator factorySourceTextGenerator;
-
-    public GeneratedCodeProvider(FactorySourceTextGenerator factorySourceTextGenerator)
-    {
-        this.factorySourceTextGenerator = factorySourceTextGenerator;
-    }
-
     public IncrementalValuesProvider<R<ValueArray<GeneratedOutput>, ValueList<Diagnostic>>> SetupCodeGenerationStage(IncrementalValuesProvider<(FactoryData FactoryData, CompilationDataStage.CompilationData CompilationData)> factoryDataInput)
     {
         return factoryDataInput.Select((valueProvider, cancellationToken) =>
@@ -33,7 +27,7 @@ internal class GeneratedCodeProvider
                 var factoryData = valueProvider.FactoryData;
                 var compilationData = valueProvider.CompilationData;
                 var knownSyntax = new KnownSyntax(compilationData);
-                var generatedOutputs = this.factorySourceTextGenerator.CreateFactory(
+                var generatedOutputs = factorySourceTextGenerator.CreateFactory(
                     factoryData,
                     compilationData,
                     knownSyntax,

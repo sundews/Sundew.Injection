@@ -6,7 +6,7 @@ public class FactoryDeclaration : IInjectionDeclaration
 {
     public void Configure(IInjectionBuilder injectionBuilder)
     {
-        injectionBuilder.CreateFactory<DependencyFactory>(x => x.Add<Dependency>());
+        injectionBuilder.ImplementFactory<DependencyFactory>(x => x.Add<Dependency>());
     }
 }
 

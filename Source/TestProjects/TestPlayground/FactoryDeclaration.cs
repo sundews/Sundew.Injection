@@ -1,5 +1,4 @@
-﻿
-namespace TestPlayground;
+﻿namespace TestPlayground;
 
 using Sundew.Injection;
 

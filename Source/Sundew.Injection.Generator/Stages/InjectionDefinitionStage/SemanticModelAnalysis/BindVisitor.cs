@@ -15,21 +15,16 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Sundew.Base;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal class BindVisitor : CSharpSyntaxWalker
+internal class BindVisitor(
+    InvocationExpressionSyntax originatingSyntax,
+    IMethodSymbol methodSymbol,
+    AnalysisContext analysisContext)
+    : CSharpSyntaxWalker
 {
-    private readonly IMethodSymbol methodSymbol;
-    private readonly AnalysisContext analysisContext;
-
-    public BindVisitor(IMethodSymbol methodSymbol, AnalysisContext analysisContext)
-    {
-        this.methodSymbol = methodSymbol;
-        this.analysisContext = analysisContext;
-    }
-
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
-        var typeArguments = this.methodSymbol.TypeArguments;
-        var parameters = this.methodSymbol.Parameters;
+        var typeArguments = methodSymbol.TypeArguments;
+        var parameters = methodSymbol.Parameters;
         var i = 0;
         var scope = (Scope?)parameters[i++].ExplicitDefaultValue;
         var constructorSelector = (Method?)parameters[i++].ExplicitDefaultValue;
@@ -78,17 +73,18 @@ internal class BindVisitor : CSharpSyntaxWalker
             }
         }
 
-        var interfaceTypes = typeArguments.Take(typeArguments.Length - 1).Select(this.analysisContext.TypeFactory.CreateType).ToImmutableArray();
-        var implementationType = this.analysisContext.TypeFactory.CreateType(typeArguments.Last());
+        var interfaceTypes = typeArguments.Take(typeArguments.Length - 1).Select(analysisContext.TypeFactory.CreateType).ToImmutableArray();
+        var implementationTypeSymbol = typeArguments.Last();
+        var implementationType = analysisContext.TypeFactory.CreateType(implementationTypeSymbol);
 
         var actualMethodOption = constructorSelector ?? implementationType.TypeMetadata.DefaultConstructor;
         if (actualMethodOption.TryGetValue(out var actualMethod))
         {
-            this.analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(interfaceTypes, implementationType, actualMethod, scope, isInjectable, isNewOverridable);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(interfaceTypes, implementationType, actualMethod, scope, isInjectable, isNewOverridable);
             return;
         }
 
-        this.analysisContext.CompiletimeInjectionDefinitionBuilder.ReportDiagnostic(Diagnostic.Create(Diagnostics.NoFactoryMethodFoundForTypeError, null, implementationType.Type));
+        analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.NoFactoryMethodFoundForTypeError, implementationTypeSymbol, originatingSyntax);
     }
 
     private static bool GetBooleanLiteralValue(ArgumentSyntax argumentSyntax)
@@ -98,11 +94,11 @@ internal class BindVisitor : CSharpSyntaxWalker
 
     private (Scope Scope, ScopeOrigin Origin) GetScope(ArgumentSyntax argumentSyntax)
     {
-        return ExpressionAnalysisHelper.GetScope(this.analysisContext.SemanticModel, argumentSyntax, this.analysisContext.TypeFactory);
+        return ExpressionAnalysisHelper.GetScope(analysisContext.SemanticModel, argumentSyntax, analysisContext.TypeFactory);
     }
 
     private Method? GetMethod(ArgumentSyntax argumentSyntax)
     {
-        return ExpressionAnalysisHelper.GetMethod(argumentSyntax, this.analysisContext.SemanticModel, this.analysisContext.TypeFactory);
+        return ExpressionAnalysisHelper.GetMethod(argumentSyntax, analysisContext.SemanticModel, analysisContext.TypeFactory);
     }
 }

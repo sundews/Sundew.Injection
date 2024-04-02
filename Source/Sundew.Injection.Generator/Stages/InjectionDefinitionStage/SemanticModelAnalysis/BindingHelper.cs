@@ -14,7 +14,6 @@ using Microsoft.CodeAnalysis;
 using Sundew.Base;
 using Sundew.Injection.Generator.TypeSystem;
 using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
-using Parameter = Sundew.Injection.Generator.TypeSystem.Parameter;
 
 internal static class BindingHelper
 {
@@ -34,7 +33,17 @@ internal static class BindingHelper
 
             if (SymbolEqualityComparer.Default.Equals(methodAndReturnType.ReturnType.OriginalDefinition, analysisContext.KnownAnalysisTypes.ConstructedTypeSymbol))
             {
-                analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<(Type Type, TypeMetadata TypeMetadata)>.Empty, analysisContext.TypeFactory.CreateType(((INamedTypeSymbol)methodAndReturnType.ReturnType).TypeArguments.Single()), new Method(ImmutableArray<Parameter>.Empty, nameof(Constructed<object>.Object), analysisContext.TypeFactory.CreateType(methodAndReturnType.ReturnType).Type, MethodKind._Instance(returnType.TypeMetadata with { HasLifetime = false }, true)), Scope._Auto, false, false);
+                analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(
+                    ImmutableArray<(Type Type, TypeMetadata TypeMetadata)>.Empty,
+                    analysisContext.TypeFactory.CreateType(((INamedTypeSymbol)methodAndReturnType.ReturnType)
+                        .TypeArguments.Single()),
+                    new Method(
+                        nameof(Constructed<object>.Object),
+                        analysisContext.TypeFactory.CreateType(methodAndReturnType.ReturnType).Type,
+                        MethodKind._Instance(returnType.TypeMetadata with { HasLifetime = false }, true)),
+                    Scope._Auto,
+                    false,
+                    false);
             }
         }
     }
