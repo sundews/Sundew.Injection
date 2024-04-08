@@ -12,7 +12,7 @@ using Sundew.Injection.Generator.TypeSystem;
 internal sealed record BindingRegistration(
     (Type Type, TypeMetadata TypeMetadata) TargetType,
     Type ReferencedType,
-    Scope Scope,
+    ScopeContext Scope,
     Method Method,
     bool IsInjectable,
     bool IsNewOverridable);

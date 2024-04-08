@@ -126,14 +126,16 @@
   <data name="ResolveRequiredParameterErrorTitle" xml:space="preserve">
     <value>Could not resolve required parameter</value>
   </data>
-  <data name="ResolveTypeErrorDescription" xml:space="preserve">
-    <value>Occurs when type could not be resolved</value>
+  <data name="CreateGenericMethodErrorDescription" xml:space="preserve">
+    <value>Occurs when generic method could not be created.</value>
   </data>
-  <data name="ResolveTypeErrorMessageFormat" xml:space="preserve">
-    <value>Failed to Resolve type: '{0}'</value>
+  <data name="CreateGenericMethodErrorMessageFormat" xml:space="preserve">
+    <value>Failed to create generic method: '{0}.{1}'.
+Failed parameter mappings: {2}
+Dependant node name: {3}.</value>
   </data>
-  <data name="ResolveTypeErrorTitle" xml:space="preserve">
-    <value>Could not Resolve type</value>
+  <data name="CreateGenericMethodErrorTitle" xml:space="preserve">
+    <value>Could not create generic method.</value>
   </data>
   <data name="UnsupportedInstanceMethodErrorDescription" xml:space="preserve">
     <value>Occurs when an factory instance method is not supported</value>

@@ -13,17 +13,12 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal class AddCreateMethodVisitor : CSharpSyntaxWalker
+internal class AddCreateMethodVisitor(
+    IMethodSymbol methodSymbol,
+    AnalysisContext analysisContext)
+    : CSharpSyntaxWalker
 {
-    private readonly IMethodSymbol methodSymbol;
-    private readonly AnalysisContext analysisContext;
     private readonly List<(Method Method, ITypeSymbol ReturnType)> createMethods = new();
-
-    public AddCreateMethodVisitor(IMethodSymbol methodSymbol, AnalysisContext analysisContext)
-    {
-        this.methodSymbol = methodSymbol;
-        this.analysisContext = analysisContext;
-    }
 
     public IEnumerable<(Method Method, ITypeSymbol ReturnType)> CreateMethods => this.createMethods;
 
@@ -35,7 +30,7 @@ internal class AddCreateMethodVisitor : CSharpSyntaxWalker
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
         base.VisitArgumentList(node);
-        var parameters = this.methodSymbol.Parameters;
+        var parameters = methodSymbol.Parameters;
         var i = 0;
         var factoryMethodSelector = (Method?)parameters[i++].ExplicitDefaultValue;
         var argumentIndex = 0;
@@ -65,12 +60,12 @@ internal class AddCreateMethodVisitor : CSharpSyntaxWalker
 
         if (factoryMethodSelector != null)
         {
-            this.createMethods.Add((factoryMethodSelector, this.methodSymbol.ReturnType));
+            this.createMethods.Add(((Method Method, ITypeSymbol ReturnType))(factoryMethodSelector, methodSymbol.ReturnType));
         }
     }
 
     private Method? GetMethod(ArgumentSyntax argumentSyntax)
     {
-        return ExpressionAnalysisHelper.GetMethod(argumentSyntax, this.analysisContext.SemanticModel, this.analysisContext.TypeFactory);
+        return ExpressionAnalysisHelper.GetMethod(argumentSyntax, analysisContext.SemanticModel, analysisContext.TypeFactory);
     }
 }

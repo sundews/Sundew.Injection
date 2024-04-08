@@ -16,5 +16,5 @@ internal record InjectionDefinition(
     ValueDictionary<TypeId, ValueArray<BindingRegistration>> BindingRegistrations,
     ValueDictionary<UnboundGenericType, ValueArray<GenericBindingRegistration>> GenericBindingRegistrations,
     ValueDictionary<TypeId, ValueArray<ParameterSource>> RequiredParameterSources,
-    ValueDictionary<TypeId, (Scope Scope, ScopeOrigin Origin)> RequiredParameterScopes,
+    ValueDictionary<TypeId, ScopeContext> RequiredParameterScopes,
     ValueArray<ResolverCreationDefinition> ResolverCreationDefinitions);

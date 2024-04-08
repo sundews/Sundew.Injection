@@ -13,18 +13,15 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Sundew.Base;
 using Sundew.Injection.Generator.TypeSystem;
-using Type = Sundew.Injection.Generator.TypeSystem.Type;
 
 internal class AddParameterVisitor : CSharpSyntaxWalker
 {
-    private readonly InvocationExpressionSyntax originatingSyntax;
     private readonly IMethodSymbol methodSymbol;
     private readonly AnalysisContext analysisContext;
     private readonly Type type;
 
-    public AddParameterVisitor(InvocationExpressionSyntax originatingSyntax, IMethodSymbol methodSymbol, AnalysisContext analysisContext)
+    public AddParameterVisitor(IMethodSymbol methodSymbol, AnalysisContext analysisContext)
     {
-        this.originatingSyntax = originatingSyntax;
         this.methodSymbol = methodSymbol;
         this.analysisContext = analysisContext;
         this.type = this.analysisContext.TypeFactory.CreateType(methodSymbol.TypeArguments.First()).Type;
@@ -35,7 +32,7 @@ internal class AddParameterVisitor : CSharpSyntaxWalker
         var parameters = this.methodSymbol.Parameters;
         var i = 0;
         var inject = (Inject?)(int?)parameters[i++].ExplicitDefaultValue ?? Inject.Shared;
-        var scope = ((Scope?)parameters[i++].ExplicitDefaultValue ?? Scope._SingleInstancePerRequest, ScopeOrigin.Explicit);
+        var scope = new ScopeContext((Scope?)parameters[i++].ExplicitDefaultValue ?? Scope._SingleInstancePerRequest(Location.None), ScopeSelection.Implicit);
         var argumentIndex = 0;
         foreach (var argumentSyntax in node.Arguments)
         {
@@ -70,7 +67,7 @@ internal class AddParameterVisitor : CSharpSyntaxWalker
         this.analysisContext.CompiletimeInjectionDefinitionBuilder.AddParameter(this.type, inject, scope);
     }
 
-    private (TypeSystem.Scope Scope, ScopeOrigin ScopeOrigin) GetScope(ArgumentSyntax argumentSyntax)
+    private ScopeContext GetScope(ArgumentSyntax argumentSyntax)
     {
         return ExpressionAnalysisHelper.GetScope(this.analysisContext.SemanticModel, argumentSyntax, this.analysisContext.TypeFactory);
     }

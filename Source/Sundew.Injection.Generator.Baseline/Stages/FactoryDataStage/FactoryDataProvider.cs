@@ -19,7 +19,6 @@ using Sundew.Injection.Generator.Stages.FactoryDataStage.Extensions;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.Resolvers;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
-using Sundew.Injection.Generator.TypeSystem;
 
 internal static class FactoryDataProvider
 {

@@ -13,17 +13,17 @@ using Sundew.Injection.Generator.TypeSystem;
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record CreationSource
 {
-    internal sealed record ArrayCreation(DefiniteType ElementType) : CreationSource;
+    internal sealed record ArrayCreation(Type ElementType) : CreationSource;
 
-    internal sealed record ConstructorCall(DefiniteType Type) : CreationSource;
+    internal sealed record ConstructorCall(Type Type) : CreationSource;
 
-    internal sealed record StaticMethodCall(DefiniteType Type, DefiniteMethod Method) : CreationSource;
+    internal sealed record StaticMethodCall(Type Type, Method Method) : CreationSource;
 
-    internal sealed record InstanceMethodCall(DefiniteType Type, DefiniteMethod Method, InjectionNode Instance, bool IsProperty) : CreationSource;
+    internal sealed record InstanceMethodCall(Type Type, Method Method, InjectionNode Instance, bool IsProperty) : CreationSource;
 
     internal sealed record LiteralValue(string Literal) : CreationSource;
 
-    internal sealed record DefaultValue(DefiniteType DefiniteType) : CreationSource;
+    internal sealed record DefaultValue(Type Type) : CreationSource;
 
-    internal sealed record IteratorMethodCall(DefiniteType ReturnType, DefiniteType ElementType) : CreationSource;
+    internal sealed record IteratorMethodCall(Type ReturnType, Type ElementType) : CreationSource;
 }

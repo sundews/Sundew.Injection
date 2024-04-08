@@ -11,6 +11,7 @@ using System;
 using Sundew.Base.Text;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Nodes;
 using Sundew.Injection.Generator.TypeSystem;
+using Type = Sundew.Injection.Generator.TypeSystem.Type;
 
 /// <summary>
 /// Helper methods for names.
@@ -18,33 +19,33 @@ using Sundew.Injection.Generator.TypeSystem;
 internal static class NameHelper
 {
     /// <summary>
-    /// Gets the name scoped to the dependee.
+    /// Gets the name scoped to the dependant.
     /// </summary>
     /// <param name="injectionNode">The injection node.</param>
     /// <returns>The name string.</returns>
-    public static string GetDependeeScopedName(NewInstanceInjectionNode injectionNode)
+    public static string GetDependantScopedName(NewInstanceInjectionNode injectionNode)
     {
-        var name = injectionNode.TargetType.GetDefiniteTypeName();
-        return GetDependeeScopedName(name, injectionNode.DependeeName);
+        var name = injectionNode.TargetType.GetTypeName();
+        return GetDependantScopedName(name, injectionNode.DependantName);
     }
 
     /// <summary>
-    /// Gets the name scoped to the dependee.
+    /// Gets the name scoped to the dependant.
     /// </summary>
     /// <param name="name">The name.</param>
-    /// <param name="dependeeName">The dependee name.</param>
+    /// <param name="dependantName">The dependant name.</param>
     /// <returns>The name string.</returns>
-    public static string GetDependeeScopedName(string name, string? dependeeName)
+    public static string GetDependantScopedName(string name, string? dependantName)
     {
-        if (dependeeName.IsNullOrEmpty())
+        if (dependantName.IsNullOrEmpty())
         {
             return name.Uncapitalize();
         }
 
-        return $"{name}For{dependeeName}".Uncapitalize();
+        return $"{name}For{dependantName}".Uncapitalize();
     }
 
-    public static string GetIdentifierNameForType(DefiniteType type)
+    public static string GetIdentifierNameForType(Type type)
     {
         var name = type.Name.AsSpan();
         if (IsInterfaceName(name))
@@ -54,7 +55,7 @@ internal static class NameHelper
 
         switch (type)
         {
-            case DefiniteArrayType:
+            case ArrayType:
                 const string arraySign = "[]";
                 const string arrayName = "Array";
                 if (name.EndsWith(arraySign.AsSpan()))
@@ -63,9 +64,9 @@ internal static class NameHelper
                 }
 
                 return name.ToString().Uncapitalize() + arrayName;
-            case DefiniteClosedGenericType:
+            case ClosedGenericType:
                 break;
-            case DefiniteNestedType:
+            case NestedType:
                 break;
             case NamedType:
                 break;

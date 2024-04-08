@@ -19,8 +19,8 @@ internal static class ImmutableListDeclarationExtensions
     public static (ImmutableList<TDeclaration> Declarations, bool WasAdded, TDeclaration Declaration) GetOrAdd<TDeclaration>(
         this ImmutableList<TDeclaration> declarations,
         string name,
-        DefiniteType type,
-        Func<string, DefiniteType, TDeclaration> createDeclarationFunc)
+        Type type,
+        Func<string, Type, TDeclaration> createDeclarationFunc)
         where TDeclaration : struct, IDeclaration
     {
         var conflictingDeclaration = declarations.FirstOrDefault(x => x.Name == name);

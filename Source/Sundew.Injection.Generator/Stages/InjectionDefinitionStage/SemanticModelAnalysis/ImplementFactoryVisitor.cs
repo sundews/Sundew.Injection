@@ -18,7 +18,8 @@ using Accessibility = Sundew.Injection.Accessibility;
 internal class ImplementFactoryVisitor(
     GenericNameSyntax genericNameSyntax,
     IMethodSymbol methodSymbol,
-    AnalysisContext analysisContext)
+    AnalysisContext analysisContext,
+    Location location)
     : CSharpSyntaxWalker
 {
     public override void VisitArgumentList(ArgumentListSyntax node)
@@ -76,6 +77,6 @@ internal class ImplementFactoryVisitor(
             return;
         }
 
-        analysisContext.CompiletimeInjectionDefinitionBuilder.CreateFactory(factoryType.Value, factoryInterfaceType, factoryMethods, accessibility);
+        analysisContext.CompiletimeInjectionDefinitionBuilder.CreateFactory(factoryType.Value, factoryInterfaceType, factoryMethods, accessibility, location);
     }
 }

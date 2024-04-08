@@ -16,9 +16,9 @@ internal interface IInjectionNode
     /// Gets the name for the node depending on this instance.
     /// </summary>
     /// <value>
-    /// The dependee name.
+    /// The dependant name.
     /// </value>
-    string? DependeeName { get; }
+    string? DependantName { get; }
 
     /// <summary>
     /// Gets the identifier.

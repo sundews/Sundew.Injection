@@ -10,4 +10,4 @@ namespace Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using System.Collections.Immutable;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal record OnCreateMethodDeclaration(string Name, ImmutableList<ParameterDeclaration> Parameters, DefiniteType ReturnType);
+internal record OnCreateMethodDeclaration(string Name, ImmutableList<ParameterDeclaration> Parameters, Type ReturnType);

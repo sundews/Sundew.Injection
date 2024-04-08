@@ -7,7 +7,9 @@
 
 namespace Sundew.Injection.Generator.Stages.Features.TypeResolver.CodeGenerationStage;
 
+using System.Linq;
 using Microsoft.CodeAnalysis;
+using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.CodeGeneration;
 using Sundew.Injection.Generator.Stages.CodeGeneration.Templates;
 using Sundew.Injection.Generator.Stages.CompilationDataStage;
@@ -16,18 +18,23 @@ using Sundew.Injection.Generator.Stages.Features.TypeResolver.ResolveGraphStage;
 public static class TypeContainerCodeGenerationProvider
 {
     internal static IncrementalValuesProvider<GeneratedCodeOutput>
-        SetupTypeResolverCodeGeneration(this IncrementalValuesProvider<(ResolvedTypeResolverDefinition ResolvedTypeResolverDefinition, CompilationData CompilationData)> resolveTypeResolverDefinitions)
+        SetupTypeResolverCodeGeneration(this IncrementalValuesProvider<(ValueArray<ResolvedTypeResolverDefinition> ResolvedTypeResolverDefinitions, CompilationData CompilationData)> resolveTypeResolverDefinitions)
     {
         return resolveTypeResolverDefinitions
-            .Select((pair, cancellationToken) =>
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            var (resolvedTypeResolverDefinition, compilationData) = pair;
-            var generatedTypeResolver = TypeResolverSyntaxGenerator.Generate(resolvedTypeResolverDefinition, compilationData);
-            var typeResolverSourceCode =
-                ImplementationSourceCodeEmitter.Emit(resolvedTypeResolverDefinition.Accessibility, generatedTypeResolver, new Options(true));
-            var generatedCodeOutput = new GeneratedCodeOutput(generatedTypeResolver.Type.FullName, typeResolverSourceCode);
-            return generatedCodeOutput;
-        });
+            .SelectMany((pair, cancellationToken) =>
+            {
+                return pair.ResolvedTypeResolverDefinitions.Select(resolvedTypeResolverDefinition =>
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    var compilationData = pair.CompilationData;
+                    var generatedTypeResolver =
+                        TypeResolverSyntaxGenerator.Generate(resolvedTypeResolverDefinition, compilationData);
+                    var typeResolverSourceCode =
+                        ImplementationSourceCodeEmitter.Emit(resolvedTypeResolverDefinition.Accessibility, generatedTypeResolver, new Options(true));
+                    var generatedCodeOutput =
+                        new GeneratedCodeOutput(generatedTypeResolver.Type.FullName, typeResolverSourceCode);
+                    return generatedCodeOutput;
+                });
+            });
     }
 }

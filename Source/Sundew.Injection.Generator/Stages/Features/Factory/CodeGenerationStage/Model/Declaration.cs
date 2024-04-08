@@ -10,4 +10,4 @@ namespace Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage
 using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal readonly record struct Declaration(DefiniteType Type, string Name) : IDeclaration;
+internal readonly record struct Declaration(Type Type, string Name) : IDeclaration;

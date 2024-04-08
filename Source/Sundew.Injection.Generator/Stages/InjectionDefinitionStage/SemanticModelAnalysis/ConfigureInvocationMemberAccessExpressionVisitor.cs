@@ -60,10 +60,10 @@ internal class ConfigureInvocationMemberAccessExpressionVisitor(
         switch (name)
         {
             case nameof(IInjectionBuilder.AddParameter):
-                new AddParameterVisitor(invocationExpressionSyntax, methodSymbols.First(), analysisContext).Visit(invocationExpressionSyntax);
+                new AddParameterVisitor(methodSymbols.First(), analysisContext).Visit(invocationExpressionSyntax);
                 break;
             case nameof(IInjectionBuilder.AddParameterProperties):
-                new AddParameterPropertiesVisitor(invocationExpressionSyntax, methodSymbols.First(), analysisContext).Visit(invocationExpressionSyntax);
+                new AddParameterPropertiesVisitor(methodSymbols.First(), analysisContext).Visit(invocationExpressionSyntax);
                 break;
             case nameof(IInjectionBuilder.Bind):
                 new BindVisitor(invocationExpressionSyntax, methodSymbols.First(), analysisContext).Visit(invocationExpressionSyntax);
@@ -78,7 +78,7 @@ internal class ConfigureInvocationMemberAccessExpressionVisitor(
             case nameof(IInjectionBuilder.ImplementFactory):
                 if (memberAccessExpressionSyntax.Name is GenericNameSyntax genericNameSyntax2)
                 {
-                    new ImplementFactoryVisitor(genericNameSyntax2, methodSymbols.First(), analysisContext).Visit(invocationExpressionSyntax);
+                    new ImplementFactoryVisitor(genericNameSyntax2, methodSymbols.First(), analysisContext, invocationExpressionSyntax.GetLocation()).Visit(invocationExpressionSyntax);
                 }
 
                 break;
@@ -100,7 +100,7 @@ internal class ConfigureInvocationMemberAccessExpressionVisitor(
 
                 if (memberAccessExpressionSyntax.Name is GenericNameSyntax genericNameSyntax3)
                 {
-                    new ImplementServiceProviderVisitor(genericNameSyntax3, methodSymbol2, analysisContext).Visit(invocationExpressionSyntax);
+                    new ImplementServiceProviderVisitor(genericNameSyntax3, methodSymbol2, analysisContext, invocationExpressionSyntax.GetLocation()).Visit(invocationExpressionSyntax);
                 }
 
                 break;

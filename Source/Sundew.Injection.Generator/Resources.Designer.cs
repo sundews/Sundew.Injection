@@ -61,6 +61,35 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Occurs when generic method could not be created..
+        /// </summary>
+        internal static string CreateGenericMethodErrorDescription {
+            get {
+                return ResourceManager.GetString("CreateGenericMethodErrorDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to create generic method: &apos;{0}.{1}&apos;.
+        ///Failed parameter mappings: {2}
+        ///Dependant node name: {3}..
+        /// </summary>
+        internal static string CreateGenericMethodErrorMessageFormat {
+            get {
+                return ResourceManager.GetString("CreateGenericMethodErrorMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not create generic method..
+        /// </summary>
+        internal static string CreateGenericMethodErrorTitle {
+            get {
+                return ResourceManager.GetString("CreateGenericMethodErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Occurs when ImplementFactory is called with invalid type parameters.
         /// </summary>
         internal static string InvalidFactoryTypeDescription {
@@ -327,33 +356,6 @@ namespace Sundew.Injection.Generator {
         internal static string ResolveRequiredParameterErrorTitle {
             get {
                 return ResourceManager.GetString("ResolveRequiredParameterErrorTitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Occurs when type could not be resolved.
-        /// </summary>
-        internal static string ResolveTypeErrorDescription {
-            get {
-                return ResourceManager.GetString("ResolveTypeErrorDescription", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Failed to Resolve type: &apos;{0}&apos;.
-        /// </summary>
-        internal static string ResolveTypeErrorMessageFormat {
-            get {
-                return ResourceManager.GetString("ResolveTypeErrorMessageFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Could not Resolve type.
-        /// </summary>
-        internal static string ResolveTypeErrorTitle {
-            get {
-                return ResourceManager.GetString("ResolveTypeErrorTitle", resourceCulture);
             }
         }
         

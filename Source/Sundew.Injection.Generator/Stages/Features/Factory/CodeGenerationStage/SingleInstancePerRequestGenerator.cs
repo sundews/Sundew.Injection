@@ -60,7 +60,7 @@ internal class SingleInstancePerRequestGenerator
                             {
                                 FactoryImplementation = result.FactoryImplementation,
                                 CreateMethod = result.CreateMethod,
-                                DependeeArguments = factoryNode.DependeeArguments.AddRange(result.DependeeArguments),
+                                DependantArguments = factoryNode.DependantArguments.AddRange(result.DependantArguments),
                             };
                         });
                 }
@@ -93,6 +93,6 @@ internal class SingleInstancePerRequestGenerator
             }
         }
 
-        return factoryNode with { DependeeArguments = ImmutableList.Create<Expression>(targetIdentifier) };
+        return factoryNode with { DependantArguments = ImmutableList.Create<Expression>(targetIdentifier) };
     }
 }

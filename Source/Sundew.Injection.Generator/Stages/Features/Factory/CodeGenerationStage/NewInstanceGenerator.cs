@@ -37,7 +37,7 @@ internal sealed class NewInstanceGenerator(
                 {
                     FactoryImplementation = result.FactoryImplementation,
                     CreateMethod = result.CreateMethod,
-                    DependeeArguments = factoryNode.DependeeArguments.AddRange(result.DependeeArguments),
+                    DependantArguments = factoryNode.DependantArguments.AddRange(result.DependantArguments),
                 };
             });
 
@@ -49,7 +49,7 @@ internal sealed class NewInstanceGenerator(
             (creationParameters, factoryMethods) => generatorFeatures.OnCreateMethodGenerator.Generate(factoryMethods, targetReferenceType, creationParameters, newInstanceInjectionNode.CreationSource, factoryNode),
             factoryMethods =>
             {
-                var creationResult = generatorFeatures.CreationExpressionGenerator.Generate(in factoryNode, newInstanceInjectionNode.CreationSource, factoryNode.DependeeArguments);
+                var creationResult = generatorFeatures.CreationExpressionGenerator.Generate(in factoryNode, newInstanceInjectionNode.CreationSource, factoryNode.DependantArguments);
                 return creationResult;
             });
 
@@ -58,7 +58,7 @@ internal sealed class NewInstanceGenerator(
         var variableDeclarationOption = (newInstanceInjectionNode.NeedsLifecycleHandling || newInstanceInjectionNode.ParameterNodeOption.HasValue()).ToOption(
             () =>
             {
-                var variableName = NameHelper.GetDependeeScopedName(newInstanceInjectionNode);
+                var variableName = NameHelper.GetDependantScopedName(newInstanceInjectionNode);
                 return variables.GetOrAdd(
                     variableName,
                     targetReferenceType,
@@ -115,7 +115,7 @@ internal sealed class NewInstanceGenerator(
                 Statements = statements,
                 Parameters = factoryMethodParameters,
             },
-            DependeeArguments = dependeeArguments,
+            DependantArguments = dependeeArguments,
         };
     }
 }

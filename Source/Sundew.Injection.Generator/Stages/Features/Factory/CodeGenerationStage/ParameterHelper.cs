@@ -42,7 +42,7 @@ internal static class ParameterHelper
         {
             Inject.Shared => (name.Uncapitalize(), false),
             Inject.ByParameterName => (name.Uncapitalize(), true),
-            Inject.Separately => (NameHelper.GetDependeeScopedName(name, parentName), true), // check for conflict
+            Inject.Separately => (NameHelper.GetDependantScopedName(name, parentName), true), // check for conflict
             _ => throw new ArgumentOutOfRangeException(nameof(inject), inject, $"Case not handled: {inject}"),
         };
     }
@@ -55,8 +55,8 @@ internal static class ParameterHelper
             ImmutableList<ParameterDeclaration> additionalParameters,
             CompilationData compilationData)
     {
-        var parameterType = parameterNode.RequiresNewInstance ? compilationData.FuncType.ToDefiniteClosedGenericType(ImmutableArray.Create(new DefiniteTypeArgument(parameterNode.Type, parameterNode.TypeMetadata))) : parameterNode.Type;
-        var (parameterName, mustNameMatchForEquality) = GetParameterName(expectedParameterName.IsNullOrEmpty() ? parameterNode.Name : expectedParameterName, parameterNode.DependeeName, directParameter.Inject);
+        var parameterType = parameterNode.PrefersNewInstance ? compilationData.FuncType.ToClosedGenericType(ImmutableArray.Create(new TypeArgument(parameterNode.Type, parameterNode.TypeMetadata))) : parameterNode.Type;
+        var (parameterName, mustNameMatchForEquality) = GetParameterName(expectedParameterName.IsNullOrEmpty() ? parameterNode.Name : expectedParameterName, parameterNode.DependantName, directParameter.Inject);
         var parameterDeclaration = additionalParameters.Find(x =>
             x.Type.Equals(parameterType) && x.Name == parameterName);
         var wasAdded = false;
@@ -78,7 +78,7 @@ internal static class ParameterHelper
 
         var parameter = new Parameter(parameterType, parameterDeclaration.Name, mustNameMatchForEquality);
         Expression argument = !parameterNode.IsOptional && isArgumentReferencedByField ? new MemberAccessExpression(Identifier.This, parameter.Name) : new Identifier(parameter.Name);
-        if (parameterNode.RequiresNewInstance)
+        if (parameterNode.PrefersNewInstance)
         {
             argument = new FuncInvocationExpression(argument, parameterNode.IsOptional);
         }
@@ -113,7 +113,7 @@ internal static class ParameterHelper
         var parameter = new Parameter(parameterDeclaration.Type, parameterDeclaration.Name, true);
         Expression argument = isMember
             ? new MemberAccessExpression(new MemberAccessExpression(Identifier.This, variableName), accessorName) : new MemberAccessExpression(new Identifier(variableName), accessorName);
-        if (parameterNode.RequiresNewInstance || propertyAccessorParameter.NeedsInvocation)
+        if (propertyAccessorParameter.NeedsInvocation)
         {
             argument = new FuncInvocationExpression(argument, true);
         }

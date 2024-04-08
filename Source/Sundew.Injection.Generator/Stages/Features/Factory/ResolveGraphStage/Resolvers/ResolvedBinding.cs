@@ -19,8 +19,8 @@ internal sealed record ThisFactoryParameter(NamedType FactoryType, NamedType? Fa
 
 internal sealed record SingleParameter(Binding Binding) : ResolvedBinding;
 
-internal sealed record MultiItemParameter(DefiniteType Type, DefiniteType ElementType, IReadOnlyList<Binding> Bindings, bool IsArrayRequired) : ResolvedBinding;
+internal sealed record MultiItemParameter(Type Type, Type ElementType, IReadOnlyList<Binding> Bindings, bool IsArrayRequired) : ResolvedBinding;
 
-internal sealed record RequiredParameter(DefiniteType Type, TypeMetadata TypeMetadata, ParameterSource ParameterSource) : ResolvedBinding;
+internal sealed record RequiredParameter(Type Type, TypeMetadata TypeMetadata, ParameterSource ParameterSource) : ResolvedBinding;
 
-internal sealed record OptionalParameter(object? Literal, DefiniteType Type, TypeMetadata TypeMetadata) : ResolvedBinding;
+internal sealed record OptionalParameter(object? Literal, Type Type, TypeMetadata TypeMetadata) : ResolvedBinding;

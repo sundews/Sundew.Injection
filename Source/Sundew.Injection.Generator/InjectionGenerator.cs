@@ -54,8 +54,7 @@ public class InjectionGenerator : IIncrementalGenerator
             .Combine(codeGeneratedFactorySuccessProvider.Select((x, _) => x.GeneratedTypeDeclaration).Collect()).Combine(successCompilationDataProvider)
             .Select((x, _) => (x.Left.Left, x.Left.Right, x.Right));
 
-        var (codeGeneratedTypeResolversSuccessProvider, codeGeneratedTypeResolversErrorProvider) = resolverCreationDefinitionAndFactoriesProvider.SetupResolveTypeResolverStage().SegregateByResult();
-        context.RegisterSourceOutput(codeGeneratedTypeResolversErrorProvider, (productionContext, error) => error.ForEach(productionContext.ReportDiagnostic));
+        var codeGeneratedTypeResolversSuccessProvider = resolverCreationDefinitionAndFactoriesProvider.SetupResolveTypeResolverStage();
 
         var codeGeneratedTypeResolverProvider = codeGeneratedTypeResolversSuccessProvider.Combine(successCompilationDataProvider).SetupTypeResolverCodeGeneration();
 

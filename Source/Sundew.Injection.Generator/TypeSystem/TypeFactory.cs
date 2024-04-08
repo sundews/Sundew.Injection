@@ -35,12 +35,12 @@ internal sealed class TypeFactory(
 
     public Method CreateMethod(IPropertySymbol propertySymbol)
     {
-        return TypeConverter.GetMethod(propertySymbol, knownInjectableTypes);
+        return (Method)TypeConverter.GetMethod(propertySymbol, knownInjectableTypes);
     }
 
     public Method CreateMethod(IMethodSymbol methodSymbol)
     {
-        return TypeConverter.GetMethod(methodSymbol, knownInjectableTypes);
+        return (Method)TypeConverter.GetMethod(methodSymbol, knownInjectableTypes);
     }
 
     public FactoryMethod CreateFactoryMethod(IMethodSymbol methodSymbol)
@@ -56,7 +56,7 @@ internal sealed class TypeFactory(
 
     public GenericMethod GetGenericMethod(IMethodSymbol? methodSymbol)
     {
-        return methodSymbol != null ? new GenericMethod(methodSymbol.Parameters.Select(this.GetGenericParameter).ToImmutableArray(), methodSymbol.MetadataName, TypeConverter.GetContaineeType(methodSymbol), TypeConverter.GetMethodKind(methodSymbol, knownInjectableTypes)) : default;
+        return methodSymbol != null ? new GenericMethod(methodSymbol.MetadataName, methodSymbol.Parameters.Select(this.GetGenericParameter).ToImmutableArray(), TypeConverter.GetContaineeType(methodSymbol), TypeConverter.GetMethodKind(methodSymbol, knownInjectableTypes)) : default;
     }
 
     public GenericParameter GetGenericParameter(IParameterSymbol parameterSymbol)

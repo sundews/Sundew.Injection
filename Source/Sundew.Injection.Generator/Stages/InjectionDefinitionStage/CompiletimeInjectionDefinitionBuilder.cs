@@ -16,7 +16,6 @@ using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticModelAnalysis;
 using Sundew.Injection.Generator.TypeSystem;
 using Accessibility = Sundew.Injection.Accessibility;
-using Type = Sundew.Injection.Generator.TypeSystem.Type;
 
 internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefinitionBuilder
 {
@@ -26,7 +25,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
 
     private readonly Dictionary<TypeId, List<ParameterSource>> requiredParameterSources = [];
 
-    private readonly Dictionary<TypeId, (Scope Scope, ScopeOrigin Origin)> requiredParameterScopes = [];
+    private readonly Dictionary<TypeId, ScopeContext> requiredParameterScopes = [];
 
     private readonly List<FactoryCreationDefinition> factoryDefinitions = [];
 
@@ -51,13 +50,13 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         return [];
     }
 
-    public void AddParameter(Type parameterType, Inject inject = Inject.Shared, (Scope? Scope, ScopeOrigin Origin) scope = default)
+    public void AddParameter(Type parameterType, Inject inject = Inject.Shared, ScopeContext scope = default)
     {
         this.AddParameterSource(parameterType, ParameterSource.DirectParameter(inject));
         this.AddParameterScope(parameterType, scope);
     }
 
-    public void AddPropertyParameter(Type parameterType, AccessorProperty accessorProperty, bool needsInvocation, (Scope? Scope, ScopeOrigin Origin) scope = default)
+    public void AddPropertyParameter(Type parameterType, AccessorProperty accessorProperty, bool needsInvocation, ScopeContext scope = default)
     {
         this.AddParameterSource(parameterType, ParameterSource.PropertyAccessorParameter(accessorProperty, needsInvocation));
         this.AddParameterScope(parameterType, scope);
@@ -67,7 +66,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         ImmutableArray<(Type Type, TypeMetadata TypeMetadata)> interfaces,
         (Type Type, TypeMetadata TypeMetadata) target,
         Method method,
-        Scope? scope = null,
+        ScopeContext? scope = null,
         bool isInjectable = false,
         bool isNewOverridable = false)
     {
@@ -84,7 +83,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
 
         var targetReferencingType = interfaces.Length > 0 ? interfaces.Last().Type : target.Type;
 
-        var binding = new BindingRegistration(target, targetReferencingType, scope ?? Scope._Auto, method, isInjectable, isNewOverridable);
+        var binding = new BindingRegistration(target, targetReferencingType, scope ?? new ScopeContext(Scope._Auto, ScopeSelection.Implicit), method, isInjectable, isNewOverridable);
         AddBinding(target.Type.Id, binding);
         foreach (var @interface in interfaces)
         {
@@ -92,7 +91,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         }
     }
 
-    public void BindGeneric(ImmutableArray<(UnboundGenericType Type, TypeMetadata TypeMetadata)> interfaces, (OpenGenericType Type, TypeMetadata TypeMetadata) implementation, Scope scope, GenericMethod genericMethod)
+    public void BindGeneric(ImmutableArray<(UnboundGenericType Type, TypeMetadata TypeMetadata)> interfaces, (OpenGenericType Type, TypeMetadata TypeMetadata) implementation, ScopeContext scope, GenericMethod genericMethod)
     {
         void AddBinding(UnboundGenericType type, GenericBindingRegistration genericBinding)
         {
@@ -117,17 +116,19 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         NamedType factoryType,
         NamedType? factoryInterface,
         FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder,
-        Accessibility accessibility)
+        Accessibility accessibility,
+        Location location)
     {
-        this.factoryDefinitions.Add(new FactoryCreationDefinition(factoryType, factoryInterface, factoryMethodRegistrationBuilder.Build(), accessibility));
+        this.factoryDefinitions.Add(new FactoryCreationDefinition(factoryType, factoryInterface, factoryMethodRegistrationBuilder.Build(), accessibility, location));
     }
 
     public void CreateResolver(
         FactoryRegistrationBuilder factoryRegistrationBuilder,
         NamedType resolverType,
-        Accessibility accessibility = Accessibility.Public)
+        Accessibility accessibility,
+        Location location)
     {
-        this.resolverDefinitions.Add(new ResolverCreationDefinition(resolverType, factoryRegistrationBuilder.Build(), accessibility));
+        this.resolverDefinitions.Add(new ResolverCreationDefinition(resolverType, factoryRegistrationBuilder.Build(), accessibility, location));
     }
 
     public void AddDiagnostics(IEnumerable<Diagnostic> diagnostics)
@@ -185,8 +186,8 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         parameterSources.Add(parameterSource);
     }
 
-    private void AddParameterScope(Type parameterType, (Scope? Scope, ScopeOrigin Origin) scope)
+    private void AddParameterScope(Type parameterType, ScopeContext? scope)
     {
-        this.requiredParameterScopes[parameterType.Id] = scope == default || scope.Scope == default ? (Scope._SingleInstancePerRequest, ScopeOrigin.Implicit) : (scope.Scope, scope.Origin);
+        this.requiredParameterScopes[parameterType.Id] = scope ?? new ScopeContext(Scope._SingleInstancePerRequest(Location.None), ScopeSelection.Implicit);
     }
 }

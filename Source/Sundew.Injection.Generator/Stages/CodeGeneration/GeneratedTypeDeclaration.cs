@@ -11,4 +11,4 @@ using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal readonly record struct GeneratedTypeDeclaration(NamedType ImplementationType, NamedType? InterfaceType, ValueArray<DefiniteFactoryMethod> CreateMethods);
+internal readonly record struct GeneratedTypeDeclaration(NamedType ImplementationType, NamedType? InterfaceType, ValueArray<FactoryMethod> CreateMethods);

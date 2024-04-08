@@ -4,8 +4,8 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed record ThisFactoryInjectionNode(
     NamedType FactoryType,
-    string? DependeeName)
-    : InjectionNode(DependeeName)
+    string? DependantName)
+    : InjectionNode(DependantName)
 {
     public override string Name => "this";
 }

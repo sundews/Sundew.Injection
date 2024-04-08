@@ -39,7 +39,12 @@ internal class FactoryMethodVisitor(
         switch (methodSymbol.Name)
         {
             case nameof(IFactoryMethodSelector.Add):
-                new AddFactoryMethodVisitor(methodSymbol, factoryMethodRegistrationBuilder, analysisContext).Visit(node);
+                if (node.Expression is MemberAccessExpressionSyntax { Name: GenericNameSyntax genericNameSyntax2 })
+                {
+                    new AddFactoryMethodVisitor(genericNameSyntax2, methodSymbol, factoryMethodRegistrationBuilder, analysisContext)
+                        .Visit(node);
+                }
+
                 break;
         }
     }

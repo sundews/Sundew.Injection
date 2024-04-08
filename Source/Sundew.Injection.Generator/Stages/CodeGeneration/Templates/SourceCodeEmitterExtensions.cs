@@ -16,6 +16,7 @@ using Sundew.Base.Collections.Immutable;
 using Sundew.Base.Text;
 using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using Sundew.Injection.Generator.TypeSystem;
+using Type = Sundew.Injection.Generator.TypeSystem.Type;
 
 internal static class SourceCodeEmitterExtensions
 {
@@ -53,9 +54,9 @@ internal static class SourceCodeEmitterExtensions
         });
     }
 
-    public static StringBuilder AppendFullyQualifiedType(this StringBuilder stringBuilder, DefiniteType definiteType)
+    public static StringBuilder AppendFullyQualifiedType(this StringBuilder stringBuilder, Type type)
     {
-        static StringBuilder AppendTypeArguments(StringBuilder stringBuilder, ValueArray<DefiniteTypeArgument> typeArguments)
+        static StringBuilder AppendTypeArguments(StringBuilder stringBuilder, ValueArray<TypeArgument> typeArguments)
         {
             return stringBuilder.AppendItems(
                 typeArguments,
@@ -63,22 +64,22 @@ internal static class SourceCodeEmitterExtensions
                 Trivia.ListSeparator);
         }
 
-        if (definiteType.Namespace != string.Empty)
+        if (type.Namespace != string.Empty)
         {
-            stringBuilder.Append(Trivia.Global).Append(Trivia.DoubleColon).Append(definiteType.Namespace).Append('.');
+            stringBuilder.Append(Trivia.Global).Append(Trivia.DoubleColon).Append(type.Namespace).Append('.');
         }
 
-        switch (definiteType)
+        switch (type)
         {
-            case DefiniteArrayType arrayType:
+            case ArrayType arrayType:
                 stringBuilder.Append(arrayType.Name).Append('[').Append(']');
                 break;
-            case DefiniteClosedGenericType definiteBoundGenericType:
-                stringBuilder.Append(definiteBoundGenericType.Name).Append('<');
-                AppendTypeArguments(stringBuilder, definiteBoundGenericType.TypeArguments).Append('>');
+            case ClosedGenericType closedGenericType:
+                stringBuilder.Append(closedGenericType.Name).Append('<');
+                AppendTypeArguments(stringBuilder, closedGenericType.TypeArguments).Append('>');
                 break;
-            case DefiniteNestedType definiteNestedType:
-                stringBuilder.Append(definiteNestedType.Name);
+            case NestedType nestedType:
+                stringBuilder.Append(nestedType.Name);
                 break;
             case NamedType namedType:
                 stringBuilder.Append(namedType.Name);
@@ -88,7 +89,7 @@ internal static class SourceCodeEmitterExtensions
         return stringBuilder;
     }
 
-    public static StringBuilder AppendInterfaces(this StringBuilder stringBuilder, IReadOnlyList<DefiniteType> interfaces)
+    public static StringBuilder AppendInterfaces(this StringBuilder stringBuilder, IReadOnlyList<Type> interfaces)
     {
         if (interfaces.Count > 0)
         {

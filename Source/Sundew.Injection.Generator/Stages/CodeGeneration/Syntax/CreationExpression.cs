@@ -15,16 +15,16 @@ using Sundew.Injection.Generator.TypeSystem;
 internal abstract partial record CreationExpression(IReadOnlyList<Expression> Arguments) : InvocationExpressionBase(Arguments)
 {
     public sealed record Array
-        (DefiniteType ElementType, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
+        (Type ElementType, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
 
     public sealed record ConstructorCall
-        (DefiniteType Type, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
+        (Type Type, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
 
     public sealed record StaticMethodCall
-        (DefiniteType? Type, string Name, ValueArray<DefiniteTypeArgument> TypeArguments, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
+        (Type? Type, string Name, ValueArray<TypeArgument> TypeArguments, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
 
     public sealed record InstanceMethodCall
-        (Expression FactoryAccessExpression, string Name, ValueArray<DefiniteTypeArgument> TypeArguments, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
+        (Expression FactoryAccessExpression, string Name, ValueArray<TypeArgument> TypeArguments, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
 
-    public sealed record DefaultValue(DefiniteType Type) : CreationExpression(System.Array.Empty<Expression>());
+    public sealed record DefaultValue(Type Type) : CreationExpression(System.Array.Empty<Expression>());
 }

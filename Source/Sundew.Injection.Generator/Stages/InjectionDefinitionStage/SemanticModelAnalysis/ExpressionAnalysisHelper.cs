@@ -83,16 +83,16 @@ internal static class ExpressionAnalysisHelper
         return default;
     }
 
-    public static (Scope Scope, ScopeOrigin Origin) GetScope(SemanticModel semanticModel, ArgumentSyntax argumentSyntax, TypeFactory typeFactory)
+    public static ScopeContext GetScope(SemanticModel semanticModel, ArgumentSyntax argumentSyntax, TypeFactory typeFactory)
     {
         var symbolInfo = semanticModel.GetSymbolInfo(argumentSyntax.Expression);
         return symbolInfo.Symbol?.Name switch
         {
-            nameof(Scope.SingleInstancePerFactory) => (Scope._SingleInstancePerFactory, ScopeOrigin.Explicit),
-            nameof(Scope.SingleInstancePerRequest) => (Scope._SingleInstancePerRequest, ScopeOrigin.Explicit),
-            nameof(Scope.SingleInstancePerFuncResult) => (GetSingleInstancePerFuncResult(semanticModel, argumentSyntax, typeFactory), ScopeOrigin.Explicit),
-            nameof(Scope.NewInstance) => (Scope._NewInstance, ScopeOrigin.Explicit),
-            _ => (Scope._Auto, ScopeOrigin.Implicit),
+            nameof(Scope.SingleInstancePerFactory) => new ScopeContext(Scope._SingleInstancePerFactory(argumentSyntax.GetLocation()), ScopeSelection.Explicit),
+            nameof(Scope.SingleInstancePerRequest) => new ScopeContext(Scope._SingleInstancePerRequest(argumentSyntax.GetLocation()), ScopeSelection.Explicit),
+            nameof(Scope.SingleInstancePerFuncResult) => new ScopeContext(GetSingleInstancePerFuncResult(semanticModel, argumentSyntax, typeFactory), ScopeSelection.Explicit),
+            nameof(Scope.NewInstance) => new ScopeContext(Scope._NewInstance(argumentSyntax.GetLocation()), ScopeSelection.Explicit),
+            _ => new ScopeContext(Scope._Auto, ScopeSelection.Implicit),
         };
     }
 
@@ -100,7 +100,7 @@ internal static class ExpressionAnalysisHelper
     {
         if (argumentSyntax.Expression is InvocationExpressionSyntax invocationExpressionSyntax)
         {
-            return Scope._SingleInstancePerFuncResult(GetMethod(invocationExpressionSyntax.ArgumentList.Arguments.Single(), semanticModel, typeFactory)!);
+            return Scope._SingleInstancePerFuncResult(GetMethod(invocationExpressionSyntax.ArgumentList.Arguments.Single(), semanticModel, typeFactory)!, argumentSyntax.GetLocation());
         }
 
         return default!;

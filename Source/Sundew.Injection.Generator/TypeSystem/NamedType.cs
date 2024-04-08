@@ -7,7 +7,7 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-internal sealed record NamedType(string Name, string Namespace, string AssemblyName, bool IsValueType) : DefiniteType(Name, Namespace, AssemblyName, IsValueType)
+internal sealed record NamedType(string Name, string Namespace, string AssemblyName, bool IsValueType) : Type(Name, Namespace, AssemblyName, IsValueType)
 {
     public override TypeId Id => new($"{this.AssemblyName}::{this.Namespace}.{this.Name}");
 }

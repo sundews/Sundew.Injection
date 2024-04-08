@@ -11,13 +11,13 @@ using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal record ParameterNode(
-    DefiniteType Type,
+    Type Type,
     ParameterSource ParameterSource,
     string Name,
     TypeMetadata TypeMetadata,
-    bool RequiresNewInstance,
+    bool PrefersNewInstance,
     bool IsForConstructor,
-    string? DependeeName) : IParameterNode
+    string? DependantName) : IParameterNode
 {
     public bool IsOptional => true;
 }

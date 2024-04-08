@@ -9,4 +9,4 @@ namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.R
 
 using Sundew.Injection.Generator.TypeSystem;
 
-internal readonly record struct FactoryConstructorParameter(DefiniteType Type, string Name, TypeMetadata TypeMetadata);
+internal readonly record struct FactoryConstructorParameter(Type Type, string Name, TypeMetadata TypeMetadata);

@@ -16,7 +16,7 @@
       Title: Binding not found,
       Severity: Error,
       WarningLevel: 0,
-      Location: {SolutionDirectory}TestProjects\AllErrors\NoBindingForNonInstantiableType\FactoryDeclaration.cs: (16,0)-(18,1),
+      Location: {SolutionDirectory}TestProjects\AllErrors\NoBindingForNonInstantiableType\FactoryDeclaration.cs: (8,80)-(8,85),
       Description: Occurs when there is no way to construct a type, either by missing a binding, the type not having a constructor or being abstract/interface,
       MessageFormat: Binding not found for type: '{0}' and type is not constructable,
       Message: Binding not found for type: 'AllErrors.NoBindingForNonInstantiableType.IRoot' and type is not constructable,
@@ -64,6 +64,17 @@
       Description: Types without a viable constructor are not supported,
       MessageFormat: Type: '{0}' did not contain a viable constructor,
       Message: Type: 'AllErrors.NoViableConstructorFound.NoViableConstructor<object>' did not contain a viable constructor,
+      Category: CodeGeneration
+    },
+    {
+      Id: SI0002,
+      Title: Invalid lifetime scope,
+      Severity: Error,
+      WarningLevel: 0,
+      Location: {SolutionDirectory}TestProjects\AllErrors\ScopeError\FactoryDeclaration.cs: (8,43)-(8,60),
+      Description: Occurs when a type is registered with an invalid lifetime scope ,
+      MessageFormat: Type: '{0}' with scope: '{1}' is invalid due to the parent: {2} with scope: {3},
+      Message: Type: 'NewInstance' with scope: 'NewInstance' is invalid due to the parent: SingleInstancePerFactory with scope: SingleInstancePerFactory,
       Category: CodeGeneration
     }
   ]

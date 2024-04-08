@@ -11,13 +11,13 @@ using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed record SingleInstancePerObjectInjectionNode(
-    DefiniteType TargetType,
-    DefiniteType ReferencedType,
+    Type TargetType,
+    Type ReferencedType,
     bool NeedsLifecycleHandling,
     IReadOnlyRecordList<InjectionNode> Parameters,
     CreationSource CreationSource,
     ParameterNode? OptionalParameterNode,
-    ValueArray<DefiniteParameter>? OverridableNewParametersOption,
+    ValueArray<Parameter>? OverridableNewParametersOption,
     string? ParentName) : InjectionNode(ParentName), IHaveParametersNode, IMayOverrideNewNode
 {
     public override string Name => this.TargetType.Name;

@@ -1,27 +1,38 @@
 ﻿namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Resolvers;
 
+using Microsoft.CodeAnalysis;
+using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
+using Sundew.Injection.Generator.TypeSystem;
 using Scope = Sundew.Injection.Generator.TypeSystem.Scope;
 
 internal static class ScopePicker
 {
-    public static Scope Pick(Scope suggestedScope, Scope dependeeScope)
+    public static (ScopeResolverBuilder.ScopeContext Context, ScopeError? Error) Pick(Type targetType, ScopeResolverBuilder.ScopeContext suggestedScope, Dependant dependant)
     {
-        return suggestedScope switch
+        ScopeError? GetErrorIfExplicit()
         {
-            Scope.Auto => dependeeScope,
-            Scope.NewInstance => dependeeScope,
-            Scope.SingleInstancePerRequest => dependeeScope == Scope._NewInstance
-                ? suggestedScope
-                : dependeeScope,
-            Scope.SingleInstancePerFuncResult => dependeeScope == Scope._NewInstance ||
-                                                 dependeeScope == Scope._SingleInstancePerRequest
-                ? suggestedScope
-                : dependeeScope,
-            Scope.SingleInstancePerFactory => dependeeScope == Scope._NewInstance ||
-                                              dependeeScope == Scope._SingleInstancePerRequest ||
-                                              dependeeScope is Scope.SingleInstancePerFuncResult
-                ? suggestedScope
-                : dependeeScope,
+            if (suggestedScope.Selection == ScopeSelection.Explicit)
+            {
+                return new ScopeError(targetType, suggestedScope.Scope, dependant);
+            }
+
+            return default;
+        }
+
+        var dependantScope = dependant.Scope;
+        var newDependantScopeContext = suggestedScope with { Scope = dependantScope };
+        return (suggestedScope.Scope, dependantScope) switch
+        {
+            (Scope.Auto, _) => (newDependantScopeContext, default),
+            (Scope.NewInstance, Scope.SingleInstancePerFuncResult) => (suggestedScope with { Scope = Scope._SingleInstancePerRequest(Location.None) }, GetErrorIfExplicit()),
+            (Scope.NewInstance, Scope.NewInstance) => (suggestedScope, default),
+            (Scope.NewInstance, _) => (newDependantScopeContext, GetErrorIfExplicit()),
+            (Scope.SingleInstancePerRequest, Scope.SingleInstancePerFactory) => (newDependantScopeContext, GetErrorIfExplicit()),
+            (Scope.SingleInstancePerRequest, _) => (suggestedScope, default),
+            (Scope.SingleInstancePerFuncResult, Scope.SingleInstancePerFactory) => (suggestedScope, new ScopeError(targetType, suggestedScope.Scope, dependant)),
+            (Scope.SingleInstancePerFuncResult, _) => (suggestedScope, default),
+            (Scope.SingleInstancePerFactory, _) => (suggestedScope, default),
+            (_, _) => (suggestedScope, default),
         };
     }
 }

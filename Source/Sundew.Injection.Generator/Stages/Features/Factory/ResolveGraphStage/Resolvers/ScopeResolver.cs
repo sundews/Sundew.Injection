@@ -8,10 +8,11 @@
 namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Resolvers;
 
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal class ScopeResolver(
-    IReadOnlyDictionary<TypeId, ScopeContext> scopes)
+    IReadOnlyDictionary<TypeId, ScopeResolverBuilder.ScopeContext> scopes)
 {
     public Scope ResolveScope(Type type)
     {
@@ -20,6 +21,6 @@ internal class ScopeResolver(
             // TODO what if not found
         }
 
-        return scope?.Scope ?? Scope._NewInstance;
+        return scope?.Scope ?? Scope._NewInstance(Location.None);
     }
 }

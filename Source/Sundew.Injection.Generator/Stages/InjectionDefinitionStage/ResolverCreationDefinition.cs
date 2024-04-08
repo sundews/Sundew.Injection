@@ -7,10 +7,13 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
+using Microsoft.CodeAnalysis;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.TypeSystem;
+using Accessibility = Sundew.Injection.Accessibility;
 
 internal readonly record struct ResolverCreationDefinition(
     NamedType ResolverType,
     ValueArray<FactoryRegistration> FactoryRegistrations,
-    Accessibility Accessibility);
+    Accessibility Accessibility,
+    Location Location);

@@ -17,7 +17,12 @@ namespace AllFeaturesSuccess
             global::AllFeaturesSuccess.GeneratedOperationFactory generatedOperationFactory,
             global::AllFeaturesSuccess.ResolveRootFactory resolveRootFactory)
         {
-            this.resolverItems = global::Sundew.Injection.ResolverItemsFactory.Create(BucketSize, new global::Sundew.Injection.ResolverItem(typeof(global::AllFeaturesSuccessDependency.Dependency), () => dependencyFactory.Create()), new global::Sundew.Injection.ResolverItem(typeof(global::AllFeaturesSuccessDependency.ManualDependency), () => manualDependencyFactory.Create()));
+            this.resolverItems = global::Sundew.Injection.ResolverItemsFactory.Create(
+                BucketSize,
+                new global::Sundew.Injection.ResolverItem(typeof(global::AllFeaturesSuccess.TypeResolver.IMultipleImplementationForTypeResolver), () => new object[] { multipleImplementationForTypeResolverFactory.CreateMultipleImplementationForTypeResolverA(), multipleImplementationForTypeResolverFactory.CreateMultipleImplementationForTypeResolverB(), resolveRootFactory.CreateMultipleImplementationForTypeResolverC() }),
+                new global::Sundew.Injection.ResolverItem(typeof(global::AllFeaturesSuccessDependency.Dependency), () => dependencyFactory.Create()),
+                new global::Sundew.Injection.ResolverItem(typeof(global::AllFeaturesSuccessDependency.ManualDependency), () => manualDependencyFactory.Create()),
+                new global::Sundew.Injection.ResolverItem(typeof(global::AllFeaturesSuccess.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory), () => resolveRootFactory.CreateInterfaceSingleInstancePerFactory()));
         }
 
         public object GetService(global::System.Type serviceType)

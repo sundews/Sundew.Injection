@@ -10,7 +10,7 @@ namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal readonly record struct AccessorProperty(
-    DefiniteType ContainingType,
+    Type ContainingType,
     (Type Type, TypeMetadata TypeMetadata) Result,
     (Type Type, TypeMetadata TypeMetadata) Property,
     string Name);

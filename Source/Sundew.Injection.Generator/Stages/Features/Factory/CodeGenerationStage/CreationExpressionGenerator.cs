@@ -31,7 +31,7 @@ internal sealed class CreationExpressionGenerator
         {
             CreationSource.ArrayCreation arrayCreation => (factoryNode, new CreationExpression.Array(arrayCreation.ElementType, arguments)),
             CreationSource.ConstructorCall constructorCall => (factoryNode, new CreationExpression.ConstructorCall(constructorCall.Type, arguments)),
-            CreationSource.DefaultValue defaultValue => (factoryNode, new CreationExpression.DefaultValue(defaultValue.DefiniteType)),
+            CreationSource.DefaultValue defaultValue => (factoryNode, new CreationExpression.DefaultValue(defaultValue.Type)),
             CreationSource.InstanceMethodCall instanceMethodCall => this.GenerateInstanceMethodCallExpression(instanceMethodCall, arguments, in factoryNode),
             CreationSource.LiteralValue literalValue => (factoryNode, CreationExpression.Literal(literalValue.Literal)),
             CreationSource.IteratorMethodCall iteratorMethodCall => this.generatorFeatures.IteratorMethodGenerator.Generate(iteratorMethodCall, arguments, in factoryNode),
@@ -47,9 +47,9 @@ internal sealed class CreationExpressionGenerator
         var factoryFactoryNode = this.generatorFeatures.InjectionNodeExpressionGenerator.Generate(instanceMethodCall.Instance, factoryNode.FactoryImplementation, factoryNode.CreateMethod);
         if (instanceMethodCall.IsProperty)
         {
-            return (factoryFactoryNode, InvocationExpressionBase.MemberAccessExpression(factoryFactoryNode.DependeeArguments.Single(), instanceMethodCall.Method.Name));
+            return (factoryFactoryNode, InvocationExpressionBase.MemberAccessExpression(factoryFactoryNode.DependantArguments.Single(), instanceMethodCall.Method.Name));
         }
 
-        return (factoryFactoryNode, CreationExpression._InstanceMethodCall(factoryFactoryNode.DependeeArguments.Single(), instanceMethodCall.Method.Name, instanceMethodCall.Method.TypeArguments, arguments));
+        return (factoryFactoryNode, CreationExpression._InstanceMethodCall(factoryFactoryNode.DependantArguments.Single(), instanceMethodCall.Method.Name, instanceMethodCall.Method.TypeArguments, arguments));
     }
 }

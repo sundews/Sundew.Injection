@@ -14,6 +14,7 @@ using Sundew.Base;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal class AddFactoryMethodVisitor(
+    GenericNameSyntax genericNameSyntax,
     IMethodSymbol methodSymbol,
     FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder,
     AnalysisContext analysisContext)
@@ -27,7 +28,7 @@ internal class AddFactoryMethodVisitor(
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
         base.VisitArgumentList(node);
-        var typeArguments = methodSymbol.TypeArguments;
+        var typeArguments = methodSymbol.MapTypeArguments(genericNameSyntax);
         var interfaceType = typeArguments[0];
         var implementationType = typeArguments.Length == 2 ? typeArguments[1] : interfaceType;
         var parameters = methodSymbol.Parameters;
@@ -79,13 +80,13 @@ internal class AddFactoryMethodVisitor(
             }
         }
 
-        if (typeArguments.Length == 1 && !implementationType.IsInstantiable() && constructorSelector == null)
+        if (typeArguments.Length == 1 && !implementationType.TypeSymbol.IsInstantiable() && constructorSelector == null)
         {
             analysisContext.AddDefaultFactoryMethodFromTypeSymbol(implementationType, accessibility, isNewOverridable, factoryMethodRegistrationBuilder);
             return;
         }
 
-        analysisContext.AddFactoryMethodFromTypeSymbol(interfaceType, implementationType, constructorSelector, createMethodName, accessibility, isNewOverridable, factoryMethodRegistrationBuilder);
+        analysisContext.AddFactoryMethodFromTypeSymbol(interfaceType.TypeSymbol, implementationType.TypeSymbol, constructorSelector, createMethodName, accessibility, isNewOverridable, factoryMethodRegistrationBuilder);
     }
 
     private Method? GetMethod(ArgumentSyntax argumentSyntax)

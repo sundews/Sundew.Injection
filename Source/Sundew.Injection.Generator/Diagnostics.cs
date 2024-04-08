@@ -65,14 +65,14 @@ public sealed record Diagnostics(ValueList<Diagnostic> Items) : IEnumerable<Diag
         true,
         Resources.ResolveRequiredParameterErrorDescription);
 
-    public static DiagnosticDescriptor ResolveTypeError { get; } = new(
+    public static DiagnosticDescriptor CreateGenericMethodError { get; } = new(
         "SI0004",
-        Resources.ResolveTypeErrorTitle,
-        Resources.ResolveTypeErrorMessageFormat,
+        Resources.CreateGenericMethodErrorTitle,
+        Resources.CreateGenericMethodErrorMessageFormat,
         CodeGeneration,
         DiagnosticSeverity.Error,
         true,
-        Resources.ResolveTypeErrorDescription);
+        Resources.CreateGenericMethodErrorDescription);
 
     public static DiagnosticDescriptor UnsupportedInstanceMethodError { get; } = new(
         "SI0005",

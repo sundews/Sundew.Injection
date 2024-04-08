@@ -24,4 +24,4 @@ internal sealed record LocalDeclarationStatement(string Name, Expression Initial
 
 internal sealed record CreateOptionalParameterIfStatement(Expression ConditionAccess, ImmutableList<Statement> TrueStatements, ImmutableList<Statement>? FalseStatements = null) : Statement;
 
-internal sealed record LocalFunctionStatement(string Name, ValueList<ParameterDeclaration> Parameters, DefiniteType ReturnType, ImmutableList<Statement> Statements, bool IsStatic) : Statement;
+internal sealed record LocalFunctionStatement(string Name, ValueList<ParameterDeclaration> Parameters, Type ReturnType, ImmutableList<Statement> Statements, bool IsStatic) : Statement;

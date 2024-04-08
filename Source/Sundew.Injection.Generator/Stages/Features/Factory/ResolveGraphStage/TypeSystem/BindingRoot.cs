@@ -9,4 +9,4 @@ namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.T
 
 using Sundew.Injection.Generator.TypeSystem;
 
-internal readonly record struct BindingRoot(Binding Binding, Accessibility Accessibility, DefiniteType ReturnType);
+internal readonly record struct BindingRoot(Binding Binding, Accessibility Accessibility, Type ReturnType);

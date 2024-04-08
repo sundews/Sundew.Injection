@@ -7,12 +7,18 @@
 
 namespace Sundew.Injection.IntegrationTests;
 
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using NUnit.Framework;
+using Sundew.Injection.Generator;
+using Sundew.Injection.Testing;
+using VerifyNUnit;
 
 [TestFixture]
 public class InjectionGeneratorErrorFixture
 {
-    /*[Test]
+    [Test]
     public Task VerifyReportedDiagnostics()
     {
         var compilation = TestProjects.NetStandardLibraryErrors.FromCurrentDirectory.Value;
@@ -21,5 +27,5 @@ public class InjectionGeneratorErrorFixture
         generatorDriver = generatorDriver.RunGenerators(compilation);
 
         return Verifier.Verify(generatorDriver);
-    }*/
+    }
 }

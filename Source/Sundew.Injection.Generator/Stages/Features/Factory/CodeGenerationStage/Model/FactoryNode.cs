@@ -13,4 +13,4 @@ using Expression = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Expre
 internal readonly record struct FactoryNode(
     in FactoryImplementation FactoryImplementation,
     in MethodImplementation CreateMethod,
-    ImmutableList<Expression> DependeeArguments);
+    ImmutableList<Expression> DependantArguments);

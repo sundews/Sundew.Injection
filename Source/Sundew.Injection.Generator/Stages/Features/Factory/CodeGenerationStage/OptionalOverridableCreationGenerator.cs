@@ -32,7 +32,7 @@ internal sealed class OptionalOverridableCreationGenerator
             (creationParameters, factoryMethods, factoryNode) => this.generatorFeatures.OnCreateMethodGenerator.Generate(factoryMethods, mayOverrideNew.ReferencedType, creationParameters, mayOverrideNew.CreationSource, factoryNode),
             (factoryMethods, factoryNode) =>
             {
-                var creationResult = this.generatorFeatures.CreationExpressionGenerator.Generate(factoryNode, mayOverrideNew.CreationSource, factoryNode.DependeeArguments);
+                var creationResult = this.generatorFeatures.CreationExpressionGenerator.Generate(factoryNode, mayOverrideNew.CreationSource, factoryNode.DependantArguments);
                 return creationResult;
             });
     }

@@ -14,28 +14,18 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal class AddParameterPropertiesVisitor : CSharpSyntaxWalker
+internal class AddParameterPropertiesVisitor(
+    IMethodSymbol methodSymbol,
+    AnalysisContext analysisContext)
+    : CSharpSyntaxWalker
 {
-    private readonly InvocationExpressionSyntax originatingSyntax;
-    private readonly AnalysisContext analysisContext;
-    private readonly IMethodSymbol methodSymbol;
-    private readonly Type type;
-    private readonly ITypeSymbol argumentTypeSymbol;
-
-    public AddParameterPropertiesVisitor(InvocationExpressionSyntax originatingSyntax, IMethodSymbol methodSymbol, AnalysisContext analysisContext)
-    {
-        this.originatingSyntax = originatingSyntax;
-        this.analysisContext = analysisContext;
-        this.methodSymbol = methodSymbol;
-        this.type = this.analysisContext.TypeFactory.CreateType(methodSymbol.TypeArguments.First()).Type;
-        this.argumentTypeSymbol = methodSymbol.TypeArguments.First();
-    }
+    private readonly ITypeSymbol argumentTypeSymbol = methodSymbol.TypeArguments.First();
 
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
-        var parameters = this.methodSymbol.Parameters;
+        var parameters = methodSymbol.Parameters;
         var i = 0;
-        var scope = (Scope: (Scope?)parameters[i++].ExplicitDefaultValue ?? Scope._SingleInstancePerRequest, Origin: ScopeOrigin.Default);
+        var scope = new ScopeContext((Scope?)parameters[i++].ExplicitDefaultValue ?? Scope._SingleInstancePerRequest(Location.None), ScopeSelection.Default);
         var argumentIndex = 0;
         foreach (var argumentSyntax in node.Arguments)
         {
@@ -64,36 +54,36 @@ internal class AddParameterPropertiesVisitor : CSharpSyntaxWalker
         foreach (var accessorProperty in this.argumentTypeSymbol.GetMembers().OfType<IPropertySymbol>()
                      .Where(x => !x.IsStatic && x.GetMethod != null && x.DeclaredAccessibility == Accessibility.Public).Select(x =>
                      {
-                         var propertyType = this.analysisContext.TypeFactory.CreateType(x.Type);
+                         var propertyType = analysisContext.TypeFactory.CreateType(x.Type);
                          var resultType = propertyType;
                          var isFunc = false;
-                         if (x.Type is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.IsGenericType && SymbolEqualityComparer.Default.Equals(namedTypeSymbol.OriginalDefinition, this.analysisContext.KnownAnalysisTypes.FuncTypeSymbol))
+                         if (x.Type is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.IsGenericType && SymbolEqualityComparer.Default.Equals(namedTypeSymbol.OriginalDefinition, analysisContext.KnownAnalysisTypes.FuncTypeSymbol))
                          {
                              isFunc = true;
-                             resultType = this.analysisContext.TypeFactory.CreateType(namedTypeSymbol.TypeArguments.First());
+                             resultType = analysisContext.TypeFactory.CreateType(namedTypeSymbol.TypeArguments.First());
                          }
 
-                         return (isFunc, Accessor: new AccessorProperty(this.analysisContext.TypeFactory.CreateNamedType(x.ContainingType), resultType, propertyType, x.Name));
+                         return (isFunc, Accessor: new AccessorProperty(analysisContext.TypeFactory.CreateNamedType(x.ContainingType), resultType, propertyType, x.Name));
                      }))
         {
             if (accessorProperty.isFunc)
             {
-                if (scope.Origin == ScopeOrigin.Default)
+                if (scope.Selection == ScopeSelection.Default)
                 {
-                    scope = (Scope._NewInstance, ScopeOrigin.Implicit);
+                    scope = new ScopeContext(Scope._NewInstance(Location.None), ScopeSelection.Implicit);
                 }
 
-                this.analysisContext.CompiletimeInjectionDefinitionBuilder.AddPropertyParameter(accessorProperty.Accessor.Result.Type, accessorProperty.Accessor, true, scope);
+                analysisContext.CompiletimeInjectionDefinitionBuilder.AddPropertyParameter(accessorProperty.Accessor.Result.Type, accessorProperty.Accessor, true, scope);
             }
 
-            this.analysisContext.CompiletimeInjectionDefinitionBuilder.AddPropertyParameter(accessorProperty.Accessor.Property.Type, accessorProperty.Accessor, false, scope);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddPropertyParameter(accessorProperty.Accessor.Property.Type, accessorProperty.Accessor, false, scope);
         }
 
         base.VisitArgumentList(node);
     }
 
-    private (Scope Scope, ScopeOrigin Origin) GetScope(ArgumentSyntax argumentSyntax)
+    private ScopeContext GetScope(ArgumentSyntax argumentSyntax)
     {
-        return ExpressionAnalysisHelper.GetScope(this.analysisContext.SemanticModel, argumentSyntax, this.analysisContext.TypeFactory);
+        return ExpressionAnalysisHelper.GetScope(analysisContext.SemanticModel, argumentSyntax, analysisContext.TypeFactory);
     }
 }

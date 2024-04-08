@@ -12,6 +12,7 @@ using System.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using Sundew.Injection.Generator.Stages.CompilationDataStage;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Nodes;
+using Sundew.Injection.Generator.TypeSystem;
 using Expression = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Expression;
 using Statement = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Statement;
 using Type = Sundew.Injection.Generator.TypeSystem.Type;

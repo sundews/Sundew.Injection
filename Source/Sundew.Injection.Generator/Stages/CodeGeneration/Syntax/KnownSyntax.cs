@@ -11,6 +11,7 @@ using System;
 using System.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.CompilationDataStage;
 using Sundew.Injection.Generator.TypeSystem;
+using Type = Sundew.Injection.Generator.TypeSystem.Type;
 
 internal class KnownSyntax
 {
@@ -65,7 +66,7 @@ internal class KnownSyntax
 
     public sealed record LifecycleHandlerSyntax(
         string AccessorName,
-        DefiniteType Type,
+        Type Type,
         Expression Access,
         ExpressionStatement CreateLifecycleHandlerAndAssignFieldStatement,
         LocalDeclarationStatement CreateChildLifecycleHandlerAndAssignVarStatement,
@@ -78,7 +79,7 @@ internal class KnownSyntax
         private const string Initialize = "Initialize";
         private const string ConfigureAwait = "ConfigureAwait";
 
-        public LifecycleHandlerSyntax(DefiniteType lifetimeHandlerType, DefiniteType createdLifetimeHandlerType, Expression lifetimeHandlerAccess, string accessorName)
+        public LifecycleHandlerSyntax(Type lifetimeHandlerType, Type createdLifetimeHandlerType, Expression lifetimeHandlerAccess, string accessorName)
             : this(
                 accessorName,
                 lifetimeHandlerType,

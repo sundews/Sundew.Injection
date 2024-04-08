@@ -9,14 +9,18 @@ namespace Sundew.Injection.Generator.TypeSystem;
 
 using Sundew.Base.Collections.Immutable;
 
-internal sealed record class Method(
-    ValueArray<Parameter> Parameters,
-    string Name,
+internal sealed record Method(
     Type ContainingType,
+    string Name,
+    ValueArray<Parameter> Parameters,
+    ValueArray<TypeArgument> TypeArguments,
     MethodKind Kind)
 {
-    public Method(string name, Type containingType, MethodKind kind)
-        : this(ValueArray<Parameter>.Empty, name, containingType, kind)
+    public Method(
+        Type containingType,
+        string name,
+        MethodKind kind)
+        : this(containingType, name, ValueArray<Parameter>.Empty, ValueArray<TypeArgument>.Empty, kind)
     {
     }
 }

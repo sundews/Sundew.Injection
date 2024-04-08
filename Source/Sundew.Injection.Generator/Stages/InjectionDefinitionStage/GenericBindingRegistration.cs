@@ -11,7 +11,7 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed record GenericBindingRegistration(
     OpenGenericType TargetType,
-    Scope Scope,
+    ScopeContext Scope,
     GenericMethod Method,
     Accessibility Accessibility,
     bool HasLifecycle,

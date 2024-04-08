@@ -33,7 +33,7 @@ internal static class TypeResolverSyntaxGenerator
             true,
             [
                 Member._Field(new FieldDeclaration(compilationData.IntType, BucketSize, FieldModifier.Const, CreationExpression.Literal(GetBucketSize(registrationCount).ToString()))),
-                Member._Field(new FieldDeclaration(compilationData.ResolverItemArrayType, ResolverItems, FieldModifier.Instance, null)),
+                Member._Field(new FieldDeclaration(compilationData.ResolverItemArrayType, ResolverItems, FieldModifier.Instance)),
                 constructor,
                 CreateResolveMethod(),
             ],
@@ -89,47 +89,44 @@ internal static class TypeResolverSyntaxGenerator
                         Expression._StaticMethodCall(
                             compilationData.ResolverItemsFactoryType,
                             CreateName,
-                            ValueArray<DefiniteTypeArgument>.Empty,
+                            ValueArray<TypeArgument>.Empty,
                             new[] { Expression.Identifier(BucketSize) }
                                 .Concat(
-                                    supportedFactoryMethods.Select(factoryMethod =>
-                                    {
-                                        return Expression._ConstructorCall(
-                                            compilationData.ResolverItemType,
-                                            [
-                                                Expression.TypeOf(factoryMethod.ReturnType),
-                                                Expression.Lambda(
-                                                    [],
-                                                    CreateObjectExpression(factoryMethod.FactoryMethods, compilationData)),
-                                            ]);
-                                    })).ToValueArray()))),
+                                    supportedFactoryMethods.Select(factoryMethod => Expression._ConstructorCall(
+                                        compilationData.ResolverItemType,
+                                        [
+                                            Expression.TypeOf(factoryMethod.ReturnType),
+                                            Expression.Lambda(
+                                                [],
+                                                CreateObjectExpression(factoryMethod.FactoryMethods, compilationData)),
+                                        ]))).ToValueArray()))),
             ]), supportedFactoryMethods.Length);
     }
 
     private static Expression CreateObjectExpression(
-        (ParameterDeclaration ParameterDeclaration, DefiniteFactoryMethod FactoryMethod)[] factoryMethodCalls,
+        (ParameterDeclaration ParameterDeclaration, FactoryMethod FactoryMethod)[] factoryMethodCalls,
         CompilationData compilationData)
     {
         var cardinality = factoryMethodCalls.ByCardinality();
         return cardinality switch
         {
-            Single<(ParameterDeclaration ParameterDeclaration, DefiniteFactoryMethod FactoryMethod)> single =>
+            Single<(ParameterDeclaration ParameterDeclaration, FactoryMethod FactoryMethod)> single =>
                 Expression._InstanceMethodCall(
                     Expression.Identifier(single.Item.ParameterDeclaration.Name),
                     single.Item.FactoryMethod.Name,
-                    ValueArray<DefiniteTypeArgument>.Empty,
+                    ValueArray<TypeArgument>.Empty,
                     []),
 
-            Multiple<(ParameterDeclaration ParameterDeclaration, DefiniteFactoryMethod FactoryMethod)> multiple =>
+            Multiple<(ParameterDeclaration ParameterDeclaration, FactoryMethod FactoryMethod)> multiple =>
                 CreationExpression._Array(
                     compilationData.ObjectType,
                     multiple.Select(x => Expression._InstanceMethodCall(
                         Expression.Identifier(x.ParameterDeclaration.Name),
                         x.FactoryMethod.Name,
-                        ValueArray<DefiniteTypeArgument>.Empty,
+                        ValueArray<TypeArgument>.Empty,
                         [])).ToArray()),
 
-            Empty<(ParameterDeclaration ParameterDeclaration, DefiniteFactoryMethod FactoryMethod)> empty => throw new System.NotImplementedException(),
+            Empty<(ParameterDeclaration ParameterDeclaration, FactoryMethod FactoryMethod)> empty => throw new System.NotImplementedException(),
         };
     }
 

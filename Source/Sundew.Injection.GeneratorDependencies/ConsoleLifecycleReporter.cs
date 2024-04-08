@@ -19,22 +19,22 @@ namespace Sundew.Injection
 
         public void Initialized(object source, IInitializable initializable)
         {
-            Console.WriteLine($"Initialized: {initializable.GetType().FullName} by {GetName(source)}");
+            Console.WriteLine($@"Initialized: {initializable.GetType().FullName} by {GetName(source)}");
         }
 
         public void Initialized(object source, IAsyncInitializable initializable)
         {
-            Console.WriteLine($"Initialized: {initializable.GetType().FullName} by {GetName(source)}");
+            Console.WriteLine($@"Initialized: {initializable.GetType().FullName} by {GetName(source)}");
         }
 
         public void Disposed(object source, IDisposable disposable)
         {
-            Console.WriteLine($"Disposed: {disposable.GetType().FullName} by {GetName(source)}");
+            Console.WriteLine($@"Disposed: {disposable.GetType().FullName} by {GetName(source)}");
         }
 
         public void Disposed(object source, IAsyncDisposable disposable)
         {
-            Console.WriteLine($"Disposed: {disposable.GetType().FullName} by {GetName(source)}");
+            Console.WriteLine($@"Disposed: {disposable.GetType().FullName} by {GetName(source)}");
         }
 
         private static string GetName(object source)

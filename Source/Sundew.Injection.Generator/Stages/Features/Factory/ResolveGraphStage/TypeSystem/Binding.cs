@@ -7,13 +7,14 @@
 
 namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
 
+using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed record Binding(
-    DefiniteType TargetType,
-    DefiniteType ReferencedType,
-    Scope Scope,
-    DefiniteMethod Method,
+    Type TargetType,
+    Type ReferencedType,
+    ScopeContext Scope,
+    Method Method,
     bool HasLifecycle,
     bool IsInjectable,
     bool IsNewOverridable);

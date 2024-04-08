@@ -31,7 +31,6 @@ internal static class TypeConverter
     {
         return typeSymbol switch
         {
-            IErrorTypeSymbol errorTypeSymbol => (new ErrorType(errorTypeSymbol.MetadataName), ImmutableArray<IMethodSymbol>.Empty),
             IArrayTypeSymbol arrayTypeSymbol => (GetArrayOrTypeParameterArray(arrayTypeSymbol, knownInjectableTypes), ImmutableArray<IMethodSymbol>.Empty),
             INamedTypeSymbol namedTypeSymbol => (GetNamedSymbol(namedTypeSymbol, knownInjectableTypes), namedTypeSymbol.Constructors),
             ITypeParameterSymbol typeParameterSymbol => (new TypeParameter(typeParameterSymbol.MetadataName), ImmutableArray<IMethodSymbol>.Empty),
@@ -53,7 +52,6 @@ internal static class TypeConverter
     {
         return typeSymbol switch
         {
-            IErrorTypeSymbol errorTypeSymbol => (new ErrorType(errorTypeSymbol.MetadataName), default),
             IArrayTypeSymbol arrayTypeSymbol => (GetArrayType(arrayTypeSymbol, knownInjectableTypes), default),
             INamedTypeSymbol namedTypeSymbol => (GetNamedOrClosedGenericType(namedTypeSymbol, knownInjectableTypes), namedTypeSymbol.Constructors),
             _ => throw new System.NotSupportedException($"The type {typeSymbol} is currently not supported."),
@@ -90,9 +88,10 @@ internal static class TypeConverter
         if (methodSymbol != null && containingType != null && methodSymbol.ContainingType.IsInstantiable())
         {
             return new Method(
-                methodSymbol.Parameters.Select(x => GetParameter(x, knownInjectableTypes)).ToImmutableArray(),
-                methodSymbol.MetadataName,
                 containingType,
+                methodSymbol.MetadataName,
+                methodSymbol.Parameters.Select(x => GetParameter(x, knownInjectableTypes)).ToImmutableArray(),
+                ValueArray<TypeArgument>.Empty,
                 MethodKind._Constructor);
         }
 
@@ -105,9 +104,10 @@ internal static class TypeConverter
         if (methodSymbol != null)
         {
             return new Method(
-                methodSymbol.Parameters.Select(x => GetParameter(x, knownInjectableTypes)).ToImmutableArray(),
-                methodSymbol.MetadataName,
                 GetType(methodSymbol.ContainingType, knownInjectableTypes).Type,
+                methodSymbol.MetadataName,
+                methodSymbol.Parameters.Select(x => GetParameter(x, knownInjectableTypes)).ToImmutableArray(),
+                ValueArray<TypeArgument>.Empty,
                 TypeConverter.GetMethodKind(methodSymbol, knownInjectableTypes));
         }
 
@@ -134,9 +134,10 @@ internal static class TypeConverter
         if (propertySymbol != null && propertySymbol.GetMethod != null)
         {
             return new Method(
-                propertySymbol.Parameters.Select(x => GetParameter(x, knownInjectableTypes)).ToImmutableArray(),
-                propertySymbol.MetadataName,
                 GetType(propertySymbol.ContainingType, knownInjectableTypes).Type,
+                propertySymbol.MetadataName,
+                propertySymbol.Parameters.Select(x => GetParameter(x, knownInjectableTypes)).ToImmutableArray(),
+                ValueArray<TypeArgument>.Empty,
                 GetMethodKind(propertySymbol.GetMethod, knownInjectableTypes));
         }
 

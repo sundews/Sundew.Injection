@@ -9,4 +9,4 @@ namespace Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 
 using Sundew.Injection.Generator.TypeSystem;
 
-internal readonly record struct ParameterDeclaration(DefiniteType Type, string Name, string? DefaultValue = null) : IDeclaration;
+internal readonly record struct ParameterDeclaration(Type Type, string Name, string? DefaultValue = null) : IDeclaration;

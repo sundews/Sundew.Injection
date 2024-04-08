@@ -16,6 +16,7 @@ using Sundew.Injection.Generator.TypeSystem;
 using CreationSource = Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.CreationSource;
 using InvocationExpressionBase = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.InvocationExpressionBase;
 using MethodImplementation = Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model.MethodImplementation;
+using Parameter = Sundew.Injection.Generator.TypeSystem.Parameter;
 using Statement = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Statement;
 
 internal sealed class OnCreateMethodGenerator
@@ -32,7 +33,7 @@ internal sealed class OnCreateMethodGenerator
 
     public (FactoryNode FactoryNode, InvocationExpressionBase CreationExpression)
         Generate(
-            ImmutableList<DeclaredMethodImplementation> factoryMethods, DefiniteType targetType, ValueArray<DefiniteParameter> parameters, CreationSource creationSource, FactoryNode factoryNode)
+            ImmutableList<DeclaredMethodImplementation> factoryMethods, Type targetType, ValueArray<Parameter> parameters, CreationSource creationSource, FactoryNode factoryNode)
     {
         var declaration = new MethodDeclaration(DeclaredAccessibility.Protected, true, OnCreate + NameHelper.GetFactoryMethodName(targetType.Name), parameters.Select(x => new ParameterDeclaration(x.Type, x.Name, null)).ToImmutableList(), new UsedType(targetType));
         var existingFactoryMethod = factoryMethods.FirstOrDefault(x => x.Declaration == declaration);
@@ -44,6 +45,6 @@ internal sealed class OnCreateMethodGenerator
             resultingFactoryNode = creationExpressionPair.FactoryNode;
         }
 
-        return (resultingFactoryNode with { FactoryImplementation = resultingFactoryNode.FactoryImplementation with { FactoryMethods = factoryMethods } }, new InvocationExpression(new MemberAccessExpression(Identifier.This, declaration.Name), factoryNode.DependeeArguments));
+        return (resultingFactoryNode with { FactoryImplementation = resultingFactoryNode.FactoryImplementation with { FactoryMethods = factoryMethods } }, new InvocationExpression(new MemberAccessExpression(Identifier.This, declaration.Name), factoryNode.DependantArguments));
     }
 }

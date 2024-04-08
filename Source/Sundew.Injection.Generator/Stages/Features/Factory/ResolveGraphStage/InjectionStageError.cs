@@ -8,18 +8,17 @@
 namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage;
 
 using Sundew.Base.Collections.Immutable;
-using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record InjectionStageError
 {
-    public sealed record UnsupportedInstanceMethod(DefiniteMethod Method, DefiniteType Type, string DependeeNodeName) : InjectionStageError;
+    public sealed record UnsupportedInstanceMethodError(Method Method, Type Type, string DependantNodeName) : InjectionStageError;
 
-    public sealed record ResolveTypeError(BindingError BindingError, string DependeeNodeName) : InjectionStageError;
+    public sealed record CreateGenericMethodError(TypeSystem.CreateGenericMethodError Error, string DependantNodeName) : InjectionStageError;
 
-    public sealed record ResolveParameterError(Type Type, string DependeeNodeName, ValueArray<ParameterSource> ParameterSources) : InjectionStageError;
+    public sealed record ResolveParameterError(Type Type, string DependantNodeName, ValueArray<ParameterSource> ParameterSources) : InjectionStageError;
 
-    public sealed record ScopeError(DefiniteType DefiniteType, Scope Scope, string DependeeNodeName, string DependeeScope) : InjectionStageError;
+    public sealed record ScopeError(Type Type, Scope Scope, string DependantNodeName, string DependantScope) : InjectionStageError;
 }

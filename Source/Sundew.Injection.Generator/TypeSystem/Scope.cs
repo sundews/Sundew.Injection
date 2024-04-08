@@ -7,18 +7,24 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
+using Microsoft.CodeAnalysis;
 using Sundew.DiscriminatedUnions;
 
 [DiscriminatedUnion]
 internal abstract partial record Scope
 {
-    internal sealed record Auto : Scope;
+    public abstract Location Location { get; init; }
 
-    internal sealed record NewInstance : Scope;
+    internal sealed record Auto : Scope
+    {
+        public override Location Location { get; init; } = Location.None;
+    }
 
-    internal sealed record SingleInstancePerRequest : Scope;
+    internal sealed record NewInstance(Location Location) : Scope;
 
-    internal sealed record SingleInstancePerFuncResult(Method Method) : Scope;
+    internal sealed record SingleInstancePerRequest(Location Location) : Scope;
 
-    internal sealed record SingleInstancePerFactory : Scope;
+    internal sealed record SingleInstancePerFuncResult(Method Method, Location Location) : Scope;
+
+    internal sealed record SingleInstancePerFactory(Location Location) : Scope;
 }

@@ -12,9 +12,9 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal interface IMayOverrideNewNode
 {
-    DefiniteType ReferencedType { get; }
+    Type ReferencedType { get; }
 
     CreationSource CreationSource { get; }
 
-    ValueArray<DefiniteParameter>? OverridableNewParametersOption { get; }
+    ValueArray<Parameter>? OverridableNewParametersOption { get; }
 }

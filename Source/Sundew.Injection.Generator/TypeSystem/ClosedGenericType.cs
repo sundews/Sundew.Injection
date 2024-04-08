@@ -17,7 +17,7 @@ internal sealed record ClosedGenericType(
         ValueArray<TypeParameter> TypeParameters,
         ValueArray<TypeArgument> TypeArguments,
         bool IsValueType)
-    : Type(Name, IsValueType)
+    : Type(Name, Namespace, AssemblyName, IsValueType)
 {
     public override TypeId Id => new($"{this.AssemblyName}::{this.Namespace}.{this.Name}<{this.TypeArguments.JoinToString((builder, x) => builder.Append(x.Type.Id.Id), ", ")}>");
 }

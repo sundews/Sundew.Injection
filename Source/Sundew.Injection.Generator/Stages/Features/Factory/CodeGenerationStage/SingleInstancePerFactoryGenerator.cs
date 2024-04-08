@@ -55,8 +55,8 @@ internal class SingleInstancePerFactoryGenerator(
                             {
                                 FactoryImplementation = result.FactoryImplementation,
                                 CreateMethod = result.CreateMethod,
-                                DependeeArguments =
-                                nextFactoryNode.DependeeArguments.AddRange(result.DependeeArguments),
+                                DependantArguments =
+                                nextFactoryNode.DependantArguments.AddRange(result.DependantArguments),
                             };
                         });
                 }
@@ -114,6 +114,6 @@ internal class SingleInstancePerFactoryGenerator(
             }
         }
 
-        return factoryNode with { DependeeArguments = dependeeArguments };
+        return factoryNode with { DependantArguments = dependeeArguments };
     }
 }

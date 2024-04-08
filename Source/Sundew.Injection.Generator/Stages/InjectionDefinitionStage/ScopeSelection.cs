@@ -1,6 +1,6 @@
 ﻿namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
-public enum ScopeOrigin
+public enum ScopeSelection
 {
     Default,
 

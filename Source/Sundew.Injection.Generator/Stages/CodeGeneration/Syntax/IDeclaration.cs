@@ -11,7 +11,7 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal interface IDeclaration
 {
-    DefiniteType Type { get; }
+    Type Type { get; }
 
     string Name { get; }
 }

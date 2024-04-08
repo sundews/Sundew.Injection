@@ -33,16 +33,17 @@ internal static class AnalysisContextExtensions
     {
         var interfaceType = analysisContext.TypeFactory.CreateType(interfaceTypeSymbol);
         var implementationType = analysisContext.TypeFactory.CreateType(implementationTypeSymbol);
-        factoryMethodRegistrationBuilder.Add(interfaceType, implementationType, Scope._NewInstance, createMethod ?? CreateMethod(analysisContext, implementationTypeSymbol), createMethodName, accessibility, isNewOverridable);
+        factoryMethodRegistrationBuilder.Add(interfaceType, implementationType, new ScopeContext(Scope._NewInstance(Location.None), ScopeSelection.Implicit), createMethod ?? CreateMethod(analysisContext, implementationTypeSymbol), createMethodName, accessibility, isNewOverridable);
     }
 
     public static void AddDefaultFactoryMethodFromTypeSymbol(
         this AnalysisContext analysisContext,
-        ITypeSymbol typeSymbol,
+        MappedTypeSymbol mappedTypeSymbol,
         Accessibility accessibility,
         bool isNewOverridable,
         FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder)
     {
+        var typeSymbol = mappedTypeSymbol.TypeSymbol;
         var interfaceType = analysisContext.TypeFactory.CreateType(typeSymbol);
 
         var bindingRegistrations = analysisContext.CompiletimeInjectionDefinitionBuilder.TryGetBindingRegistrations(interfaceType.Type);
@@ -57,13 +58,13 @@ internal static class AnalysisContextExtensions
         {
             if (typeSymbol.IsInstantiable() && interfaceType.TypeMetadata.DefaultConstructor.TryGetValue(out var method))
             {
-                analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray.Create(interfaceType), interfaceType, method, Scope._Auto, false, isNewOverridable);
+                analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray.Create(interfaceType), interfaceType, method, new ScopeContext(Scope._Auto, ScopeSelection.Implicit), false, isNewOverridable);
                 var type = analysisContext.TypeFactory.CreateType(typeSymbol);
-                factoryMethodRegistrationBuilder.Add(type, type, Scope._NewInstance, CreateMethod(analysisContext, typeSymbol), null, accessibility, isNewOverridable);
+                factoryMethodRegistrationBuilder.Add(type, type, new ScopeContext(Scope._NewInstance(Location.None), ScopeSelection.Implicit), CreateMethod(analysisContext, typeSymbol), null, accessibility, isNewOverridable);
             }
             else
             {
-                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.NoBindingFoundForNonConstructableTypeError, typeSymbol);
+                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.NoBindingFoundForNonConstructableTypeError, mappedTypeSymbol);
             }
         }
     }
@@ -95,8 +96,8 @@ internal static class AnalysisContextExtensions
         }
 
         return new Method(
-            implementationType.MetadataName,
             analysisContext.TypeFactory.CreateType(implementationType).Type,
+            implementationType.MetadataName,
             MethodKind._Constructor);
     }
 }

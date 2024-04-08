@@ -16,7 +16,8 @@ using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 internal class ImplementServiceProviderVisitor(
     GenericNameSyntax genericNameSyntax,
     IMethodSymbol methodSymbol,
-    AnalysisContext analysisContext)
+    AnalysisContext analysisContext,
+    Location location)
     : CSharpSyntaxWalker
 {
     public override void VisitArgumentList(ArgumentListSyntax node)
@@ -64,6 +65,6 @@ internal class ImplementServiceProviderVisitor(
             return;
         }
 
-        analysisContext.CompiletimeInjectionDefinitionBuilder.CreateResolver(factories, resolverTypeResult.Value, accessibility);
+        analysisContext.CompiletimeInjectionDefinitionBuilder.CreateResolver(factories, resolverTypeResult.Value, accessibility, location);
     }
 }

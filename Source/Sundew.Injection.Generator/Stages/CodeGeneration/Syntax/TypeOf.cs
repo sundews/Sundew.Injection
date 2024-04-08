@@ -9,4 +9,4 @@ namespace Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 
 using Sundew.Injection.Generator.TypeSystem;
 
-internal sealed record TypeOf(DefiniteType Type) : Expression;
+internal sealed record TypeOf(Type Type) : Expression;

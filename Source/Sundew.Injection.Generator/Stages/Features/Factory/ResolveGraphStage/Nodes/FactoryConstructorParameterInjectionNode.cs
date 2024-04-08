@@ -11,15 +11,15 @@ using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed record FactoryConstructorParameterInjectionNode(
-    DefiniteType Type,
+    Type Type,
     string Name,
     ParameterSource ParameterSource,
     TypeMetadata TypeMetadata,
-    string DependeeName) : InjectionNode(DependeeName), IParameterNode
+    string DependantName) : InjectionNode(DependantName), IParameterNode
 {
     public override string Name { get; } = Name;
 
-    public bool RequiresNewInstance => false;
+    public bool PrefersNewInstance => false;
 
     public bool IsOptional => false;
 

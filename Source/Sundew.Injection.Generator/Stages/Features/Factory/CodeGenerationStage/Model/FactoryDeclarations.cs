@@ -10,18 +10,14 @@ namespace Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage
 using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 
-internal class FactoryDeclarations
+internal class FactoryDeclarations(
+    ClassDeclaration classNamespaceDeclaration,
+    InterfaceDeclaration? interfaceNamespaceDeclaration,
+    ValueArray<FactoryMethod> createMethods)
 {
-    public FactoryDeclarations(ClassDeclaration classNamespaceDeclaration, InterfaceDeclaration? interfaceNamespaceDeclaration, ValueArray<DefiniteFactoryMethod> createMethods)
-    {
-        this.InterfaceNamespaceDeclaration = interfaceNamespaceDeclaration;
-        this.CreateMethods = createMethods;
-        this.ClassNamespaceDeclaration = classNamespaceDeclaration;
-    }
+    public ClassDeclaration ClassNamespaceDeclaration { get; } = classNamespaceDeclaration;
 
-    public ClassDeclaration ClassNamespaceDeclaration { get; }
+    public InterfaceDeclaration? InterfaceNamespaceDeclaration { get; } = interfaceNamespaceDeclaration;
 
-    public InterfaceDeclaration? InterfaceNamespaceDeclaration { get; }
-
-    public ValueArray<DefiniteFactoryMethod> CreateMethods { get; }
+    public ValueArray<FactoryMethod> CreateMethods { get; } = createMethods;
 }

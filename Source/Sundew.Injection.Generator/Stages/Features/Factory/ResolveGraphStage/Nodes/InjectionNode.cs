@@ -8,7 +8,7 @@
 namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Nodes;
 
 [DiscriminatedUnions.DiscriminatedUnion]
-internal abstract partial record InjectionNode(string? DependeeName) : IInjectionNode
+internal abstract partial record InjectionNode(string? DependantName) : IInjectionNode
 {
     public abstract string Name { get; }
 }

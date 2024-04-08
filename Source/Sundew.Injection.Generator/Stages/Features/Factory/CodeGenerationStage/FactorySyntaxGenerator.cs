@@ -20,7 +20,6 @@ using Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Mod
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Nodes;
 using Sundew.Injection.Generator.TypeSystem;
-using Expression = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Expression;
 using FactoryDeclarations = Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model.FactoryDeclarations;
 using InjectionNode = Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Nodes.InjectionNode;
 using Member = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Member;
@@ -77,7 +76,7 @@ internal class FactorySyntaxGenerator
         }
 
         (factoryImplementation, var defaultMethodDeclarations) = this.factoryResolvedGraph.FactoryMethodInfos.Aggregate(
-            (factoryImplementation, DefaultCreateMethods: ImmutableArray<DefiniteFactoryMethod>.Empty),
+            (factoryImplementation, DefaultCreateMethods: ImmutableArray<FactoryMethod>.Empty),
             (factory, factoryMethodInfo) =>
             {
                 var result = this.GenerateFactoryMethod(
@@ -124,7 +123,7 @@ internal class FactorySyntaxGenerator
         return new FactoryDeclarations(classDeclaration, interfaceDeclaration, defaultMethodDeclarations);
     }
 
-    private (Model.FactoryImplementation FactoryImplementation, DefiniteFactoryMethod DefaultCreateMethod) GenerateFactoryMethod(
+    private (Model.FactoryImplementation FactoryImplementation, FactoryMethod DefaultCreateMethod) GenerateFactoryMethod(
         InjectionNode injectionNode,
         FactoryMethodData factoryMethodData,
         in FactoryImplementation factoryImplementation)
@@ -139,7 +138,7 @@ internal class FactorySyntaxGenerator
 
         var disposeMethodImplementations = factoryImplementation.DisposeMethodImplementations;
         var factoryMethodStatements = factoryNode.CreateMethod.Statements;
-        var asyncCreateReturnType = this.compilationData.TaskType.ToDefiniteClosedGenericType(ImmutableArray.Create(new DefiniteTypeArgument(factoryMethodData.Return)));
+        var asyncCreateReturnType = this.compilationData.TaskType.ToClosedGenericType(ImmutableArray.Create(new TypeArgument(factoryMethodData.Return)));
         var factoryMethods = factoryImplementation.CreateMethods;
         var createMethodParameters = factoryNode.CreateMethod.Parameters.GroupBy(x => x.DefaultValue != null).OrderBy(x => x.Key).SelectMany(x => x).ToImmutableList();
         var createMethodDeclaration = new MethodDeclaration(
@@ -158,7 +157,7 @@ internal class FactorySyntaxGenerator
             factoryMethodStatements = factoryMethodStatements.Add(
                     new LocalDeclarationStatement(
                         constructedValueVariableName,
-                        factoryNode.DependeeArguments.Single()))
+                        factoryNode.DependantArguments.Single()))
                 .Add(
                     new ExpressionStatement(
                         new InvocationExpression(
@@ -166,8 +165,8 @@ internal class FactorySyntaxGenerator
                             [constructedValueIdentifier, this.knownSyntax.ChildLifecycleHandler.Access,])));
 
             var constructedType =
-                this.compilationData.ConstructedType.ToDefiniteClosedGenericType(
-                    ImmutableArray.Create(new DefiniteTypeArgument(factoryMethodData.Return)));
+                this.compilationData.ConstructedType.ToClosedGenericType(
+                    ImmutableArray.Create(new TypeArgument(factoryMethodData.Return)));
             var createMethodAsyncDeclaration = new MethodDeclaration(
                 DeclaredAccessibility.Public,
                 false,
@@ -236,7 +235,7 @@ internal class FactorySyntaxGenerator
         {
             factoryMethodStatements =
                 factoryMethodStatements.Add(
-                    new ReturnStatement(factoryNode.DependeeArguments.Single()));
+                    new ReturnStatement(factoryNode.DependantArguments.Single()));
             factoryMethods = factoryMethods
                 .Add(new DeclaredMethodImplementation(createMethodDeclaration with { Attributes = ImmutableList.Create(this.knownSyntax.BindableCreateMethodAttribute) }, factoryNode.CreateMethod with { Statements = factoryMethodStatements }));
         }
@@ -247,6 +246,6 @@ internal class FactorySyntaxGenerator
             CreateMethods = factoryMethods,
             DisposeMethodImplementations = disposeMethodImplementations,
         },
-            new DefiniteFactoryMethod(createMethodDeclaration.Name, createMethodDeclaration.Parameters, factoryMethodData.Return.Type));
+            new FactoryMethod(createMethodDeclaration.Name, createMethodDeclaration.Parameters, factoryMethodData.Return.Type));
     }
 }

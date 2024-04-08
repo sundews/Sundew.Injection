@@ -9,4 +9,4 @@ namespace Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 
 using Sundew.Injection.Generator.TypeSystem;
 
-internal readonly record struct UsedType(DefiniteType Type, bool CanHaveDefaultValue = false);
+internal readonly record struct UsedType(Type Type, bool CanHaveDefaultValue = false);

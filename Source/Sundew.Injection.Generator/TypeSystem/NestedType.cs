@@ -7,7 +7,7 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-internal sealed record NestedType(Type ContainedType, Type ContainingType) : Type(ContainedType.Name, ContainedType.IsValueType)
+internal sealed record NestedType(Type ContainedType, Type ContainingType) : Type($"{ContainingType.Name}.{ContainedType.Name}", ContainedType.Namespace, ContainedType.AssemblyName, ContainedType.IsValueType)
 {
     public override TypeId Id => this.ContainedType.Id;
 }

@@ -12,5 +12,5 @@ using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal readonly record struct ResolvedFactoryRegistration(
-    DefiniteType FactoryType,
-    ValueArray<DefiniteFactoryMethod> FactoryMethods);
+    Type FactoryType,
+    ValueArray<FactoryMethod> FactoryMethods);

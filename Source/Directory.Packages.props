@@ -39,7 +39,7 @@
     <PackageVersion Include="System.Collections.Immutable" Version="6.0.0" />
     <PackageVersion Include="System.Threading.Tasks" Version="4.3.0" />
     <PackageVersion Include="System.ValueTuple" Version="4.5.0" />
-    <PackageVersion Include="Verify.NUnit" Version="23.6.0" />
+    <PackageVersion Include="Verify.NUnit" Version="23.7.1" />
     <PackageVersion Include="Verify.SourceGenerators" Version="2.2.0" />
   </ItemGroup>
   <ItemGroup>

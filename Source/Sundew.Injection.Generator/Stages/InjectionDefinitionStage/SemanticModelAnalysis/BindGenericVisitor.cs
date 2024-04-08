@@ -28,7 +28,7 @@ internal class BindGenericVisitor(
         var typeArguments = methodSymbol.MapTypeArguments(genericNameSyntax);
         var parameters = methodSymbol.Parameters;
         var i = 0;
-        var scope = (Scope?)parameters[i++].ExplicitDefaultValue;
+        var scope = new ScopeContext((Scope?)parameters[i++].ExplicitDefaultValue ?? Scope._Auto, ScopeSelection.Implicit);
         var method = (GenericMethod?)parameters[i++].ExplicitDefaultValue;
         var argumentIndex = 0;
         foreach (var argumentSyntax in node.Arguments)
@@ -38,7 +38,7 @@ internal class BindGenericVisitor(
                 switch (argumentSyntax.NameColon.Name.ToString())
                 {
                     case nameof(scope):
-                        scope = this.GetScope(argumentSyntax).Scope;
+                        scope = this.GetScope(argumentSyntax);
                         break;
                     case nameof(method):
                         method = this.GetGenericMethod(argumentSyntax);
@@ -50,7 +50,7 @@ internal class BindGenericVisitor(
                 switch (argumentIndex)
                 {
                     case 0:
-                        scope = this.GetScope(argumentSyntax).Scope;
+                        scope = this.GetScope(argumentSyntax);
                         break;
                     case 1:
                         method = this.GetGenericMethod(argumentSyntax);
@@ -102,10 +102,10 @@ internal class BindGenericVisitor(
             }
         }
 
-        analysisContext.CompiletimeInjectionDefinitionBuilder.BindGeneric(actualInterfaces, implementation, scope ?? Scope._Auto, actualMethod);
+        analysisContext.CompiletimeInjectionDefinitionBuilder.BindGeneric(actualInterfaces, implementation, scope, actualMethod);
     }
 
-    private (Scope Scope, ScopeOrigin Origin) GetScope(ArgumentSyntax argumentSyntax)
+    private ScopeContext GetScope(ArgumentSyntax argumentSyntax)
     {
         return ExpressionAnalysisHelper.GetScope(analysisContext.SemanticModel, argumentSyntax, analysisContext.TypeFactory);
     }

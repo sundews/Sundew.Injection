@@ -7,11 +7,14 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
+using Microsoft.CodeAnalysis;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.TypeSystem;
+using Accessibility = Sundew.Injection.Accessibility;
 
 internal readonly record struct FactoryCreationDefinition(
     NamedType FactoryType,
     NamedType? FactoryInterfaceType,
     ValueArray<FactoryMethodRegistration> FactoryMethodRegistrations,
-    Accessibility Accessibility);
+    Accessibility Accessibility,
+    Location Location);

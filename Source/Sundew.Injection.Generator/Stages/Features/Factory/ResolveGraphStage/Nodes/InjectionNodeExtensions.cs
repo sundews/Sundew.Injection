@@ -17,11 +17,11 @@ internal static class InjectionNodeExtensions
         {
             FactoryConstructorParameterInjectionNode factoryConstructorParameterInjectionNode => factoryConstructorParameterInjectionNode.Name,
             FactoryMethodParameterInjectionNode factoryMethodParameterInjectionNode => factoryMethodParameterInjectionNode.Name,
-            NewInstanceInjectionNode newInstanceInjectionNode => newInstanceInjectionNode.TargetType.GetDefiniteTypeName(),
-            SingleInstancePerFactoryInjectionNode singleInstancePerFactoryInjectionNode => singleInstancePerFactoryInjectionNode.TargetType.GetDefiniteTypeName(),
-            SingleInstancePerObjectInjectionNode singleInstancePerObjectInjectionNode => singleInstancePerObjectInjectionNode.TargetType.GetDefiniteTypeName(),
-            SingleInstancePerRequestInjectionNode singleInstancePerRequestInjectionNode => singleInstancePerRequestInjectionNode.TargetType.GetDefiniteTypeName(),
-            ThisFactoryInjectionNode thisFactoryInjectionNode => thisFactoryInjectionNode.FactoryType.GetDefiniteTypeName(),
+            NewInstanceInjectionNode newInstanceInjectionNode => newInstanceInjectionNode.TargetType.GetTypeName(),
+            SingleInstancePerFactoryInjectionNode singleInstancePerFactoryInjectionNode => singleInstancePerFactoryInjectionNode.TargetType.GetTypeName(),
+            SingleInstancePerObjectInjectionNode singleInstancePerObjectInjectionNode => singleInstancePerObjectInjectionNode.TargetType.GetTypeName(),
+            SingleInstancePerRequestInjectionNode singleInstancePerRequestInjectionNode => singleInstancePerRequestInjectionNode.TargetType.GetTypeName(),
+            ThisFactoryInjectionNode thisFactoryInjectionNode => thisFactoryInjectionNode.FactoryType.GetTypeName(),
         };
     }
 }

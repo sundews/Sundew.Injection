@@ -6,7 +6,7 @@ public class FactoryDeclaration : IInjectionDeclaration
 {
     public void Configure(IInjectionBuilder injectionBuilder)
     {
-        injectionBuilder.Bind<SingleInstancePerRequest>(Scope.SingleInstancePerRequest);
+        injectionBuilder.Bind<NewInstance>(Scope.NewInstance);
         injectionBuilder.Bind<SingleInstancePerFactory>(Scope.SingleInstancePerFactory);
 
         injectionBuilder.ImplementFactory<RootFactory>(selector => selector.Add<Root>());
@@ -26,18 +26,11 @@ public class Root
 
 public class SingleInstancePerFactory
 {
-    public SingleInstancePerFactory(SingleInstancePerRequest singleInstancePerRequest)
+    public SingleInstancePerFactory(NewInstance newInstance)
     {
     }
 }
 
-public class SingleInstancePerRequest
-{
-    public SingleInstancePerRequest(AutoInstance autoInstance)
-    {
-    }
-}
-
-public class AutoInstance
+public class NewInstance
 {
 }

@@ -14,9 +14,9 @@ using Sundew.Base.Collections.Immutable;
 
 internal static class GenericTypeConverter
 {
-    public static UnboundGenericType ToUnboundGenericType(this DefiniteClosedGenericType definiteClosedGenericType)
+    public static UnboundGenericType ToUnboundGenericType(this ClosedGenericType closedGenericType)
     {
-        return new UnboundGenericType(definiteClosedGenericType.Name, definiteClosedGenericType.TypeParameters.Count, definiteClosedGenericType.Namespace, definiteClosedGenericType.AssemblyName);
+        return new UnboundGenericType(closedGenericType.Name, closedGenericType.TypeParameters.Count, closedGenericType.Namespace, closedGenericType.AssemblyName);
     }
 
     public static UnboundGenericType ToUnboundGenericType(this OpenGenericType openGenericType)
@@ -24,9 +24,9 @@ internal static class GenericTypeConverter
         return new UnboundGenericType(openGenericType.Name, openGenericType.TypeParameters.Count, openGenericType.Namespace, openGenericType.AssemblyName);
     }
 
-    public static UnboundGenericType ToUnboundGenericType(this DefiniteArrayType definiteArrayType)
+    public static UnboundGenericType ToUnboundGenericType(this ArrayType arrayType)
     {
-        return new UnboundGenericType(definiteArrayType.Name, 1, definiteArrayType.Namespace, definiteArrayType.AssemblyName);
+        return new UnboundGenericType(arrayType.Name, 1, arrayType.Namespace, arrayType.AssemblyName);
     }
 
     public static OpenGenericType ToOpenGenericType(this ClosedGenericType closedGenericType)
@@ -49,13 +49,13 @@ internal static class GenericTypeConverter
         return new UnboundGenericType(unboundGenericTypeSymbol.Name, unboundGenericTypeSymbol.TypeParameters.Length, TypeHelper.GetNamespace(unboundGenericTypeSymbol.ContainingNamespace), unboundGenericTypeSymbol.ContainingAssembly.Identity.ToString());
     }
 
-    public static DefiniteClosedGenericType ToDefiniteClosedGenericType(this OpenGenericType openGenericType, ValueArray<DefiniteTypeArgument> typeArguments)
+    public static ClosedGenericType ToClosedGenericType(this OpenGenericType openGenericType, ValueArray<TypeArgument> typeArguments)
     {
-        return new DefiniteClosedGenericType(openGenericType.Name, openGenericType.Namespace, openGenericType.AssemblyName, openGenericType.TypeParameters, typeArguments, openGenericType.IsValueType);
+        return new ClosedGenericType(openGenericType.Name, openGenericType.Namespace, openGenericType.AssemblyName, openGenericType.TypeParameters, typeArguments, openGenericType.IsValueType);
     }
 
-    public static DefiniteClosedGenericType ToDefiniteClosedGenericType(this ContaineeType.GenericType genericType, ValueArray<DefiniteTypeArgument> typeArguments)
+    public static ClosedGenericType ToClosedGenericType(this ContaineeType.GenericType genericType, ValueArray<TypeArgument> typeArguments)
     {
-        return new DefiniteClosedGenericType(genericType.Name, genericType.Namespace, genericType.AssemblyName, genericType.TypeParameters, typeArguments, genericType.IsValueType);
+        return new ClosedGenericType(genericType.Name, genericType.Namespace, genericType.AssemblyName, genericType.TypeParameters, typeArguments, genericType.IsValueType);
     }
 }

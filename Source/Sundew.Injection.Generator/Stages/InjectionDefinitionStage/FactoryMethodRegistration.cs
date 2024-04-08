@@ -12,7 +12,7 @@ using Sundew.Injection.Generator.TypeSystem;
 internal readonly record struct FactoryMethodRegistration(
     (Type Type, TypeMetadata TypeMetadata) Return,
     (Type Type, TypeMetadata TypeMetadata) Target,
-    Scope Scope,
+    ScopeContext Scope,
     Method Method,
     Accessibility Accessibility,
     bool IsNewOverridable,

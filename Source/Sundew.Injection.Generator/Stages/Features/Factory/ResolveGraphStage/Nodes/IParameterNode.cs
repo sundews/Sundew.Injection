@@ -15,13 +15,13 @@ using Sundew.Injection.Generator.TypeSystem;
 /// </summary>
 internal interface IParameterNode : IInjectionNode
 {
-    DefiniteType Type { get; }
+    Type Type { get; }
 
     TypeMetadata TypeMetadata { get; }
 
     ParameterSource ParameterSource { get; }
 
-    bool RequiresNewInstance { get; }
+    bool PrefersNewInstance { get; }
 
     bool IsOptional { get; }
 

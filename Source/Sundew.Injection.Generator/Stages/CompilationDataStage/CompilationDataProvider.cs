@@ -17,6 +17,7 @@ using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Base.Collections.Linq;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
+using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
 using Type = System.Type;
@@ -79,12 +80,12 @@ internal static class CompilationDataProvider
             var lifecycleHandlerBinding = new Binding(
                 lifecycleHandlerType,
                 lifecycleHandlerType,
-                Scope._SingleInstancePerFactory,
-                new DefiniteMethod(
+                new ScopeContext(Scope._SingleInstancePerFactory(Location.None), ScopeSelection.Implicit),
+                new Method(
                     lifecycleHandlerType,
                     lifecycleHandlerType.Name,
-                    lifecycleHandlerConstructor!.Parameters.Select(x => new DefiniteParameter(TypeConverter.GetNamedType((INamedTypeSymbol)x.Type), x.Name, defaultMetadata, ParameterNecessity._Optional(null))).ToValueArray(),
-                    ImmutableArray<DefiniteTypeArgument>.Empty,
+                    lifecycleHandlerConstructor!.Parameters.Select(x => new Parameter(TypeConverter.GetNamedType((INamedTypeSymbol)x.Type), x.Name, defaultMetadata, ParameterNecessity._Optional(null))).ToValueArray(),
+                    ImmutableArray<TypeArgument>.Empty,
                     MethodKind._Constructor),
                 false,
                 false,
@@ -107,12 +108,12 @@ internal static class CompilationDataProvider
                 GenericTypeConverter.GetGenericType(func),
                 TypeConverter.GetNamedType(resolverItemsFactoryTypeSymbol),
                 resolverItemType,
-                new DefiniteArrayType(resolverItemType),
+                new ArrayType(resolverItemType),
                 GetNamedType(typeof(Type)),
                 objectType,
                 intType,
                 GetNamedType(typeof(IServiceProvider)),
-                GetGenericType(typeof(Span<>), string.Empty).ToDefiniteClosedGenericType(ImmutableArray.Create(new DefiniteTypeArgument(objectType, new TypeMetadata(null, EnumerableMetadata.NonEnumerableMetadata, false)))),
+                GetGenericType(typeof(Span<>), string.Empty).ToClosedGenericType(ImmutableArray.Create(new TypeArgument(objectType, new TypeMetadata(null, EnumerableMetadata.NonEnumerableMetadata, false)))),
                 GetGenericType(typeof(ResolverItem), string.Empty),
                 GenericTypeConverter.GetGenericType(iEnumerableOfTSymbol),
                 GenericTypeConverter.GetGenericType(iEnumerableOfTSymbol),

@@ -10,17 +10,18 @@ namespace Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage
 using System;
 using Sundew.Base.Equality;
 using Sundew.Injection.Generator.TypeSystem;
+using Type = Sundew.Injection.Generator.TypeSystem.Type;
 
 internal class Parameter : IEquatable<Parameter>
 {
-    public Parameter(DefiniteType type, string name, bool mustNameMatchForEquality)
+    public Parameter(Type type, string name, bool mustNameMatchForEquality)
     {
         this.Type = type;
         this.Name = name;
         this.MustNameMatchForEquality = mustNameMatchForEquality;
     }
 
-    public DefiniteType Type { get; }
+    public Type Type { get; }
 
     public string Name { get; }
 

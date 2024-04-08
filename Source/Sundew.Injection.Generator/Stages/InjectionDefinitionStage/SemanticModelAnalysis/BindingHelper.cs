@@ -12,6 +12,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Sundew.Base;
+using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.TypeSystem;
 using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
 
@@ -22,14 +23,14 @@ internal static class BindingHelper
         if (!analysisContext.CompiletimeInjectionDefinitionBuilder.HasBinding(factoryType.Type) &&
             factoryType.TypeMetadata.DefaultConstructor.TryGetValue(out var defaultConstructor))
         {
-            var actualMethod = new Method(defaultConstructor.Parameters, factoryType.Type.Name, factoryType.Type, MethodKind._Constructor);
-            analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<(Type Type, TypeMetadata TypeMetadata)>.Empty, factoryType, actualMethod, Scope._SingleInstancePerFactory, false, false);
+            var actualMethod = new Method(factoryType.Type, factoryType.Type.Name, defaultConstructor.Parameters, ValueArray<TypeArgument>.Empty, MethodKind._Constructor);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<(Type Type, TypeMetadata TypeMetadata)>.Empty, factoryType, actualMethod, new ScopeContext(Scope._SingleInstancePerFactory(Location.None), ScopeSelection.Implicit), false, false);
         }
 
         foreach (var methodAndReturnType in createMethods)
         {
             var returnType = analysisContext.TypeFactory.CreateType(methodAndReturnType.ReturnType);
-            analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<(Type Type, TypeMetadata TypeMetadata)>.Empty, returnType, methodAndReturnType.Method, Scope._Auto, false, false);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<(Type Type, TypeMetadata TypeMetadata)>.Empty, returnType, methodAndReturnType.Method, new ScopeContext(Scope._Auto, ScopeSelection.Implicit), false, false);
 
             if (SymbolEqualityComparer.Default.Equals(methodAndReturnType.ReturnType.OriginalDefinition, analysisContext.KnownAnalysisTypes.ConstructedTypeSymbol))
             {
@@ -38,10 +39,12 @@ internal static class BindingHelper
                     analysisContext.TypeFactory.CreateType(((INamedTypeSymbol)methodAndReturnType.ReturnType)
                         .TypeArguments.Single()),
                     new Method(
-                        nameof(Constructed<object>.Object),
                         analysisContext.TypeFactory.CreateType(methodAndReturnType.ReturnType).Type,
+                        nameof(Constructed<object>.Object),
+                        ValueArray<Parameter>.Empty,
+                        ValueArray<TypeArgument>.Empty,
                         MethodKind._Instance(returnType.TypeMetadata with { HasLifetime = false }, true)),
-                    Scope._Auto,
+                    new ScopeContext(Scope._Auto, ScopeSelection.Implicit),
                     false,
                     false);
             }

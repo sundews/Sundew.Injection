@@ -36,6 +36,6 @@ internal sealed class IteratorMethodGenerator
                             !arguments.Any(x => x is MemberAccessExpression))),
                 },
             },
-            CreationExpression._StaticMethodCall(default, createMethodName, ImmutableArray<DefiniteTypeArgument>.Empty, []));
+            CreationExpression._StaticMethodCall(default, createMethodName, ImmutableArray<TypeArgument>.Empty, []));
     }
 }

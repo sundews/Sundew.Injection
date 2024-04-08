@@ -10,29 +10,31 @@ namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.R
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.CodeAnalysis;
 using Sundew.Base;
 using Sundew.Base.Collections;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
-using Type = Sundew.Injection.Generator.TypeSystem.Type;
+using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
 
 internal sealed class ScopeResolverBuilder
 {
     private readonly BindingResolver bindingResolver;
+
     private readonly Dictionary<TypeId, ScopeContext> scopes;
 
     public ScopeResolverBuilder(
         BindingResolver bindingResolver,
-        ValueDictionary<TypeId, (Scope Scope, ScopeOrigin Origin)> requiredParameterScopes,
+        ValueDictionary<TypeId, InjectionDefinitionStage.ScopeContext> requiredParameterScopes,
         ValueArray<FactoryCreationDefinition> factoryCreationDefinitions)
-    : this(
-        bindingResolver,
-        requiredParameterScopes.ToDictionary(
-            x => x.Key,
-            x => new ScopeContext { Scope = x.Value.Scope, Origin = x.Value.Origin }),
-        factoryCreationDefinitions)
+        : this(
+            bindingResolver,
+            requiredParameterScopes.ToDictionary(
+                x => x.Key,
+                x => new ScopeContext(x.Value.Scope, x.Value.Selection)),
+            factoryCreationDefinitions)
     {
     }
 
@@ -45,121 +47,123 @@ internal sealed class ScopeResolverBuilder
         this.scopes = scopes;
         foreach (var factoryCreationDefinition in factoryCreationDefinitions)
         {
-            var scope = new ScopeContext { Scope = Scope._SingleInstancePerRequest, Origin = ScopeOrigin.Explicit };
-            this.scopes.Add(factoryCreationDefinition.FactoryType.Id, scope);
+            var scopeContext = new ScopeContext(Scope._SingleInstancePerRequest(Location.None), ScopeSelection.Implicit);
+            this.scopes.Add(factoryCreationDefinition.FactoryType.Id, scopeContext);
             if (factoryCreationDefinition.FactoryInterfaceType.TryGetValue(out var factoryInterfaceType))
             {
-                this.scopes.Add(factoryInterfaceType.Id, scope);
+                this.scopes.Add(factoryInterfaceType.Id, scopeContext);
             }
         }
     }
 
-    public Scope UpdateBindingScope(Binding binding, Scope parentScope)
+    public ScopeContext UpdateBindingScope(Binding binding, Dependant dependant, ImmutableList<ResolvedBindingError>.Builder errors)
     {
         var typeId = binding.ReferencedType.Id;
-        var scope = ScopePicker.Pick(binding.Scope, parentScope);
+        var scopeResult = (Context: new ScopeContext(binding.Scope.Scope, binding.Scope.Selection), Error: default(ScopeError));
         if (this.scopes.TryGetValue(typeId, out var previousResolvedScope))
         {
-            scope = ScopePicker.Pick(scope, previousResolvedScope.Scope);
-            previousResolvedScope.Scope = scope;
-            previousResolvedScope.Origin = ScopeOrigin.Implicit;
+            scopeResult = ScopePicker.Pick(binding.TargetType, previousResolvedScope, dependant);
+            previousResolvedScope.Scope = scopeResult.Context.Scope;
         }
         else
         {
-            var scopePair = new ScopeContext { Scope = scope, Origin = ScopeOrigin.Implicit };
-            this.scopes.Add(typeId, scopePair);
-            this.scopes[binding.TargetType.Id] = scopePair;
+            scopeResult = ScopePicker.Pick(binding.TargetType, scopeResult.Context, dependant);
+            this.scopes.Add(typeId, scopeResult.Context);
+            this.scopes[binding.TargetType.Id] = scopeResult.Context;
         }
 
-        return scope;
+        errors.TryAdd(scopeResult.Error);
+        return scopeResult.Context;
     }
 
-    public Scope UpdateParameterScope(Type type, Scope parentScope)
+    public ScopeContext UpdateParameterScope(Type type, Dependant dependant, ImmutableList<ResolvedBindingError>.Builder errors)
     {
         var typeId = type.Id;
-        var scope = Scope._NewInstance;
+        var scopeResult = (Context: new ScopeContext(Scope._NewInstance(Location.None), ScopeSelection.Implicit), Error: default(ScopeError));
         if (this.scopes.TryGetValue(typeId, out var previousResolveScope))
         {
-            scope = ScopePicker.Pick(
-                previousResolveScope.Origin == ScopeOrigin.Explicit
-                    ? previousResolveScope.Scope
-                    : scope,
-                parentScope);
-            previousResolveScope.Scope = scope;
+            scopeResult = ScopePicker.Pick(type, previousResolveScope, dependant);
+            previousResolveScope.Scope = scopeResult.Context.Scope;
         }
         else
         {
-            scope = ScopePicker.Pick(scope, parentScope);
-            this.scopes.Add(typeId, new ScopeContext { Scope = scope, Origin = ScopeOrigin.Implicit });
+            scopeResult = ScopePicker.Pick(type, scopeResult.Context, dependant);
+            this.scopes.Add(typeId, scopeResult.Context);
         }
 
-        return scope;
+        errors.TryAdd(scopeResult.Error);
+        return scopeResult.Context;
     }
 
-    public R<ScopeResolver, ImmutableList<ResolvedBindingError>> Build(Binding binding)
+    public R<ScopeResolver, ImmutableList<ResolvedBindingError>> Build(Type factoryType, Binding binding)
     {
         var errors = ImmutableList.CreateBuilder<ResolvedBindingError>();
-        this.ResolveBindingScopes(ResolvedBinding.SingleParameter(binding), Scope._NewInstance, errors);
+        this.ResolveBindingScopes(ResolvedBinding.SingleParameter(binding), new Dependant(factoryType, Scope._NewInstance(Location.None)), errors);
         return R.From(errors.IsEmpty(), new ScopeResolver(this.scopes), errors.ToImmutable());
     }
 
-    private void ResolveBindingScopes(ResolvedBinding resolvedBinding, Scope dependeeScope, ImmutableList<ResolvedBindingError>.Builder errors)
+    private void ResolveBindingScopes(ResolvedBinding resolvedBinding, Dependant dependant, ImmutableList<ResolvedBindingError>.Builder errors)
     {
-        void PickBindingScope(Binding binding, Scope dependeeScope)
+        void PickBindingScope(Binding binding)
         {
-            var scope = this.UpdateBindingScope(binding, dependeeScope);
+            var scopeContext = this.UpdateBindingScope(binding, dependant, errors);
+
+            var nextDependant = new Dependant(binding.TargetType, scopeContext.Scope);
             if (binding.Method.Kind is MethodKind.Instance instance)
             {
-                this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(binding.Method.ContainingType, instance.ContainingTypeMetadata, null), scope, errors);
+                this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(binding.Method.ContainingType, instance.ContainingTypeMetadata, default), nextDependant, errors);
             }
 
             foreach (var parameter in binding.Method.Parameters)
             {
-                this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(parameter.Type, parameter.TypeMetadata, (parameter.Name, parameter.ParameterNecessity)), scope, errors);
+                this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(parameter.Type, parameter.TypeMetadata, (parameter.Name, parameter.ParameterNecessity)), nextDependant, errors);
             }
         }
 
         switch (resolvedBinding)
         {
             case ThisFactoryParameter thisFactoryParameter:
-                this.UpdateParameterScope(thisFactoryParameter.FactoryType, Scope._SingleInstancePerFactory);
+                this.UpdateParameterScope(thisFactoryParameter.FactoryType, dependant with { Scope = Scope._SingleInstancePerFactory(Location.None) }, errors);
                 if (thisFactoryParameter.FactoryInterfaceType.HasValue())
                 {
-                    this.UpdateParameterScope(thisFactoryParameter.FactoryInterfaceType, Scope._SingleInstancePerFactory);
+                    this.UpdateParameterScope(thisFactoryParameter.FactoryInterfaceType, dependant with { Scope = Scope._SingleInstancePerFactory(Location.None) }, errors);
                 }
 
                 break;
             case SingleParameter singleParameter:
                 if (singleParameter.Binding.Method.Kind is MethodKind.Instance instance)
                 {
-                    this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(singleParameter.Binding.Method.ContainingType, instance.ContainingTypeMetadata, null), dependeeScope, errors);
+                    this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(singleParameter.Binding.Method.ContainingType, instance.ContainingTypeMetadata, default), dependant, errors);
 
-                    this.UpdateBindingScope(singleParameter.Binding, dependeeScope);
+                    this.UpdateBindingScope(singleParameter.Binding, dependant, errors);
                 }
 
-                PickBindingScope(singleParameter.Binding, dependeeScope);
+                PickBindingScope(singleParameter.Binding);
                 break;
             case MultiItemParameter multiItemParameter:
                 foreach (var binding in multiItemParameter.Bindings)
                 {
-                    PickBindingScope(binding, dependeeScope);
+                    PickBindingScope(binding);
                 }
 
-                this.UpdateParameterScope(multiItemParameter.Type, dependeeScope);
-
+                this.UpdateParameterScope(multiItemParameter.Type, dependant, errors);
                 break;
             case OptionalParameter defaultParameter:
-                this.UpdateParameterScope(defaultParameter.Type, Scope._NewInstance);
+                this.UpdateParameterScope(defaultParameter.Type, dependant with { Scope = Scope._NewInstance(Location.None) }, errors);
                 break;
             case RequiredParameter externalParameter:
-                this.UpdateParameterScope(externalParameter.Type, dependeeScope);
+                this.UpdateParameterScope(externalParameter.Type, dependant, errors);
                 break;
-            case ResolvedBindingError.ParameterError parameterError:
-                errors.Add(parameterError);
-                break;
-            case ResolvedBindingError.Error error:
-                errors.Add(error);
+            case ResolvedBindingError resolvedBindingError:
+                errors.Add(resolvedBindingError);
                 break;
         }
+    }
+
+    public sealed record ScopeContext(Scope Scope, ScopeSelection Selection)
+    {
+        public Scope Scope { get; set; } = Scope;
+
+        public ScopeSelection Selection { get; set; } = Selection;
     }
 }
