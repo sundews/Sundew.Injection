@@ -126,7 +126,7 @@ internal static class TypeResolverSyntaxGenerator
                         ValueArray<TypeArgument>.Empty,
                         [])).ToArray()),
 
-            Empty<(ParameterDeclaration ParameterDeclaration, FactoryMethod FactoryMethod)> empty => throw new System.NotImplementedException(),
+            Empty<(ParameterDeclaration ParameterDeclaration, FactoryMethod FactoryMethod)> empty => throw new System.NotSupportedException(),
         };
     }
 
