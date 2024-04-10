@@ -30,8 +30,8 @@
         <PackageReference Include="System.ValueTuple" />
 
         <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" GeneratePathProperty="true" PrivateAssets="all" />
-        <PackageReference Include="Disposal.Interfaces"/>
-        <PackageReference Include="Initialization.Interfaces"/>
+        <PackageReference Include="Disposal.Interfaces" />
+        <PackageReference Include="Initialization.Interfaces" />
         <PackageReference Include="Sundew.Packaging.Publish">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -39,6 +39,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Sundew.Injection.GeneratorDependencies\Sundew.Injection.GeneratorDependencies.csproj" />
         <ProjectReference Include="..\Sundew.Injection\Sundew.Injection.csproj" />
         <ProjectReference Include="..\Sundew.Injection.CodeFixes\Sundew.Injection.CodeFixes.csproj" />
         <ProjectReference Include="..\Sundew.Injection.Generator\Sundew.Injection.Generator.csproj" />

@@ -7,6 +7,10 @@
 
 namespace Sundew.Injection.IntegrationTests;
 
+using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -25,7 +29,10 @@ public class InjectionGeneratorErrorFixture
         GeneratorDriver generatorDriver = CSharpGeneratorDriver.Create(new InjectionGenerator());
 
         generatorDriver = generatorDriver.RunGenerators(compilation);
+        var runResult = generatorDriver.GetRunResult();
+        var diagnostics = runResult.Diagnostics.OrderBy(x => x.Id).ToImmutableArray();
+        runResult.GetType().GetField("_lazyDiagnostics", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(runResult, diagnostics);
 
-        return Verifier.Verify(generatorDriver);
+        return Verifier.Verify(runResult).ScrubLinesWithReplace(x => Path.IsPathRooted(x) ? x.Replace('\\', '/') : x);
     }
 }

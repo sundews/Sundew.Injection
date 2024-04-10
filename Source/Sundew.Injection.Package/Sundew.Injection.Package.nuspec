@@ -28,11 +28,17 @@
         <dependency id="Disposal.Interfaces" version="1.0.0" exclude="Build,Analyzers" />
         <dependency id="Sundew.Injection.Interface" version="$version$" exclude="Build,Analyzers" />
       </group>
+      <group targetFramework="net6.0">
+          <dependency id="Microsoft.Bcl.AsyncInterfaces" version="6.0.0" exclude="Build,Analyzers" />
+          <dependency id="Initialization.Interfaces" version="1.0.1" exclude="Build,Analyzers" />
+          <dependency id="Disposal.Interfaces" version="1.0.0" exclude="Build,Analyzers" />
+          <dependency id="Sundew.Injection.Interface" version="$version$" exclude="Build,Analyzers" />
+      </group>
       <group targetFramework=".NETStandard2.0">
         <dependency id="Microsoft.Bcl.AsyncInterfaces" version="6.0.0" exclude="Build,Analyzers" />
         <dependency id="Initialization.Interfaces" version="1.0.1" exclude="Build,Analyzers" />
         <dependency id="Disposal.Interfaces" version="1.0.0" exclude="Build,Analyzers" />
-        <dependency id="Sundew.Injection.Interface" version="$version$" exclude="Build,Analyzers" />
+        <dependency id="Sundew.Injection.Interface" version="$version$" exclude="Build" />
       </group>
       <group targetFramework=".NETFramework4.8.1">
         <dependency id="Microsoft.Bcl.AsyncInterfaces" version="6.0.0" exclude="Build,Analyzers" />
