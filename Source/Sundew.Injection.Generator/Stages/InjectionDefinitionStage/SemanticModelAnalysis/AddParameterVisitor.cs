@@ -44,7 +44,7 @@ internal class AddParameterVisitor : CSharpSyntaxWalker
                         inject = this.GetInject(argumentSyntax);
                         break;
                     case nameof(scope):
-                        scope = this.GetScope(argumentSyntax);
+                        scope = this.GetScope(argumentSyntax, this.type);
                         break;
                 }
             }
@@ -56,7 +56,7 @@ internal class AddParameterVisitor : CSharpSyntaxWalker
                         inject = this.GetInject(argumentSyntax);
                         break;
                     case 1:
-                        scope = this.GetScope(argumentSyntax);
+                        scope = this.GetScope(argumentSyntax, this.type);
                         break;
                 }
 
@@ -67,9 +67,9 @@ internal class AddParameterVisitor : CSharpSyntaxWalker
         this.analysisContext.CompiletimeInjectionDefinitionBuilder.AddParameter(this.type, inject, scope);
     }
 
-    private ScopeContext GetScope(ArgumentSyntax argumentSyntax)
+    private ScopeContext GetScope(ArgumentSyntax argumentSyntax, Symbol targetType)
     {
-        return ExpressionAnalysisHelper.GetScope(this.analysisContext.SemanticModel, argumentSyntax, this.analysisContext.TypeFactory);
+        return ExpressionAnalysisHelper.GetScope(this.analysisContext.SemanticModel, argumentSyntax, this.analysisContext.TypeFactory, targetType);
     }
 
     private Inject GetInject(ArgumentSyntax argumentSyntax)

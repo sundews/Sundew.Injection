@@ -7,7 +7,6 @@
     <authors>$authors$</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <developmentDependency>true</developmentDependency>
     <releaseNotes>$releaseNotes$</releaseNotes>
     <projectUrl>$projectUrl$</projectUrl>
     <iconUrl>$iconUrl$</iconUrl>

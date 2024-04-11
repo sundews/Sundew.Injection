@@ -8,8 +8,8 @@ using AssemblyReference = Sundew.Testing.CodeAnalysis.AssemblyReference;
 
 public static class TestProjects
 {
-    public static Project AllFeatureSuccess = new(@"TestProjects/AllFeaturesSuccess");
-    public static Project NetStandardLibraryErrors = new(@"TestProjects/AllErrors");
+    public static Project AllFeatureSuccess = new(@"TestProjects/Success");
+    public static Project NetStandardLibraryErrors = new(@"TestProjects/Errors");
     public static Project TestPlayground = new(@"TestProjects/TestPlayground");
 
     public class Project(string path)
@@ -21,7 +21,7 @@ public static class TestProjects
                     null,
                     new Paths("bin", "obj"),
                     new References(
-                        new AssemblyReference(Paths.FindPathUpwards("AllFeaturesSuccessDependency.dll")!),
+                        new AssemblyReference(Paths.FindPathUpwards("SuccessDependency.dll")!),
                         new AssemblyReference(Paths.FindPathUpwards("Sundew.Injection.dll")!),
                         new AssemblyReference(Paths.FindPathUpwards("Microsoft.Bcl.AsyncInterfaces.dll")!),
                         new AssemblyReference(Paths.FindPathUpwards("Initialization.Interfaces.dll")!),
@@ -36,7 +36,7 @@ public static class TestProjects
                     null,
                     new Paths("bin", "obj"),
                     new References(
-                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("AllFeaturesSuccessDependency.dll")!),
+                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("SuccessDependency.dll")!),
                         new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Sundew.Injection.dll")!),
                         new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Microsoft.Bcl.AsyncInterfaces.dll")!),
                         new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Initialization.Interfaces.dll")!),

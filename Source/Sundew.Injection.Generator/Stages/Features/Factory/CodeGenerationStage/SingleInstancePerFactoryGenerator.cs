@@ -21,8 +21,6 @@ internal class SingleInstancePerFactoryGenerator(
     GeneratorFeatures generatorFeatures,
     GeneratorContext generatorContext)
 {
-    private const string Owned = "owned";
-
     public FactoryNode
        VisitSingleInstancePerFactory(
            SingleInstancePerFactoryInjectionNode singleInstancePerFactoryInjectionNode,
@@ -38,7 +36,7 @@ internal class SingleInstancePerFactoryGenerator(
         (factoryNode, var wasAdded, var targetTypeFieldDeclaration) = factoryNode.GetOrAddField(
             NameHelper.GetIdentifierNameForType(targetType),
             fieldType,
-            (fieldName) => new FieldDeclaration(fieldType, fieldName, FieldModifier.Instance, null),
+            (fieldName) => new FieldDeclaration(fieldType, fieldName, FieldModifier.Instance),
             (in FactoryNode factoryNode, bool willAdd, in FieldDeclaration _) =>
             {
                 if (willAdd)
@@ -112,6 +110,14 @@ internal class SingleInstancePerFactoryGenerator(
                         [targetMemberAccessExpression])));
                 }
             }
+        }
+
+        if (singleInstancePerFactoryInjectionNode.ExposeAsProperty.TryGetValue(out var exposeAsProperty))
+        {
+            (factoryNode, _, _) = factoryNode.GetOrAddProperty(
+                exposeAsProperty,
+                referencedType,
+                (propertyName) => new PropertyDeclaration(targetTypeFieldDeclaration.Type, propertyName, targetTypeFieldDeclaration.Name));
         }
 
         return factoryNode with { DependantArguments = dependeeArguments };

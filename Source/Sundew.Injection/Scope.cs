@@ -24,7 +24,11 @@ namespace Sundew.Injection
 
         public static Scope SingleInstancePerRequest { get; } = new SingleInstancePerRequestScope();
 
-        public static Scope SingleInstancePerFactory { get; } = new SingleInstancePerFactoryScope();
+        public static Scope SingleInstancePerFactory() => new SingleInstancePerFactoryScope(false, default);
+
+        public static Scope SingleInstancePerFactory(bool exposeAsProperty) => new SingleInstancePerFactoryScope(exposeAsProperty, default);
+
+        public static Scope SingleInstancePerFactory(string propertyName) => new SingleInstancePerFactoryScope(true, propertyName);
 
         public static Scope SingleInstancePerFuncResult(Expression<Func<object>> func) => new SingleInstancePerFuncResultScope(func);
 
@@ -52,6 +56,15 @@ namespace Sundew.Injection
 
         internal sealed class SingleInstancePerFactoryScope : Scope
         {
+            public SingleInstancePerFactoryScope(bool exposeAsProperty, string? propertyName)
+            {
+                this.ExposeAsProperty = true;
+                this.PropertyName = propertyName;
+            }
+
+            public bool ExposeAsProperty { get; }
+
+            public string? PropertyName { get; }
         }
     }
 }

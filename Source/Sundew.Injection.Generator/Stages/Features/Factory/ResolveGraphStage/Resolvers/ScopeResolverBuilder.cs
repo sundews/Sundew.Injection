@@ -123,10 +123,10 @@ internal sealed class ScopeResolverBuilder
         switch (resolvedBinding)
         {
             case ThisFactoryParameter thisFactoryParameter:
-                this.UpdateParameterScope(thisFactoryParameter.FactoryType, dependant with { Scope = Scope._SingleInstancePerFactory(Location.None) }, errors);
+                this.UpdateParameterScope(thisFactoryParameter.FactoryType, dependant with { Scope = Scope._SingleInstancePerFactory(default, Location.None) }, errors);
                 if (thisFactoryParameter.FactoryInterfaceType.HasValue())
                 {
-                    this.UpdateParameterScope(thisFactoryParameter.FactoryInterfaceType, dependant with { Scope = Scope._SingleInstancePerFactory(Location.None) }, errors);
+                    this.UpdateParameterScope(thisFactoryParameter.FactoryInterfaceType, dependant with { Scope = Scope._SingleInstancePerFactory(default, Location.None) }, errors);
                 }
 
                 break;

@@ -31,6 +31,9 @@ internal class BindVisitor(
         var isInjectable = (bool?)parameters[i++].ExplicitDefaultValue ?? false;
         var isNewOverridable = (bool?)parameters[i++].ExplicitDefaultValue ?? false;
         var argumentIndex = 0;
+        var interfaceTypes = typeArguments.Take(typeArguments.Length - 1).Select(analysisContext.TypeFactory.CreateType).ToImmutableArray();
+        var implementationTypeSymbol = typeArguments.Last();
+        var implementationType = analysisContext.TypeFactory.CreateType(implementationTypeSymbol);
         foreach (var argumentSyntax in node.Arguments)
         {
             if (argumentSyntax.NameColon != null)
@@ -38,7 +41,7 @@ internal class BindVisitor(
                 switch (argumentSyntax.NameColon.Name.ToString())
                 {
                     case nameof(scope):
-                        scope = this.GetScope(argumentSyntax);
+                        scope = this.GetScope(argumentSyntax, implementationType.Type);
                         break;
                     case nameof(constructorSelector):
                         constructorSelector = this.GetMethod(argumentSyntax);
@@ -56,7 +59,7 @@ internal class BindVisitor(
                 switch (argumentIndex)
                 {
                     case 0:
-                        scope = this.GetScope(argumentSyntax);
+                        scope = this.GetScope(argumentSyntax, implementationType.Type);
                         break;
                     case 1:
                         constructorSelector = this.GetMethod(argumentSyntax);
@@ -73,10 +76,6 @@ internal class BindVisitor(
             }
         }
 
-        var interfaceTypes = typeArguments.Take(typeArguments.Length - 1).Select(analysisContext.TypeFactory.CreateType).ToImmutableArray();
-        var implementationTypeSymbol = typeArguments.Last();
-        var implementationType = analysisContext.TypeFactory.CreateType(implementationTypeSymbol);
-
         var actualMethodOption = constructorSelector ?? implementationType.TypeMetadata.DefaultConstructor;
         if (actualMethodOption.TryGetValue(out var actualMethod))
         {
@@ -92,9 +91,9 @@ internal class BindVisitor(
         return argumentSyntax.Expression is LiteralExpressionSyntax literalExpressionSyntax && ((bool?)literalExpressionSyntax.Token.Value ?? false);
     }
 
-    private ScopeContext GetScope(ArgumentSyntax argumentSyntax)
+    private ScopeContext GetScope(ArgumentSyntax argumentSyntax, Symbol targetType)
     {
-        return ExpressionAnalysisHelper.GetScope(analysisContext.SemanticModel, argumentSyntax, analysisContext.TypeFactory);
+        return ExpressionAnalysisHelper.GetScope(analysisContext.SemanticModel, argumentSyntax, analysisContext.TypeFactory, targetType);
     }
 
     private Method? GetMethod(ArgumentSyntax argumentSyntax)

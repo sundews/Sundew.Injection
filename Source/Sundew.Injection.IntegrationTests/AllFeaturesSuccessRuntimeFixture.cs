@@ -8,11 +8,11 @@
 namespace Sundew.Injection.IntegrationTests;
 
 using System.Threading.Tasks;
-using AllFeaturesSuccess;
-using AllFeaturesSuccess.OptionalInterface;
-using AllFeaturesSuccess.RequiredInterface;
-using AllFeaturesSuccessDependency;
 using NUnit.Framework;
+using Success;
+using Success.OptionalInterface;
+using Success.RequiredInterface;
+using SuccessDependency;
 using VerifyNUnit;
 
 [TestFixture]

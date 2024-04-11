@@ -1,6 +1,5 @@
 ﻿namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Resolvers;
 
-using Microsoft.CodeAnalysis;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 using Scope = Sundew.Injection.Generator.TypeSystem.Scope;
@@ -20,14 +19,14 @@ internal static class ScopePicker
         }
 
         var dependantScope = dependant.Scope;
-        var newDependantScopeContext = suggestedScope with { Scope = dependantScope };
+        var newScopeFromDependantScope = suggestedScope with { Scope = dependantScope.ToDependencyScope() };
         return (suggestedScope.Scope, dependantScope) switch
         {
-            (Scope.Auto, _) => (newDependantScopeContext, default),
-            (Scope.NewInstance, Scope.SingleInstancePerFuncResult) => (suggestedScope with { Scope = Scope._SingleInstancePerRequest(Location.None) }, GetErrorIfExplicit()),
+            (Scope.Auto, _) => (newScopeFromDependantScope, default),
+            (Scope.NewInstance, Scope.SingleInstancePerFuncResult) => (newScopeFromDependantScope, GetErrorIfExplicit()),
             (Scope.NewInstance, Scope.NewInstance) => (suggestedScope, default),
-            (Scope.NewInstance, _) => (newDependantScopeContext, GetErrorIfExplicit()),
-            (Scope.SingleInstancePerRequest, Scope.SingleInstancePerFactory) => (newDependantScopeContext, GetErrorIfExplicit()),
+            (Scope.NewInstance, _) => (newScopeFromDependantScope, GetErrorIfExplicit()),
+            (Scope.SingleInstancePerRequest, Scope.SingleInstancePerFactory) => (newScopeFromDependantScope, GetErrorIfExplicit()),
             (Scope.SingleInstancePerRequest, _) => (suggestedScope, default),
             (Scope.SingleInstancePerFuncResult, Scope.SingleInstancePerFactory) => (suggestedScope, new ScopeError(targetType, suggestedScope.Scope, dependant)),
             (Scope.SingleInstancePerFuncResult, _) => (suggestedScope, default),

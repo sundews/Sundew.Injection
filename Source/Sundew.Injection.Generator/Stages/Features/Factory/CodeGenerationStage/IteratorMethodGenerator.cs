@@ -7,7 +7,6 @@
 
 namespace Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage;
 
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -24,18 +23,18 @@ internal sealed class IteratorMethodGenerator
     {
         var createMethodName = Create + NameHelper.GetFactoryMethodName(iteratorMethodCall.ElementType.Name);
         return (factoryNode with
+        {
+            CreateMethod = factoryNode.CreateMethod with
             {
-                CreateMethod = factoryNode.CreateMethod with
-                {
-                    Statements = factoryNode.CreateMethod.Statements.Add(
+                Statements = factoryNode.CreateMethod.Statements.Add(
                         Statement.LocalFunctionStatement(
                             createMethodName,
                             ImmutableArray<ParameterDeclaration>.Empty,
                             iteratorMethodCall.ReturnType,
                             arguments.Select(x => new YieldReturnStatement(x)).ToImmutableList<Statement>(),
                             !arguments.Any(x => x is MemberAccessExpression))),
-                },
             },
+        },
             CreationExpression._StaticMethodCall(default, createMethodName, ImmutableArray<TypeArgument>.Empty, []));
     }
 }

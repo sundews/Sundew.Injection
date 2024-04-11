@@ -12,7 +12,6 @@ using System.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using Sundew.Injection.Generator.Stages.CompilationDataStage;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Nodes;
-using Sundew.Injection.Generator.TypeSystem;
 using Expression = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Expression;
 using Statement = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Statement;
 using Type = Sundew.Injection.Generator.TypeSystem.Type;
@@ -36,6 +35,22 @@ internal static class FactoryNodeExtensions
         var modifiedFactoryNode = preModifyFactoryNodeFunc?.Invoke(factoryNode, wasCreated, fieldDeclaration) ?? factoryNode;
         var fields = wasCreated ? modifiedFactoryNode.FactoryImplementation.Fields.Add(fieldDeclaration) : modifiedFactoryNode.FactoryImplementation.Fields;
         return (modifiedFactoryNode with { FactoryImplementation = modifiedFactoryNode.FactoryImplementation with { Fields = fields } }, wasCreated, fieldDeclaration);
+    }
+
+    public static (FactoryNode FactoryNode, bool WasAdded, PropertyDeclaration PropertyDeclaration) GetOrAddProperty(
+        in this FactoryNode factoryNode,
+        string name,
+        Type type,
+        Func<string, PropertyDeclaration> createDeclarationFunc,
+        ModifyFactoryNode<PropertyDeclaration>? preModifyFactoryNodeFunc = null)
+    {
+        var (wasCreated, propertyDeclaration) = factoryNode.FactoryImplementation.Properties.GetOrCreate(
+            name,
+            type,
+            createDeclarationFunc);
+        var modifiedFactoryNode = preModifyFactoryNodeFunc?.Invoke(factoryNode, wasCreated, propertyDeclaration) ?? factoryNode;
+        var properties = wasCreated ? modifiedFactoryNode.FactoryImplementation.Properties.Add(propertyDeclaration) : modifiedFactoryNode.FactoryImplementation.Properties;
+        return (modifiedFactoryNode with { FactoryImplementation = modifiedFactoryNode.FactoryImplementation with { Properties = properties } }, wasCreated, propertyDeclaration);
     }
 
     public static (FactoryNode FactoryNode, bool WasAdded, Declaration Declaration) GetOrAddVariable(

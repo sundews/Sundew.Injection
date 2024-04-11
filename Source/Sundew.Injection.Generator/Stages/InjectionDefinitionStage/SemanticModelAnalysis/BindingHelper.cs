@@ -24,7 +24,7 @@ internal static class BindingHelper
             factoryType.TypeMetadata.DefaultConstructor.TryGetValue(out var defaultConstructor))
         {
             var actualMethod = new Method(factoryType.Type, factoryType.Type.Name, defaultConstructor.Parameters, ValueArray<TypeArgument>.Empty, MethodKind._Constructor);
-            analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<(Type Type, TypeMetadata TypeMetadata)>.Empty, factoryType, actualMethod, new ScopeContext(Scope._SingleInstancePerFactory(Location.None), ScopeSelection.Implicit), false, false);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<(Type Type, TypeMetadata TypeMetadata)>.Empty, factoryType, actualMethod, new ScopeContext(Scope._SingleInstancePerFactory(default, Location.None), ScopeSelection.Implicit), false, false);
         }
 
         foreach (var methodAndReturnType in createMethods)

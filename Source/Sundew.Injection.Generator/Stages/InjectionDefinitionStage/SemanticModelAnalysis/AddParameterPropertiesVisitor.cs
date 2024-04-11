@@ -24,6 +24,7 @@ internal class AddParameterPropertiesVisitor(
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
         var parameters = methodSymbol.Parameters;
+        var parameterType = analysisContext.TypeFactory.CreateType(this.argumentTypeSymbol);
         var i = 0;
         var scope = new ScopeContext((Scope?)parameters[i++].ExplicitDefaultValue ?? Scope._SingleInstancePerRequest(Location.None), ScopeSelection.Default);
         var argumentIndex = 0;
@@ -34,7 +35,7 @@ internal class AddParameterPropertiesVisitor(
                 switch (argumentSyntax.NameColon.Name.ToString())
                 {
                     case nameof(scope):
-                        scope = this.GetScope(argumentSyntax);
+                        scope = this.GetScope(argumentSyntax, parameterType.Type);
                         break;
                 }
             }
@@ -43,7 +44,7 @@ internal class AddParameterPropertiesVisitor(
                 switch (argumentIndex)
                 {
                     case 0:
-                        scope = this.GetScope(argumentSyntax);
+                        scope = this.GetScope(argumentSyntax, parameterType.Type);
                         break;
                 }
 
@@ -82,8 +83,8 @@ internal class AddParameterPropertiesVisitor(
         base.VisitArgumentList(node);
     }
 
-    private ScopeContext GetScope(ArgumentSyntax argumentSyntax)
+    private ScopeContext GetScope(ArgumentSyntax argumentSyntax, Symbol targetType)
     {
-        return ExpressionAnalysisHelper.GetScope(analysisContext.SemanticModel, argumentSyntax, analysisContext.TypeFactory);
+        return ExpressionAnalysisHelper.GetScope(analysisContext.SemanticModel, argumentSyntax, analysisContext.TypeFactory, targetType);
     }
 }

@@ -18,6 +18,7 @@ internal sealed record SingleInstancePerFactoryInjectionNode(
     CreationSource CreationSource,
     ParameterNode? ParameterNodeOption,
     ValueArray<Parameter>? OverridableNewParametersOption,
+    string? ExposeAsProperty,
     string? ParentName) : InjectionNode(ParentName), IHaveParametersNode, IMayOverrideNewNode
 {
     public override string Name => this.TargetType.Name;

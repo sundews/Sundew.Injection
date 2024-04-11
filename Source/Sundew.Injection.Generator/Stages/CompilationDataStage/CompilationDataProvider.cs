@@ -80,7 +80,7 @@ internal static class CompilationDataProvider
             var lifecycleHandlerBinding = new Binding(
                 lifecycleHandlerType,
                 lifecycleHandlerType,
-                new ScopeContext(Scope._SingleInstancePerFactory(Location.None), ScopeSelection.Implicit),
+                new ScopeContext(Scope._SingleInstancePerFactory(default, Location.None), ScopeSelection.Implicit),
                 new Method(
                     lifecycleHandlerType,
                     lifecycleHandlerType.Name,

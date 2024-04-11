@@ -15,6 +15,7 @@ internal readonly record struct FactoryImplementation(
     ImmutableList<FieldDeclaration> Fields,
     Constructor Constructor,
     ImmutableList<DeclaredMethodImplementation> CreateMethods,
+    ImmutableList<PropertyDeclaration> Properties,
     ImmutableList<DeclaredMethodImplementation> FactoryMethods,
     ImmutableList<DeclaredDisposeMethodImplementation> DisposeMethodImplementations,
     ImmutableList<DeclaredMethodImplementation> PrivateCreateMethods)
@@ -26,6 +27,7 @@ internal readonly record struct FactoryImplementation(
                 ImmutableList<ParameterDeclaration>.Empty,
                 ImmutableList<Statement>.Empty),
             ImmutableList<DeclaredMethodImplementation>.Empty,
+            ImmutableList<PropertyDeclaration>.Empty,
             ImmutableList<DeclaredMethodImplementation>.Empty,
             ImmutableList<DeclaredDisposeMethodImplementation>.Empty,
             ImmutableList<DeclaredMethodImplementation>.Empty)

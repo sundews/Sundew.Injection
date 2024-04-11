@@ -8,10 +8,10 @@
 namespace Sundew.Injection.IntegrationTests;
 
 using System.Threading.Tasks;
-using AllFeaturesSuccessDependency;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using NUnit.Framework;
+using SuccessDependency;
 using Sundew.Injection.Generator;
 using Sundew.Injection.Testing;
 using VerifyNUnit;

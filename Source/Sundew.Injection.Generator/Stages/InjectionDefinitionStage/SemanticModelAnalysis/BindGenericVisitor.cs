@@ -26,40 +26,6 @@ internal class BindGenericVisitor(
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
         var typeArguments = methodSymbol.MapTypeArguments(genericNameSyntax);
-        var parameters = methodSymbol.Parameters;
-        var i = 0;
-        var scope = new ScopeContext((Scope?)parameters[i++].ExplicitDefaultValue ?? Scope._Auto, ScopeSelection.Implicit);
-        var method = (GenericMethod?)parameters[i++].ExplicitDefaultValue;
-        var argumentIndex = 0;
-        foreach (var argumentSyntax in node.Arguments)
-        {
-            if (argumentSyntax.NameColon != null)
-            {
-                switch (argumentSyntax.NameColon.Name.ToString())
-                {
-                    case nameof(scope):
-                        scope = this.GetScope(argumentSyntax);
-                        break;
-                    case nameof(method):
-                        method = this.GetGenericMethod(argumentSyntax);
-                        break;
-                }
-            }
-            else
-            {
-                switch (argumentIndex)
-                {
-                    case 0:
-                        scope = this.GetScope(argumentSyntax);
-                        break;
-                    case 1:
-                        method = this.GetGenericMethod(argumentSyntax);
-                        break;
-                }
-
-                argumentIndex++;
-            }
-        }
 
         var interfaces = typeArguments.Take(typeArguments.Length - 1).AllOrFailed(mappedTypeSymbol =>
         {
@@ -85,6 +51,41 @@ internal class BindGenericVisitor(
         }
 
         var implementation = analysisContext.TypeFactory.GetGenericType(lastNamedTypeSymbol);
+        var parameters = methodSymbol.Parameters;
+        var i = 0;
+        var scope = new ScopeContext((Scope?)parameters[i++].ExplicitDefaultValue ?? Scope._Auto, ScopeSelection.Implicit);
+        var method = (GenericMethod?)parameters[i++].ExplicitDefaultValue;
+        var argumentIndex = 0;
+        foreach (var argumentSyntax in node.Arguments)
+        {
+            if (argumentSyntax.NameColon != null)
+            {
+                switch (argumentSyntax.NameColon.Name.ToString())
+                {
+                    case nameof(scope):
+                        scope = this.GetScope(argumentSyntax, implementation.Type);
+                        break;
+                    case nameof(method):
+                        method = this.GetGenericMethod(argumentSyntax);
+                        break;
+                }
+            }
+            else
+            {
+                switch (argumentIndex)
+                {
+                    case 0:
+                        scope = this.GetScope(argumentSyntax, implementation.Type);
+                        break;
+                    case 1:
+                        method = this.GetGenericMethod(argumentSyntax);
+                        break;
+                }
+
+                argumentIndex++;
+            }
+        }
+
         var actualMethod = method.GetValueOrDefault();
         if (actualMethod == default)
         {
@@ -105,9 +106,9 @@ internal class BindGenericVisitor(
         analysisContext.CompiletimeInjectionDefinitionBuilder.BindGeneric(actualInterfaces, implementation, scope, actualMethod);
     }
 
-    private ScopeContext GetScope(ArgumentSyntax argumentSyntax)
+    private ScopeContext GetScope(ArgumentSyntax argumentSyntax, Symbol targetType)
     {
-        return ExpressionAnalysisHelper.GetScope(analysisContext.SemanticModel, argumentSyntax, analysisContext.TypeFactory);
+        return ExpressionAnalysisHelper.GetScope(analysisContext.SemanticModel, argumentSyntax, analysisContext.TypeFactory, targetType);
     }
 
     private GenericMethod? GetGenericMethod(ArgumentSyntax argumentSyntax)

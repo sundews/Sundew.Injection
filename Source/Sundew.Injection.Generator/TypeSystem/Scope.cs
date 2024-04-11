@@ -15,16 +15,47 @@ internal abstract partial record Scope
 {
     public abstract Location Location { get; init; }
 
+    public abstract Scope ToDependencyScope();
+
     internal sealed record Auto : Scope
     {
         public override Location Location { get; init; } = Location.None;
+
+        public override Scope ToDependencyScope()
+        {
+            return _NewInstance(this.Location);
+        }
     }
 
-    internal sealed record NewInstance(Location Location) : Scope;
+    internal sealed record NewInstance(Location Location) : Scope
+    {
+        public override Scope ToDependencyScope()
+        {
+            return _NewInstance(Location.None);
+        }
+    }
 
-    internal sealed record SingleInstancePerRequest(Location Location) : Scope;
+    internal sealed record SingleInstancePerRequest(Location Location) : Scope
+    {
+        public override Scope ToDependencyScope()
+        {
+            return _SingleInstancePerRequest(Location.None);
+        }
+    }
 
-    internal sealed record SingleInstancePerFuncResult(Method Method, Location Location) : Scope;
+    internal sealed record SingleInstancePerFuncResult(Method Method, Location Location) : Scope
+    {
+        public override Scope ToDependencyScope()
+        {
+            return _SingleInstancePerRequest(Location.None);
+        }
+    }
 
-    internal sealed record SingleInstancePerFactory(Location Location) : Scope;
+    internal sealed record SingleInstancePerFactory(string? ExposeAsPropertyOption, Location Location) : Scope
+    {
+        public override Scope ToDependencyScope()
+        {
+            return _SingleInstancePerFactory(default, Location.None);
+        }
+    }
 }

@@ -82,6 +82,14 @@ internal static class ImplementationSourceCodeEmitter
 
                     builder.AppendMethodImplementation(methodImplementation, options, indentation);
                     break;
+                case Member.Property property:
+                    if (wasAggregated)
+                    {
+                        builder.AppendLine();
+                    }
+
+                    builder.AppendProperty(property, indentation);
+                    break;
                 case Member.Raw raw:
                     builder.Append(raw.Value);
                     break;
@@ -101,7 +109,7 @@ internal static class ImplementationSourceCodeEmitter
         var formattingOptions = field.Declaration.FieldModifier == FieldModifier.Static ? new FormattingOptions(true) : new FormattingOptions(false);
         stringBuilder.Append(' ', indentation)
             .Append(Trivia.Private)
-            .AppendFieldScope(field.Declaration.FieldModifier)
+            .AppendFieldModifier(field.Declaration.FieldModifier)
             .Append(' ')
             .AppendFullyQualifiedType(field.Declaration.Type)
             .Append(' ')
@@ -112,7 +120,24 @@ internal static class ImplementationSourceCodeEmitter
             .Append(';');
     }
 
-    private static StringBuilder AppendFieldScope(this StringBuilder builder, FieldModifier fieldModifier)
+    private static void AppendProperty(this StringBuilder stringBuilder, Member.Property property, int indentation)
+    {
+        stringBuilder.Append(' ', indentation)
+            .Append(Trivia.Public)
+            .Append(' ')
+            .AppendFullyQualifiedType(property.Declaration.Type)
+            .Append(' ')
+            .Append(property.Declaration.Name)
+            .Append(' ')
+            .Append(Trivia.LambdaArrow)
+            .Append(' ')
+            .Append(Trivia.This)
+            .Append('.')
+            .Append(property.Declaration.FieldName)
+            .Append(';');
+    }
+
+    private static StringBuilder AppendFieldModifier(this StringBuilder builder, FieldModifier fieldModifier)
     {
         return fieldModifier switch
         {

@@ -12,6 +12,8 @@ using System.Collections.Generic;
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record Member
 {
+    internal sealed record Property(PropertyDeclaration Declaration) : Member;
+
     internal sealed record MethodImplementation(MethodDeclaration MethodDeclaration, IReadOnlyList<Statement> Statements) : Member;
 
     internal sealed record Field(FieldDeclaration Declaration) : Member;

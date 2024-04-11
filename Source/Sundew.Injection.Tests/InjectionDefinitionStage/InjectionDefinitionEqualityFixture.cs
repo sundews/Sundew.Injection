@@ -11,7 +11,7 @@ public class InjectionDefinitionEqualityFixture
     public void Equals_Then_ResultShouldBeTrue()
     {
         var compilation = TestProjects.AllFeatureSuccess.FromCurrentDirectory.Value;
-        var demoModuleDeclaration = compilation.GetTypeByMetadataName("AllFeaturesSuccess.FactoryDeclaration");
+        var demoModuleDeclaration = compilation.GetTypeByMetadataName("Success.InjectionDeclaration");
         if (demoModuleDeclaration == null)
         {
             Assert.Fail($"Could not find FactoryDeclaration. Compilation had: {compilation.GetDiagnostics().Length} diagnostics");

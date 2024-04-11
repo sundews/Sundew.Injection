@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Sundew.Injection.Generator\Sundew.Injection.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\AllFeaturesSuccessDependency\AllFeaturesSuccessDependency.csproj" />
+    <ProjectReference Include="..\SuccessDependency\SuccessDependency.csproj" />
   </ItemGroup>
 
 </Project>

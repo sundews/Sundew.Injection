@@ -19,17 +19,10 @@ using MethodImplementation = Sundew.Injection.Generator.Stages.Features.Factory.
 using Parameter = Sundew.Injection.Generator.TypeSystem.Parameter;
 using Statement = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Statement;
 
-internal sealed class OnCreateMethodGenerator
+internal sealed class OnCreateMethodGenerator(GeneratorFeatures generatorFeatures, GeneratorContext generatorContext)
 {
     private const string OnCreate = "OnCreate";
-    private readonly GeneratorFeatures generatorFeatures;
-    private readonly GeneratorContext generatorContext;
-
-    public OnCreateMethodGenerator(GeneratorFeatures generatorFeatures, GeneratorContext generatorContext)
-    {
-        this.generatorFeatures = generatorFeatures;
-        this.generatorContext = generatorContext;
-    }
+    private readonly GeneratorContext generatorContext = generatorContext;
 
     public (FactoryNode FactoryNode, InvocationExpressionBase CreationExpression)
         Generate(
@@ -40,7 +33,7 @@ internal sealed class OnCreateMethodGenerator
         var resultingFactoryNode = factoryNode;
         if (Equals(existingFactoryMethod.Declaration, default))
         {
-            var creationExpressionPair = this.generatorFeatures.CreationExpressionGenerator.Generate(factoryNode, creationSource, declaration.Parameters.Select(x => new Identifier(x.Name)).ToImmutableArray());
+            var creationExpressionPair = generatorFeatures.CreationExpressionGenerator.Generate(factoryNode, creationSource, declaration.Parameters.Select(x => new Identifier(x.Name)).ToImmutableArray());
             factoryMethods = factoryMethods.Add(new DeclaredMethodImplementation(declaration, new MethodImplementation(declaration.Parameters, ImmutableList<Declaration>.Empty, ImmutableList.Create<Statement>(new ReturnStatement(creationExpressionPair.CreationExpression)))));
             resultingFactoryNode = creationExpressionPair.FactoryNode;
         }

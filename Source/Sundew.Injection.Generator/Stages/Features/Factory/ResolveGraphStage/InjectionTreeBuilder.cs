@@ -319,8 +319,9 @@ internal sealed class InjectionTreeBuilder(
                     creationSource,
                     parameterNodeOption,
                     overridableNewParametersOption,
+                    default,
                     dependantInjectionNode?.GetInjectionNodeName()),
-            Scope.SingleInstancePerFactory =>
+            Scope.SingleInstancePerFactory singleInstancePerFactory =>
                  InjectionNode.SingleInstancePerFactoryInjectionNode(
                      targetType,
                      referencedType,
@@ -329,6 +330,7 @@ internal sealed class InjectionTreeBuilder(
                      creationSource,
                      parameterNodeOption,
                      overridableNewParametersOption,
+                     singleInstancePerFactory.ExposeAsPropertyOption,
                      dependantInjectionNode?.GetInjectionNodeName()),
         };
     }

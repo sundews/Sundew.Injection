@@ -41,7 +41,7 @@
     <ProjectReference Include="..\Sundew.Injection.Generator\Sundew.Injection.Generator.csproj" />
     <ProjectReference Include="..\Sundew.Injection.Tests\Sundew.Injection.Tests.csproj" />
     <ProjectReference Include="..\Sundew.Injection\Sundew.Injection.csproj" />
-    <ProjectReference Include="..\TestProjects\AllFeaturesSuccess\AllFeaturesSuccess.csproj" />
+    <ProjectReference Include="..\TestProjects\Success\Success.csproj" />
   </ItemGroup>
 
 </Project>

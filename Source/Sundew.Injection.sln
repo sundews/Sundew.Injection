@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Injection.Package", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Injection", "Sundew.Injection\Sundew.Injection.csproj", "{49BC2610-7D19-49A7-B283-43203AFA45D1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AllFeaturesSuccess", "TestProjects\AllFeaturesSuccess\AllFeaturesSuccess.csproj", "{65687584-4DA1-4997-93E3-DED74551B00E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Success", "TestProjects\Success\Success.csproj", "{65687584-4DA1-4997-93E3-DED74551B00E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{615FC6B8-170C-4588-8976-FD5B2C947B67}"
 	ProjectSection(SolutionItems) = preProject
@@ -48,13 +48,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Injection.Testing", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Injection.GeneratorDependencies", "Sundew.Injection.GeneratorDependencies\Sundew.Injection.GeneratorDependencies.csproj", "{A28F8C05-648E-4999-B6B1-180CFB6E6C2A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AllFeaturesSuccessDependency", "TestProjects\AllFeaturesSuccessDependency\AllFeaturesSuccessDependency.csproj", "{3A168BE4-80C2-49C2-89A2-3870CEABE9DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuccessDependency", "TestProjects\SuccessDependency\SuccessDependency.csproj", "{3A168BE4-80C2-49C2-89A2-3870CEABE9DB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Injection.PerformanceTests", "Sundew.Injection.PerformanceTests\Sundew.Injection.PerformanceTests.csproj", "{EA549FB4-6F3C-479A-B37F-0C2DC8D4EFD7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestPlayground", "TestProjects\TestPlayground\TestPlayground.csproj", "{3F7E2D84-D29C-47A4-B8B0-A31344CDB685}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AllErrors", "TestProjects\AllErrors\AllErrors.csproj", "{E262227A-DBC6-4CA9-A45D-5B0272B0299B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Errors", "TestProjects\Errors\Errors.csproj", "{E262227A-DBC6-4CA9-A45D-5B0272B0299B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

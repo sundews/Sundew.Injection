@@ -80,7 +80,7 @@ internal class AddFactoryMethodVisitor(
             }
         }
 
-        if (typeArguments.Length == 1 && !implementationType.TypeSymbol.IsInstantiable() && constructorSelector == null)
+        if (typeArguments.Length == 1 && constructorSelector == null)
         {
             analysisContext.AddDefaultFactoryMethodFromTypeSymbol(implementationType, accessibility, isNewOverridable, factoryMethodRegistrationBuilder);
             return;
