@@ -7,4 +7,4 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-internal readonly record struct Parameter(Type Type, string Name, TypeMetadata TypeMetadata, ParameterNecessity ParameterNecessity);
+internal readonly record struct Parameter(Type Type, string Name);

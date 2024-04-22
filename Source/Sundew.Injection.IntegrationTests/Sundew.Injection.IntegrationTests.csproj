@@ -44,4 +44,10 @@
     <ProjectReference Include="..\TestProjects\Success\Success.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="SuccessRuntimeFixture.FactoryLifetimeTest.verified.txt">
+      <DependentUpon>SuccessRuntimeFixture.cs</DependentUpon>
+    </None>
+  </ItemGroup>
+
 </Project>

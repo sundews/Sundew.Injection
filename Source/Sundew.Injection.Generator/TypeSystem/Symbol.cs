@@ -8,4 +8,7 @@
 namespace Sundew.Injection.Generator.TypeSystem;
 
 [DiscriminatedUnions.DiscriminatedUnion]
-internal abstract partial record Symbol(string Name);
+internal abstract partial record Symbol(string Name) : ISymbol
+{
+    public virtual string FullName => this.Name;
+}

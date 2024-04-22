@@ -16,11 +16,11 @@ public class FactoryDataEqualityFixture
     [Test]
     public void Equals_Then_ResultShouldBeTrue()
     {
-        var compilation = TestProjects.AllFeatureSuccess.FromCurrentDirectory.Value;
+        var compilation = TestProjects.Success.FromCurrentDirectory.Value;
         var demoModuleDeclaration = compilation.GetTypeByMetadataName("Success.InjectionDeclaration");
         if (demoModuleDeclaration == null)
         {
-            Assert.Fail($"Could not find FactoryDeclaration. Compilation had: {compilation.GetDiagnostics().Length} diagnostics");
+            Assert.Fail($"Could not find InjectionDeclaration. Compilation had: {compilation.GetDiagnostics().Length} diagnostics");
             throw new NotImplementedException("Assert.Fail is marked as throws.");
         }
 

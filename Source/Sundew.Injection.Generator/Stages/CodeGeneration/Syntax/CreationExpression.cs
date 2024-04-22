@@ -21,10 +21,10 @@ internal abstract partial record CreationExpression(IReadOnlyList<Expression> Ar
         (Type Type, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
 
     public sealed record StaticMethodCall
-        (Type? Type, string Name, ValueArray<TypeArgument> TypeArguments, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
+        (Type? Type, string Name, ValueArray<FullTypeArgument> TypeArguments, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
 
     public sealed record InstanceMethodCall
-        (Expression FactoryAccessExpression, string Name, ValueArray<TypeArgument> TypeArguments, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
+        (Expression FactoryAccessExpression, string Name, ValueArray<FullTypeArgument> TypeArguments, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
 
     public sealed record DefaultValue(Type Type) : CreationExpression(System.Array.Empty<Expression>());
 }

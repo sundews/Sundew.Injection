@@ -14,9 +14,9 @@ namespace Sundew.Injection
 
     public interface IFactoryMethodSelector
     {
-        IFactoryMethods Add<TInterface, TImplementation>(Expression<Func<TImplementation>>? constructorSelector = null, string? createMethodName = null, Accessibility accessibility = Accessibility.Public, bool isNewOverridable = false)
+        IFactoryMethods Add<TInterface, TImplementation>(Expression<Func<TImplementation>>? constructorSelector = null, string? factoryMethodName = null, Accessibility accessibility = Accessibility.Public, bool isNewOverridable = false)
             where TImplementation : TInterface;
 
-        IFactoryMethods Add<TImplementation>(Expression<Func<TImplementation>>? constructorSelector = null, string? createMethodName = null, Accessibility accessibility = Accessibility.Public, bool isNewOverridable = false);
+        IFactoryMethods Add<TImplementation>(Expression<Func<TImplementation>>? constructorSelector = null, string? factoryMethodName = null, Accessibility accessibility = Accessibility.Public, bool isNewOverridable = false);
     }
 }

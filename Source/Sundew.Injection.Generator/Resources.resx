@@ -141,7 +141,7 @@ Dependant node name: {3}.</value>
     <value>Occurs when an factory instance method is not supported</value>
   </data>
   <data name="UnsupportedInstanceMethodErrorMessageFormat" xml:space="preserve">
-    <value>The instance method: '{0}' is not supported on the type: '{1}' for injecting into: '{2}'</value>
+    <value>Instance method: '{0}' is not supported on the type: '{1}' for injecting into: '{2}'</value>
   </data>
   <data name="UnsupportedInstanceMethodErrorTitle" xml:space="preserve">
     <value>Unsupported instance method.</value>
@@ -168,7 +168,7 @@ Dependant node name: {3}.</value>
     <value>Occurs when a type is registered with an invalid lifetime scope </value>
   </data>
   <data name="ScopeErrorMessageFormat" xml:space="preserve">
-    <value>Type: '{0}' with scope: '{1}' is invalid due to the parent: {2} with scope: {3}</value>
+    <value>Symbol: '{0}' with scope: '{1}' is invalid due to the parent: {2} with scope: {3}</value>
   </data>
   <data name="ScopeErrorTitle" xml:space="preserve">
     <value>Invalid lifetime scope</value>
@@ -186,7 +186,7 @@ Dependant node name: {3}.</value>
     <value>Types without a viable constructor are not supported</value>
   </data>
   <data name="NoViableConstructorFoundErrorMessageFormat" xml:space="preserve">
-    <value>Type: '{0}' did not contain a viable constructor</value>
+    <value>Symbol: '{0}' did not contain a viable constructor</value>
   </data>
   <data name="NoViableConstructorFoundErrorTitle" xml:space="preserve">
     <value>No viable constructor could be found</value>
@@ -195,16 +195,16 @@ Dependant node name: {3}.</value>
     <value>Only generic types are supported</value>
   </data>
   <data name="OnlyGenericTypeSupportedErrorMessageFormat" xml:space="preserve">
-    <value>Type: '{0}' is not a generic type</value>
+    <value>Symbol: '{0}' is not a generic type</value>
   </data>
   <data name="OnlyGenericTypeSupportedErrorTitle" xml:space="preserve">
     <value>TImplementationType must be generic.</value>
   </data>
   <data name="TypeNotInstantiableErrorDescription" xml:space="preserve">
-    <value>Type is either an abstract class or a string, which cannot be instantiated</value>
+    <value>Symbol is either an abstract class or a string, which cannot be instantiated</value>
   </data>
   <data name="TypeNotInstantiableErrorMessageFormat" xml:space="preserve">
-    <value>Type: '{0}' cannot be instantiated</value>
+    <value>Symbol: '{0}' cannot be instantiated</value>
   </data>
   <data name="TypeNotInstantiableErrorTitle" xml:space="preserve">
     <value>TImplementationType must be instantiable</value>
@@ -249,9 +249,19 @@ Dependant node name: {3}.</value>
     <value>Occurs when ImplementFactory is called with invalid type parameters</value>
   </data>
   <data name="InvalidFactoryTypeMessageFormat" xml:space="preserve">
-    <value>Type '{0}' must be a regular class</value>
+    <value>Symbol '{0}' must be a regular class</value>
   </data>
   <data name="InvalidFactoryTypeTitle" xml:space="preserve">
     <value>Factory types must be a regular class</value>
+  </data>
+  <data name="InfiniteRecursionDescription" xml:space="preserve">
+    <value>Occurs when an infinite recursion is detected, typically because of a circular dependency between constructors</value>
+  </data>
+  <data name="InfiniteRecursionMessageFormat" xml:space="preserve">
+    <value>Symbol: '{0}' caused an infinite recursion, which was detected processing: '{1}'</value>
+    <comment> </comment>
+  </data>
+  <data name="InfiniteRecursionTitle" xml:space="preserve">
+    <value>Infinite recursion detected</value>
   </data>
 </root>

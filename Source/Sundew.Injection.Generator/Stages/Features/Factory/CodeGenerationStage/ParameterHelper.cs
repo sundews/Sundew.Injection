@@ -55,7 +55,7 @@ internal static class ParameterHelper
             ImmutableList<ParameterDeclaration> additionalParameters,
             CompilationData compilationData)
     {
-        var parameterType = parameterNode.PrefersNewInstance ? compilationData.FuncType.ToClosedGenericType(ImmutableArray.Create(new TypeArgument(parameterNode.Type, parameterNode.TypeMetadata))) : parameterNode.Type;
+        var parameterType = parameterNode.PrefersNewInstance ? compilationData.FuncType.ToClosedGenericType(ImmutableArray.Create(new FullTypeArgument(parameterNode.Type, parameterNode.TypeMetadata))) : parameterNode.Type;
         var (parameterName, mustNameMatchForEquality) = GetParameterName(expectedParameterName.IsNullOrEmpty() ? parameterNode.Name : expectedParameterName, parameterNode.DependantName, directParameter.Inject);
         var parameterDeclaration = additionalParameters.Find(x =>
             x.Type.Equals(parameterType) && x.Name == parameterName);

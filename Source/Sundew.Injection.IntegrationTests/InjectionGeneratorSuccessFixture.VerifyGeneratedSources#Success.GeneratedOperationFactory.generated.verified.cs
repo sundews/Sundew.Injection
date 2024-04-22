@@ -13,14 +13,14 @@ namespace Success
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        [global::Sundew.Injection.BindableCreateMethodAttribute]
+        [global::Sundew.Injection.BindableFactoryTargetAttribute]
         public global::Success.Operations.IOperation CreateOperationA(int lhs, int rhs)
         {
             return new global::Success.Operations.OperationA(lhs, rhs);
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        [global::Sundew.Injection.BindableCreateMethodAttribute]
+        [global::Sundew.Injection.BindableFactoryTargetAttribute]
         public global::Success.Operations.IOperation CreateOperationB(int lhs, int rhs)
         {
             return new global::Success.Operations.OperationB(lhs, rhs);

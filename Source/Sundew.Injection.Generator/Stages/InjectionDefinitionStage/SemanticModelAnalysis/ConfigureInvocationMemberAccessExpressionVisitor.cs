@@ -31,7 +31,7 @@ internal class ConfigureInvocationMemberAccessExpressionVisitor(
         var isGeneric = node.Name is GenericNameSyntax;
         if (symbolInfo.Symbol is IMethodSymbol methodSymbol)
         {
-            this.VisitBuilderCall(invocationExpressionSyntax, node, methodSymbol.Name, [methodSymbol], isGeneric);
+            this.VisitBuilderCall(node, methodSymbol.Name, [methodSymbol], isGeneric);
             return;
         }
 
@@ -41,16 +41,15 @@ internal class ConfigureInvocationMemberAccessExpressionVisitor(
                 .Where(x => SymbolEqualityComparer.Default.Equals(x.ContainingType, analysisContext.KnownAnalysisTypes.InjectionBuilderType));
             if (symbols.TryGetOnlyOne(out var methodSymbol2))
             {
-                this.VisitBuilderCall(invocationExpressionSyntax, node, methodSymbol2.Name, [methodSymbol2], isGeneric);
+                this.VisitBuilderCall(node, methodSymbol2.Name, [methodSymbol2], isGeneric);
                 return;
             }
 
-            this.VisitBuilderCall(invocationExpressionSyntax, node, node.Name.Identifier.ValueText, symbolInfo.CandidateSymbols.OfType<IMethodSymbol>(), isGeneric);
+            this.VisitBuilderCall(node, node.Name.Identifier.ValueText, symbolInfo.CandidateSymbols.OfType<IMethodSymbol>(), isGeneric);
         }
     }
 
     private void VisitBuilderCall(
-        InvocationExpressionSyntax invocationExpressionSyntax,
         MemberAccessExpressionSyntax memberAccessExpressionSyntax,
         string name,
         IEnumerable<IMethodSymbol> methodSymbols,
@@ -66,24 +65,32 @@ internal class ConfigureInvocationMemberAccessExpressionVisitor(
                 new AddParameterPropertiesVisitor(methodSymbols.First(), analysisContext).Visit(invocationExpressionSyntax);
                 break;
             case nameof(IInjectionBuilder.Bind):
-                new BindVisitor(invocationExpressionSyntax, methodSymbols.First(), analysisContext).Visit(invocationExpressionSyntax);
+                if (memberAccessExpressionSyntax.Name is GenericNameSyntax bindGenericNameSyntax)
+                {
+                    new BindVisitor(bindGenericNameSyntax, methodSymbols.First(), analysisContext).Visit(invocationExpressionSyntax);
+                }
+
                 break;
             case nameof(IInjectionBuilder.BindGeneric):
-                if (memberAccessExpressionSyntax.Name is GenericNameSyntax genericNameSyntax)
+                if (memberAccessExpressionSyntax.Name is GenericNameSyntax bindGenericGenericNameSyntax)
                 {
-                    new BindGenericVisitor(genericNameSyntax, methodSymbols.First(), analysisContext).Visit(invocationExpressionSyntax);
+                    new BindGenericVisitor(bindGenericGenericNameSyntax, methodSymbols.First(), analysisContext).Visit(invocationExpressionSyntax);
                 }
 
                 break;
             case nameof(IInjectionBuilder.ImplementFactory):
-                if (memberAccessExpressionSyntax.Name is GenericNameSyntax genericNameSyntax2)
+                if (memberAccessExpressionSyntax.Name is GenericNameSyntax implementFactoryGenericNameSyntax)
                 {
-                    new ImplementFactoryVisitor(genericNameSyntax2, methodSymbols.First(), analysisContext, invocationExpressionSyntax.GetLocation()).Visit(invocationExpressionSyntax);
+                    new ImplementFactoryVisitor(implementFactoryGenericNameSyntax, methodSymbols.First(), analysisContext, invocationExpressionSyntax.GetLocation()).Visit(invocationExpressionSyntax);
                 }
 
                 break;
             case nameof(IInjectionBuilder.BindFactory):
-                new BindFactoryVisitor(methodSymbols.First(), analysisContext).Visit(invocationExpressionSyntax);
+                if (memberAccessExpressionSyntax.Name is GenericNameSyntax bindFactoryGenericNameSyntax)
+                {
+                    new BindFactoryVisitor(bindFactoryGenericNameSyntax, methodSymbols.First(), analysisContext).Visit(invocationExpressionSyntax);
+                }
+
                 break;
             case nameof(IInjectionBuilder.ImplementServiceProvider):
                 var methodSymbol2 = methodSymbols.ByCardinality() switch
@@ -98,9 +105,9 @@ internal class ConfigureInvocationMemberAccessExpressionVisitor(
                     return;
                 }
 
-                if (memberAccessExpressionSyntax.Name is GenericNameSyntax genericNameSyntax3)
+                if (memberAccessExpressionSyntax.Name is GenericNameSyntax implementServiceProviderGenericNameSyntax)
                 {
-                    new ImplementServiceProviderVisitor(genericNameSyntax3, methodSymbol2, analysisContext, invocationExpressionSyntax.GetLocation()).Visit(invocationExpressionSyntax);
+                    new ImplementServiceProviderVisitor(implementServiceProviderGenericNameSyntax, methodSymbol2, analysisContext, invocationExpressionSyntax.GetLocation()).Visit(invocationExpressionSyntax);
                 }
 
                 break;

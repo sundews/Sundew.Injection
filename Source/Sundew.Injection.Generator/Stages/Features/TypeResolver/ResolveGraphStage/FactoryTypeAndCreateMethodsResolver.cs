@@ -12,35 +12,32 @@ using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
-using FactoryMethod = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.FactoryMethod;
 
 internal class FactoryTypeAndCreateMethodsResolver(
-    ICache<string, ValueArray<FactoryMethod>> typeRegistry)
+    ICache<string, ValueArray<FactoryTargetDeclaration>> typeRegistry)
 {
-    public (Type Type, ValueArray<FactoryMethod> CreateMethods) ResolveFactoryRegistration(FactoryRegistration factoryRegistration)
+    public (Type Type, ValueArray<FactoryTargetDeclaration> FactoryTargets) ResolveFactoryRegistration(FactoryRegistration factoryRegistration)
     {
-        var createMethods = this.ResolveCreateMethods(factoryRegistration.FactoryType);
-        if (createMethods.IsEmpty)
+        var factoryTargets = this.ResolveFactoryTargets(factoryRegistration.FactoryType);
+        if (factoryTargets.IsEmpty)
         {
-            var createMethodResults = factoryRegistration.FactoryMethods.Select(factoryMethod =>
-            {
-                var returnType = factoryMethod.ReturnType;
-                var parameters = factoryMethod.Parameters;
+            var factoryTargetResults = factoryRegistration.FactoryTargets.Select(factoryTarget =>
+                {
+                    return new FactoryTargetDeclaration(
+                        factoryTarget.Name,
+                        factoryTarget.Parameters.Select(parameter => new ParameterDeclaration(parameter.Type, parameter.Name)).ToValueList(),
+                        factoryTarget.ReturnType,
+                        factoryTarget.IsProperty);
+                }).ToValueArray();
 
-                return new FactoryMethod(
-                    factoryMethod.Name,
-                    parameters.Select(parameter => new ParameterDeclaration(parameter.Type, parameter.Name)).ToValueList(),
-                    returnType);
-            });
-
-            return (factoryRegistration.FactoryType, createMethodResults.ToValueArray());
+            return (factoryRegistration.FactoryType, factoryTargetResults);
         }
 
-        return (factoryRegistration.FactoryType, createMethods);
+        return (factoryRegistration.FactoryType, factoryTargets);
     }
 
-    private ValueArray<FactoryMethod> ResolveCreateMethods(Type type)
+    private ValueArray<FactoryTargetDeclaration> ResolveFactoryTargets(Type type)
     {
-        return typeRegistry.TryGet(type.Name, out var createMethods) ? createMethods : ValueArray<FactoryMethod>.Empty;
+        return typeRegistry.TryGet(type.Name, out var factoryTargets) ? factoryTargets : ValueArray<FactoryTargetDeclaration>.Empty;
     }
 }

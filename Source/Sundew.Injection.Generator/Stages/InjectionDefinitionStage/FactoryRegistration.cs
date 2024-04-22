@@ -12,4 +12,4 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal readonly record struct FactoryRegistration(
     Type FactoryType,
-    ValueArray<FactoryMethod> FactoryMethods);
+    ValueArray<FactoryTarget> FactoryTargets);

@@ -8,16 +8,16 @@ using AssemblyReference = Sundew.Testing.CodeAnalysis.AssemblyReference;
 
 public static class TestProjects
 {
-    public static Project AllFeatureSuccess = new(@"TestProjects/Success");
-    public static Project NetStandardLibraryErrors = new(@"TestProjects/Errors");
+    public static Project Success = new(@"TestProjects/Success");
+    public static Project Errors = new(@"TestProjects/Errors");
     public static Project TestPlayground = new(@"TestProjects/TestPlayground");
 
     public class Project(string path)
     {
-        public Lazy<Compilation> FromCurrentDirectory { get; } = new Lazy<Compilation>(() =>
+        public Lazy<Compilation> FromCurrentDirectory { get; } = new(() =>
             {
                 var project = new CSharpProject(
-                    Paths.FindPathUpwards(path)!,
+                    Paths.FindPathUpwards(path)!, //Path.Combine(path, "Recursive")
                     null,
                     new Paths("bin", "obj"),
                     new References(
@@ -29,7 +29,7 @@ public static class TestProjects
                 return project.Compile();
             });
 
-        public Lazy<Compilation> FromEntryAssembly { get; } = new Lazy<Compilation>(() =>
+        public Lazy<Compilation> FromEntryAssembly { get; } = new(() =>
             {
                 var project = new CSharpProject(
                     Paths.FindPathUpwards(path)!,

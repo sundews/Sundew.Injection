@@ -82,13 +82,13 @@ internal static class ImplementationSourceCodeEmitter
 
                     builder.AppendMethodImplementation(methodImplementation, options, indentation);
                     break;
-                case Member.Property property:
+                case Member.PropertyImplementation propertyImplementation:
                     if (wasAggregated)
                     {
                         builder.AppendLine();
                     }
 
-                    builder.AppendProperty(property, indentation);
+                    builder.AppendPropertyImplementation(propertyImplementation, options, indentation);
                     break;
                 case Member.Raw raw:
                     builder.Append(raw.Value);
@@ -120,21 +120,23 @@ internal static class ImplementationSourceCodeEmitter
             .Append(';');
     }
 
-    private static void AppendProperty(this StringBuilder stringBuilder, Member.Property property, int indentation)
+    private static void AppendPropertyImplementation(this StringBuilder stringBuilder, Member.PropertyImplementation propertyImplementation, Options options, int indentation)
     {
-        stringBuilder.Append(' ', indentation)
+        var getIndentation = indentation + 4;
+        stringBuilder
+            .AppendAttributes(propertyImplementation.Declaration.Attributes, indentation)
+            .Append(' ', indentation)
             .Append(Trivia.Public)
             .Append(' ')
-            .AppendFullyQualifiedType(property.Declaration.Type)
+            .AppendFullyQualifiedType(propertyImplementation.Declaration.Type)
             .Append(' ')
-            .Append(property.Declaration.Name)
-            .Append(' ')
-            .Append(Trivia.LambdaArrow)
-            .Append(' ')
-            .Append(Trivia.This)
-            .Append('.')
-            .Append(property.Declaration.FieldName)
-            .Append(';');
+            .Append(propertyImplementation.Declaration.Name).AppendLine()
+            .Append(' ', indentation).Append('{').AppendLine()
+            .Append(' ', getIndentation).Append(Trivia.Get).AppendLine()
+            .Append(' ', getIndentation).Append('{').AppendLine()
+            .AppendStatements(propertyImplementation.Statements, options, getIndentation)
+            .Append(' ', getIndentation).Append('}').AppendLine()
+            .Append(' ', indentation).Append('}');
     }
 
     private static StringBuilder AppendFieldModifier(this StringBuilder builder, FieldModifier fieldModifier)
@@ -152,17 +154,17 @@ internal static class ImplementationSourceCodeEmitter
         stringBuilder
             .Append(' ', indentation)
             .AppendLine(Trivia.MethodImpl)
-            .AppendAttributes(methodImplementation.MethodDeclaration.Attributes, indentation)
+            .AppendAttributes(methodImplementation.Declaration.Attributes, indentation)
             .Append(' ', indentation)
-            .AppendAccessibility(methodImplementation.MethodDeclaration.Accessibility)
+            .AppendAccessibility(methodImplementation.Declaration.Accessibility)
             .If(
-                methodImplementation.MethodDeclaration.IsAsync,
+                methodImplementation.Declaration.IsAsync,
                 x => x.Append(' ').Append(Trivia.Async))
             .If(
-                methodImplementation.MethodDeclaration.IsVirtual,
+                methodImplementation.Declaration.IsVirtual,
                 x => x.Append(' ').Append(Trivia.Virtual))
             .Append(' ')
-            .AppendMethodDeclaration(methodImplementation.MethodDeclaration, options, indentation)
+            .AppendMethodDeclaration(methodImplementation.Declaration, options, indentation)
             .AppendLine()
             .Append(' ', indentation)
             .Append('{')

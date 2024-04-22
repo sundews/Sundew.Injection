@@ -14,8 +14,8 @@ using Statement = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Statem
 internal readonly record struct FactoryImplementation(
     ImmutableList<FieldDeclaration> Fields,
     Constructor Constructor,
+    ImmutableList<DeclaredPropertyImplementation> Properties,
     ImmutableList<DeclaredMethodImplementation> CreateMethods,
-    ImmutableList<PropertyDeclaration> Properties,
     ImmutableList<DeclaredMethodImplementation> FactoryMethods,
     ImmutableList<DeclaredDisposeMethodImplementation> DisposeMethodImplementations,
     ImmutableList<DeclaredMethodImplementation> PrivateCreateMethods)
@@ -26,8 +26,8 @@ internal readonly record struct FactoryImplementation(
             new Constructor(
                 ImmutableList<ParameterDeclaration>.Empty,
                 ImmutableList<Statement>.Empty),
+            ImmutableList<DeclaredPropertyImplementation>.Empty,
             ImmutableList<DeclaredMethodImplementation>.Empty,
-            ImmutableList<PropertyDeclaration>.Empty,
             ImmutableList<DeclaredMethodImplementation>.Empty,
             ImmutableList<DeclaredDisposeMethodImplementation>.Empty,
             ImmutableList<DeclaredMethodImplementation>.Empty)

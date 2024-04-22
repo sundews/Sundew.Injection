@@ -16,24 +16,30 @@ using Sundew.Base;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal class BindVisitor(
-    InvocationExpressionSyntax originatingSyntax,
+    GenericNameSyntax bindGenericNameSyntax,
     IMethodSymbol methodSymbol,
     AnalysisContext analysisContext)
     : CSharpSyntaxWalker
 {
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
-        var typeArguments = methodSymbol.TypeArguments;
+        var typeArguments = methodSymbol.MapTypeArguments(bindGenericNameSyntax);
         var parameters = methodSymbol.Parameters;
         var i = 0;
         var scope = new ScopeContext((Scope?)parameters[i++].ExplicitDefaultValue ?? Scope._Auto, ScopeSelection.Implicit);
-        var constructorSelector = (Method?)parameters[i++].ExplicitDefaultValue;
+        var constructorSelector = R.SuccessOption((Method?)parameters[i++].ExplicitDefaultValue).Omits<SymbolErrorWithLocation>();
         var isInjectable = (bool?)parameters[i++].ExplicitDefaultValue ?? false;
         var isNewOverridable = (bool?)parameters[i++].ExplicitDefaultValue ?? false;
         var argumentIndex = 0;
-        var interfaceTypes = typeArguments.Take(typeArguments.Length - 1).Select(analysisContext.TypeFactory.CreateType).ToImmutableArray();
+        var interfaceTypes = typeArguments.Take(typeArguments.Length - 1).Select(x => analysisContext.TypeFactory.GetType(x.TypeSymbol)).ToImmutableArray();
         var implementationTypeSymbol = typeArguments.Last();
-        var implementationType = analysisContext.TypeFactory.CreateType(implementationTypeSymbol);
+        var implementationTypeResult = analysisContext.TypeFactory.GetFullType(implementationTypeSymbol.TypeSymbol);
+        if (!implementationTypeResult.TryGet(out var implementationType, out var error))
+        {
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, implementationTypeSymbol, error.GetErrorText());
+            return;
+        }
+
         foreach (var argumentSyntax in node.Arguments)
         {
             if (argumentSyntax.NameColon != null)
@@ -76,14 +82,20 @@ internal class BindVisitor(
             }
         }
 
-        var actualMethodOption = constructorSelector ?? implementationType.TypeMetadata.DefaultConstructor;
+        if (constructorSelector.IsError)
+        {
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, constructorSelector.Error);
+            return;
+        }
+
+        var actualMethodOption = constructorSelector.Value ?? implementationType.DefaultConstructor;
         if (actualMethodOption.TryGetValue(out var actualMethod))
         {
             analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(interfaceTypes, implementationType, actualMethod, scope, isInjectable, isNewOverridable);
             return;
         }
 
-        analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.NoFactoryMethodFoundForTypeError, implementationTypeSymbol, originatingSyntax);
+        analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.NoFactoryMethodFoundForTypeError, implementationTypeSymbol);
     }
 
     private static bool GetBooleanLiteralValue(ArgumentSyntax argumentSyntax)
@@ -96,7 +108,7 @@ internal class BindVisitor(
         return ExpressionAnalysisHelper.GetScope(analysisContext.SemanticModel, argumentSyntax, analysisContext.TypeFactory, targetType);
     }
 
-    private Method? GetMethod(ArgumentSyntax argumentSyntax)
+    private R<Method?, SymbolErrorWithLocation> GetMethod(ArgumentSyntax argumentSyntax)
     {
         return ExpressionAnalysisHelper.GetMethod(argumentSyntax, analysisContext.SemanticModel, analysisContext.TypeFactory);
     }

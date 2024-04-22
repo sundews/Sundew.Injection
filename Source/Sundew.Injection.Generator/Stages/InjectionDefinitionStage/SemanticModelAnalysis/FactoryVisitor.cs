@@ -20,6 +20,7 @@ internal class FactoryVisitor(
     {
         base.VisitInvocationExpression(node);
         var symbolInfo = analysisContext.SemanticModel.GetSymbolInfo(node);
+
         if (symbolInfo.Symbol is IMethodSymbol methodSymbol)
         {
             this.VisitBuilderCall(node, methodSymbol);
@@ -27,7 +28,10 @@ internal class FactoryVisitor(
         else if (symbolInfo.CandidateReason == CandidateReason.OverloadResolutionFailure &&
                  symbolInfo.CandidateSymbols.Length == 1)
         {
-            if (symbolInfo.CandidateSymbols[0] is IMethodSymbol methodSymbol2 && SymbolEqualityComparer.Default.Equals(methodSymbol2.ContainingType, analysisContext.KnownAnalysisTypes.FactoryMethodSelectorTypeSymbol))
+            if (symbolInfo.CandidateSymbols[0] is IMethodSymbol methodSymbol2 &&
+                SymbolEqualityComparer.Default.Equals(
+                    methodSymbol2.ContainingType,
+                    analysisContext.KnownAnalysisTypes.FactoryMethodSelectorTypeSymbol))
             {
                 this.VisitBuilderCall(node, methodSymbol2);
             }
@@ -39,7 +43,11 @@ internal class FactoryVisitor(
         switch (methodSymbol.Name)
         {
             case nameof(IFactorySelector.Add):
-                new AddFactoryVisitor(methodSymbol, factoryRegistrationBuilder, analysisContext).Visit(node);
+                if (node.Expression is MemberAccessExpressionSyntax { Name: GenericNameSyntax addFactoryGenericNameSyntax })
+                {
+                    new AddFactoryVisitor(addFactoryGenericNameSyntax, methodSymbol, factoryRegistrationBuilder, analysisContext).Visit(node);
+                }
+
                 break;
         }
     }

@@ -42,7 +42,7 @@ internal class BindingFactory(
             bindingRegistration.ReferencedType,
             bindingRegistration.Scope,
             bindingRegistration.Method,
-            bindingRegistration.TargetType.TypeMetadata.HasLifetime,
+            bindingRegistration.TargetType.Metadata.HasLifetime,
             bindingRegistration.IsInjectable,
             bindingRegistration.IsNewOverridable);
         var newResolvedBinding = ResolvedBinding.SingleParameter(newBinding);
@@ -77,7 +77,7 @@ internal class BindingFactory(
     public ResolvedBinding TryCreateMultiItemParameter(Type requestedType, Type elementType, ValueArray<BindingRegistration> resolvedBindingRegistrations, bool isArrayRequired)
     {
         var bindings = resolvedBindingRegistrations.Select(x =>
-            new Binding(x.TargetType.Type, elementType, x.Scope, x.Method, x.TargetType.TypeMetadata.HasLifetime, x.IsInjectable, x.IsNewOverridable)).ToArray();
+            new Binding(x.TargetType.Type, elementType, x.Scope, x.Method, x.TargetType.Metadata.HasLifetime, x.IsInjectable, x.IsNewOverridable)).ToArray();
 
         bindingsTypeRegistrar.Register(requestedType.Id, default, bindings, true);
         return this.CreateMultiItemParameter(
@@ -98,7 +98,7 @@ internal class BindingFactory(
         resolvedBindingTypeRegistrar.Register(requestedParameterType.Id, default, multiItemParameter, isArrayRequired);
         if (isArrayRequired)
         {
-            var itemTypeArguments = ImmutableArray.Create(new TypeArgument(elementType, new TypeMetadata(default, EnumerableMetadata.NonEnumerableMetadata, false)));
+            var itemTypeArguments = ImmutableArray.Create(new FullTypeArgument(elementType, new TypeMetadata(EnumerableMetadata.NonEnumerableMetadata, false)));
             var iEnumerableOfItemType = knownEnumerableTypes.IEnumerableOfT.ToClosedGenericType(itemTypeArguments);
             var iReadOnlyListOfItemType = knownEnumerableTypes.IReadOnlyListOfT.ToClosedGenericType(itemTypeArguments);
             resolvedBindingTypeRegistrar.Register(iEnumerableOfItemType.Id, default, multiItemParameter, true);
@@ -119,9 +119,9 @@ internal class BindingFactory(
             factoryType,
             factoryType.Name,
             factoryConstructorParameters.Distinct()
-                .Select(x => new Parameter(x.Type, x.Name, x.TypeMetadata, ParameterNecessity._Required))
+                .Select(x => new FullParameter(x.Type, x.Name, x.TypeMetadata, default, ParameterNecessity._Required))
                 .ToImmutableArray(),
-            ImmutableArray<TypeArgument>.Empty,
+            ImmutableArray<FullTypeArgument>.Empty,
             MethodKind._Constructor);
         var binding = new Binding(factoryType, factoryInterfaceType, new ScopeContext(Scope._SingleInstancePerRequest(Location.None), ScopeSelection.Implicit), constructorMethod, hasLifecycle, false, false);
         var factoryInterfaceTypeId = factoryInterfaceType?.Id;

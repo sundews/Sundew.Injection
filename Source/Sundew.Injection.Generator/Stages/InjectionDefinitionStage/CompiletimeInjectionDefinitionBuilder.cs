@@ -63,8 +63,8 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
     }
 
     public void Bind(
-        ImmutableArray<(Type Type, TypeMetadata TypeMetadata)> interfaces,
-        (Type Type, TypeMetadata TypeMetadata) target,
+        ImmutableArray<Type> interfaces,
+        FullType target,
         Method method,
         ScopeContext? scope = null,
         bool isInjectable = false,
@@ -81,13 +81,13 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
             bindingList.Add(binding);
         }
 
-        var targetReferencingType = interfaces.Length > 0 ? interfaces.Last().Type : target.Type;
+        var targetReferencingType = interfaces.Length > 0 ? interfaces.Last() : target.Type;
 
-        var binding = new BindingRegistration(target, targetReferencingType, scope ?? new ScopeContext(Scope._Auto, ScopeSelection.Implicit), method, isInjectable, isNewOverridable);
-        AddBinding(target.Type.Id, binding);
+        var bindingRegistration = new BindingRegistration(target, targetReferencingType, scope ?? new ScopeContext(Scope._Auto, ScopeSelection.Implicit), method, isInjectable, isNewOverridable);
+        AddBinding(target.Type.Id, bindingRegistration);
         foreach (var @interface in interfaces)
         {
-            AddBinding(@interface.Type.Id, binding);
+            AddBinding(@interface.Id, bindingRegistration);
         }
     }
 
@@ -144,14 +144,22 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         this.diagnostics.Add(diagnostic);
     }
 
-    public void AddDiagnostic(DiagnosticDescriptor diagnosticDescriptor, MappedTypeSymbol mappedTypeSymbol)
+    public void AddDiagnostic(DiagnosticDescriptor diagnosticDescriptor, SymbolErrorWithLocation symbolErrorWithLocation, params object[] additionalArguments)
     {
-        this.AddDiagnostic(diagnosticDescriptor, mappedTypeSymbol.TypeSymbol, mappedTypeSymbol.OriginatingSyntaxNode);
+        foreach (var diagnostic in Diagnostics.Create(diagnosticDescriptor, symbolErrorWithLocation, additionalArguments))
+        {
+            this.AddDiagnostic(diagnostic);
+        }
     }
 
-    public void AddDiagnostic(DiagnosticDescriptor diagnosticDescriptor, ISymbol symbol, SyntaxNode? originatingSyntaxNode = default)
+    public void AddDiagnostic(DiagnosticDescriptor diagnosticDescriptor, TypeSymbolWithLocation typeSymbolWithLocation, params object[] additionalArguments)
     {
-        foreach (var diagnostic in Diagnostics.Create(diagnosticDescriptor, symbol, originatingSyntaxNode))
+        this.AddDiagnostic(diagnosticDescriptor, typeSymbolWithLocation.TypeSymbol, typeSymbolWithLocation.Location, additionalArguments);
+    }
+
+    public void AddDiagnostic(DiagnosticDescriptor diagnosticDescriptor, Microsoft.CodeAnalysis.ISymbol symbol, Location? location = default, params object[] additionalArguments)
+    {
+        foreach (var diagnostic in Diagnostics.Create(diagnosticDescriptor, symbol, location, additionalArguments))
         {
             this.AddDiagnostic(diagnostic);
         }

@@ -7,4 +7,4 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-internal readonly record struct GenericParameter(Symbol Type, string Name, TypeMetadata TypeMetadata);
+internal readonly record struct GenericParameter(Symbol Type, string Name, TypeMetadata TypeMetadata, Method? DefaultConstructor);

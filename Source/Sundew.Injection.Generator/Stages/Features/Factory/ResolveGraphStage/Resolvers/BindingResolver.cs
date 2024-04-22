@@ -57,17 +57,17 @@ internal sealed class BindingResolver
         this.bindingFactory.RegisterThisFactory(factoryType, factoryInterfaceType);
     }
 
-    public ResolvedBinding ResolveBinding(Parameter parameter)
+    public ResolvedBinding ResolveBinding(FullParameter fullParameter)
     {
-        if (this.resolvedBindingsCache.TryGet(parameter.Type.Id, out var cachedBinding))
+        if (this.resolvedBindingsCache.TryGet(fullParameter.Type.Id, out var cachedBinding))
         {
             return cachedBinding;
         }
 
-        return this.ResolveParameter(parameter.Type, parameter.TypeMetadata, (parameter.Name, parameter.ParameterNecessity));
+        return this.ResolveParameter(fullParameter.Type, fullParameter.TypeMetadata, (fullParameter.Name, fullParameter.ParameterNecessity));
     }
 
-    public ResolvedBinding ResolveBinding(Type type, TypeMetadata typeMetadata, (string Name, ParameterNecessity Necessity)? parameterOption)
+    public ResolvedBinding ResolveBinding(Type type, TypeMetadata typeMetadata, Method? defaultConstructorOption, (string Name, ParameterNecessity Necessity)? parameterOption)
     {
         var typeId = type.Id;
         if (this.resolvedBindingsCache.TryGet(typeId, out var cachedBinding))
@@ -90,9 +90,9 @@ internal sealed class BindingResolver
             }
         }
 
-        if (typeMetadata.DefaultConstructor.TryGetValue(out var defaultConstructor))
+        if (defaultConstructorOption.TryGetValue(out var defaultConstructor))
         {
-            return this.bindingFactory.TryCreateSingleParameter(new BindingRegistration((type, typeMetadata), type, new ScopeContext(Scope._Auto, ScopeSelection.Implicit), defaultConstructor, false, false));
+            return this.bindingFactory.TryCreateSingleParameter(new BindingRegistration(new FullType(type, typeMetadata, defaultConstructor), type, new ScopeContext(Scope._Auto, ScopeSelection.Implicit), defaultConstructor, false, false));
         }
 
         if (type is ClosedGenericType closedGenericType2)
@@ -139,15 +139,22 @@ internal sealed class BindingResolver
 
     public BindingRoot CreateBindingRoot(FactoryMethodRegistration factoryMethodRegistration, bool useTargetTypeNameForCreateMethod)
     {
+        string GetName()
+        {
+            return useTargetTypeNameForCreateMethod ? factoryMethodRegistration.Target.Type.Name : string.Empty;
+        }
+
         var factoryMethodName = factoryMethodRegistration.CreateMethodName.IsNullOrEmpty()
-            ? Create + (useTargetTypeNameForCreateMethod ? factoryMethodRegistration.Target.Type.Name : string.Empty)
+            ? factoryMethodRegistration.Scope.Scope is Scope.SingleInstancePerFactory
+                ? GetName()
+                : Create + GetName()
             : factoryMethodRegistration.CreateMethodName;
         var binding = new Binding(
             factoryMethodRegistration.Target.Type,
             factoryMethodRegistration.Return.Type,
             factoryMethodRegistration.Scope,
             factoryMethodRegistration.Method with { Name = factoryMethodName },
-            factoryMethodRegistration.Target.TypeMetadata.HasLifetime,
+            factoryMethodRegistration.Target.Metadata.HasLifetime,
             false,
             factoryMethodRegistration.IsNewOverridable);
         return new BindingRoot(binding, factoryMethodRegistration.Accessibility, factoryMethodRegistration.Return.Type);

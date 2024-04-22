@@ -12,6 +12,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Sundew.Base;
 using Sundew.Base.Collections;
 using Sundew.Base.Collections.Linq;
 using Sundew.Injection.Generator.Extensions;
@@ -54,7 +55,7 @@ internal class BindGenericVisitor(
         var parameters = methodSymbol.Parameters;
         var i = 0;
         var scope = new ScopeContext((Scope?)parameters[i++].ExplicitDefaultValue ?? Scope._Auto, ScopeSelection.Implicit);
-        var method = (GenericMethod?)parameters[i++].ExplicitDefaultValue;
+        var method = R.SuccessOption((GenericMethod?)parameters[i++].ExplicitDefaultValue).Omits<SymbolErrorWithLocation>();
         var argumentIndex = 0;
         foreach (var argumentSyntax in node.Arguments)
         {
@@ -86,7 +87,13 @@ internal class BindGenericVisitor(
             }
         }
 
-        var actualMethod = method.GetValueOrDefault();
+        if (method.IsError)
+        {
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, method.Error);
+            return;
+        }
+
+        var actualMethod = method.Value.GetValueOrDefault();
         if (actualMethod == default)
         {
             if (!lastNamedTypeSymbol.IsInstantiable())
@@ -95,7 +102,14 @@ internal class BindGenericVisitor(
                 return;
             }
 
-            actualMethod = analysisContext.TypeFactory.GetGenericMethod(lastNamedTypeSymbol.Constructors.GetDefaultMethodWithMostParameters());
+            var genericMethodResult = analysisContext.TypeFactory.GetGenericMethod(lastNamedTypeSymbol.Constructors.GetDefaultMethodWithMostParameters());
+            if (genericMethodResult.IsError)
+            {
+                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, last, genericMethodResult.Error.GetErrorText());
+                return;
+            }
+
+            actualMethod = genericMethodResult.Value;
             if (actualMethod == default)
             {
                 analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.NoViableConstructorFoundError, last);
@@ -111,8 +125,8 @@ internal class BindGenericVisitor(
         return ExpressionAnalysisHelper.GetScope(analysisContext.SemanticModel, argumentSyntax, analysisContext.TypeFactory, targetType);
     }
 
-    private GenericMethod? GetGenericMethod(ArgumentSyntax argumentSyntax)
+    private R<GenericMethod?, SymbolErrorWithLocation> GetGenericMethod(ArgumentSyntax argumentSyntax)
     {
-        return ExpressionAnalysisHelper.GetGenericMethod(argumentSyntax, analysisContext.SemanticModel, analysisContext.TypeFactory);
+        return ExpressionAnalysisHelper.GetGenericMethod(argumentSyntax, analysisContext.SemanticModel, analysisContext.TypeFactory).ToValueOptionResult();
     }
 }

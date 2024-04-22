@@ -12,7 +12,7 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed record FactoryMethodData(
     string FactoryMethodName,
-    (Type Type, TypeMetadata TypeMetadata) Return,
-    (Type Type, TypeMetadata TypeMetadata) Target,
+    FullType Return,
+    FullType Target,
     InjectionNode InjectionTree,
     bool RootNeedsLifecycleHandling);

@@ -8,70 +8,104 @@
 namespace Sundew.Injection.Generator.TypeSystem;
 
 using System.Collections.Immutable;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Sundew.Base;
+using Sundew.Base.Collections.Linq;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticModelAnalysis;
 
 internal sealed class TypeFactory(
     IKnownInjectableTypes knownInjectableTypes)
 {
-    public R<NamedType, MappedTypeSymbol> GetNamedType(MappedTypeSymbol typeSymbol)
+    public R<NamedType, TypeSymbolWithLocation> GetNamedType(TypeSymbolWithLocation typeSymbolWithLocation)
     {
-        return TypeConverter.GetNamedType(typeSymbol);
+        return TypeConverter.GetNamedType(typeSymbolWithLocation);
     }
 
-    public (Type Type, TypeMetadata TypeMetadata) CreateType(ITypeSymbol typeSymbol)
+    public Type GetType(ITypeSymbol typeSymbol)
     {
-        var fullResolvableType = TypeConverter.GetType(typeSymbol, knownInjectableTypes);
-        return (fullResolvableType.Type, this.GetTypeMetadata(typeSymbol, TypeConverter.GetConstructor(fullResolvableType.Constructors.GetDefaultMethodWithMostParameters(), fullResolvableType.Type, knownInjectableTypes)));
+        return TypeConverter.GetType(typeSymbol, knownInjectableTypes);
     }
 
-    public NamedType CreateNamedType(INamedTypeSymbol namedTypeSymbol)
+    public R<FullType, SymbolErrorWithLocation> GetFullType(TypeSymbolWithLocation typeSymbolWithLocation)
+    {
+        var constructorResult = this.GetFullType(typeSymbolWithLocation.TypeSymbol);
+        return constructorResult.WithError(error => new SymbolErrorWithLocation(error, typeSymbolWithLocation.Location));
+    }
+
+    public R<FullType, SymbolError> GetFullType(ITypeSymbol typeSymbol)
+    {
+        var type = TypeConverter.GetTypeWithConstructors(typeSymbol, knownInjectableTypes);
+        var constructorResult = TypeConverter.GetConstructor(type.Constructors.GetDefaultMethodWithMostParameters(), type.Type, knownInjectableTypes, ImmutableHashSet<TypeId>.Empty);
+        return constructorResult.With(constructor => new FullType(type.Type, this.GetTypeMetadata(typeSymbol), constructor));
+    }
+
+    public NamedType GetNamedType(INamedTypeSymbol namedTypeSymbol)
     {
         return TypeConverter.GetNamedType(namedTypeSymbol);
     }
 
-    public Method CreateMethod(IPropertySymbol propertySymbol)
+    public Method? GetFactoryMethod(IPropertySymbol propertySymbol)
     {
-        return (Method)TypeConverter.GetMethod(propertySymbol, knownInjectableTypes);
+        return TypeConverter.GetMethod(propertySymbol, knownInjectableTypes);
     }
 
-    public Method CreateMethod(IMethodSymbol methodSymbol)
+    public R<Method, SymbolError> GetFactoryMethod(IMethodSymbol methodSymbol)
     {
-        return (Method)TypeConverter.GetMethod(methodSymbol, knownInjectableTypes);
+        return TypeConverter.GetMethod(methodSymbol, knownInjectableTypes);
     }
 
-    public FactoryMethod CreateFactoryMethod(IMethodSymbol methodSymbol)
+    public FactoryTarget GetFactoryTarget(IMethodSymbol methodSymbol)
     {
-        return TypeConverter.GetFactoryMethod(methodSymbol, knownInjectableTypes);
+        return TypeConverter.GetFactoryTarget(methodSymbol, knownInjectableTypes);
+    }
+
+    public FactoryTarget GetFactoryTarget(IPropertySymbol propertySymbol)
+    {
+        return TypeConverter.GetFactoryTarget(propertySymbol, knownInjectableTypes);
     }
 
     public (OpenGenericType Type, TypeMetadata TypeMatadata) GetGenericType(INamedTypeSymbol namedTypeSymbol)
     {
         var genericTypeSymbol = namedTypeSymbol.ConstructedFrom;
-        return (GenericTypeConverter.GetGenericType(genericTypeSymbol), this.GetTypeMetadata(genericTypeSymbol, default));
+        return (GenericTypeConverter.GetGenericType(genericTypeSymbol), this.GetTypeMetadata(genericTypeSymbol));
     }
 
-    public GenericMethod GetGenericMethod(IMethodSymbol? methodSymbol)
+    public R<GenericMethod, SymbolError> GetGenericMethod(IMethodSymbol? methodSymbol)
     {
-        return methodSymbol != null ? new GenericMethod(methodSymbol.MetadataName, methodSymbol.Parameters.Select(this.GetGenericParameter).ToImmutableArray(), TypeConverter.GetContaineeType(methodSymbol), TypeConverter.GetMethodKind(methodSymbol, knownInjectableTypes)) : default;
+        if (methodSymbol.HasValue())
+        {
+            var genericParametersResult = methodSymbol.Parameters.AllOrFailed(x => this.GetGenericParameter(x).ToItem());
+            if (genericParametersResult.IsError)
+            {
+                return R.Error(new SymbolError(new NamedSymbol(methodSymbol.ToDisplayString()), genericParametersResult.Error.GetErrors()));
+            }
+
+            return R.Success(
+                new GenericMethod(
+                    methodSymbol.MetadataName,
+                    genericParametersResult.Value.Items,
+                    TypeConverter.GetContaineeType(methodSymbol),
+                    TypeConverter.GetMethodKind(methodSymbol, knownInjectableTypes)));
+        }
+
+        return R.Success();
     }
 
-    public GenericParameter GetGenericParameter(IParameterSymbol parameterSymbol)
+    public R<GenericParameter, SymbolError> GetGenericParameter(IParameterSymbol parameterSymbol)
     {
-        var fullSymbol = TypeConverter.GetSymbol(parameterSymbol.Type, knownInjectableTypes);
-        return new GenericParameter(fullSymbol.Symbol, parameterSymbol.MetadataName, this.GetTypeMetadata(parameterSymbol.Type, TypeConverter.GetConstructor(fullSymbol.Constructors.GetDefaultMethodWithMostParameters(), fullSymbol.Symbol as Type, knownInjectableTypes)));
+        var fullSymbol = TypeConverter.GetSymbolWithConstructors(parameterSymbol.Type, knownInjectableTypes);
+        var defaultConstructorResult = TypeConverter.GetConstructor(fullSymbol.Constructors.GetDefaultMethodWithMostParameters(), fullSymbol.Symbol as Type, knownInjectableTypes, ImmutableHashSet<TypeId>.Empty);
+        return defaultConstructorResult.With(x => new GenericParameter(fullSymbol.Symbol, parameterSymbol.MetadataName, this.GetTypeMetadata(parameterSymbol.Type), x));
     }
 
     public (UnboundGenericType Type, TypeMetadata TypeMetadata) GetUnboundGenericType(INamedTypeSymbol unboundGenericTypeSymbol)
     {
-        return (GenericTypeConverter.GetUnboundGenericType(unboundGenericTypeSymbol), this.GetTypeMetadata(unboundGenericTypeSymbol, default));
+        return (GenericTypeConverter.GetUnboundGenericType(unboundGenericTypeSymbol), this.GetTypeMetadata(unboundGenericTypeSymbol));
     }
 
-    private TypeMetadata GetTypeMetadata(ITypeSymbol typeSymbol, Method? defaultConstructor)
+    private TypeMetadata GetTypeMetadata(ITypeSymbol typeSymbol)
     {
-        return TypeConverter.GetTypeMetadata(typeSymbol, defaultConstructor, knownInjectableTypes);
+        return TypeConverter.GetTypeMetadata(typeSymbol, knownInjectableTypes);
     }
 }

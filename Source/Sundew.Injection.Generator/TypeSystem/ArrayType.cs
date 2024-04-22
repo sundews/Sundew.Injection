@@ -14,7 +14,7 @@ internal sealed record ArrayType(Type ElementType)
         ElementType.AssemblyName,
         false)
 {
-    public override string FullName => $"{this.Namespace}.{this.Name}";
+    public override string FullName => $"{this.Namespace}.{this.Name}[]";
 
-    public override TypeId Id => new($"{this.ElementType.Id}[]");
+    public override TypeId Id { get; } = new($"{ElementType.Name}[] | {ElementType.Namespace} | {ElementType.AssemblyName}");
 }

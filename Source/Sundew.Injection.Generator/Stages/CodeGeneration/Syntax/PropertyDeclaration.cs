@@ -7,6 +7,7 @@
 
 namespace Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 
+using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal readonly record struct PropertyDeclaration(Type Type, string Name, string FieldName) : IDeclaration;
+internal sealed record PropertyDeclaration(Type Type, string Name, ValueList<AttributeDeclaration> Attributes) : MemberDeclaration, IDeclaration;

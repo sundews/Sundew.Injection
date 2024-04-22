@@ -56,11 +56,11 @@ internal class InjectionDeclaration : IInjectionDeclaration
         injectionBuilder.Bind<IMultipleImplementationForEnumerable, MultipleImplementationForEnumerableB>();
 
         // Segregated interface binding as a singleton, that allows new to be overriden in a derived factory
-        injectionBuilder.Bind<IInterfaceSegregationOverridableNewA, IInterfaceSegregationOverridableNewB, IInterfaceSegregationOverridableNew, InterfaceSegregationOverridableNewImplementation>(Scope.SingleInstancePerFactory(true), isNewOverridable: true);
+        injectionBuilder.Bind<IInterfaceSegregationOverridableNewA, IInterfaceSegregationOverridableNewB, IInterfaceSegregationOverridableNew, InterfaceSegregationOverridableNewImplementation>(Scope.SingleInstancePerFactory(), isNewOverridable: true);
 
         // Singleton bindings
         injectionBuilder.Bind<IInterfaceSingleInstancePerFactory, InterfaceSingleInstancePerFactory>(Scope.SingleInstancePerFactory());
-        injectionBuilder.Bind<ImplementationSingleInstancePerFactory>(Scope.SingleInstancePerFactory("CustomNamedProperty"));
+        injectionBuilder.Bind<ImplementationSingleInstancePerFactory>(Scope.SingleInstancePerFactory());
 
         // Single instance per request binding
         injectionBuilder.Bind<IInjectableSingleInstancePerRequest, InjectableSingleInstancePerRequest>(Scope.SingleInstancePerRequest, isInjectable: true);

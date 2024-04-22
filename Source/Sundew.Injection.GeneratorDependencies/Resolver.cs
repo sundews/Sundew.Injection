@@ -32,13 +32,13 @@ namespace Sundew.Injection
             this.serviceScope = serviceScope ?? new ResolverScope(this);
         }
 
-        public object GetService(Type serviceType)
+        public object GetService(Symbol serviceType)
         {
             var index = global::System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(serviceType) % BucketSize;
             do
             {
                 ref var item = ref this.resolverItems[index];
-                if (ReferenceEquals(item.Type, serviceType))
+                if (ReferenceEquals(item.Symbol, serviceType))
                 {
                     var result = item.Resolve.Invoke();
                     if (item.Dispose != null)

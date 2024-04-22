@@ -59,10 +59,10 @@ internal class KnownSyntax
         "[global::Sundew.Injection.Factory]");
 
     public AttributeDeclaration BindableCreateMethodAttribute { get; } = new(
-        $"[global::{KnownTypesProvider.BindableCreateMethodName}]");
+        $"[global::{KnownTypesProvider.BindableFactoryTargetName}]");
 
     public AttributeDeclaration IndirectCreateMethodAttribute { get; } = new(
-        $"[global::{KnownTypesProvider.IndirectCreateMethodName}]");
+        $"[global::{KnownTypesProvider.IndirectFactoryTargetName}]");
 
     public sealed record LifecycleHandlerSyntax(
         string AccessorName,

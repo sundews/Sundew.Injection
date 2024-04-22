@@ -25,7 +25,7 @@ public class InjectionGeneratorErrorFixture
     [Test]
     public Task VerifyReportedDiagnostics()
     {
-        var compilation = TestProjects.NetStandardLibraryErrors.FromCurrentDirectory.Value;
+        var compilation = TestProjects.Errors.FromCurrentDirectory.Value;
         GeneratorDriver generatorDriver = CSharpGeneratorDriver.Create(new InjectionGenerator());
 
         generatorDriver = generatorDriver.RunGenerators(compilation);

@@ -10,4 +10,4 @@ namespace Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using System.Collections.Generic;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal record InterfaceDeclaration(Type Type, IReadOnlyList<Type> InterfaceTypes, IReadOnlyList<AttributeDeclaration> AttributeDeclarations, IReadOnlyList<MethodDeclaration> Members);
+internal record InterfaceDeclaration(Type Type, IReadOnlyList<Type> InterfaceTypes, IReadOnlyList<AttributeDeclaration> AttributeDeclarations, IReadOnlyList<MemberDeclaration> Members);

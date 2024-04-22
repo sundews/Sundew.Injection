@@ -65,7 +65,7 @@ internal class FactorySyntaxGenerator(
         }
 
         (factoryImplementation, var defaultMethodDeclarations) = factoryResolvedGraph.FactoryMethodInfos.Aggregate(
-            (factoryImplementation, DefaultCreateMethods: ImmutableArray<FactoryMethod>.Empty),
+            (factoryImplementation, DefaultCreateMethods: ImmutableArray<FactoryTargetDeclaration>.Empty),
             (factory, factoryMethodInfo) =>
             {
                 var result = this.GenerateFactoryMethod(
@@ -82,8 +82,9 @@ internal class FactorySyntaxGenerator(
                 factoryResolvedGraph.FactoryInterfaceType,
                 interfaces,
                 ImmutableArray.Create(knownSyntax.FactoryAttribute),
-                factoryImplementation.CreateMethods.Select(x => x.Declaration)
+                factoryImplementation.Properties.Select(x => (MemberDeclaration)x.Declaration)
                     .Concat(
+                        factoryImplementation.CreateMethods.Select(x => x.Declaration),
                         factoryImplementation.DisposeMethodImplementations.Select(x => x.Declaration)).ToArray());
             interfaces = ImmutableList.Create(factoryResolvedGraph.FactoryInterfaceType);
         }
@@ -97,7 +98,7 @@ internal class FactorySyntaxGenerator(
                         new Member.MethodImplementation(
                             new MethodDeclaration(DeclaredAccessibility.Public, false, factoryResolvedGraph.FactoryType.Name, factoryImplementation.Constructor.Parameters.GroupBy(x => x.DefaultValue != null).OrderBy(x => x.Key).SelectMany(x => x).ToImmutableList()),
                             factoryImplementation.Constructor.Statements).ToEnumerable<Member>(),
-                        factoryImplementation.Properties.Select(Member._Property),
+                        factoryImplementation.Properties.Select(x => Member._PropertyImplementation(x.Declaration, x.GetPropertyImplementation)),
                         factoryImplementation.CreateMethods.Select(x =>
                             new Member.MethodImplementation(x.Declaration, x.MethodImplementation.Statements)),
                         factoryImplementation.DisposeMethodImplementations.Select(x =>
@@ -113,7 +114,7 @@ internal class FactorySyntaxGenerator(
         return new FactoryDeclarations(classDeclaration, interfaceDeclaration, defaultMethodDeclarations);
     }
 
-    private (Model.FactoryImplementation FactoryImplementation, FactoryMethod DefaultCreateMethod) GenerateFactoryMethod(
+    private (Model.FactoryImplementation FactoryImplementation, FactoryTargetDeclaration DefaultCreateMethod) GenerateFactoryMethod(
         InjectionNode injectionNode,
         FactoryMethodData factoryMethodData,
         in FactoryImplementation factoryImplementation)
@@ -128,9 +129,14 @@ internal class FactorySyntaxGenerator(
 
         var disposeMethodImplementations = factoryImplementation.DisposeMethodImplementations;
         var factoryMethodStatements = factoryNode.CreateMethod.Statements;
-        var asyncCreateReturnType = compilationData.TaskType.ToClosedGenericType(ImmutableArray.Create(new TypeArgument(factoryMethodData.Return)));
-        var factoryMethods = factoryImplementation.CreateMethods;
-        var createMethodParameters = factoryNode.CreateMethod.Parameters.GroupBy(x => x.DefaultValue != null).OrderBy(x => x.Key).SelectMany(x => x).ToImmutableList();
+        var asyncCreateReturnType = compilationData.TaskType.ToClosedGenericType(ImmutableArray.Create(new FullTypeArgument(factoryMethodData.Return)));
+        var properties = factoryImplementation.Properties;
+        var createMethods = factoryImplementation.CreateMethods;
+        var createMethodParameters = factoryNode.CreateMethod.Parameters
+            .GroupBy(x => x.DefaultValue != null)
+            .OrderBy(x => x.Key)
+            .SelectMany(x => x)
+            .ToImmutableList();
         var createMethodDeclaration = new MethodDeclaration(
             DeclaredAccessibility.Public,
             false,
@@ -138,104 +144,149 @@ internal class FactorySyntaxGenerator(
             createMethodParameters,
             new UsedType(factoryMethodData.Return.Type));
 
+        var isProperty = factoryMethodData.InjectionTree is SingleInstancePerFactoryInjectionNode;
+
         if (factoryMethodData.RootNeedsLifecycleHandling)
         {
-            factoryMethodStatements = factoryMethodStatements.Insert(0, knownSyntax.SharedLifecycleHandler.CreateChildLifecycleHandlerAndAssignVarStatement);
+            if (isProperty)
+            {
+                var createPropertyDeclaration = new PropertyDeclaration(
+                    factoryMethodData.Return.Type,
+                    factoryMethodData.FactoryMethodName,
+                    ImmutableList.Create(knownSyntax.BindableCreateMethodAttribute));
 
-            var constructedValueVariableName = injectionNode.GetInjectionNodeName().Uncapitalize() + Result;
-            var constructedValueIdentifier = new Identifier(constructedValueVariableName);
-            factoryMethodStatements = factoryMethodStatements.Add(
+                factoryMethodStatements = factoryMethodStatements.Add(Statement.ExpressionStatement(
+                    new InvocationExpression(knownSyntax.SharedLifecycleHandler.InitializeMethod)));
+                factoryMethodStatements =
+                    factoryMethodStatements.Add(
+                        new ReturnStatement(factoryNode.DependantArguments.Single()));
+                properties = properties
+                    .Add(new DeclaredPropertyImplementation(createPropertyDeclaration, factoryMethodStatements));
+            }
+            else
+            {
+                factoryMethodStatements = factoryMethodStatements.Insert(0, knownSyntax.SharedLifecycleHandler.CreateChildLifecycleHandlerAndAssignVarStatement);
+
+                var constructedValueVariableName = injectionNode.GetInjectionNodeName().Uncapitalize() + Result;
+                var constructedValueIdentifier = new Identifier(constructedValueVariableName);
+                factoryMethodStatements = factoryMethodStatements.Add(
+                        new LocalDeclarationStatement(
+                            constructedValueVariableName,
+                            factoryNode.DependantArguments.Single()))
+                    .Add(
+                        new ExpressionStatement(
+                            new InvocationExpression(
+                                knownSyntax.SharedLifecycleHandler.TryAddMethod,
+                                [constructedValueIdentifier, knownSyntax.ChildLifecycleHandler.Access,])));
+
+                var constructedType =
+                    compilationData.ConstructedType.ToClosedGenericType(
+                        ImmutableArray.Create(new FullTypeArgument(factoryMethodData.Return)));
+                var createMethodAsyncDeclaration = new MethodDeclaration(
+                    DeclaredAccessibility.Public,
+                    false,
+                    true,
+                    factoryMethodData.FactoryMethodName + Trivia.AsyncName,
+                    createMethodParameters,
+                    ImmutableArray.Create(knownSyntax.IndirectCreateMethodAttribute),
+                    new UsedType(asyncCreateReturnType));
+                var createUnInitializedMethodDeclaration = new MethodDeclaration(
+                    DeclaredAccessibility.Public,
+                    false,
+                    false,
+                    factoryMethodData.FactoryMethodName + Uninitialized,
+                    createMethodParameters,
+                    ImmutableArray.Create(knownSyntax.EditorBrowsableAttribute, knownSyntax.BindableCreateMethodAttribute, knownSyntax.IndirectCreateMethodAttribute),
+                    new UsedType(constructedType));
+                var createStatement =
                     new LocalDeclarationStatement(
-                        constructedValueVariableName,
-                        factoryNode.DependantArguments.Single()))
-                .Add(
-                    new ExpressionStatement(
+                        Constructed + factoryMethodData.Target.Type.Name,
                         new InvocationExpression(
-                            knownSyntax.SharedLifecycleHandler.TryAddMethod,
-                            [constructedValueIdentifier, knownSyntax.ChildLifecycleHandler.Access,])));
+                            new MemberAccessExpression(Identifier.This, createUnInitializedMethodDeclaration.Name),
+                            createMethodParameters.Select(x => new Identifier(x.Name))
+                                .ToImmutableArray()));
+                createMethods = createMethods
+                    .Add(new DeclaredMethodImplementation(createMethodDeclaration, factoryNode.CreateMethod with
+                    {
+                        Statements = ImmutableList.Create<Statement>(createStatement)
+                            .Add(Statement.ExpressionStatement(
+                                new InvocationExpression(knownSyntax.SharedLifecycleHandler.InitializeMethod)))
+                            .Add(new ReturnStatement(new MemberAccessExpression(new Identifier(createStatement.Name), ObjectPropertyName))),
+                    }))
+                    .Add(new DeclaredMethodImplementation(createMethodAsyncDeclaration, factoryNode.CreateMethod with
+                    {
+                        Statements = ImmutableList.Create<Statement>(createStatement)
+                            .Add(Statement.ExpressionStatement(knownSyntax.SharedLifecycleHandler
+                                .InitializeAsyncMethodCall))
+                            .Add(new ReturnStatement(new MemberAccessExpression(new Identifier(createStatement.Name), ObjectPropertyName))),
+                    }));
+                createMethods = createMethods.Add(new DeclaredMethodImplementation(
+                    createUnInitializedMethodDeclaration,
+                    factoryNode.CreateMethod with
+                    {
+                        Statements = factoryMethodStatements.Add(new ReturnStatement(
+                            CreationExpression._ConstructorCall(constructedType, ImmutableArray.Create(new Identifier(constructedValueVariableName), knownSyntax.ChildLifecycleHandler.Access)))),
+                    }));
 
-            var constructedType =
-                compilationData.ConstructedType.ToClosedGenericType(
-                    ImmutableArray.Create(new TypeArgument(factoryMethodData.Return)));
-            var createMethodAsyncDeclaration = new MethodDeclaration(
-                DeclaredAccessibility.Public,
-                false,
-                true,
-                factoryMethodData.FactoryMethodName + Trivia.AsyncName,
-                createMethodParameters,
-                ImmutableArray.Create(knownSyntax.IndirectCreateMethodAttribute),
-                new UsedType(asyncCreateReturnType));
-            var createUnInitializedMethodDeclaration = new MethodDeclaration(
-                DeclaredAccessibility.Public,
-                false,
-                false,
-                factoryMethodData.FactoryMethodName + Uninitialized,
-                createMethodParameters,
-                ImmutableArray.Create(knownSyntax.EditorBrowsableAttribute, knownSyntax.BindableCreateMethodAttribute, knownSyntax.IndirectCreateMethodAttribute),
-                new UsedType(constructedType));
-            var createStatement =
-                new LocalDeclarationStatement(
-                    Constructed + factoryMethodData.Target.Type.Name,
-                    new InvocationExpression(
-                        new MemberAccessExpression(Identifier.This, createUnInitializedMethodDeclaration.Name),
-                        createMethodParameters.Select(x => new Identifier(x.Name))
-                            .ToImmutableArray()));
-            factoryMethods = factoryMethods
-                .Add(new DeclaredMethodImplementation(createMethodDeclaration, factoryNode.CreateMethod with
-                {
-                    Statements = ImmutableList.Create<Statement>(createStatement)
-                        .Add(Statement.ExpressionStatement(new InvocationExpression(knownSyntax.SharedLifecycleHandler.InitializeMethod)))
-                        .Add(new ReturnStatement(new MemberAccessExpression(new Identifier(createStatement.Name), ObjectPropertyName))),
-                }))
-                .Add(new DeclaredMethodImplementation(createMethodAsyncDeclaration, factoryNode.CreateMethod with
-                {
-                    Statements = ImmutableList.Create<Statement>(createStatement)
-                        .Add(Statement.ExpressionStatement(knownSyntax.SharedLifecycleHandler.InitializeAsyncMethodCall))
-                        .Add(new ReturnStatement(new MemberAccessExpression(new Identifier(createStatement.Name), ObjectPropertyName))),
-                }));
-            factoryMethods = factoryMethods.Add(new DeclaredMethodImplementation(
-                createUnInitializedMethodDeclaration,
-                factoryNode.CreateMethod with
-                {
-                    Statements = factoryMethodStatements.Add(new ReturnStatement(CreationExpression._ConstructorCall(constructedType, ImmutableArray.Create(new Identifier(constructedValueVariableName), knownSyntax.ChildLifecycleHandler.Access)))),
-                }));
+                disposeMethodImplementations = disposeMethodImplementations.Add(
+                    new DeclaredDisposeMethodImplementation(
+                        new MethodDeclaration(
+                            DeclaredAccessibility.Public,
+                            false,
+                            knownSyntax.DisposeName,
+                            ImmutableList.Create(new ParameterDeclaration(factoryMethodData.Return.Type, targetTypeParameterName)),
+                            new UsedType(compilationData.VoidType)),
+                        ImmutableList.Create<Statement>(new ExpressionStatement(
+                            new InvocationExpression(
+                                knownSyntax.SharedLifecycleHandler.DisposeMethod,
+                                [new Identifier(targetTypeParameterName)])))));
 
-            disposeMethodImplementations = disposeMethodImplementations.Add(
-                new DeclaredDisposeMethodImplementation(
-                    new MethodDeclaration(
-                        DeclaredAccessibility.Public,
-                        false,
-                        knownSyntax.DisposeName,
-                        ImmutableList.Create(new ParameterDeclaration(factoryMethodData.Return.Type, targetTypeParameterName)),
-                        new UsedType(compilationData.VoidType)),
-                    ImmutableList.Create<Statement>(new ExpressionStatement(
-                        new InvocationExpression(
-                            knownSyntax.SharedLifecycleHandler.DisposeMethod,
-                            [new Identifier(targetTypeParameterName)])))));
-
-            disposeMethodImplementations = disposeMethodImplementations.Add(
-                new DeclaredDisposeMethodImplementation(
-                    new MethodDeclaration(DeclaredAccessibility.Public, false, knownSyntax.DisposeAsyncName, ImmutableList.Create(new ParameterDeclaration(factoryMethodData.Return.Type, targetTypeParameterName)), new UsedType(compilationData.ValueTaskType)),
-                    ImmutableList.Create<Statement>(new ReturnStatement(
-                        new InvocationExpression(
-                            knownSyntax.SharedLifecycleHandler.DisposeAsyncMethod,
-                            [new Identifier(targetTypeParameterName)])))));
+                disposeMethodImplementations = disposeMethodImplementations.Add(
+                    new DeclaredDisposeMethodImplementation(
+                        new MethodDeclaration(
+                            DeclaredAccessibility.Public,
+                            false,
+                            knownSyntax.DisposeAsyncName,
+                            ImmutableList.Create(new ParameterDeclaration(factoryMethodData.Return.Type, targetTypeParameterName)),
+                            new UsedType(compilationData.ValueTaskType)),
+                        ImmutableList.Create<Statement>(new ReturnStatement(
+                            new InvocationExpression(
+                                knownSyntax.SharedLifecycleHandler.DisposeAsyncMethod,
+                                [new Identifier(targetTypeParameterName)])))));
+            }
         }
         else
         {
-            factoryMethodStatements =
-                factoryMethodStatements.Add(
-                    new ReturnStatement(factoryNode.DependantArguments.Single()));
-            factoryMethods = factoryMethods
-                .Add(new DeclaredMethodImplementation(createMethodDeclaration with { Attributes = ImmutableList.Create(knownSyntax.BindableCreateMethodAttribute) }, factoryNode.CreateMethod with { Statements = factoryMethodStatements }));
+            if (isProperty)
+            {
+                var createPropertyDeclaration = new PropertyDeclaration(
+                    factoryMethodData.Return.Type,
+                    factoryMethodData.FactoryMethodName,
+                    ImmutableList.Create(knownSyntax.BindableCreateMethodAttribute));
+                factoryMethodStatements =
+                    factoryMethodStatements.Add(
+                        new ReturnStatement(factoryNode.DependantArguments.Single()));
+                properties = properties
+                    .Add(new DeclaredPropertyImplementation(createPropertyDeclaration, factoryMethodStatements));
+            }
+            else
+            {
+                factoryMethodStatements =
+                    factoryMethodStatements.Add(
+                        new ReturnStatement(factoryNode.DependantArguments.Single()));
+                createMethods = createMethods
+                    .Add(new DeclaredMethodImplementation(
+                        createMethodDeclaration with { Attributes = ImmutableList.Create(knownSyntax.BindableCreateMethodAttribute), }, factoryNode.CreateMethod with { Statements = factoryMethodStatements }));
+            }
         }
 
         return (factoryNode.FactoryImplementation with
         {
             Fields = fields,
-            CreateMethods = factoryMethods,
+            Properties = properties,
+            CreateMethods = createMethods,
             DisposeMethodImplementations = disposeMethodImplementations,
         },
-            new FactoryMethod(createMethodDeclaration.Name, createMethodDeclaration.Parameters, factoryMethodData.Return.Type));
+            new FactoryTargetDeclaration(createMethodDeclaration.Name, createMethodDeclaration.Parameters, factoryMethodData.Return.Type, isProperty));
     }
 }

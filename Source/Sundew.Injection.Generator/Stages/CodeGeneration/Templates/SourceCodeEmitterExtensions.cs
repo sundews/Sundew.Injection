@@ -56,7 +56,7 @@ internal static class SourceCodeEmitterExtensions
 
     public static StringBuilder AppendFullyQualifiedType(this StringBuilder stringBuilder, Type type)
     {
-        static StringBuilder AppendTypeArguments(StringBuilder stringBuilder, ValueArray<TypeArgument> typeArguments)
+        static StringBuilder AppendTypeArguments(StringBuilder stringBuilder, ValueArray<FullTypeArgument> typeArguments)
         {
             return stringBuilder.AppendItems(
                 typeArguments,
@@ -110,6 +110,15 @@ internal static class SourceCodeEmitterExtensions
                 .Append(' '));
 
         return stringBuilder.Append(methodDeclaration.Name).Append('(').AppendParameters(methodDeclaration.Parameters, options.AreNullableAnnotationsSupported, indentation + 4).Append(')');
+    }
+
+    public static StringBuilder AppendPropertyDeclaration(this StringBuilder stringBuilder, PropertyDeclaration propertyDeclaration, Options options, int indentation)
+    {
+        return stringBuilder.AppendFullyQualifiedType(propertyDeclaration.Type)
+            .Append(' ')
+            .Append(propertyDeclaration.Name)
+            .Append(' ')
+            .Append(Trivia.PropertyGetter);
     }
 
     public static StringBuilder AppendAttributes(this StringBuilder stringBuilder, IEnumerable<AttributeDeclaration> attributes, int indentation)

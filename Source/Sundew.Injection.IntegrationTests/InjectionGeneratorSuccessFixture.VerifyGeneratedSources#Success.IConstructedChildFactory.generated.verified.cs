@@ -8,12 +8,12 @@ namespace Success
     {
         global::Success.ChildFactory.ConstructedChild Create(global::Success.IResolveRootFactory resolveRootFactory, global::Success.OptionalInterface.OptionalParameters optionalParameters);
 
-        [global::Sundew.Injection.IndirectCreateMethodAttribute]
+        [global::Sundew.Injection.IndirectFactoryTargetAttribute]
         global::System.Threading.Tasks.Task<global::Success.ChildFactory.ConstructedChild> CreateAsync(global::Success.IResolveRootFactory resolveRootFactory, global::Success.OptionalInterface.OptionalParameters optionalParameters);
 
         [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-        [global::Sundew.Injection.BindableCreateMethodAttribute]
-        [global::Sundew.Injection.IndirectCreateMethodAttribute]
+        [global::Sundew.Injection.BindableFactoryTargetAttribute]
+        [global::Sundew.Injection.IndirectFactoryTargetAttribute]
         global::Sundew.Injection.Constructed<global::Success.ChildFactory.ConstructedChild> CreateUninitialized(global::Success.IResolveRootFactory resolveRootFactory, global::Success.OptionalInterface.OptionalParameters optionalParameters);
 
         void Dispose(global::Success.ChildFactory.ConstructedChild constructedChild);

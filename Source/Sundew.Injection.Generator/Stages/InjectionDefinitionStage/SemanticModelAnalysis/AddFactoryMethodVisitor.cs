@@ -14,7 +14,7 @@ using Sundew.Base;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal class AddFactoryMethodVisitor(
-    GenericNameSyntax genericNameSyntax,
+    GenericNameSyntax addFactoryMethodGenericNameSyntax,
     IMethodSymbol methodSymbol,
     FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder,
     AnalysisContext analysisContext)
@@ -28,13 +28,13 @@ internal class AddFactoryMethodVisitor(
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
         base.VisitArgumentList(node);
-        var typeArguments = methodSymbol.MapTypeArguments(genericNameSyntax);
+        var typeArguments = methodSymbol.MapTypeArguments(addFactoryMethodGenericNameSyntax);
         var interfaceType = typeArguments[0];
         var implementationType = typeArguments.Length == 2 ? typeArguments[1] : interfaceType;
         var parameters = methodSymbol.Parameters;
         var i = 0;
-        var constructorSelector = (Method?)parameters[i++].ExplicitDefaultValue;
-        var createMethodName = (string?)parameters[i++].ExplicitDefaultValue;
+        var constructorSelector = R.SuccessOption((Method?)parameters[i++].ExplicitDefaultValue).Omits<SymbolErrorWithLocation>();
+        var factoryMethodName = (string?)parameters[i++].ExplicitDefaultValue;
         var accessibility = parameters[i++].ExplicitDefaultValue.ToEnumOrDefault(Injection.Accessibility.Public);
         var isNewOverridable = (bool?)parameters[i++].ExplicitDefaultValue ?? true;
         var argumentIndex = 0;
@@ -47,8 +47,8 @@ internal class AddFactoryMethodVisitor(
                     case nameof(constructorSelector):
                         constructorSelector = this.GetMethod(argumentSyntax);
                         break;
-                    case nameof(createMethodName):
-                        createMethodName = (string?)analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
+                    case nameof(factoryMethodName):
+                        factoryMethodName = (string?)analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
                         break;
                     case nameof(accessibility):
                         accessibility = analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value.ToEnumOrDefault(Injection.Accessibility.Public);
@@ -66,7 +66,7 @@ internal class AddFactoryMethodVisitor(
                         constructorSelector = this.GetMethod(argumentSyntax);
                         break;
                     case 1:
-                        createMethodName = (string?)analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
+                        factoryMethodName = (string?)analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value;
                         break;
                     case 2:
                         accessibility = analysisContext.SemanticModel.GetConstantValue((LiteralExpressionSyntax)argumentSyntax.Expression).Value.ToEnumOrDefault(Injection.Accessibility.Public);
@@ -80,16 +80,22 @@ internal class AddFactoryMethodVisitor(
             }
         }
 
-        if (typeArguments.Length == 1 && constructorSelector == null)
+        if (constructorSelector.IsError)
+        {
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, constructorSelector.Error);
+            return;
+        }
+
+        if (typeArguments.Length == 1)
         {
             analysisContext.AddDefaultFactoryMethodFromTypeSymbol(implementationType, accessibility, isNewOverridable, factoryMethodRegistrationBuilder);
             return;
         }
 
-        analysisContext.AddFactoryMethodFromTypeSymbol(interfaceType.TypeSymbol, implementationType.TypeSymbol, constructorSelector, createMethodName, accessibility, isNewOverridable, factoryMethodRegistrationBuilder);
+        analysisContext.AddFactoryMethodFromTypeSymbol(interfaceType, implementationType, constructorSelector.Value, factoryMethodName, accessibility, isNewOverridable, factoryMethodRegistrationBuilder);
     }
 
-    private Method? GetMethod(ArgumentSyntax argumentSyntax)
+    private R<Method?, SymbolErrorWithLocation> GetMethod(ArgumentSyntax argumentSyntax)
     {
         return ExpressionAnalysisHelper.GetMethod(argumentSyntax, analysisContext.SemanticModel, analysisContext.TypeFactory);
     }

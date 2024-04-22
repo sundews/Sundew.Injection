@@ -10,13 +10,14 @@ namespace Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using System.Collections.Immutable;
 using Sundew.Base.Collections.Immutable;
 
-internal sealed record MethodDeclaration(DeclaredAccessibility Accessibility,
+internal sealed record MethodDeclaration(
+    DeclaredAccessibility Accessibility,
     bool IsVirtual,
     bool IsAsync,
     string Name,
     ValueList<ParameterDeclaration> Parameters,
     ValueList<AttributeDeclaration> Attributes,
-    UsedType? ReturnType = null)
+    UsedType? ReturnType = null) : MemberDeclaration
 {
     public MethodDeclaration(
         DeclaredAccessibility accessibility,

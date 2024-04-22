@@ -16,14 +16,14 @@ namespace Success
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        [global::Sundew.Injection.BindableCreateMethodAttribute]
+        [global::Sundew.Injection.BindableFactoryTargetAttribute]
         public global::Success.TypeResolver.IMultipleImplementationForTypeResolver CreateMultipleImplementationForTypeResolverA()
         {
             return new global::Success.TypeResolver.MultipleImplementationForTypeResolverA(new global::Success.TypeResolver.DependencyA(this.dependencyShared));
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        [global::Sundew.Injection.BindableCreateMethodAttribute]
+        [global::Sundew.Injection.BindableFactoryTargetAttribute]
         public global::Success.TypeResolver.IMultipleImplementationForTypeResolver CreateMultipleImplementationForTypeResolverB()
         {
             return new global::Success.TypeResolver.MultipleImplementationForTypeResolverB(new global::Success.TypeResolver.DependencyB(this.dependencyShared));

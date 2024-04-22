@@ -21,7 +21,7 @@ public class DependenciesGeneratorFixture
     [Test]
     public Task VerifyGeneratedSources()
     {
-        var compilation = TestProjects.AllFeatureSuccess.FromCurrentDirectory.Value;
+        var compilation = TestProjects.Success.FromCurrentDirectory.Value;
         GeneratorDriver generatorDriver = CSharpGeneratorDriver.Create(new DependenciesGenerator());
 
         generatorDriver = generatorDriver.RunGenerators(compilation);

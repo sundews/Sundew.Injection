@@ -18,32 +18,49 @@ using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
 
 internal static class BindingHelper
 {
-    public static void BindFactory(this AnalysisContext analysisContext, (Type Type, TypeMetadata TypeMetadata) factoryType, IEnumerable<(Method Method, ITypeSymbol ReturnType)> createMethods)
+    public static void BindFactory(
+        this AnalysisContext analysisContext,
+        FullType factoryType,
+        IEnumerable<(Method Method, TypeSymbolWithLocation ReturnType)> factoryMethods)
     {
         if (!analysisContext.CompiletimeInjectionDefinitionBuilder.HasBinding(factoryType.Type) &&
-            factoryType.TypeMetadata.DefaultConstructor.TryGetValue(out var defaultConstructor))
+            factoryType.DefaultConstructor.TryGetValue(out var defaultConstructor))
         {
-            var actualMethod = new Method(factoryType.Type, factoryType.Type.Name, defaultConstructor.Parameters, ValueArray<TypeArgument>.Empty, MethodKind._Constructor);
-            analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<(Type Type, TypeMetadata TypeMetadata)>.Empty, factoryType, actualMethod, new ScopeContext(Scope._SingleInstancePerFactory(default, Location.None), ScopeSelection.Implicit), false, false);
+            var actualMethod = new Method(factoryType.Type, factoryType.Type.Name, defaultConstructor.Parameters, ValueArray<FullTypeArgument>.Empty, MethodKind._Constructor);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<Type>.Empty, factoryType, actualMethod, new ScopeContext(Scope._SingleInstancePerFactory(Location.None), ScopeSelection.Implicit), false, false);
         }
 
-        foreach (var methodAndReturnType in createMethods)
+        foreach (var methodAndReturnType in factoryMethods)
         {
-            var returnType = analysisContext.TypeFactory.CreateType(methodAndReturnType.ReturnType);
-            analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<(Type Type, TypeMetadata TypeMetadata)>.Empty, returnType, methodAndReturnType.Method, new ScopeContext(Scope._Auto, ScopeSelection.Implicit), false, false);
-
-            if (SymbolEqualityComparer.Default.Equals(methodAndReturnType.ReturnType.OriginalDefinition, analysisContext.KnownAnalysisTypes.ConstructedTypeSymbol))
+            var returnTypeResult = analysisContext.TypeFactory.GetFullType(methodAndReturnType.ReturnType);
+            if (returnTypeResult.IsError)
             {
+                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, returnTypeResult.Error);
+                return;
+            }
+
+            var returnType = returnTypeResult.Value;
+            analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<Type>.Empty, returnType, methodAndReturnType.Method, new ScopeContext(Scope._Auto, ScopeSelection.Implicit), false, false);
+
+            if (SymbolEqualityComparer.Default.Equals(methodAndReturnType.ReturnType.TypeSymbol.OriginalDefinition, analysisContext.KnownAnalysisTypes.ConstructedTypeSymbol))
+            {
+                var typeSymbol = ((INamedTypeSymbol)methodAndReturnType.ReturnType.TypeSymbol).TypeArguments.Single();
+                var returnTypeFirstTypeParameterResult = analysisContext.TypeFactory.GetFullType(typeSymbol);
+                if (returnTypeFirstTypeParameterResult.IsError)
+                {
+                    analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, methodAndReturnType.ReturnType with { TypeSymbol = typeSymbol }, returnTypeFirstTypeParameterResult.Error.GetErrorText());
+                    return;
+                }
+
                 analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(
-                    ImmutableArray<(Type Type, TypeMetadata TypeMetadata)>.Empty,
-                    analysisContext.TypeFactory.CreateType(((INamedTypeSymbol)methodAndReturnType.ReturnType)
-                        .TypeArguments.Single()),
+                    ImmutableArray<Type>.Empty,
+                    returnTypeFirstTypeParameterResult.Value,
                     new Method(
-                        analysisContext.TypeFactory.CreateType(methodAndReturnType.ReturnType).Type,
+                        returnType.Type,
                         nameof(Constructed<object>.Object),
-                        ValueArray<Parameter>.Empty,
-                        ValueArray<TypeArgument>.Empty,
-                        MethodKind._Instance(returnType.TypeMetadata with { HasLifetime = false }, true)),
+                        ValueArray<FullParameter>.Empty,
+                        ValueArray<FullTypeArgument>.Empty,
+                        MethodKind._Instance(returnType.Metadata with { HasLifetime = false }, true, returnType.DefaultConstructor)),
                     new ScopeContext(Scope._Auto, ScopeSelection.Implicit),
                     false,
                     false);

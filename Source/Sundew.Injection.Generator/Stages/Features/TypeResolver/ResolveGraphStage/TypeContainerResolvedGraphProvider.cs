@@ -14,11 +14,11 @@ using Microsoft.CodeAnalysis;
 using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.CodeGeneration;
+using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using Sundew.Injection.Generator.Stages.CompilationDataStage;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Resolvers;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
-using FactoryMethod = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.FactoryMethod;
 
 public static class TypeContainerResolvedGraphProvider
 {
@@ -29,7 +29,7 @@ public static class TypeContainerResolvedGraphProvider
     {
         return typeResolverInputsProvider.Select((tuple, token) =>
         {
-            var nameRegistry = new NameRegistry<ValueArray<FactoryMethod>>();
+            var nameRegistry = new NameRegistry<ValueArray<FactoryTargetDeclaration>>();
             var (resolverCreationDefinitions, generatedFactoryDeclarations, compilationData) = tuple;
             foreach (var generatedFactoryDeclaration in generatedFactoryDeclarations)
             {
@@ -42,7 +42,7 @@ public static class TypeContainerResolvedGraphProvider
 
             token.ThrowIfCancellationRequested();
             var factoryTypeAndCreateMethodsResolver = new FactoryTypeAndCreateMethodsResolver(nameRegistry);
-            IEnumerable<(ResolverCreationDefinition ResolverCreationDefinition, IEnumerable<(Type Type, ValueArray<FactoryMethod> CreateMethods)> CreateMethods)> resolveCreationDefinitionResults = resolverCreationDefinitions
+            IEnumerable<(ResolverCreationDefinition ResolverCreationDefinition, IEnumerable<(Type Type, ValueArray<FactoryTargetDeclaration> CreateMethods)> CreateMethods)> resolveCreationDefinitionResults = resolverCreationDefinitions
                 .Select(resolverCreationDefinition => (resolverCreationDefinition,
                     createMethods: resolverCreationDefinition.FactoryRegistrations
                         .Select(resolverCreationDefinitionResult => factoryTypeAndCreateMethodsResolver.ResolveFactoryRegistration(resolverCreationDefinitionResult))));

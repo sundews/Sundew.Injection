@@ -22,7 +22,7 @@ namespace Success
                 new global::Sundew.Injection.ResolverItem(typeof(global::Success.TypeResolver.IMultipleImplementationForTypeResolver), () => new object[] { multipleImplementationForTypeResolverFactory.CreateMultipleImplementationForTypeResolverA(), multipleImplementationForTypeResolverFactory.CreateMultipleImplementationForTypeResolverB(), resolveRootFactory.CreateMultipleImplementationForTypeResolverC() }),
                 new global::Sundew.Injection.ResolverItem(typeof(global::SuccessDependency.Dependency), () => dependencyFactory.Create()),
                 new global::Sundew.Injection.ResolverItem(typeof(global::SuccessDependency.ManualDependency), () => manualDependencyFactory.Create()),
-                new global::Sundew.Injection.ResolverItem(typeof(global::Success.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory), () => resolveRootFactory.CreateInterfaceSingleInstancePerFactory()));
+                new global::Sundew.Injection.ResolverItem(typeof(global::Success.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory), () => resolveRootFactory.InterfaceSingleInstancePerFactory));
         }
 
         public object GetService(global::System.Type serviceType)

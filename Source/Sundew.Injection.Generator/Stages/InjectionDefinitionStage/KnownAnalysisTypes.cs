@@ -14,7 +14,7 @@ using Sundew.Base;
 using Sundew.Base.Collections.Linq;
 using Sundew.Injection.Generator.TypeSystem;
 
-public sealed class KnownAnalysisTypes : IKnownInjectableTypes
+internal sealed class KnownAnalysisTypes : IKnownInjectableTypes
 {
     private KnownAnalysisTypes(
         INamedTypeSymbol funcTypeSymbol,
@@ -26,7 +26,7 @@ public sealed class KnownAnalysisTypes : IKnownInjectableTypes
         INamedTypeSymbol injectionDeclarationType,
         INamedTypeSymbol injectionBuilderType,
         INamedTypeSymbol factoryMethodSelectorTypeSymbol,
-        INamedTypeSymbol createMethodSelectorTypeSymbol,
+        INamedTypeSymbol factoryMethodBindingSelectorTypeSymbol,
         INamedTypeSymbol constructedTypeSymbol,
         INamedTypeSymbol readonlyListTypeSymbol,
         INamedTypeSymbol enumerableOfTTypeSymbol)
@@ -40,7 +40,7 @@ public sealed class KnownAnalysisTypes : IKnownInjectableTypes
         this.InjectionDeclarationType = injectionDeclarationType;
         this.InjectionBuilderType = injectionBuilderType;
         this.FactoryMethodSelectorTypeSymbol = factoryMethodSelectorTypeSymbol;
-        this.CreateMethodSelectorTypeSymbol = createMethodSelectorTypeSymbol;
+        this.FactoryMethodBindingSelectorTypeSymbol = factoryMethodBindingSelectorTypeSymbol;
         this.ConstructedTypeSymbol = constructedTypeSymbol;
         this.IReadOnlyListOfTTypeSymbol = readonlyListTypeSymbol;
         this.IEnumerableOfTTypeSymbol = enumerableOfTTypeSymbol;
@@ -68,7 +68,7 @@ public sealed class KnownAnalysisTypes : IKnownInjectableTypes
 
     public INamedTypeSymbol FactoryMethodSelectorTypeSymbol { get; }
 
-    public INamedTypeSymbol CreateMethodSelectorTypeSymbol { get; }
+    public INamedTypeSymbol FactoryMethodBindingSelectorTypeSymbol { get; }
 
     public INamedTypeSymbol ConstructedTypeSymbol { get; }
 
@@ -84,7 +84,7 @@ public sealed class KnownAnalysisTypes : IKnownInjectableTypes
             compilation.GetIAsyncInitializableTypeSymbol(),
             R.From(compilation.GetTypeByMetadataName(typeof(IInjectionDeclaration).FullName), () => "IInjectionDeclaration was not found, Sundew.Injection must be referenced"), R.From(compilation.GetTypeByMetadataName(typeof(IInjectionDeclaration).FullName), () => "IInjectionDeclaration was not found, Sundew.Injection must be referenced"),
             R.From(compilation.GetTypeByMetadataName(typeof(IFactoryMethodSelector).FullName), () => "IFactoryMethodSelector was not found, Sundew.Injection must be referenced"),
-            R.From(compilation.GetTypeByMetadataName(typeof(ICreateMethodSelector<>).FullName), () => "ICreateMethodSelector was not found, Sundew.Injection must be referenced"),
+            R.From(compilation.GetTypeByMetadataName(typeof(IFactoryMethodBindingSelector<>).FullName), () => "IFactoryMethodBindingSelector was not found, Sundew.Injection must be referenced"),
             compilation.GetConstructed(),
             compilation.GetIReadOnlyListOfT(),
             compilation.GetIEnumerableOfT(),

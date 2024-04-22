@@ -73,9 +73,15 @@ namespace Success
             this.manualDependencyFactory = new global::SuccessDependency.ManualDependencyFactory();
         }
 
-        public global::Success.InterfaceSegregationBindings.IInterfaceSegregationOverridableNew InterfaceSegregationOverridableNewImplementation => this.interfaceSegregationOverridableNewImplementation;
-
-        public global::Success.SingleInstancePerFactory.ImplementationSingleInstancePerFactory CustomNamedProperty => this.implementationSingleInstancePerFactory;
+        [global::Sundew.Injection.BindableFactoryTargetAttribute]
+        public global::Success.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory InterfaceSingleInstancePerFactory
+        {
+            get
+            {
+                this.lifecycleHandler.Initialize();
+                return this.interfaceSingleInstancePerFactory;
+            }
+        }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public global::Success.IResolveRoot CreateResolveRoot(
@@ -98,7 +104,7 @@ namespace Success
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        [global::Sundew.Injection.IndirectCreateMethodAttribute]
+        [global::Sundew.Injection.IndirectFactoryTargetAttribute]
         public async global::System.Threading.Tasks.Task<global::Success.IResolveRoot> CreateResolveRootAsync(
             global::System.Collections.Generic.IEnumerable<int> integers,
             int defaultItem,
@@ -120,8 +126,8 @@ namespace Success
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-        [global::Sundew.Injection.BindableCreateMethodAttribute]
-        [global::Sundew.Injection.IndirectCreateMethodAttribute]
+        [global::Sundew.Injection.BindableFactoryTargetAttribute]
+        [global::Sundew.Injection.IndirectFactoryTargetAttribute]
         public global::Sundew.Injection.Constructed<global::Success.IResolveRoot> CreateResolveRootUninitialized(
             global::System.Collections.Generic.IEnumerable<int> integers,
             int defaultItem,
@@ -180,14 +186,7 @@ namespace Success
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        [global::Sundew.Injection.BindableCreateMethodAttribute]
-        public global::Success.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory CreateInterfaceSingleInstancePerFactory()
-        {
-            return this.interfaceSingleInstancePerFactory;
-        }
-
-        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        [global::Sundew.Injection.BindableCreateMethodAttribute]
+        [global::Sundew.Injection.BindableFactoryTargetAttribute]
         public global::Success.TypeResolver.IMultipleImplementationForTypeResolver CreateMultipleImplementationForTypeResolverC()
         {
             return new global::Success.TypeResolver.MultipleImplementationForTypeResolverC();

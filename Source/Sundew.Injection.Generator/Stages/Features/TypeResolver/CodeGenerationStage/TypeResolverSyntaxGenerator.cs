@@ -89,7 +89,7 @@ internal static class TypeResolverSyntaxGenerator
                         Expression._StaticMethodCall(
                             compilationData.ResolverItemsFactoryType,
                             CreateName,
-                            ValueArray<TypeArgument>.Empty,
+                            ValueArray<FullTypeArgument>.Empty,
                             new[] { Expression.Identifier(BucketSize) }
                                 .Concat(
                                     supportedFactoryMethods.Select(factoryMethod => Expression._ConstructorCall(
@@ -104,29 +104,38 @@ internal static class TypeResolverSyntaxGenerator
     }
 
     private static Expression CreateObjectExpression(
-        (ParameterDeclaration ParameterDeclaration, FactoryMethod FactoryMethod)[] factoryMethodCalls,
+        (ParameterDeclaration ParameterDeclaration, FactoryTargetDeclaration FactoryMethod)[] factoryMethodCalls,
         CompilationData compilationData)
     {
         var cardinality = factoryMethodCalls.ByCardinality();
         return cardinality switch
         {
-            Single<(ParameterDeclaration ParameterDeclaration, FactoryMethod FactoryMethod)> single =>
-                Expression._InstanceMethodCall(
-                    Expression.Identifier(single.Item.ParameterDeclaration.Name),
-                    single.Item.FactoryMethod.Name,
-                    ValueArray<TypeArgument>.Empty,
-                    []),
+            Single<(ParameterDeclaration ParameterDeclaration, FactoryTargetDeclaration FactoryMethod)> single =>
+                single.Item.FactoryMethod.IsProperty
+                    ? Expression.MemberAccessExpression(
+                        Expression.Identifier(single.Item.ParameterDeclaration.Name),
+                        single.Item.FactoryMethod.Name)
+                    : Expression._InstanceMethodCall(
+                        Expression.Identifier(single.Item.ParameterDeclaration.Name),
+                        single.Item.FactoryMethod.Name,
+                        ValueArray<FullTypeArgument>.Empty,
+                        []),
 
-            Multiple<(ParameterDeclaration ParameterDeclaration, FactoryMethod FactoryMethod)> multiple =>
+            Multiple<(ParameterDeclaration ParameterDeclaration, FactoryTargetDeclaration FactoryMethod)> multiple =>
                 CreationExpression._Array(
                     compilationData.ObjectType,
-                    multiple.Select(x => Expression._InstanceMethodCall(
-                        Expression.Identifier(x.ParameterDeclaration.Name),
-                        x.FactoryMethod.Name,
-                        ValueArray<TypeArgument>.Empty,
-                        [])).ToArray()),
+                    multiple.Select(x =>
+                        x.FactoryMethod.IsProperty
+                            ? Expression.MemberAccessExpression(
+                                Expression.Identifier(x.ParameterDeclaration.Name),
+                                x.FactoryMethod.Name)
+                            : Expression._InstanceMethodCall(
+                                Expression.Identifier(x.ParameterDeclaration.Name),
+                                x.FactoryMethod.Name,
+                                ValueArray<FullTypeArgument>.Empty,
+                                [])).ToArray()),
 
-            Empty<(ParameterDeclaration ParameterDeclaration, FactoryMethod FactoryMethod)> empty => throw new System.NotSupportedException(),
+            Empty<(ParameterDeclaration ParameterDeclaration, FactoryTargetDeclaration FactoryMethod)> empty => throw new System.NotSupportedException(),
         };
     }
 

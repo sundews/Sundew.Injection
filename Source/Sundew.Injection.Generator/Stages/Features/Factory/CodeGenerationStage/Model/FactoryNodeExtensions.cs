@@ -37,22 +37,6 @@ internal static class FactoryNodeExtensions
         return (modifiedFactoryNode with { FactoryImplementation = modifiedFactoryNode.FactoryImplementation with { Fields = fields } }, wasCreated, fieldDeclaration);
     }
 
-    public static (FactoryNode FactoryNode, bool WasAdded, PropertyDeclaration PropertyDeclaration) GetOrAddProperty(
-        in this FactoryNode factoryNode,
-        string name,
-        Type type,
-        Func<string, PropertyDeclaration> createDeclarationFunc,
-        ModifyFactoryNode<PropertyDeclaration>? preModifyFactoryNodeFunc = null)
-    {
-        var (wasCreated, propertyDeclaration) = factoryNode.FactoryImplementation.Properties.GetOrCreate(
-            name,
-            type,
-            createDeclarationFunc);
-        var modifiedFactoryNode = preModifyFactoryNodeFunc?.Invoke(factoryNode, wasCreated, propertyDeclaration) ?? factoryNode;
-        var properties = wasCreated ? modifiedFactoryNode.FactoryImplementation.Properties.Add(propertyDeclaration) : modifiedFactoryNode.FactoryImplementation.Properties;
-        return (modifiedFactoryNode with { FactoryImplementation = modifiedFactoryNode.FactoryImplementation with { Properties = properties } }, wasCreated, propertyDeclaration);
-    }
-
     public static (FactoryNode FactoryNode, bool WasAdded, Declaration Declaration) GetOrAddVariable(
         in this FactoryNode factoryNode,
         string name,

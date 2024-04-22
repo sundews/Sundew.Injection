@@ -1,6 +1,7 @@
 ﻿namespace Success.SingleInstancePerFactory;
 
 using System;
+using System.Threading.Tasks;
 using Success.InterfaceSegregationBindings;
 using Success.MultipleImplementations;
 using Success.RequiredInterface;
@@ -26,6 +27,12 @@ public class InterfaceSingleInstancePerFactory : IInterfaceSingleInstancePerFact
 
     public void Start()
     {
+    }
+
+    public ValueTask InitializeAsync()
+    {
+        FactoryLifetime.Initialized(this);
+        return default;
     }
 
     public void Dispose()

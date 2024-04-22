@@ -13,7 +13,6 @@ using System.Threading;
 using Sundew.Base;
 using Sundew.Base.Collections;
 using Sundew.Base.Collections.Immutable;
-using Sundew.Base.Collections.Linq;
 using Sundew.DiscriminatedUnions;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Extensions;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Nodes;
@@ -40,7 +39,7 @@ internal sealed class InjectionTreeBuilder(
         if (injectionModelResult.IsSuccess)
         {
             var injectionModel = injectionModelResult.Value;
-            return R.Success(new InjectionTree(injectionModel.InjectionNode, injectionModel.FactoryConstructorParameters, injectionModel.NeedsLifecycleHandling, injectionModel.InjectionNode is not SingleInstancePerFactoryInjectionNode && injectionModel.NeedsLifecycleHandling));
+            return R.Success(new InjectionTree(injectionModel.InjectionNode, injectionModel.FactoryConstructorParameters, injectionModel.NeedsLifecycleHandling, injectionModel.NeedsLifecycleHandling));
         }
 
         return R.Error(injectionModelResult.Error);
@@ -65,7 +64,7 @@ internal sealed class InjectionTreeBuilder(
         }
 
         var errors = ImmutableList.CreateBuilder<InjectionStageError>();
-        if (creationResult.HasError)
+        if (creationResult.IsError)
         {
             errors.AddRange(creationResult.Error);
         }
@@ -101,13 +100,13 @@ internal sealed class InjectionTreeBuilder(
             switch (resolvedBinding)
             {
                 case ThisFactoryParameter thisFactoryParameter:
-                    constructorParameterCreationNodes.TryAdd(InjectionNode.ThisFactoryInjectionNode(thisFactoryParameter.FactoryType, creationInjectionNode.GetInjectionNodeName()));
+                    constructorParameterCreationNodes.AddIfHasValue(InjectionNode.ThisFactoryInjectionNode(thisFactoryParameter.FactoryType, creationInjectionNode.GetInjectionNodeName()));
                     break;
                 case SingleParameter singleParameter:
                     {
                         var injectionModelResult = this.GetInjectionModel(singleParameter.Binding, creationInjectionNode, (parameter.Type, parameter.Name, parameter.TypeMetadata), cancellationToken);
 
-                        errors.TryAddErrors(injectionModelResult);
+                        errors.AddErrors(injectionModelResult);
 
                         if (!injectionModelResult.IsSuccess)
                         {
@@ -117,7 +116,7 @@ internal sealed class InjectionTreeBuilder(
                         var injectionModel = injectionModelResult.Value;
                         BooleanHelper.SetIfTrue(ref needsLifecycleHandling, injectionModel.NeedsLifecycleHandling);
                         factoryConstructorParameters.AddRange(injectionModel.FactoryConstructorParameters);
-                        constructorParameterCreationNodes.TryAdd(injectionModel.InjectionNode);
+                        constructorParameterCreationNodes.AddIfHasValue(injectionModel.InjectionNode);
                         break;
                     }
 
@@ -132,7 +131,7 @@ internal sealed class InjectionTreeBuilder(
 
                         var parameterInjectionNodePairs = multiItemParameter.Bindings.Select(x => this.GetInjectionModel(x, arrayInjectionNode, (parameter.Type, parameter.Name, parameter.TypeMetadata), cancellationToken)).ToArray();
 
-                        errors.TryAddAnyErrors(parameterInjectionNodePairs);
+                        errors.AddAnyErrors(parameterInjectionNodePairs);
 
                         var successes = parameterInjectionNodePairs.GetSuccesses().ToReadOnly();
                         arrayConstructorInjectionNodes.AddRange(successes.Select(x => x.InjectionNode));
@@ -159,11 +158,11 @@ internal sealed class InjectionTreeBuilder(
                     var externalParameterScope = scopeResolver.ResolveScope(externalParameter.Type);
                     var externalParameterInjectionNode = this.CreateParameterInjectionNode(
                         externalParameter.Type,
-                        (parameter.Name, parameter.TypeMetadata),
+                        new NamedParameter(parameter.Name, parameter.TypeMetadata, parameter.DefaultConstructor),
                         creationInjectionNode.GetInjectionNodeName(),
                         externalParameterScope,
                         externalParameter.ParameterSource);
-                    factoryConstructorParameters.TryAdd(externalParameterInjectionNode.FactoryConstructorParameterOption);
+                    factoryConstructorParameters.AddIfHasValue(externalParameterInjectionNode.FactoryConstructorParameterOption);
 
                     constructorParameterCreationNodes.Add(externalParameterInjectionNode.InjectionNode);
                     break;
@@ -195,7 +194,7 @@ internal sealed class InjectionTreeBuilder(
             case MethodKind.Static:
                 return R.Success(new CreationModel(CreationSource._StaticMethodCall(bindingMethod.ContainingType, bindingMethod), false, ImmutableList<FactoryConstructorParameter>.Empty));
             case MethodKind.Instance instance:
-                var resolvedBinding = bindingResolver.ResolveBinding(bindingMethod.ContainingType, instance.ContainingTypeMetadata, null);
+                var resolvedBinding = bindingResolver.ResolveBinding(bindingMethod.ContainingType, instance.ContainingTypeMetadata, instance.ContainingTypeDefaultConstructor, null);
                 switch (resolvedBinding)
                 {
                     case ThisFactoryParameter thisFactoryParameter:
@@ -203,8 +202,8 @@ internal sealed class InjectionTreeBuilder(
                     case RequiredParameter externalParameter:
                         var type = externalParameter.Type;
                         var requiredExternalParameterScope = scopeResolver.ResolveScope(externalParameter.Type);
-                        var requiredExternalInjectionNode = this.CreateParameterInjectionNode(externalParameter.Type, (externalParameter.Type.Name, externalParameter.TypeMetadata), string.Empty, requiredExternalParameterScope, externalParameter.ParameterSource);
-                        return R.Success(new CreationModel(CreationSource._InstanceMethodCall(type, bindingMethod, requiredExternalInjectionNode.InjectionNode, instance.IsProperty), false, ImmutableList<FactoryConstructorParameter>.Empty.TryAdd(requiredExternalInjectionNode.FactoryConstructorParameterOption)));
+                        var requiredExternalInjectionNode = this.CreateParameterInjectionNode(externalParameter.Type, new NamedParameter(externalParameter.Type.Name, externalParameter.TypeMetadata, default), string.Empty, requiredExternalParameterScope, externalParameter.ParameterSource);
+                        return R.Success(new CreationModel(CreationSource._InstanceMethodCall(type, bindingMethod, requiredExternalInjectionNode.InjectionNode, instance.IsProperty), false, ImmutableList<FactoryConstructorParameter>.Empty.AddIfHasValue(requiredExternalInjectionNode.FactoryConstructorParameterOption)));
                     case ScopeError scopeError:
                         return R.Error(ImmutableList.Create(InjectionStageError._ScopeError(scopeError.CurrentType, scopeError.CurrentScope, Root, scopeError.Dependant.Scope.ToString())));
                     case SingleParameter singleParameter:
@@ -229,7 +228,7 @@ internal sealed class InjectionTreeBuilder(
 
     private (InjectionNode InjectionNode, FactoryConstructorParameter? FactoryConstructorParameterOption) CreateParameterInjectionNode(
         Type type,
-        (string Name, TypeMetadata TypeMetadata) parameter,
+        NamedParameter parameter,
         string dependantName,
         Scope scope,
         ParameterSource parameterSource)
@@ -237,11 +236,11 @@ internal sealed class InjectionTreeBuilder(
         if (scope is Scope.SingleInstancePerFactory)
         {
             var factoryConstructorParameterInjectionNode =
-                new FactoryConstructorParameterInjectionNode(type, parameter.Name, parameterSource, parameter.TypeMetadata, dependantName);
-            return (factoryConstructorParameterInjectionNode, new FactoryConstructorParameter(type, parameter.Name, parameter.TypeMetadata));
+                new FactoryConstructorParameterInjectionNode(type, parameter.Name, parameterSource, parameter.Metadata, dependantName);
+            return (factoryConstructorParameterInjectionNode, new FactoryConstructorParameter(type, parameter.Name, parameter.Metadata));
         }
 
-        return (InjectionNode.FactoryMethodParameterInjectionNode(type, parameter.Name, parameterSource, parameter.TypeMetadata, !type.IsValueType && scope is Scope.NewInstance, dependantName), default);
+        return (InjectionNode.FactoryMethodParameterInjectionNode(type, parameter.Name, parameterSource, parameter.Metadata, !type.IsValueType && scope is Scope.NewInstance, dependantName), default);
     }
 
     private ParameterSource GetParameterSource(Type type, string parameterName, ImmutableList<InjectionStageError>.Builder diagnostics)
@@ -275,7 +274,7 @@ internal sealed class InjectionTreeBuilder(
         CreationSource creationSource,
         InjectionNode? dependantInjectionNode,
         bool needsLifecycleHandling,
-        ValueArray<Parameter>? overridableNewParametersOption,
+        ValueArray<FullParameter>? overridableNewParametersOption,
         ParameterNode? parameterNodeOption)
     {
         return scope switch
@@ -319,7 +318,6 @@ internal sealed class InjectionTreeBuilder(
                     creationSource,
                     parameterNodeOption,
                     overridableNewParametersOption,
-                    default,
                     dependantInjectionNode?.GetInjectionNodeName()),
             Scope.SingleInstancePerFactory singleInstancePerFactory =>
                  InjectionNode.SingleInstancePerFactoryInjectionNode(
@@ -330,7 +328,6 @@ internal sealed class InjectionTreeBuilder(
                      creationSource,
                      parameterNodeOption,
                      overridableNewParametersOption,
-                     singleInstancePerFactory.ExposeAsPropertyOption,
                      dependantInjectionNode?.GetInjectionNodeName()),
         };
     }

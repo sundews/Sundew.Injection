@@ -1,20 +1,13 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="BindableCreateMethodAttribute.cs" company="Sundews">
+// <copyright file="FactoryTargetDeclaration.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-#nullable enable
+namespace Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 
-namespace Sundew.Injection;
+using Sundew.Base.Collections.Immutable;
+using Sundew.Injection.Generator.TypeSystem;
 
-using System;
-
-/// <summary>
-/// Indicates that the decorated method can act as a create method.
-/// </summary>
-[AttributeUsage(AttributeTargets.Method)]
-public class BindableCreateMethodAttribute : Attribute
-{
-}
+internal readonly record struct FactoryTargetDeclaration(string Name, ValueList<ParameterDeclaration> Parameters, Type ReturnType, bool IsProperty);

@@ -90,6 +90,33 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Occurs when an infinite recursion is detected, typically because of a circular dependency between constructors.
+        /// </summary>
+        internal static string InfiniteRecursionDescription {
+            get {
+                return ResourceManager.GetString("InfiniteRecursionDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symbol: &apos;{0}&apos; caused an infinite recursion, which was detected processing: &apos;{1}&apos;.
+        /// </summary>
+        internal static string InfiniteRecursionMessageFormat {
+            get {
+                return ResourceManager.GetString("InfiniteRecursionMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Infinite recursion detected.
+        /// </summary>
+        internal static string InfiniteRecursionTitle {
+            get {
+                return ResourceManager.GetString("InfiniteRecursionTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Occurs when ImplementFactory is called with invalid type parameters.
         /// </summary>
         internal static string InvalidFactoryTypeDescription {
@@ -99,7 +126,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type &apos;{0}&apos; must be a regular class.
+        ///   Looks up a localized string similar to Symbol &apos;{0}&apos; must be a regular class.
         /// </summary>
         internal static string InvalidFactoryTypeMessageFormat {
             get {
@@ -207,7 +234,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type: &apos;{0}&apos; did not contain a viable constructor.
+        ///   Looks up a localized string similar to Symbol: &apos;{0}&apos; did not contain a viable constructor.
         /// </summary>
         internal static string NoViableConstructorFoundErrorMessageFormat {
             get {
@@ -234,7 +261,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type: &apos;{0}&apos; is not a generic type.
+        ///   Looks up a localized string similar to Symbol: &apos;{0}&apos; is not a generic type.
         /// </summary>
         internal static string OnlyGenericTypeSupportedErrorMessageFormat {
             get {
@@ -369,7 +396,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type: &apos;{0}&apos; with scope: &apos;{1}&apos; is invalid due to the parent: {2} with scope: {3}.
+        ///   Looks up a localized string similar to Symbol: &apos;{0}&apos; with scope: &apos;{1}&apos; is invalid due to the parent: {2} with scope: {3}.
         /// </summary>
         internal static string ScopeErrorMessageFormat {
             get {
@@ -387,7 +414,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type is either an abstract class or a string, which cannot be instantiated.
+        ///   Looks up a localized string similar to Symbol is either an abstract class or a string, which cannot be instantiated.
         /// </summary>
         internal static string TypeNotInstantiableErrorDescription {
             get {
@@ -396,7 +423,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type: &apos;{0}&apos; cannot be instantiated.
+        ///   Looks up a localized string similar to Symbol: &apos;{0}&apos; cannot be instantiated.
         /// </summary>
         internal static string TypeNotInstantiableErrorMessageFormat {
             get {
@@ -450,7 +477,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The instance method: &apos;{0}&apos; is not supported on the type: &apos;{1}&apos; for injecting into: &apos;{2}&apos;.
+        ///   Looks up a localized string similar to Instance method: &apos;{0}&apos; is not supported on the type: &apos;{1}&apos; for injecting into: &apos;{2}&apos;.
         /// </summary>
         internal static string UnsupportedInstanceMethodErrorMessageFormat {
             get {

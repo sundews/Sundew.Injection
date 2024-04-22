@@ -12,11 +12,14 @@ using System.Collections.Generic;
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record Member
 {
-    internal sealed record Property(PropertyDeclaration Declaration) : Member;
+    internal sealed record PropertyImplementation(PropertyDeclaration Declaration, IReadOnlyList<Statement> Statements) : Member;
 
-    internal sealed record MethodImplementation(MethodDeclaration MethodDeclaration, IReadOnlyList<Statement> Statements) : Member;
+    internal sealed record MethodImplementation(MethodDeclaration Declaration, IReadOnlyList<Statement> Statements) : Member;
 
     internal sealed record Field(FieldDeclaration Declaration) : Member;
 
     internal sealed record Raw(string Value) : Member;
 }
+
+[Sundew.DiscriminatedUnions.DiscriminatedUnion]
+internal abstract partial record MemberDeclaration;

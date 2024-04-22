@@ -72,7 +72,7 @@ internal sealed class ScopeResolverBuilder
             this.scopes[binding.TargetType.Id] = scopeResult.Context;
         }
 
-        errors.TryAdd(scopeResult.Error);
+        errors.AddIfHasValue(scopeResult.Error);
         return scopeResult.Context;
     }
 
@@ -91,7 +91,7 @@ internal sealed class ScopeResolverBuilder
             this.scopes.Add(typeId, scopeResult.Context);
         }
 
-        errors.TryAdd(scopeResult.Error);
+        errors.AddIfHasValue(scopeResult.Error);
         return scopeResult.Context;
     }
 
@@ -111,29 +111,29 @@ internal sealed class ScopeResolverBuilder
             var nextDependant = new Dependant(binding.TargetType, scopeContext.Scope);
             if (binding.Method.Kind is MethodKind.Instance instance)
             {
-                this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(binding.Method.ContainingType, instance.ContainingTypeMetadata, default), nextDependant, errors);
+                this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(binding.Method.ContainingType, instance.ContainingTypeMetadata, instance.ContainingTypeDefaultConstructor, default), nextDependant, errors);
             }
 
             foreach (var parameter in binding.Method.Parameters)
             {
-                this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(parameter.Type, parameter.TypeMetadata, (parameter.Name, parameter.ParameterNecessity)), nextDependant, errors);
+                this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(parameter.Type, parameter.TypeMetadata, parameter.DefaultConstructor, (parameter.Name, parameter.ParameterNecessity)), nextDependant, errors);
             }
         }
 
         switch (resolvedBinding)
         {
             case ThisFactoryParameter thisFactoryParameter:
-                this.UpdateParameterScope(thisFactoryParameter.FactoryType, dependant with { Scope = Scope._SingleInstancePerFactory(default, Location.None) }, errors);
+                this.UpdateParameterScope(thisFactoryParameter.FactoryType, dependant with { Scope = Scope._SingleInstancePerFactory(Location.None) }, errors);
                 if (thisFactoryParameter.FactoryInterfaceType.HasValue())
                 {
-                    this.UpdateParameterScope(thisFactoryParameter.FactoryInterfaceType, dependant with { Scope = Scope._SingleInstancePerFactory(default, Location.None) }, errors);
+                    this.UpdateParameterScope(thisFactoryParameter.FactoryInterfaceType, dependant with { Scope = Scope._SingleInstancePerFactory(Location.None) }, errors);
                 }
 
                 break;
             case SingleParameter singleParameter:
                 if (singleParameter.Binding.Method.Kind is MethodKind.Instance instance)
                 {
-                    this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(singleParameter.Binding.Method.ContainingType, instance.ContainingTypeMetadata, default), dependant, errors);
+                    this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(singleParameter.Binding.Method.ContainingType, instance.ContainingTypeMetadata, instance.ContainingTypeDefaultConstructor, default), dependant, errors);
 
                     this.UpdateBindingScope(singleParameter.Binding, dependant, errors);
                 }

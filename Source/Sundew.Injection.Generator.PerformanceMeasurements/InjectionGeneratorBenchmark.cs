@@ -16,19 +16,14 @@ using Sundew.Injection.Testing;
 [RankColumn]
 public class InjectionGeneratorBenchmark
 {
-    private readonly Compilation compilation;
-
-    public InjectionGeneratorBenchmark()
-    {
-        this.compilation = TestProjects.AllFeatureSuccess.FromEntryAssembly.Value;
-    }
+    private readonly Compilation compilation = TestProjects.Success.FromEntryAssembly.Value;
 
     [Benchmark]
     public GeneratorDriverRunResult GenerateDemoApp()
     {
         GeneratorDriver generatorDriver = CSharpGeneratorDriver.Create(new InjectionGenerator());
 
-        var driver= generatorDriver.RunGenerators(this.compilation);
+        var driver = generatorDriver.RunGenerators(this.compilation);
         var result = driver.GetRunResult();
         if (result.Diagnostics.Any())
         {

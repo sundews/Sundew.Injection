@@ -10,17 +10,17 @@ namespace Sundew.Injection.Generator.TypeSystem;
 using System;
 using System.Text;
 
-internal readonly struct TypeId : IEquatable<TypeId>
+internal readonly struct TypeId(string id) : IEquatable<TypeId>
 {
-    private const string TypeName = "TypeId {";
-    private readonly TypeIdWithHash typeId;
+    private const string TypeName = "TypeId { ";
+    private readonly TypeIdWithHash typeId = new(id, id.GetHashCode());
 
-    public TypeId(string id)
+    public string Identifier => this.typeId.Id;
+
+    public static implicit operator string(TypeId typeId)
     {
-        this.typeId = new TypeIdWithHash(id, id.GetHashCode());
+        return typeId.Identifier;
     }
-
-    public string Id => this.typeId.Id;
 
     public static bool operator ==(TypeId left, TypeId right)
     {
@@ -49,7 +49,7 @@ internal readonly struct TypeId : IEquatable<TypeId>
 
     public override string ToString()
     {
-        return new StringBuilder(TypeName, TypeName.Length + this.Id.Length + 2).Append(this.Id).Append(' ').Append('}').ToString();
+        return new StringBuilder(TypeName, TypeName.Length + this.Identifier.Length + 2).Append(this.Identifier).Append(' ').Append('}').ToString();
     }
 
     private readonly record struct TypeIdWithHash(string Id, int HashCode);

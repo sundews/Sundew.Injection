@@ -11,9 +11,10 @@ using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Sundew.Injection.Generator.TypeSystem;
 
 internal class BindMethodVisitor(
-    ITypeSymbol factoryTypeSymbol,
+    TypeSymbolWithLocation factoryTypeSymbolWithLocation,
     AnalysisContext analysisContext)
     : CSharpSyntaxWalker
 {
@@ -25,28 +26,38 @@ internal class BindMethodVisitor(
         {
             this.VisitBuilderCall(node, methodSymbol);
         }
-        else if (symbolInfo.CandidateReason == CandidateReason.OverloadResolutionFailure &&
-                 symbolInfo.CandidateSymbols.Length == 1)
+        else if (symbolInfo is { CandidateReason: CandidateReason.OverloadResolutionFailure, CandidateSymbols: [IMethodSymbol singleCandidateMethodSymbol] })
         {
-            if (symbolInfo.CandidateSymbols[0] is IMethodSymbol methodSymbol2)
-            {
-                this.VisitBuilderCall(node, methodSymbol2);
-            }
+            this.VisitBuilderCall(node, singleCandidateMethodSymbol);
         }
     }
 
     private void VisitBuilderCall(InvocationExpressionSyntax node, IMethodSymbol methodSymbol)
     {
-        var factoryType = analysisContext.TypeFactory.CreateType(factoryTypeSymbol);
-        if (methodSymbol.Name == nameof(ICreateMethodSelector<object>.Add) && SymbolEqualityComparer.Default.Equals(methodSymbol.ContainingType, analysisContext.KnownAnalysisTypes.CreateMethodSelectorTypeSymbol))
+        var factoryTypeResult = analysisContext.TypeFactory.GetFullType(factoryTypeSymbolWithLocation.TypeSymbol);
+        if (!factoryTypeResult.TryGet(out var factoryType, out var errors))
         {
-            var addCreateMethodVisitor = new AddCreateMethodVisitor(methodSymbol, analysisContext);
-            addCreateMethodVisitor.Visit(node);
-            analysisContext.BindFactory(factoryType, addCreateMethodVisitor.CreateMethods);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, factoryTypeSymbolWithLocation, errors.GetErrorText());
+            return;
         }
-        else if (SymbolEqualityComparer.Default.Equals(methodSymbol.ContainingType, factoryTypeSymbol))
+
+        if (methodSymbol.Name == nameof(IFactoryMethodBindingSelector<object>.Add) &&
+            SymbolEqualityComparer.Default.Equals(methodSymbol.ContainingType, analysisContext.KnownAnalysisTypes.FactoryMethodBindingSelectorTypeSymbol))
         {
-            var createMethods = ImmutableArray.Create((Method: analysisContext.TypeFactory.CreateMethod(methodSymbol), ReturnType: methodSymbol.ReturnType));
+            var addFactoryMethodBindingVisitor = new AddFactoryMethodBindingVisitor(methodSymbol, analysisContext);
+            addFactoryMethodBindingVisitor.Visit(node);
+            analysisContext.BindFactory(factoryType, addFactoryMethodBindingVisitor.FactoryMethods);
+        }
+        else if (SymbolEqualityComparer.Default.Equals(methodSymbol.ContainingType, factoryTypeSymbolWithLocation.TypeSymbol))
+        {
+            var factoryMethodResult = analysisContext.TypeFactory.GetFactoryMethod(methodSymbol);
+            if (factoryMethodResult.IsError)
+            {
+                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, factoryTypeSymbolWithLocation, (factoryMethodResult.Error with { Symbol = new NamedSymbol(methodSymbol.ToDisplayString()) }).GetErrorText());
+                return;
+            }
+
+            var createMethods = ImmutableArray.Create((Method: factoryMethodResult.Value, ReturnType: factoryTypeSymbolWithLocation with { TypeSymbol = methodSymbol.ReturnType }));
             analysisContext.BindFactory(factoryType, createMethods);
         }
     }

@@ -51,11 +51,11 @@ internal abstract partial record Scope
         }
     }
 
-    internal sealed record SingleInstancePerFactory(string? ExposeAsPropertyOption, Location Location) : Scope
+    internal sealed record SingleInstancePerFactory(Location Location) : Scope
     {
         public override Scope ToDependencyScope()
         {
-            return _SingleInstancePerFactory(default, Location.None);
+            return _SingleInstancePerFactory(Location.None);
         }
     }
 }

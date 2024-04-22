@@ -14,5 +14,5 @@ internal abstract partial record MethodKind
 
     public sealed record Static : MethodKind;
 
-    public sealed record Instance(TypeMetadata ContainingTypeMetadata, bool IsProperty) : MethodKind;
+    public sealed record Instance(TypeMetadata ContainingTypeMetadata, bool IsProperty, Method? ContainingTypeDefaultConstructor) : MethodKind;
 }

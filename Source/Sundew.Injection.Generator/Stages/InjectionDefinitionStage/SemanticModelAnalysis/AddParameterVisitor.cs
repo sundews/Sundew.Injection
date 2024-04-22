@@ -24,7 +24,7 @@ internal class AddParameterVisitor : CSharpSyntaxWalker
     {
         this.methodSymbol = methodSymbol;
         this.analysisContext = analysisContext;
-        this.type = this.analysisContext.TypeFactory.CreateType(methodSymbol.TypeArguments.First()).Type;
+        this.type = this.analysisContext.TypeFactory.GetType(methodSymbol.TypeArguments.First());
     }
 
     public override void VisitArgumentList(ArgumentListSyntax node)

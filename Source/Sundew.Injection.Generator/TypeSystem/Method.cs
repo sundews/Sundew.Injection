@@ -12,15 +12,17 @@ using Sundew.Base.Collections.Immutable;
 internal sealed record Method(
     Type ContainingType,
     string Name,
-    ValueArray<Parameter> Parameters,
-    ValueArray<TypeArgument> TypeArguments,
-    MethodKind Kind)
+    ValueArray<FullParameter> Parameters,
+    ValueArray<FullTypeArgument> TypeArguments,
+    MethodKind Kind) : ISymbol
 {
     public Method(
         Type containingType,
         string name,
         MethodKind kind)
-        : this(containingType, name, ValueArray<Parameter>.Empty, ValueArray<TypeArgument>.Empty, kind)
+        : this(containingType, name, ValueArray<FullParameter>.Empty, ValueArray<FullTypeArgument>.Empty, kind)
     {
     }
+
+    public string FullName => this.ContainingType.FullName + '.' + this.Name;
 }

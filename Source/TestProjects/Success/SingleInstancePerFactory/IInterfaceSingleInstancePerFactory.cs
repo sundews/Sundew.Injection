@@ -1,8 +1,9 @@
 ﻿namespace Success.SingleInstancePerFactory;
 
 using System;
+using Initialization.Interfaces;
 
-public interface IInterfaceSingleInstancePerFactory : IDisposable, IPrint
+public interface IInterfaceSingleInstancePerFactory : IAsyncInitializable, IDisposable, IPrint
 {
     void Start();
 }

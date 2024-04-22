@@ -6,8 +6,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 internal static class MethodSymbolExtensions
 {
-    public static MappedTypeSymbol[] MapTypeArguments(this IMethodSymbol methodSymbol, GenericNameSyntax genericNameSyntax)
+    public static TypeSymbolWithLocation[] MapTypeArguments(this IMethodSymbol methodSymbol, GenericNameSyntax genericNameSyntax)
     {
-        return methodSymbol.TypeArguments.Zip(genericNameSyntax.TypeArgumentList.Arguments, (symbol, syntax) => new MappedTypeSymbol(symbol, syntax)).ToArray();
+        return methodSymbol.TypeArguments.Zip(genericNameSyntax.TypeArgumentList.Arguments, (symbol, syntax) => new TypeSymbolWithLocation(symbol, syntax.GetLocation())).ToArray();
     }
 }

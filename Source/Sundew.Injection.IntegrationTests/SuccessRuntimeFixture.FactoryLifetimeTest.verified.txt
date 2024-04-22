@@ -22,6 +22,7 @@ Created: Success.InterfaceImplementationBindings.Intercepted - Id: 20
 Created: Success.NestingTypes.Nestee+Nested - Id: 21
 Created: Success.NestingTypes.NestedConsumer - Id: 22
 Created: Success.ResolveRoot - Id: 23
+Initialized: Success.SingleInstancePerFactory.InterfaceSingleInstancePerFactory - Id: 3
 Initialized: Success.ChildFactory.ConstructedChild - Id: 17
 Disposed: SuccessDependency.ManualDependency - Id: 16
 Disposed: Success.NewInstance.NewInstanceAndDisposable - Id: 15

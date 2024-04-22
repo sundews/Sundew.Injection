@@ -7,23 +7,18 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticModelAnalysis;
 
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-internal class AddFactoryVisitor : CSharpSyntaxWalker
+internal class AddFactoryVisitor(
+    GenericNameSyntax addGenericNameSyntax,
+    IMethodSymbol addMethodSymbol,
+    FactoryRegistrationBuilder factoryRegistrationBuilder,
+    AnalysisContext analysisContext)
+    : CSharpSyntaxWalker
 {
-    private readonly FactoryRegistrationBuilder factoryRegistrationBuilder;
-    private readonly IMethodSymbol methodSymbol;
-    private readonly AnalysisContext analysisContext;
-
-    public AddFactoryVisitor(IMethodSymbol methodSymbol, FactoryRegistrationBuilder factoryRegistrationBuilder, AnalysisContext analysisContext)
-    {
-        this.methodSymbol = methodSymbol;
-        this.factoryRegistrationBuilder = factoryRegistrationBuilder;
-        this.analysisContext = analysisContext;
-    }
-
     public override void VisitInvocationExpression(InvocationExpressionSyntax node)
     {
         this.VisitArgumentList(node.ArgumentList);
@@ -32,6 +27,6 @@ internal class AddFactoryVisitor : CSharpSyntaxWalker
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
         base.VisitArgumentList(node);
-        this.analysisContext.AddFactoryFromTypeSymbol(this.methodSymbol.TypeArguments[0], this.factoryRegistrationBuilder);
+        analysisContext.AddFactoryFromTypeSymbol(addMethodSymbol.MapTypeArguments(addGenericNameSyntax).First(), factoryRegistrationBuilder);
     }
 }

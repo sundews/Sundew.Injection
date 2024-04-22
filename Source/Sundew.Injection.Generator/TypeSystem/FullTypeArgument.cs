@@ -1,20 +1,18 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IndirectCreateMethodAttribute.cs" company="Sundews">
+// <copyright file="FullTypeArgument.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-#nullable enable
+namespace Sundew.Injection.Generator.TypeSystem;
 
-namespace Sundew.Injection;
-
-using System;
-
-/// <summary>
-/// Indicates that the decorated method can act as a create method.
-/// </summary>
-[AttributeUsage(AttributeTargets.Method)]
-public class IndirectCreateMethodAttribute : Attribute
+internal readonly record struct FullTypeArgument(Type Type, TypeMetadata TypeMetadata)
 {
+    public FullTypeArgument(FullType fullType)
+        : this(fullType.Type, fullType.Metadata)
+    {
+    }
 }
+
+internal readonly record struct TypeArgument(Type Type);

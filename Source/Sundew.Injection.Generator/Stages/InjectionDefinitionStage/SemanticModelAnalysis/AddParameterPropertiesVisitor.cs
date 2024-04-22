@@ -24,7 +24,7 @@ internal class AddParameterPropertiesVisitor(
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
         var parameters = methodSymbol.Parameters;
-        var parameterType = analysisContext.TypeFactory.CreateType(this.argumentTypeSymbol);
+        var parameterType = analysisContext.TypeFactory.GetType(this.argumentTypeSymbol);
         var i = 0;
         var scope = new ScopeContext((Scope?)parameters[i++].ExplicitDefaultValue ?? Scope._SingleInstancePerRequest(Location.None), ScopeSelection.Default);
         var argumentIndex = 0;
@@ -35,7 +35,7 @@ internal class AddParameterPropertiesVisitor(
                 switch (argumentSyntax.NameColon.Name.ToString())
                 {
                     case nameof(scope):
-                        scope = this.GetScope(argumentSyntax, parameterType.Type);
+                        scope = this.GetScope(argumentSyntax, parameterType);
                         break;
                 }
             }
@@ -44,7 +44,7 @@ internal class AddParameterPropertiesVisitor(
                 switch (argumentIndex)
                 {
                     case 0:
-                        scope = this.GetScope(argumentSyntax, parameterType.Type);
+                        scope = this.GetScope(argumentSyntax, parameterType);
                         break;
                 }
 
@@ -55,16 +55,16 @@ internal class AddParameterPropertiesVisitor(
         foreach (var accessorProperty in this.argumentTypeSymbol.GetMembers().OfType<IPropertySymbol>()
                      .Where(x => !x.IsStatic && x.GetMethod != null && x.DeclaredAccessibility == Accessibility.Public).Select(x =>
                      {
-                         var propertyType = analysisContext.TypeFactory.CreateType(x.Type);
+                         var propertyType = analysisContext.TypeFactory.GetType(x.Type);
                          var resultType = propertyType;
                          var isFunc = false;
                          if (x.Type is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.IsGenericType && SymbolEqualityComparer.Default.Equals(namedTypeSymbol.OriginalDefinition, analysisContext.KnownAnalysisTypes.FuncTypeSymbol))
                          {
                              isFunc = true;
-                             resultType = analysisContext.TypeFactory.CreateType(namedTypeSymbol.TypeArguments.First());
+                             resultType = analysisContext.TypeFactory.GetType(namedTypeSymbol.TypeArguments.First());
                          }
 
-                         return (isFunc, Accessor: new AccessorProperty(analysisContext.TypeFactory.CreateNamedType(x.ContainingType), resultType, propertyType, x.Name));
+                         return (isFunc, Accessor: new AccessorProperty(analysisContext.TypeFactory.GetNamedType(x.ContainingType), resultType, propertyType, x.Name));
                      }))
         {
             if (accessorProperty.isFunc)
@@ -74,10 +74,10 @@ internal class AddParameterPropertiesVisitor(
                     scope = new ScopeContext(Scope._NewInstance(Location.None), ScopeSelection.Implicit);
                 }
 
-                analysisContext.CompiletimeInjectionDefinitionBuilder.AddPropertyParameter(accessorProperty.Accessor.Result.Type, accessorProperty.Accessor, true, scope);
+                analysisContext.CompiletimeInjectionDefinitionBuilder.AddPropertyParameter(accessorProperty.Accessor.ResultType, accessorProperty.Accessor, true, scope);
             }
 
-            analysisContext.CompiletimeInjectionDefinitionBuilder.AddPropertyParameter(accessorProperty.Accessor.Property.Type, accessorProperty.Accessor, false, scope);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddPropertyParameter(accessorProperty.Accessor.PropertyType, accessorProperty.Accessor, false, scope);
         }
 
         base.VisitArgumentList(node);

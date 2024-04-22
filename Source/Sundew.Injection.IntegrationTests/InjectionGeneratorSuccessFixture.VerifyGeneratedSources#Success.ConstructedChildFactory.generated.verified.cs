@@ -35,7 +35,7 @@ namespace Success
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        [global::Sundew.Injection.IndirectCreateMethodAttribute]
+        [global::Sundew.Injection.IndirectFactoryTargetAttribute]
         public async global::System.Threading.Tasks.Task<global::Success.ChildFactory.ConstructedChild> CreateAsync(global::Success.IResolveRootFactory resolveRootFactory, global::Success.OptionalInterface.OptionalParameters optionalParameters)
         {
             var constructedConstructedChild = this.CreateUninitialized(resolveRootFactory, optionalParameters);
@@ -45,8 +45,8 @@ namespace Success
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-        [global::Sundew.Injection.BindableCreateMethodAttribute]
-        [global::Sundew.Injection.IndirectCreateMethodAttribute]
+        [global::Sundew.Injection.BindableFactoryTargetAttribute]
+        [global::Sundew.Injection.IndirectFactoryTargetAttribute]
         public global::Sundew.Injection.Constructed<global::Success.ChildFactory.ConstructedChild> CreateUninitialized(global::Success.IResolveRootFactory resolveRootFactory, global::Success.OptionalInterface.OptionalParameters optionalParameters)
         {
             var childLifecycleHandler = this.lifecycleHandler.CreateChildLifecycleHandler();

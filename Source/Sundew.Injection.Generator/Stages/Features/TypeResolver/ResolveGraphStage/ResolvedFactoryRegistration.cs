@@ -13,4 +13,4 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal readonly record struct ResolvedFactoryRegistration(
     Type FactoryType,
-    ValueArray<FactoryMethod> FactoryMethods);
+    ValueArray<FactoryTargetDeclaration> FactoryMethods);

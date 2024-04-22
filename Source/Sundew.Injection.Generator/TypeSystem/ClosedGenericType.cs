@@ -15,9 +15,13 @@ internal sealed record ClosedGenericType(
         string Namespace,
         string AssemblyName,
         ValueArray<TypeParameter> TypeParameters,
-        ValueArray<TypeArgument> TypeArguments,
+        ValueArray<FullTypeArgument> TypeArguments,
         bool IsValueType)
     : Type(Name, Namespace, AssemblyName, IsValueType)
 {
-    public override TypeId Id => new($"{this.AssemblyName}::{this.Namespace}.{this.Name}<{this.TypeArguments.JoinToString((builder, x) => builder.Append(x.Type.Id.Id), ", ")}>");
+    private const string Separator = ", ";
+
+    public override string FullName => base.FullName + '´' + this.TypeArguments.Count;
+
+    public override TypeId Id { get; } = new($"{Name}<{TypeArguments.JoinToString((builder, x) => builder.Append(x.Type.Id), Separator)}> | {Namespace} | {AssemblyName}");
 }

@@ -16,15 +16,15 @@ internal sealed class FactoryMethodRegistrationBuilder
     private readonly ImmutableArray<FactoryMethodRegistration>.Builder registrations = ImmutableArray.CreateBuilder<FactoryMethodRegistration>();
 
     public FactoryMethodRegistrationBuilder Add(
-        (Type Type, TypeMetadata TypeMetadata) interfaceType,
-        (Type Type, TypeMetadata TypeMetadata) implementationType,
+        FullType interfaceType,
+        FullType implementationType,
         ScopeContext scope,
         Method method,
-        string? createMethodName,
+        string? factoryMethodName,
         Accessibility accessibility,
         bool isNewOverridable)
     {
-        this.registrations.Add(new FactoryMethodRegistration(interfaceType, implementationType, scope, method, accessibility, isNewOverridable, createMethodName));
+        this.registrations.Add(new FactoryMethodRegistration(interfaceType, implementationType, scope, method, accessibility, isNewOverridable, factoryMethodName));
         return this;
     }
 

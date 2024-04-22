@@ -12,10 +12,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Sundew.Base;
+using Sundew.Base.Collections;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticModelAnalysis;
+using Sundew.Injection.Generator.TypeSystem;
+using ISymbol = Microsoft.CodeAnalysis.ISymbol;
 
-public sealed record Diagnostics(ValueList<Diagnostic> Items) : IEnumerable<Diagnostic>
+internal sealed record Diagnostics(ValueList<Diagnostic> Items) : IEnumerable<Diagnostic>
 {
     private const string CodeGeneration = "CodeGeneration";
 
@@ -146,25 +149,46 @@ public sealed record Diagnostics(ValueList<Diagnostic> Items) : IEnumerable<Diag
         true,
         Resources.NoBindingFoundForNonConstructableTypeErrorDescription);
 
-    public static Diagnostics Create(DiagnosticDescriptor diagnosticDescriptor, MappedTypeSymbol mappedTypeSymbol)
+    public static DiagnosticDescriptor InfiniteRecursionError { get; } = new(
+        "SI0012",
+        Resources.InfiniteRecursionTitle,
+        Resources.InfiniteRecursionMessageFormat,
+        CodeGeneration,
+        DiagnosticSeverity.Error,
+        true,
+        Resources.InfiniteRecursionDescription);
+
+    public static Diagnostics Create(DiagnosticDescriptor diagnosticDescriptor, SymbolErrorWithLocation symbolErrorWithLocation, params object[] additionalArguments)
     {
-        return Create(diagnosticDescriptor, mappedTypeSymbol.TypeSymbol, mappedTypeSymbol.OriginatingSyntaxNode);
+        var arguments = new object[] { symbolErrorWithLocation.SymbolError.Symbol.FullName, symbolErrorWithLocation.SymbolError.GetErrorText() }.Concat(additionalArguments).ToArray();
+        if (symbolErrorWithLocation.Location.HasValue())
+        {
+            return new Diagnostics(Diagnostic.Create(diagnosticDescriptor, symbolErrorWithLocation.Location, arguments));
+        }
+
+        return new Diagnostics(Diagnostic.Create(diagnosticDescriptor, Location.None, arguments));
     }
 
-    public static Diagnostics Create(DiagnosticDescriptor diagnosticDescriptor, ISymbol symbol, SyntaxNode? originatingSyntaxNode = default)
+    public static Diagnostics Create(DiagnosticDescriptor diagnosticDescriptor, TypeSymbolWithLocation typeSymbolWithLocation, params object[] additionalArguments)
     {
-        if (originatingSyntaxNode.HasValue())
+        return Create(diagnosticDescriptor, typeSymbolWithLocation.TypeSymbol, typeSymbolWithLocation.Location, additionalArguments);
+    }
+
+    public static Diagnostics Create(DiagnosticDescriptor diagnosticDescriptor, ISymbol symbol, Location? location = default, params object[] additionalArguments)
+    {
+        var arguments = symbol.ToDisplayString().ToEnumerable().Concat(additionalArguments).ToArray();
+        if (location.HasValue())
         {
-            return new Diagnostics(Diagnostic.Create(diagnosticDescriptor, originatingSyntaxNode.GetLocation(), symbol.ToDisplayString()));
+            return new Diagnostics(Diagnostic.Create(diagnosticDescriptor, location, arguments));
         }
 
         if (symbol.DeclaringSyntaxReferences.IsEmpty)
         {
-            return new Diagnostics(Diagnostic.Create(diagnosticDescriptor, Location.None, symbol.ToDisplayString()));
+            return new Diagnostics(Diagnostic.Create(diagnosticDescriptor, Location.None, arguments));
         }
 
         return new Diagnostics(symbol.DeclaringSyntaxReferences.Select(x =>
-            Diagnostic.Create(diagnosticDescriptor, x.GetSyntax().GetLocation(), symbol.ToDisplayString())));
+            Diagnostic.Create(diagnosticDescriptor, x.GetSyntax().GetLocation(), arguments)));
     }
 
     public IEnumerator<Diagnostic> GetEnumerator()

@@ -55,7 +55,7 @@ internal static class InterfaceSourceCodeEmitter
         return stringBuilder.ToString();
     }
 
-    private static StringBuilder AppendMembers(this StringBuilder stringBuilder, IReadOnlyList<MethodDeclaration> members, Options options, int indentation)
+    private static StringBuilder AppendMembers(this StringBuilder stringBuilder, IReadOnlyList<MemberDeclaration> members, Options options, int indentation)
     {
         static StringBuilder AppendMethodDeclaration(StringBuilder stringBuilder, MethodDeclaration methodDeclaration, bool isSuccessive, Options options, int indentation)
         {
@@ -68,10 +68,30 @@ internal static class InterfaceSourceCodeEmitter
             return stringBuilder.Append(' ', indentation).AppendMethodDeclaration(methodDeclaration, options, indentation).Append(';');
         }
 
+        static StringBuilder AppendPropertyDeclaration(StringBuilder stringBuilder, PropertyDeclaration propertyDeclaration, bool isSuccessive, Options options, int indentation)
+        {
+            if (isSuccessive)
+            {
+                stringBuilder.AppendLine();
+            }
+
+            stringBuilder.AppendAttributes(propertyDeclaration.Attributes, indentation);
+            return stringBuilder.Append(' ', indentation).AppendPropertyDeclaration(propertyDeclaration, options, indentation);
+        }
+
+        StringBuilder AppendMember(MemberDeclaration memberDeclaration, StringBuilder builder, bool isSuccessive)
+        {
+            return memberDeclaration switch
+            {
+                MethodDeclaration methodDeclaration => AppendMethodDeclaration(builder, methodDeclaration, isSuccessive, options, indentation),
+                PropertyDeclaration propertyDeclaration => AppendPropertyDeclaration(builder, propertyDeclaration, isSuccessive, options, indentation),
+            };
+        }
+
         return stringBuilder.AppendItems(
             members,
-            (builder, methodDeclaration) => AppendMethodDeclaration(builder, methodDeclaration, false, options, indentation),
-            (builder, methodDeclaration) => AppendMethodDeclaration(builder, methodDeclaration, true, options, indentation),
+            (builder, memberDeclaration) => AppendMember(memberDeclaration, builder, false),
+            (builder, memberDeclaration) => AppendMember(memberDeclaration, builder, true),
             Environment.NewLine);
     }
 }

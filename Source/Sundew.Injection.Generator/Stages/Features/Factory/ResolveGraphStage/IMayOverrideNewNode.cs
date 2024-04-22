@@ -16,5 +16,5 @@ internal interface IMayOverrideNewNode
 
     CreationSource CreationSource { get; }
 
-    ValueArray<Parameter>? OverridableNewParametersOption { get; }
+    ValueArray<FullParameter>? OverridableNewParametersOption { get; }
 }

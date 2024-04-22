@@ -17,7 +17,7 @@ internal sealed record SingleInstancePerRequestInjectionNode(
     IReadOnlyRecordList<InjectionNode> Parameters,
     CreationSource CreationSource,
     ParameterNode? ParameterNodeOption,
-    ValueArray<Parameter>? OverridableNewParametersOption,
+    ValueArray<FullParameter>? OverridableNewParametersOption,
     string? ParentName) : InjectionNode(ParentName), IHaveParametersNode, IMayOverrideNewNode
 {
     public override string Name => this.TargetType.Name;

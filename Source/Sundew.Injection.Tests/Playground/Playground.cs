@@ -13,10 +13,10 @@ public class Playground
     public void Test()
     {
         var compilation = TestProjects.TestPlayground.FromCurrentDirectory.Value;
-        var demoModuleDeclaration = compilation.GetTypeByMetadataName("TestPlayground.FactoryDeclaration");
+        var demoModuleDeclaration = compilation.GetTypeByMetadataName("TestPlayground.InjectionDeclaration");
         if (demoModuleDeclaration == null)
         {
-            Assert.Fail($"Could not find FactoryDeclaration. Compilation had: {compilation.GetDiagnostics().Length} diagnostics");
+            Assert.Fail($"Could not find InjectionDeclaration. Compilation had: {compilation.GetDiagnostics().Length} diagnostics");
             throw new NotImplementedException("Assert.Fail is marked as throws.");
         }
 

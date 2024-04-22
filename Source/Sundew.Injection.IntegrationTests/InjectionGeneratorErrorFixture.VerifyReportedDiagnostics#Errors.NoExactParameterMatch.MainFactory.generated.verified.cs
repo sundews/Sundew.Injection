@@ -13,7 +13,7 @@ namespace Errors.NoExactParameterMatch
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        [global::Sundew.Injection.BindableCreateMethodAttribute]
+        [global::Sundew.Injection.BindableFactoryTargetAttribute]
         public global::Errors.NoExactParameterMatch.Root Create()
         {
             var parameter = new global::Errors.NoExactParameterMatch.Parameter();

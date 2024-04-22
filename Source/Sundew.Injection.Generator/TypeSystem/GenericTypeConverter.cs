@@ -49,12 +49,12 @@ internal static class GenericTypeConverter
         return new UnboundGenericType(unboundGenericTypeSymbol.Name, unboundGenericTypeSymbol.TypeParameters.Length, TypeHelper.GetNamespace(unboundGenericTypeSymbol.ContainingNamespace), unboundGenericTypeSymbol.ContainingAssembly.Identity.ToString());
     }
 
-    public static ClosedGenericType ToClosedGenericType(this OpenGenericType openGenericType, ValueArray<TypeArgument> typeArguments)
+    public static ClosedGenericType ToClosedGenericType(this OpenGenericType openGenericType, ValueArray<FullTypeArgument> typeArguments)
     {
         return new ClosedGenericType(openGenericType.Name, openGenericType.Namespace, openGenericType.AssemblyName, openGenericType.TypeParameters, typeArguments, openGenericType.IsValueType);
     }
 
-    public static ClosedGenericType ToClosedGenericType(this ContaineeType.GenericType genericType, ValueArray<TypeArgument> typeArguments)
+    public static ClosedGenericType ToClosedGenericType(this ContaineeType.GenericType genericType, ValueArray<FullTypeArgument> typeArguments)
     {
         return new ClosedGenericType(genericType.Name, genericType.Namespace, genericType.AssemblyName, genericType.TypeParameters, typeArguments, genericType.IsValueType);
     }

@@ -257,7 +257,7 @@ namespace Sundew.Injection
             where TImplementation : TInterface1, TInterface2, TInterface3, TInterface4;
 
         void BindFactory<TFactory>(
-            Func<ICreateMethodSelector<TFactory>, ICreateMethods<TFactory>> createMethods);
+            Func<IFactoryMethodBindingSelector<TFactory>, IFactoryMethodBindings<TFactory>> createMethods);
 
         void BindFactory<TFactory>(
             Expression<Func<TFactory, object>> createMethodSelector);

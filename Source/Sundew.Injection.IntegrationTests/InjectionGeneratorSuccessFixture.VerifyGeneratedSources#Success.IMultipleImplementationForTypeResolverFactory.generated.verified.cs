@@ -6,10 +6,10 @@ namespace Success
     [global::Sundew.Injection.Factory]
     public partial interface IMultipleImplementationForTypeResolverFactory : global::Sundew.Injection.IGeneratedFactory
     {
-        [global::Sundew.Injection.BindableCreateMethodAttribute]
+        [global::Sundew.Injection.BindableFactoryTargetAttribute]
         global::Success.TypeResolver.IMultipleImplementationForTypeResolver CreateMultipleImplementationForTypeResolverA();
 
-        [global::Sundew.Injection.BindableCreateMethodAttribute]
+        [global::Sundew.Injection.BindableFactoryTargetAttribute]
         global::Success.TypeResolver.IMultipleImplementationForTypeResolver CreateMultipleImplementationForTypeResolverB();
     }
 }

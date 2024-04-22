@@ -11,6 +11,6 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal readonly record struct AccessorProperty(
     Type ContainingType,
-    (Type Type, TypeMetadata TypeMetadata) Result,
-    (Type Type, TypeMetadata TypeMetadata) Property,
+    Type ResultType,
+    Type PropertyType,
     string Name);

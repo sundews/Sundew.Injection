@@ -2,7 +2,7 @@
 
 using Sundew.Injection;
 
-public class FactoryDeclaration : IInjectionDeclaration
+public class InjectionDeclaration : IInjectionDeclaration
 {
     public void Configure(IInjectionBuilder injectionBuilder)
     {

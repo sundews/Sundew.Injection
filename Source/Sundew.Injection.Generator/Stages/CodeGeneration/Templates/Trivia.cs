@@ -45,6 +45,8 @@ public class Trivia
     public const string Yield = "yield";
     public const string This = "this";
     public const string MethodImpl = "[global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]";
+    public const string PropertyGetter = "{ get; }";
+    public const string Get = "get";
     public new const string Equals = "==";
 
     public static readonly string NewLineListSeparator = $",{Environment.NewLine}";

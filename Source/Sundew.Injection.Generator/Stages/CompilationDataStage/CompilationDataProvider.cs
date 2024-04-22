@@ -76,16 +76,16 @@ internal static class CompilationDataProvider
             var ilifecycleHandlerType = TypeConverter.GetNamedType(ilifecycleHandlerTypeSymbol);
             var lifecycleHandlerType = TypeConverter.GetNamedType(lifecycleHandlerTypeSymbol);
             var lifecycleHandlerConstructor = lifecycleHandlerTypeSymbol.Constructors.FirstOrDefault(x => x.Parameters.Length == 2 && x.DeclaredAccessibility == Accessibility.Public && !x.IsStatic);
-            var defaultMetadata = new TypeMetadata(null, EnumerableMetadata.NonEnumerableMetadata, false);
+            var defaultMetadata = new TypeMetadata(EnumerableMetadata.NonEnumerableMetadata, false);
             var lifecycleHandlerBinding = new Binding(
                 lifecycleHandlerType,
                 lifecycleHandlerType,
-                new ScopeContext(Scope._SingleInstancePerFactory(default, Location.None), ScopeSelection.Implicit),
+                new ScopeContext(Scope._SingleInstancePerFactory(Location.None), ScopeSelection.Implicit),
                 new Method(
                     lifecycleHandlerType,
                     lifecycleHandlerType.Name,
-                    lifecycleHandlerConstructor!.Parameters.Select(x => new Parameter(TypeConverter.GetNamedType((INamedTypeSymbol)x.Type), x.Name, defaultMetadata, ParameterNecessity._Optional(null))).ToValueArray(),
-                    ImmutableArray<TypeArgument>.Empty,
+                    lifecycleHandlerConstructor!.Parameters.Select(x => new FullParameter(TypeConverter.GetNamedType((INamedTypeSymbol)x.Type), x.Name, defaultMetadata, default, ParameterNecessity._Optional(null))).ToValueArray(),
+                    ImmutableArray<FullTypeArgument>.Empty,
                     MethodKind._Constructor),
                 false,
                 false,
@@ -113,7 +113,7 @@ internal static class CompilationDataProvider
                 objectType,
                 intType,
                 GetNamedType(typeof(IServiceProvider)),
-                GetGenericType(typeof(Span<>), string.Empty).ToClosedGenericType(ImmutableArray.Create(new TypeArgument(objectType, new TypeMetadata(null, EnumerableMetadata.NonEnumerableMetadata, false)))),
+                GetGenericType(typeof(Span<>), string.Empty).ToClosedGenericType(ImmutableArray.Create(new FullTypeArgument(objectType, new TypeMetadata(EnumerableMetadata.NonEnumerableMetadata, false)))),
                 GetGenericType(typeof(ResolverItem), string.Empty),
                 GenericTypeConverter.GetGenericType(iEnumerableOfTSymbol),
                 GenericTypeConverter.GetGenericType(iEnumerableOfTSymbol),

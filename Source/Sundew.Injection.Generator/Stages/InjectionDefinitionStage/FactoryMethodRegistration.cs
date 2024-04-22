@@ -10,8 +10,8 @@ namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal readonly record struct FactoryMethodRegistration(
-    (Type Type, TypeMetadata TypeMetadata) Return,
-    (Type Type, TypeMetadata TypeMetadata) Target,
+    FullType Return,
+    FullType Target,
     ScopeContext Scope,
     Method Method,
     Accessibility Accessibility,

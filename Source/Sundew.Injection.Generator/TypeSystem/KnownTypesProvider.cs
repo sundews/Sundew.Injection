@@ -16,8 +16,8 @@ using Sundew.Base;
 
 public static class KnownTypesProvider
 {
-    public static readonly string BindableCreateMethodName = typeof(BindableCreateMethodAttribute).FullName!;
-    public static readonly string IndirectCreateMethodName = typeof(IndirectCreateMethodAttribute).FullName!;
+    public static readonly string BindableFactoryTargetName = typeof(BindableFactoryTargetAttribute).FullName!;
+    public static readonly string IndirectFactoryTargetName = typeof(IndirectFactoryTargetAttribute).FullName!;
 
     public static R<INamedTypeSymbol, string> GetIInitializableTypeSymbol(this Compilation compilation)
     {

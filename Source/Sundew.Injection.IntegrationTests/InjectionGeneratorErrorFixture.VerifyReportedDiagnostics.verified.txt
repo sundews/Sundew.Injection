@@ -5,10 +5,10 @@
       Title: Factory types must be a regular class,
       Severity: Error,
       WarningLevel: 0,
-      Location: {SolutionDirectory}TestProjects/Errors/ImplementFactoryForNonNamedType/FactoryDeclaration.cs: (8,42)-(8,53),
+      Location: {SolutionDirectory}TestProjects/Errors/ImplementFactoryForNonNamedType/InjectionDeclaration.cs: (8,42)-(8,53),
       Description: Occurs when ImplementFactory is called with invalid type parameters,
-      MessageFormat: Type '{0}' must be a regular class,
-      Message: Type 'Errors.ImplementFactoryForNonNamedType.NamedType[]' must be a regular class,
+      MessageFormat: Symbol '{0}' must be a regular class,
+      Message: Symbol 'Errors.ImplementFactoryForNonNamedType.NamedType[]' must be a regular class,
       Category: CodeGeneration
     },
     {
@@ -18,8 +18,8 @@
       WarningLevel: 0,
       Location: {SolutionDirectory}TestProjects/Errors/ScopeError/InjectionDeclaration.cs: (8,43)-(8,60),
       Description: Occurs when a type is registered with an invalid lifetime scope ,
-      MessageFormat: Type: '{0}' with scope: '{1}' is invalid due to the parent: {2} with scope: {3},
-      Message: Type: 'NewInstance' with scope: 'NewInstance' is invalid due to the parent: SingleInstancePerFactory with scope: SingleInstancePerFactory,
+      MessageFormat: Symbol: '{0}' with scope: '{1}' is invalid due to the parent: {2} with scope: {3},
+      Message: Symbol: 'NewInstance' with scope: 'NewInstance' is invalid due to the parent: SingleInstancePerFactory with scope: SingleInstancePerFactory,
       Category: CodeGeneration
     },
     {
@@ -27,10 +27,10 @@
       Title: TImplementationType must be generic.,
       Severity: Error,
       WarningLevel: 0,
-      Location: {SolutionDirectory}TestProjects/Errors/NonGenericBind/FactoryDeclaration.cs: (8,37)-(8,51),
+      Location: {SolutionDirectory}TestProjects/Errors/NonGenericBind/InjectionDeclaration.cs: (8,37)-(8,51),
       Description: Only generic types are supported,
-      MessageFormat: Type: '{0}' is not a generic type,
-      Message: Type: 'Errors.NonGenericBind.NonGenericType' is not a generic type,
+      MessageFormat: Symbol: '{0}' is not a generic type,
+      Message: Symbol: 'Errors.NonGenericBind.NonGenericType' is not a generic type,
       Category: CodeGeneration
     },
     {
@@ -38,10 +38,10 @@
       Title: TImplementationType must be instantiable,
       Severity: Error,
       WarningLevel: 0,
-      Location: {SolutionDirectory}TestProjects/Errors/NonInstantiableType/FactoryDeclaration.cs: (8,37)-(8,64),
-      Description: Type is either an abstract class or a string, which cannot be instantiated,
-      MessageFormat: Type: '{0}' cannot be instantiated,
-      Message: Type: 'Errors.NonInstantiableType.AbstractGenericType<object>' cannot be instantiated,
+      Location: {SolutionDirectory}TestProjects/Errors/NonInstantiableType/InjectionDeclaration.cs: (8,37)-(8,64),
+      Description: Symbol is either an abstract class or a string, which cannot be instantiated,
+      MessageFormat: Symbol: '{0}' cannot be instantiated,
+      Message: Symbol: 'Errors.NonInstantiableType.AbstractGenericType<object>' cannot be instantiated,
       Category: CodeGeneration
     },
     {
@@ -49,10 +49,10 @@
       Title: No viable constructor could be found,
       Severity: Error,
       WarningLevel: 0,
-      Location: {SolutionDirectory}TestProjects/Errors/NoViableConstructorFound/FactoryDeclaration.cs: (8,37)-(8,64),
+      Location: {SolutionDirectory}TestProjects/Errors/NoViableConstructorFound/InjectionDeclaration.cs: (8,37)-(8,64),
       Description: Types without a viable constructor are not supported,
-      MessageFormat: Type: '{0}' did not contain a viable constructor,
-      Message: Type: 'Errors.NoViableConstructorFound.NoViableConstructor<object>' did not contain a viable constructor,
+      MessageFormat: Symbol: '{0}' did not contain a viable constructor,
+      Message: Symbol: 'Errors.NoViableConstructorFound.NoViableConstructor<object>' did not contain a viable constructor,
       Category: CodeGeneration
     },
     {
@@ -60,7 +60,7 @@
       Title: No factory method was found to instanciate type,
       Severity: Error,
       WarningLevel: 0,
-      Location: {SolutionDirectory}TestProjects/Errors/NoFactoryMethodForBind/FactoryDeclaration.cs: (8,8)-(8,56),
+      Location: {SolutionDirectory}TestProjects/Errors/NoFactoryMethodForBind/InjectionDeclaration.cs: (8,30)-(8,53),
       Description: Occurs when a binding does not specify a factory method or constructor and no constructor could be resovled automatically,
       MessageFormat: Could not Resolve factory method for type: '{0}',
       Message: Could not Resolve factory method for type: 'Errors.NoFactoryMethodForBind.NoAccessibleConstructor',
@@ -71,10 +71,53 @@
       Title: Binding not found,
       Severity: Error,
       WarningLevel: 0,
-      Location: {SolutionDirectory}TestProjects/Errors/NoBindingForNonInstantiableType/FactoryDeclaration.cs: (8,80)-(8,85),
+      Location: {SolutionDirectory}TestProjects/Errors/NoBindingForNonInstantiableType/InjectionDeclaration.cs: (8,80)-(8,85),
       Description: Occurs when there is no way to construct a type, either by missing a binding, the type not having a constructor or being abstract/interface,
       MessageFormat: Binding not found for type: '{0}' and type is not constructable,
       Message: Binding not found for type: 'Errors.NoBindingForNonInstantiableType.IRoot' and type is not constructable,
+      Category: CodeGeneration
+    },
+    {
+      Id: SI0012,
+      Title: Infinite recursion detected,
+      Severity: Error,
+      WarningLevel: 0,
+      Location: {SolutionDirectory}TestProjects/Errors/Recursive/InjectionDeclaration.cs: (8,30)-(8,41),
+      Description: Occurs when an infinite recursion is detected, typically because of a circular dependency between constructors,
+      MessageFormat: Symbol: '{0}' caused an infinite recursion, which was detected processing: '{1}',
+      Message:
+Symbol: 'Errors.Recursive.NewInstance' caused an infinite recursion, which was detected processing: 'Errors.Recursive.NewInstance
+-> Errors.Recursive.Recursive
+--> Errors.Recursive.NewInstance',
+      Category: CodeGeneration
+    },
+    {
+      Id: SI0012,
+      Title: Infinite recursion detected,
+      Severity: Error,
+      WarningLevel: 0,
+      Location: {SolutionDirectory}TestProjects/Errors/Recursive/InjectionDeclaration.cs: (9,30)-(9,39),
+      Description: Occurs when an infinite recursion is detected, typically because of a circular dependency between constructors,
+      MessageFormat: Symbol: '{0}' caused an infinite recursion, which was detected processing: '{1}',
+      Message:
+Symbol: 'Errors.Recursive.Recursive' caused an infinite recursion, which was detected processing: 'Errors.Recursive.Recursive
+-> Errors.Recursive.NewInstance
+--> Errors.Recursive.Recursive',
+      Category: CodeGeneration
+    },
+    {
+      Id: SI0012,
+      Title: Infinite recursion detected,
+      Severity: Error,
+      WarningLevel: 0,
+      Location: {SolutionDirectory}TestProjects/Errors/Recursive/InjectionDeclaration.cs: (11,80)-(11,84),
+      Description: Occurs when an infinite recursion is detected, typically because of a circular dependency between constructors,
+      MessageFormat: Symbol: '{0}' caused an infinite recursion, which was detected processing: '{1}',
+      Message:
+Symbol: 'Errors.Recursive.Root' caused an infinite recursion, which was detected processing: 'Errors.Recursive.Root
+-> Errors.Recursive.Recursive
+--> Errors.Recursive.NewInstance
+---> Errors.Recursive.Recursive',
       Category: CodeGeneration
     }
   ]

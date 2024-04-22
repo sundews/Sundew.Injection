@@ -15,14 +15,14 @@ using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
 internal class ImplementServiceProviderVisitor(
     GenericNameSyntax genericNameSyntax,
-    IMethodSymbol methodSymbol,
+    IMethodSymbol implementServiceProviderMethodSymbol,
     AnalysisContext analysisContext,
     Location location)
     : CSharpSyntaxWalker
 {
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
-        var parameters = methodSymbol.Parameters;
+        var parameters = implementServiceProviderMethodSymbol.Parameters;
         var i = 1;
         var factories = new FactoryRegistrationBuilder();
         var accessibility = parameters[i++].ExplicitDefaultValue.ToEnumOrDefault(Injection.Accessibility.Public);
@@ -57,7 +57,7 @@ internal class ImplementServiceProviderVisitor(
             }
         }
 
-        var typeArguments = methodSymbol.MapTypeArguments(genericNameSyntax);
+        var typeArguments = implementServiceProviderMethodSymbol.MapTypeArguments(genericNameSyntax);
         var resolverTypeResult = analysisContext.TypeFactory.GetNamedType(typeArguments[0]);
         if (resolverTypeResult.TryGetError(out var invalidFactoryTypeSymbol))
         {

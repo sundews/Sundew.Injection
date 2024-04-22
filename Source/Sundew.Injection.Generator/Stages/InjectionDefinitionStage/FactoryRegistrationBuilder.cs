@@ -15,7 +15,7 @@ internal sealed class FactoryRegistrationBuilder
 {
     private readonly ImmutableArray<FactoryRegistration>.Builder registrations = ImmutableArray.CreateBuilder<FactoryRegistration>();
 
-    public FactoryRegistrationBuilder Add(Type factoryType, ValueArray<FactoryMethod> factoryMethods)
+    public FactoryRegistrationBuilder Add(Type factoryType, ValueArray<FactoryTarget> factoryMethods)
     {
         this.registrations.Add(new FactoryRegistration(factoryType, factoryMethods));
         return this;

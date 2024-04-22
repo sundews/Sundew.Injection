@@ -15,13 +15,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet"/>
-    <PackageReference Include="InfluxDB.Client"/>
+    <PackageReference Include="BenchmarkDotNet" />
+    <PackageReference Include="InfluxDB.Client" />
     <PackageReference Include="Microsoft.CodeAnalysis" />
-    <PackageReference Include="Sundew.Base.Primitives" >
+    <PackageReference Include="Sundew.Base.Primitives">
       <Aliases>sundew</Aliases>
     </PackageReference>
     <PackageReference Include="Sundew.CommandLine" />
+    <PackageReference Include="Sundew.DiscriminatedUnions" />
     <PackageReference Include="Sundew.Testing.CodeAnalysis" />
     <PackageReference Include="System.Collections.Immutable" />
   </ItemGroup>

@@ -16,7 +16,6 @@ using Sundew.Injection.Generator.TypeSystem;
 using CreationSource = Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.CreationSource;
 using InvocationExpressionBase = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.InvocationExpressionBase;
 using MethodImplementation = Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model.MethodImplementation;
-using Parameter = Sundew.Injection.Generator.TypeSystem.Parameter;
 using Statement = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Statement;
 
 internal sealed class OnCreateMethodGenerator(GeneratorFeatures generatorFeatures, GeneratorContext generatorContext)
@@ -26,7 +25,7 @@ internal sealed class OnCreateMethodGenerator(GeneratorFeatures generatorFeature
 
     public (FactoryNode FactoryNode, InvocationExpressionBase CreationExpression)
         Generate(
-            ImmutableList<DeclaredMethodImplementation> factoryMethods, Type targetType, ValueArray<Parameter> parameters, CreationSource creationSource, FactoryNode factoryNode)
+            ImmutableList<DeclaredMethodImplementation> factoryMethods, Type targetType, ValueArray<FullParameter> parameters, CreationSource creationSource, FactoryNode factoryNode)
     {
         var declaration = new MethodDeclaration(DeclaredAccessibility.Protected, true, OnCreate + NameHelper.GetFactoryMethodName(targetType.Name), parameters.Select(x => new ParameterDeclaration(x.Type, x.Name, null)).ToImmutableList(), new UsedType(targetType));
         var existingFactoryMethod = factoryMethods.FirstOrDefault(x => x.Declaration == declaration);

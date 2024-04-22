@@ -80,8 +80,8 @@ internal static class FactoryResolvedGraphProvider
                     factoryConstructorParameters.AddRange(injectionTreeResult.Value.FactoryConstructorParameters);
                     return Item.Pass(new FactoryMethodData(
                         rootBinding.Method.Name,
-                        (bindingRoot.ReturnType, factoryMethodRegistration.Return.TypeMetadata),
-                        (rootBinding.TargetType, factoryMethodRegistration.Target.TypeMetadata),
+                        factoryMethodRegistration.Return with { Type = bindingRoot.ReturnType },
+                        factoryMethodRegistration.Target with { Type = rootBinding.TargetType },
                         injectionTreeResult.Value.Root,
                         injectionTreeResult.Value.RootNeedsLifecycleHandling));
                 });

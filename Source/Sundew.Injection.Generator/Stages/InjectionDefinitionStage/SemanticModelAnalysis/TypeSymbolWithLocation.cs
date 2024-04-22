@@ -2,4 +2,4 @@
 
 using Microsoft.CodeAnalysis;
 
-public readonly record struct MappedTypeSymbol(ITypeSymbol TypeSymbol, SyntaxNode? OriginatingSyntaxNode);
+public readonly record struct TypeSymbolWithLocation(ITypeSymbol TypeSymbol, Location Location);

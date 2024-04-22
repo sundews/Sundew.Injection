@@ -62,7 +62,7 @@ internal class ImplementFactoryVisitor(
 
         var typeArguments = methodSymbol.MapTypeArguments(genericNameSyntax);
         var factoryType = analysisContext.TypeFactory.GetNamedType(typeArguments[0]);
-        R<NamedType, MappedTypeSymbol>? factoryInterfaceTypeResult = typeArguments.Length == 2 ? analysisContext.TypeFactory.GetNamedType(typeArguments[1]) : null;
+        R<NamedType, TypeSymbolWithLocation>? factoryInterfaceTypeResult = typeArguments.Length == 2 ? analysisContext.TypeFactory.GetNamedType(typeArguments[1]) : null;
         if (factoryType.TryGetError(out var invalidFactoryTypeSymbol))
         {
             analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InvalidFactoryTypeError, invalidFactoryTypeSymbol);

@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="AllFeaturesSuccessRuntimeFixture.cs" company="Sundews">
+// <copyright file="SuccessRuntimeFixture.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -16,7 +16,7 @@ using SuccessDependency;
 using VerifyNUnit;
 
 [TestFixture]
-public class AllFeaturesSuccessRuntimeFixture
+public class SuccessRuntimeFixture
 {
     [Test]
     public Task FactoryLifetimeTest()

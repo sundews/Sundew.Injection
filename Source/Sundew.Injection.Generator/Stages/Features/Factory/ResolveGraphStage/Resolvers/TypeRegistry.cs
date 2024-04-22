@@ -52,13 +52,8 @@ internal sealed class TypeRegistry<TValue> : ICache<TypeId, TValue>, ITypeRegist
         }
     }
 
-    private class Reference
+    private class Reference(TValue value)
     {
-        public Reference(TValue value)
-        {
-            this.Value = value;
-        }
-
-        public TValue Value { get; set; }
+        public TValue Value { get; set; } = value;
     }
 }

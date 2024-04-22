@@ -1,16 +1,15 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="TypeArgument.cs" company="Sundews">
+// <copyright file="IFactoryMethodBindings.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Injection.Generator.TypeSystem;
+#nullable enable
 
-internal readonly record struct TypeArgument(Type Type, TypeMetadata TypeMetadata)
+namespace Sundew.Injection
 {
-    public TypeArgument((Type Type, TypeMetadata TypeMetadata) fullType)
-        : this(fullType.Type, fullType.TypeMetadata)
+    public interface IFactoryMethodBindings<TFactory> : IFactoryMethodBindingSelector<TFactory>
     {
     }
 }

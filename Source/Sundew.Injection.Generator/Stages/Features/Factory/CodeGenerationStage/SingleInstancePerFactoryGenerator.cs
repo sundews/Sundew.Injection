@@ -112,14 +112,6 @@ internal class SingleInstancePerFactoryGenerator(
             }
         }
 
-        if (singleInstancePerFactoryInjectionNode.ExposeAsProperty.TryGetValue(out var exposeAsProperty))
-        {
-            (factoryNode, _, _) = factoryNode.GetOrAddProperty(
-                exposeAsProperty,
-                referencedType,
-                (propertyName) => new PropertyDeclaration(targetTypeFieldDeclaration.Type, propertyName, targetTypeFieldDeclaration.Name));
-        }
-
         return factoryNode with { DependantArguments = dependeeArguments };
     }
 }
