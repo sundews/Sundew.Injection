@@ -1,15 +1,14 @@
 ﻿namespace Sundew.Injection.Tests.CodeGenerationStage;
 
 extern alias sbt;
-
+extern alias sig;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using sbt::Sundew.Base.Text;
-using Sundew.Injection.Generator.Stages.CompilationDataStage;
-using Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage;
-using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage;
-using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Testing;
+using CompilationDataProvider = sig::Sundew.Injection.Generator.Stages.CompilationDataStage.CompilationDataProvider;
+using FactoryCodeGenerationProvider = sig::Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.FactoryCodeGenerationProvider;
+using FactoryResolvedGraphProvider = sig::Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.FactoryResolvedGraphProvider;
 
 [TestFixture]
 public class CodeGenerationEqualityFixture
@@ -18,7 +17,7 @@ public class CodeGenerationEqualityFixture
     public void Equals_Then_ResultShouldBeTrue()
     {
         var compilation = TestProjects.Success.FromCurrentDirectory.Value;
-        var demoModuleDeclaration = compilation.GetTypeByMetadataName("Success.InjectionDeclaration");
+        var demoModuleDeclaration = compilation.GetTypeByMetadataName("OverallSuccess.InjectionDeclaration");
         if (demoModuleDeclaration == null)
         {
             Assert.Fail($"Could not find InjectionDeclaration. Compilation had: {compilation.GetDiagnostics().Length} diagnostics");
@@ -26,7 +25,7 @@ public class CodeGenerationEqualityFixture
         }
 
         var injectionDefinitionSemanticModel = compilation.GetSemanticModel(demoModuleDeclaration.DeclaringSyntaxReferences.First().SyntaxTree, true);
-        var injectionDefinition = InjectionDefinitionProvider.GetInjectionDefinition(injectionDefinitionSemanticModel, CancellationToken.None);
+        var injectionDefinition = sig::Sundew.Injection.Generator.Stages.InjectionDefinitionStage.InjectionDefinitionProvider.GetInjectionDefinition(injectionDefinitionSemanticModel, CancellationToken.None);
         if (!injectionDefinition.IsSuccess)
         {
             throw new AssertionFailedException($"InjectionDefinition should have been successful, but failed with errors: {injectionDefinition.Error!.JoinToString((builder, item) => builder.Append(item), ", ")}");

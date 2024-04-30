@@ -39,7 +39,7 @@ internal static class BindingHelper
                 return;
             }
 
-            var returnType = returnTypeResult.Value;
+            var returnType = returnTypeResult.Value with { Metadata = returnTypeResult.Value.Metadata with { HasLifecycle = false } };
             analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<Type>.Empty, returnType, methodAndReturnType.Method, new ScopeContext(Scope._Auto, ScopeSelection.Implicit), false, false);
 
             if (SymbolEqualityComparer.Default.Equals(methodAndReturnType.ReturnType.TypeSymbol.OriginalDefinition, analysisContext.KnownAnalysisTypes.ConstructedTypeSymbol))
@@ -54,13 +54,13 @@ internal static class BindingHelper
 
                 analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(
                     ImmutableArray<Type>.Empty,
-                    returnTypeFirstTypeParameterResult.Value,
+                    returnTypeFirstTypeParameterResult.Value with { Metadata = returnTypeFirstTypeParameterResult.Value.Metadata with { HasLifecycle = false } },
                     new Method(
                         returnType.Type,
                         nameof(Constructed<object>.Object),
                         ValueArray<FullParameter>.Empty,
                         ValueArray<FullTypeArgument>.Empty,
-                        MethodKind._Instance(returnType.Metadata with { HasLifetime = false }, true, returnType.DefaultConstructor)),
+                        MethodKind._Instance(returnType.Metadata, true, returnType.DefaultConstructor)),
                     new ScopeContext(Scope._Auto, ScopeSelection.Implicit),
                     false,
                     false);

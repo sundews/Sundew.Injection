@@ -154,7 +154,7 @@ internal sealed class BindingResolver
             factoryMethodRegistration.Return.Type,
             factoryMethodRegistration.Scope,
             factoryMethodRegistration.Method with { Name = factoryMethodName },
-            factoryMethodRegistration.Target.Metadata.HasLifetime,
+            factoryMethodRegistration.Target.Metadata.HasLifecycle,
             false,
             factoryMethodRegistration.IsNewOverridable);
         return new BindingRoot(binding, factoryMethodRegistration.Accessibility, factoryMethodRegistration.Return.Type);

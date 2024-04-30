@@ -5,12 +5,12 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Injection.Test;
+namespace Sundew.Injection.IntegrationTests;
 
 using System.Runtime.CompilerServices;
 using VerifyTests;
 
-public static class ModuleInitializer
+internal static class ModuleInitializer
 {
     [ModuleInitializer]
     public static void Init()

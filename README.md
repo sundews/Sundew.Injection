@@ -115,7 +115,7 @@ An IDisposable/IAsyncDisposable object is considered owned by a factory in the f
 
 ## Not implemented yet:
 * First Beta
-  * Fix nuget package need interface project explicitly
+  * Binding property factory method (implicit/explicit)
   * Place generator dependencies in own namespace
 * Generating documentation
 * IServiceProvider support (ASP.NET)

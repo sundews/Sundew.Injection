@@ -26,10 +26,10 @@ internal class BindFactoryVisitor(
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
         var factoryTypeSymbol = bindFactoryMethodSymbol.MapTypeArguments(bindFactoryGenericNameSyntax).Single();
-        var parameters = bindFactoryMethodSymbol.Parameters.ByCardinality();
+        var parameters = node.Arguments.ByCardinality();
         switch (parameters)
         {
-            case Empty<IParameterSymbol>:
+            case Empty<ArgumentSyntax>:
                 var factoryMethodResults = factoryTypeSymbol.TypeSymbol.GetMembers()
                     .Where(x => x.GetAttributes().FirstOrDefault(x =>
                         x.AttributeClass?.ToDisplayString() == KnownTypesProvider.BindableFactoryTargetName) != null)
@@ -68,12 +68,12 @@ internal class BindFactoryVisitor(
                 analysisContext.BindFactory(factoryType, all.Items);
 
                 break;
-            case Single<IParameterSymbol>:
-                new BindMethodVisitor(factoryTypeSymbol, analysisContext).Visit(node);
+            case Single<ArgumentSyntax>:
+                new BindFactoryMethodVisitor(factoryTypeSymbol, analysisContext).Visit(node);
                 break;
-            case Multiple<IParameterSymbol> multiple:
+            case Multiple<ArgumentSyntax>:
                 const string separator = ", ";
-                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostic.Create(Diagnostics.MultipleParametersNotSupportedForBindFactoryError, node.GetLocation(), DiagnosticSeverity.Error, multiple.Items.Select(x => x.Name).JoinToString(separator)));
+                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostic.Create(Diagnostics.MultipleParametersNotSupportedForBindFactoryError, node.GetLocation(), bindFactoryMethodSymbol.Parameters.Select(x => x.Name).JoinToString(separator)));
                 break;
         }
     }

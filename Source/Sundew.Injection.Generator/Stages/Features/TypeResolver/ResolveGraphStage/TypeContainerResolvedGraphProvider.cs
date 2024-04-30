@@ -33,27 +33,27 @@ public static class TypeContainerResolvedGraphProvider
             var (resolverCreationDefinitions, generatedFactoryDeclarations, compilationData) = tuple;
             foreach (var generatedFactoryDeclaration in generatedFactoryDeclarations)
             {
-                nameRegistry.Register(generatedFactoryDeclaration.ImplementationType.Name, generatedFactoryDeclaration.CreateMethods);
+                nameRegistry.Register(generatedFactoryDeclaration.ImplementationType.Name, generatedFactoryDeclaration.FactoryTargets);
                 if (generatedFactoryDeclaration.InterfaceType.TryGetValue(out var factoryInterfaceType))
                 {
-                    nameRegistry.Register(factoryInterfaceType.Name, generatedFactoryDeclaration.CreateMethods);
+                    nameRegistry.Register(factoryInterfaceType.Name, generatedFactoryDeclaration.FactoryTargets);
                 }
             }
 
             token.ThrowIfCancellationRequested();
             var factoryTypeAndCreateMethodsResolver = new FactoryTypeAndCreateMethodsResolver(nameRegistry);
-            IEnumerable<(ResolverCreationDefinition ResolverCreationDefinition, IEnumerable<(Type Type, ValueArray<FactoryTargetDeclaration> CreateMethods)> CreateMethods)> resolveCreationDefinitionResults = resolverCreationDefinitions
+            IEnumerable<(ResolverCreationDefinition ResolverCreationDefinition, IEnumerable<(Type Type, ValueArray<FactoryTargetDeclaration> FactoryTargets)> FactoryTargets)> resolveCreationDefinitionResults = resolverCreationDefinitions
                 .Select(resolverCreationDefinition => (resolverCreationDefinition,
                     createMethods: resolverCreationDefinition.FactoryRegistrations
                         .Select(resolverCreationDefinitionResult => factoryTypeAndCreateMethodsResolver.ResolveFactoryRegistration(resolverCreationDefinitionResult))));
 
             return resolveCreationDefinitionResults.Select(resolvedCreationDefinition =>
             {
-                var (resolverCreationDefinition, createMethods) = resolvedCreationDefinition;
+                var (resolverCreationDefinition, factoryTargets) = resolvedCreationDefinition;
                 return new ResolvedTypeResolverDefinition(
                           resolverCreationDefinition.ResolverType,
                           true,
-                          createMethods.Select(x => new ResolvedFactoryRegistration(x.Type, x.CreateMethods))
+                          factoryTargets.Select(x => new ResolvedFactoryRegistration(x.Type, x.FactoryTargets))
                               .ToValueArray(),
                           resolverCreationDefinition.Accessibility);
             }).ToValueArray();

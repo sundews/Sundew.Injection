@@ -28,7 +28,7 @@
 
     <ItemGroup>
         <PackageReference Include="System.ValueTuple" />
-
+        <PackageReference Include="System.Memory" />
         <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" GeneratePathProperty="true" PrivateAssets="all" />
         <PackageReference Include="Disposal.Interfaces" />
         <PackageReference Include="Initialization.Interfaces" />

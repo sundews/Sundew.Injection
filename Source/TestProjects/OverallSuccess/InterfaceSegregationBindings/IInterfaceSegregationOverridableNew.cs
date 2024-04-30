@@ -1,0 +1,5 @@
+﻿namespace OverallSuccess.InterfaceSegregationBindings;
+
+public interface IInterfaceSegregationOverridableNew : IInterfaceSegregationOverridableNewB, IInterfaceSegregationOverridableNewA
+{
+}

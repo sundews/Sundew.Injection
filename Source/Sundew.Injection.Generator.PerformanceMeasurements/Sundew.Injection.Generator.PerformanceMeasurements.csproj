@@ -25,6 +25,7 @@
     <PackageReference Include="Sundew.DiscriminatedUnions" />
     <PackageReference Include="Sundew.Testing.CodeAnalysis" />
     <PackageReference Include="System.Collections.Immutable" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
   </ItemGroup>
 
   <ItemGroup>

@@ -8,8 +8,9 @@ using AssemblyReference = Sundew.Testing.CodeAnalysis.AssemblyReference;
 
 public static class TestProjects
 {
-    public static Project Success = new(@"TestProjects/Success");
-    public static Project Errors = new(@"TestProjects/Errors");
+    public static Project Success = new(@"TestProjects/OverallSuccess");
+    public static Project DistinctSuccess = new(@"TestProjects/DistinctSuccess");
+    public static Project DistinctErrors = new(@"TestProjects/DistinctErrors");
     public static Project TestPlayground = new(@"TestProjects/TestPlayground");
 
     public class Project(string path)
@@ -21,7 +22,7 @@ public static class TestProjects
                     null,
                     new Paths("bin", "obj"),
                     new References(
-                        new AssemblyReference(Paths.FindPathUpwards("SuccessDependency.dll")!),
+                        new AssemblyReference(Paths.FindPathUpwards("OverallSuccessDependency.dll")!),
                         new AssemblyReference(Paths.FindPathUpwards("Sundew.Injection.dll")!),
                         new AssemblyReference(Paths.FindPathUpwards("Microsoft.Bcl.AsyncInterfaces.dll")!),
                         new AssemblyReference(Paths.FindPathUpwards("Initialization.Interfaces.dll")!),
@@ -36,7 +37,7 @@ public static class TestProjects
                     null,
                     new Paths("bin", "obj"),
                     new References(
-                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("SuccessDependency.dll")!),
+                        new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("OverallSuccessDependency.dll")!),
                         new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Sundew.Injection.dll")!),
                         new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Microsoft.Bcl.AsyncInterfaces.dll")!),
                         new AssemblyReference(Paths.FindPathUpwardsFromEntryAssembly("Initialization.Interfaces.dll")!),

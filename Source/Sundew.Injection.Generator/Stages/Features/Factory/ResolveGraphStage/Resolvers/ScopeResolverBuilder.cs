@@ -131,13 +131,6 @@ internal sealed class ScopeResolverBuilder
 
                 break;
             case SingleParameter singleParameter:
-                if (singleParameter.Binding.Method.Kind is MethodKind.Instance instance)
-                {
-                    this.ResolveBindingScopes(this.bindingResolver.ResolveBinding(singleParameter.Binding.Method.ContainingType, instance.ContainingTypeMetadata, instance.ContainingTypeDefaultConstructor, default), dependant, errors);
-
-                    this.UpdateBindingScope(singleParameter.Binding, dependant, errors);
-                }
-
                 PickBindingScope(singleParameter.Binding);
                 break;
             case MultiItemParameter multiItemParameter:

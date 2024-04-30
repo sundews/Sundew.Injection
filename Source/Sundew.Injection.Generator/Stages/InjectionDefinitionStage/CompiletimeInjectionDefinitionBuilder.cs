@@ -104,7 +104,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
             bindingList.Add(genericBinding);
         }
 
-        var genericBinding = new GenericBindingRegistration(implementation.Type, scope, genericMethod, Injection.Accessibility.Internal, implementation.TypeMetadata.HasLifetime, false);
+        var genericBinding = new GenericBindingRegistration(implementation.Type, scope, genericMethod, Injection.Accessibility.Internal, implementation.TypeMetadata.HasLifecycle, false);
         AddBinding(implementation.Type.ToUnboundGenericType(), genericBinding);
         foreach (var @interface in interfaces)
         {

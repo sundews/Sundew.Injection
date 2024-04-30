@@ -243,7 +243,7 @@ internal static class TypeConverter
         {
             { IsStatic: true } => MethodKind._Static,
             { MethodKind: Microsoft.CodeAnalysis.MethodKind.Constructor } => MethodKind._Constructor,
-            { IsStatic: false } => MethodKind._Instance(GetTypeMetadata(methodSymbol.ContainingType, knownInjectableTypes), false, default),
+            { IsStatic: false } => MethodKind._Instance(GetTypeMetadata(methodSymbol.ContainingType, knownInjectableTypes), methodSymbol.MethodKind == Microsoft.CodeAnalysis.MethodKind.PropertyGet, default),
             _ => throw new NotSupportedException($"The method is not supported: {methodSymbol}"),
         };
     }

@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Injection.Package", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Injection", "Sundew.Injection\Sundew.Injection.csproj", "{49BC2610-7D19-49A7-B283-43203AFA45D1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Success", "TestProjects\Success\Success.csproj", "{65687584-4DA1-4997-93E3-DED74551B00E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OverallSuccess", "TestProjects\OverallSuccess\OverallSuccess.csproj", "{65687584-4DA1-4997-93E3-DED74551B00E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{615FC6B8-170C-4588-8976-FD5B2C947B67}"
 	ProjectSection(SolutionItems) = preProject
@@ -49,13 +49,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Injection.Testing", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Injection.GeneratorDependencies", "Sundew.Injection.GeneratorDependencies\Sundew.Injection.GeneratorDependencies.csproj", "{A28F8C05-648E-4999-B6B1-180CFB6E6C2A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuccessDependency", "TestProjects\SuccessDependency\SuccessDependency.csproj", "{3A168BE4-80C2-49C2-89A2-3870CEABE9DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OverallSuccessDependency", "TestProjects\OverallSuccessDependency\OverallSuccessDependency.csproj", "{3A168BE4-80C2-49C2-89A2-3870CEABE9DB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sundew.Injection.PerformanceTests", "Sundew.Injection.PerformanceTests\Sundew.Injection.PerformanceTests.csproj", "{EA549FB4-6F3C-479A-B37F-0C2DC8D4EFD7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestPlayground", "TestProjects\TestPlayground\TestPlayground.csproj", "{3F7E2D84-D29C-47A4-B8B0-A31344CDB685}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Errors", "TestProjects\Errors\Errors.csproj", "{E262227A-DBC6-4CA9-A45D-5B0272B0299B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Errors", "TestProjects\DistinctErrors\DistinctErrors.csproj", "{E262227A-DBC6-4CA9-A45D-5B0272B0299B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistinctSuccess", "TestProjects\DistinctSuccess\DistinctSuccess.csproj", "{1E8BD4D9-BCEF-4B45-B952-8D41AD9CEC0F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -166,6 +168,12 @@ Global
 		{E262227A-DBC6-4CA9-A45D-5B0272B0299B}.DebugTests|Any CPU.Build.0 = Debug|Any CPU
 		{E262227A-DBC6-4CA9-A45D-5B0272B0299B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E262227A-DBC6-4CA9-A45D-5B0272B0299B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E8BD4D9-BCEF-4B45-B952-8D41AD9CEC0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E8BD4D9-BCEF-4B45-B952-8D41AD9CEC0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E8BD4D9-BCEF-4B45-B952-8D41AD9CEC0F}.DebugTests|Any CPU.ActiveCfg = DebugTests|Any CPU
+		{1E8BD4D9-BCEF-4B45-B952-8D41AD9CEC0F}.DebugTests|Any CPU.Build.0 = DebugTests|Any CPU
+		{1E8BD4D9-BCEF-4B45-B952-8D41AD9CEC0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E8BD4D9-BCEF-4B45-B952-8D41AD9CEC0F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -183,6 +191,7 @@ Global
 		{EA549FB4-6F3C-479A-B37F-0C2DC8D4EFD7} = {88F08C53-01F8-428F-BA00-B28B1DFEA880}
 		{3F7E2D84-D29C-47A4-B8B0-A31344CDB685} = {9E41F070-F91D-4526-A6C9-AB3F454D3A8A}
 		{E262227A-DBC6-4CA9-A45D-5B0272B0299B} = {9E41F070-F91D-4526-A6C9-AB3F454D3A8A}
+		{1E8BD4D9-BCEF-4B45-B952-8D41AD9CEC0F} = {9E41F070-F91D-4526-A6C9-AB3F454D3A8A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BC13742C-AB82-49EE-988E-1FF59BAF1BB2}

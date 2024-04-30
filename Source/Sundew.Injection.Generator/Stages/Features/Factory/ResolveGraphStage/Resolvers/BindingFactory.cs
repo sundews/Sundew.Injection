@@ -42,7 +42,7 @@ internal class BindingFactory(
             bindingRegistration.ReferencedType,
             bindingRegistration.Scope,
             bindingRegistration.Method,
-            bindingRegistration.TargetType.Metadata.HasLifetime,
+            bindingRegistration.TargetType.Metadata.HasLifecycle,
             bindingRegistration.IsInjectable,
             bindingRegistration.IsNewOverridable);
         var newResolvedBinding = ResolvedBinding.SingleParameter(newBinding);
@@ -77,7 +77,7 @@ internal class BindingFactory(
     public ResolvedBinding TryCreateMultiItemParameter(Type requestedType, Type elementType, ValueArray<BindingRegistration> resolvedBindingRegistrations, bool isArrayRequired)
     {
         var bindings = resolvedBindingRegistrations.Select(x =>
-            new Binding(x.TargetType.Type, elementType, x.Scope, x.Method, x.TargetType.Metadata.HasLifetime, x.IsInjectable, x.IsNewOverridable)).ToArray();
+            new Binding(x.TargetType.Type, elementType, x.Scope, x.Method, x.TargetType.Metadata.HasLifecycle, x.IsInjectable, x.IsNewOverridable)).ToArray();
 
         bindingsTypeRegistrar.Register(requestedType.Id, default, bindings, true);
         return this.CreateMultiItemParameter(

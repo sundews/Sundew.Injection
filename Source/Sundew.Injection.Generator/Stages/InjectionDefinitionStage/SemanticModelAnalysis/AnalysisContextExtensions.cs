@@ -48,7 +48,7 @@ internal static class AnalysisContextExtensions
 
         if (factoryMethod == null)
         {
-            var createMethodResult = CreateMethod(analysisContext, implementationTypeSymbolWithLocation.TypeSymbol);
+            var createMethodResult = GetFactoryTarget(analysisContext, implementationTypeSymbolWithLocation.TypeSymbol);
             if (createMethodResult.IsError)
             {
                 analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, implementationTypeSymbolWithLocation, createMethodResult.Error.GetErrorText());
@@ -104,7 +104,7 @@ internal static class AnalysisContextExtensions
             if (typeSymbol.IsInstantiable() && interfaceType.DefaultConstructor.TryGetValue(out var method))
             {
                 analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray.Create(interfaceType.Type), interfaceType, method, new ScopeContext(Scope._Auto, ScopeSelection.Implicit), false, isNewOverridable);
-                var createMethodResult = CreateMethod(analysisContext, typeSymbol);
+                var createMethodResult = GetFactoryTarget(analysisContext, typeSymbol);
                 if (createMethodResult.IsError)
                 {
                     analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, new SymbolErrorWithLocation(createMethodResult.Error, typeSymbolWithLocation.Location));
@@ -143,7 +143,7 @@ internal static class AnalysisContextExtensions
                 switch (symbol)
                 {
                     case IMethodSymbol methodSymbol:
-                        if (methodSymbol.MethodKind != Microsoft.CodeAnalysis.MethodKind.Constructor
+                        if (methodSymbol.MethodKind == Microsoft.CodeAnalysis.MethodKind.DeclareMethod
                             && symbol.GetAttributes().All(x => x.AttributeClass?.ToDisplayString() != KnownTypesProvider.IndirectFactoryTargetName)
                             && !symbol.MetadataName.Contains(Dispose))
                         {
@@ -168,7 +168,7 @@ internal static class AnalysisContextExtensions
             .ToValueArray();
     }
 
-    private static R<Method, SymbolError> CreateMethod(AnalysisContext analysisContext, ITypeSymbol implementationType)
+    private static R<Method, SymbolError> GetFactoryTarget(AnalysisContext analysisContext, ITypeSymbol implementationType)
     {
         var defaultConstructor = TypeHelper.GetDefaultConstructorMethod(implementationType);
         if (defaultConstructor != null)

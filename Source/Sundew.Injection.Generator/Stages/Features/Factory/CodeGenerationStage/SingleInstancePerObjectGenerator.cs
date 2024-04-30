@@ -11,18 +11,12 @@ using System;
 using Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Nodes;
 
-internal class SingleInstancePerObjectGenerator
+internal class SingleInstancePerObjectGenerator(
+    GeneratorFeatures generatorFeatures,
+    GeneratorContext generatorContext)
 {
-    private readonly GeneratorFeatures generatorFeatures;
-    private readonly GeneratorContext generatorContext;
-
-    public SingleInstancePerObjectGenerator(
-        GeneratorFeatures generatorFeatures,
-        GeneratorContext generatorContext)
-    {
-        this.generatorFeatures = generatorFeatures;
-        this.generatorContext = generatorContext;
-    }
+    private readonly GeneratorFeatures generatorFeatures = generatorFeatures;
+    private readonly GeneratorContext generatorContext = generatorContext;
 
     public FactoryNode VisitSingleInstancePerObject(
         SingleInstancePerObjectInjectionNode singleInstancePerObjectInjectionNode,

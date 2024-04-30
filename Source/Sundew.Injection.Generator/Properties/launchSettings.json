@@ -5,7 +5,7 @@
     },
     "Roslyn Component": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\TestProjects\\Success\\Success.csproj"
+      "targetProject": "..\\TestProjects\\DistinctSuccess\\DistinctSuccess.csproj"
     }
   }
 }

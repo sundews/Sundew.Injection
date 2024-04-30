@@ -10,16 +10,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" GeneratePathProperty="true" PrivateAssets="all" />
     <PackageReference Include="System.Collections.Immutable" GeneratePathProperty="true" PrivateAssets="all" />
     <PackageReference Include="Disposal.Interfaces" GeneratePathProperty="true" PrivateAssets="all" />
     <PackageReference Include="Initialization.Interfaces" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="System.Memory" GeneratePathProperty="true" PrivateAssets="all" />
   </ItemGroup>
 
 
   <ItemGroup>
     <ProjectReference Include="..\..\Sundew.Injection.Generator\Sundew.Injection.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\SuccessDependency\SuccessDependency.csproj" />
+    <ProjectReference Include="..\OverallSuccessDependency\OverallSuccessDependency.csproj" />
   </ItemGroup>
 
 </Project>

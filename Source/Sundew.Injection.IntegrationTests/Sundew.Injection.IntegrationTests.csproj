@@ -41,12 +41,16 @@
     <ProjectReference Include="..\Sundew.Injection.Generator\Sundew.Injection.Generator.csproj" />
     <ProjectReference Include="..\Sundew.Injection.Tests\Sundew.Injection.Tests.csproj" />
     <ProjectReference Include="..\Sundew.Injection\Sundew.Injection.csproj" />
-    <ProjectReference Include="..\TestProjects\Success\Success.csproj" />
+    <ProjectReference Include="..\TestProjects\OverallSuccessDependency\OverallSuccessDependency.csproj" />
+    <ProjectReference Include="..\TestProjects\OverallSuccess\OverallSuccess.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="SuccessRuntimeFixture.FactoryLifetimeTest.verified.txt">
-      <DependentUpon>SuccessRuntimeFixture.cs</DependentUpon>
+    <None Update="DistinctErrorsFixture.VerifyReportedDiagnostics.verified.txt">
+      <DependentUpon>DistinctErrorsFixture.cs</DependentUpon>
+    </None>
+    <None Update="OverallSuccessRuntimeFixture.FactoryLifetimeTest.verified.txt">
+      <DependentUpon>OverallSuccessRuntimeFixture.cs</DependentUpon>
     </None>
   </ItemGroup>
 
