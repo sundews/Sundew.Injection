@@ -8,7 +8,7 @@
 
 #nullable enable
 
-namespace Sundew.Injection.Disposal
+namespace OverallSuccess.SundewInjection.Disposal
 {
     using System;
     using System.Collections.Generic;

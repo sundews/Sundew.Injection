@@ -14,6 +14,8 @@ using Microsoft.CodeAnalysis;
 
 internal static class TypeHelper
 {
+    internal const string DependenciesAssemblyNamespacePostfix = "SundewInjection";
+    internal const string FallbackAssemblyNamespace = "Sundew.Injection";
     private const string Dot = ".";
 
     public static string GetNamespace(INamespaceSymbol namespaceSymbol)
@@ -61,5 +63,10 @@ internal static class TypeHelper
                 (x.ContainingType.IsRecord &&
                 SymbolEqualityComparer.Default.Equals(x.Parameters.FirstOrDefault()?.Type, x.ContainingType)))
             .FirstOrDefault();
+    }
+
+    public static string GetAssemblySundewInjectionDependenciesNamespace(Compilation compilation)
+    {
+        return string.IsNullOrEmpty(compilation.AssemblyName) ? FallbackAssemblyNamespace : compilation.AssemblyName + '.' + DependenciesAssemblyNamespacePostfix;
     }
 }

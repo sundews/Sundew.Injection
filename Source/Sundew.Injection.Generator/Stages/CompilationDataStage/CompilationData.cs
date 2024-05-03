@@ -34,5 +34,14 @@ internal sealed record CompilationData(
     OpenGenericType ResolverType,
     OpenGenericType IEnumerableOfTType,
     OpenGenericType IReadOnlyListOfTType,
+    ProvidedCompilationData ProvidedCompilationData,
     string AssemblyName,
     string AssemblyNamespace);
+
+internal sealed record ProvidedCompilationData(
+    Binding LifecycleHandlerBinding,
+    OpenGenericType ConstructedType,
+    Type ResolverItemsFactoryType,
+    Type ResolverItemType,
+    ArrayType ResolverItemArrayType,
+    OpenGenericType ResolverType);

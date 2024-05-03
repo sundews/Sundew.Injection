@@ -7,9 +7,8 @@
 
 #nullable enable
 
-namespace Sundew.Injection
+namespace Sundew.Injection;
+
+public interface IFactoryMethodBindings<TFactory> : IFactoryMethodBindingSelector<TFactory>
 {
-    public interface IFactoryMethodBindings<TFactory> : IFactoryMethodBindingSelector<TFactory>
-    {
-    }
 }

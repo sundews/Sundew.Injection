@@ -7,7 +7,7 @@
 
 #nullable enable
 
-namespace Sundew.Injection.Disposal
+namespace Sundew.Injection.Dependencies.Disposal
 {
     using System;
     using System.Collections.Generic;

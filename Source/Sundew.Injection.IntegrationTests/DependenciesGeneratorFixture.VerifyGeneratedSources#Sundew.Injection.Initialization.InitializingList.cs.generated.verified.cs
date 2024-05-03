@@ -8,7 +8,7 @@
 
 #nullable enable
 
-namespace Sundew.Injection.Initialization
+namespace OverallSuccess.SundewInjection.Initialization
 {
     using System;
     using System.Collections.Generic;

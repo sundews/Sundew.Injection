@@ -5,7 +5,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Injection
+namespace Sundew.Injection.Dependencies
 {
     internal delegate object Resolve();
 }

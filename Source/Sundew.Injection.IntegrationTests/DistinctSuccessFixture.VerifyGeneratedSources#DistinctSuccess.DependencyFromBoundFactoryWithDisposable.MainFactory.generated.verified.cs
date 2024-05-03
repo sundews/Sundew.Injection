@@ -7,13 +7,13 @@ namespace DistinctSuccess.DependencyFromBoundFactoryWithDisposable
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class MainFactory : global::System.IDisposable, global::System.IAsyncDisposable, global::Sundew.Injection.IGeneratedFactory
     {
-        private readonly global::Sundew.Injection.LifecycleHandler lifecycleHandler;
+        private readonly global::DistinctSuccess.SundewInjection.LifecycleHandler lifecycleHandler;
         private readonly global::DistinctSuccess.DependencyFromBoundFactoryWithDisposable.DependencyFactory dependencyFactory;
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public MainFactory()
         {
-            this.lifecycleHandler = new global::Sundew.Injection.LifecycleHandler(default(global::Sundew.Injection.IInitializationParameters), default(global::Sundew.Injection.IDisposalParameters));
+            this.lifecycleHandler = new global::DistinctSuccess.SundewInjection.LifecycleHandler(default(global::Sundew.Injection.IInitializationParameters), default(global::Sundew.Injection.IDisposalParameters));
             this.dependencyFactory = new global::DistinctSuccess.DependencyFromBoundFactoryWithDisposable.DependencyFactory();
             this.lifecycleHandler.TryAdd(this.dependencyFactory);
         }

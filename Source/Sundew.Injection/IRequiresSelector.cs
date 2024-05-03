@@ -7,10 +7,9 @@
 
 #nullable enable
 
-namespace Sundew.Injection
+namespace Sundew.Injection;
+
+public interface IRequiresSelector
 {
-    public interface IRequiresSelector
-    {
-        IRequires Require<T>(string? name = null, Inject inject = Inject.Shared);
-    }
+    IRequires Require<T>(string? name = null, Inject inject = Inject.Shared);
 }

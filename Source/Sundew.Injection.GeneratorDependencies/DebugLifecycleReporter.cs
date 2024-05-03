@@ -7,7 +7,7 @@
 
 #nullable enable
 
-namespace Sundew.Injection
+namespace Sundew.Injection.Dependencies
 {
     using System;
     using System.Diagnostics;

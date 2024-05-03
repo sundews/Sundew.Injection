@@ -5,11 +5,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Injection
+namespace Sundew.Injection.Dependencies
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
     /*
     public class Resolver
     {

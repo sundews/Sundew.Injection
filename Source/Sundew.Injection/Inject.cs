@@ -7,15 +7,14 @@
 
 #nullable enable
 
-namespace Sundew.Injection
+namespace Sundew.Injection;
+
+/// <summary>
+/// Describes how parameters should be injected.
+/// </summary>
+public enum Inject
 {
-    /// <summary>
-    /// Describes how parameters should be injected.
-    /// </summary>
-    public enum Inject
-    {
-        Shared,
-        ByParameterName,
-        Separately,
-    }
+    Shared,
+    ByParameterName,
+    Separately,
 }

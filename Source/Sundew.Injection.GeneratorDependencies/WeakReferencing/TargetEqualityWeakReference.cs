@@ -5,12 +5,11 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-#nullable enable
+#nullable disable
 
-namespace Sundew.Injection.WeakReferencing
+namespace Sundew.Injection.Dependencies.WeakReferencing
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.CompilerServices;
 
     /// <summary>
@@ -26,7 +25,7 @@ namespace Sundew.Injection.WeakReferencing
         /// Initializes a new instance of the <see cref="TargetEqualityWeakReference{TTarget}"/> class.
         /// </summary>
         /// <param name="target">The target.</param>
-        public TargetEqualityWeakReference(TTarget? target)
+        public TargetEqualityWeakReference(TTarget target)
             : this(target, false)
         {
         }
@@ -36,7 +35,7 @@ namespace Sundew.Injection.WeakReferencing
         /// </summary>
         /// <param name="target">The target.</param>
         /// <param name="trackResurrection">if set to <c>true</c> [track resurrection].</param>
-        public TargetEqualityWeakReference(TTarget? target, bool trackResurrection)
+        public TargetEqualityWeakReference(TTarget target, bool trackResurrection)
         {
 #pragma warning disable CS8604 // Possible null reference argument.
             this.weakReference = new WeakReference<TTarget>(target, trackResurrection);
@@ -48,7 +47,7 @@ namespace Sundew.Injection.WeakReferencing
         /// </summary>
         /// <param name="target">The target.</param>
         /// <returns>A value indicating whether the target is available.</returns>
-        public bool TryGetTarget([NotNullWhen(true)] out TTarget? target)
+        public bool TryGetTarget(out TTarget target)
         {
             return this.weakReference.TryGetTarget(out target);
         }
@@ -58,7 +57,7 @@ namespace Sundew.Injection.WeakReferencing
         /// </summary>
         /// <param name="other">The other.</param>
         /// <returns><c>true</c> if equal, otherwise <c>false</c>.</returns>
-        public bool Equals(TargetEqualityWeakReference<TTarget>? other)
+        public bool Equals(TargetEqualityWeakReference<TTarget> other)
         {
             if (ReferenceEquals(this, other))
             {
@@ -82,7 +81,7 @@ namespace Sundew.Injection.WeakReferencing
         /// <returns>
         ///   <c>true</c> if the specified <see cref="object" /> is equal to this instance; otherwise, <c>false</c>.
         /// </returns>
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
             return obj is TargetEqualityWeakReference<TTarget> o && this.Equals(o);
         }

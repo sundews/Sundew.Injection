@@ -7,16 +7,15 @@
 
 #nullable enable
 
-namespace Sundew.Injection
+namespace Sundew.Injection;
+
+using System;
+using System.Linq.Expressions;
+
+public interface IFactoryMethodBindingSelector<TFactory>
 {
-    using System;
-    using System.Linq.Expressions;
+    IFactoryMethodBindings<TFactory> Add<TInterface, TImplementation>(Expression<Func<TFactory, TImplementation>> factoryMethodSelector)
+        where TImplementation : TInterface;
 
-    public interface IFactoryMethodBindingSelector<TFactory>
-    {
-        IFactoryMethodBindings<TFactory> Add<TInterface, TImplementation>(Expression<Func<TFactory, TImplementation>> factoryMethodSelector)
-            where TImplementation : TInterface;
-
-        IFactoryMethodBindings<TFactory> Add<TImplementation>(Expression<Func<TFactory, TImplementation>> factoryMethodSelector);
-    }
+    IFactoryMethodBindings<TFactory> Add<TImplementation>(Expression<Func<TFactory, TImplementation>> factoryMethodSelector);
 }

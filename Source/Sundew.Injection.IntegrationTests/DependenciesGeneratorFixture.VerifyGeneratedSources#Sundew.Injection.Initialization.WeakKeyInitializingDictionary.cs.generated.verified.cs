@@ -8,7 +8,7 @@
 
 #nullable enable
 
-namespace Sundew.Injection.Initialization
+namespace OverallSuccess.SundewInjection.Initialization
 {
     using System;
     using System.Collections.Generic;
@@ -17,7 +17,7 @@ namespace Sundew.Injection.Initialization
     using System.Threading;
     using System.Threading.Tasks;
     using global::Initialization.Interfaces;
-    using Sundew.Injection.WeakReferencing;
+    using global::OverallSuccess.SundewInjection.WeakReferencing;
 
     internal class WeakKeyInitializingDictionary<TKey> : IInitializable, IAsyncInitializable
         where TKey : class

@@ -8,13 +8,14 @@
 
 #nullable enable
 
-namespace Sundew.Injection
+namespace OverallSuccess.SundewInjection
 {
     using System.Threading.Tasks;
     using global::Disposal.Interfaces;
     using global::Initialization.Interfaces;
-    using Sundew.Injection.Disposal;
-    using Sundew.Injection.Initialization;
+    using global::Sundew.Injection;
+    using global::OverallSuccess.SundewInjection.Disposal;
+    using global::OverallSuccess.SundewInjection.Initialization;
 
     internal sealed class LifecycleHandler : ILifecycleHandler
     {

@@ -8,7 +8,7 @@ namespace OverallSuccess
     public sealed partial class ConstructedChildFactory : global::OverallSuccess.IConstructedChildFactory
     {
         private readonly global::Sundew.Injection.ILifecycleParameters lifecycleParameters;
-        private readonly global::Sundew.Injection.LifecycleHandler lifecycleHandler;
+        private readonly global::OverallSuccess.SundewInjection.LifecycleHandler lifecycleHandler;
         private readonly global::OverallSuccessDependency.DependencyFactory dependencyFactory;
         private readonly global::OverallSuccessDependency.ManualMultipleDependencyFactory manualMultipleDependencyFactory;
 
@@ -20,7 +20,7 @@ namespace OverallSuccess
                 false,
                 default(global::Initialization.Interfaces.IInitializationReporter),
                 default(global::Disposal.Interfaces.IDisposalReporter));
-            this.lifecycleHandler = new global::Sundew.Injection.LifecycleHandler(this.lifecycleParameters, this.lifecycleParameters);
+            this.lifecycleHandler = new global::OverallSuccess.SundewInjection.LifecycleHandler(this.lifecycleParameters, this.lifecycleParameters);
             this.dependencyFactory = new global::OverallSuccessDependency.DependencyFactory();
             this.lifecycleHandler.TryAdd(this.dependencyFactory);
             this.manualMultipleDependencyFactory = new global::OverallSuccessDependency.ManualMultipleDependencyFactory();

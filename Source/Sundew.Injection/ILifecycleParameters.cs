@@ -7,9 +7,8 @@
 
 #nullable enable
 
-namespace Sundew.Injection
+namespace Sundew.Injection;
+
+public interface ILifecycleParameters : IInitializationParameters, IDisposalParameters
 {
-    public interface ILifecycleParameters : IInitializationParameters, IDisposalParameters
-    {
-    }
 }

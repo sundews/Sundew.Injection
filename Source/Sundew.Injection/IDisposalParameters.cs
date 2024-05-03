@@ -7,13 +7,14 @@
 
 #nullable enable
 
-namespace Sundew.Injection;
-
-using Disposal.Interfaces;
-
-public interface IDisposalParameters
+namespace Sundew.Injection
 {
-    bool DisposeConcurrently { get; }
+    using Disposal.Interfaces;
 
-    IDisposalReporter? DisposalReporter { get; }
+    public interface IDisposalParameters
+    {
+        bool DisposeConcurrently { get; }
+
+        IDisposalReporter? DisposalReporter { get; }
+    }
 }

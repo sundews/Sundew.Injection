@@ -8,7 +8,7 @@ namespace OverallSuccess
     public partial class ResolveRootFactory : global::OverallSuccess.IResolveRootFactory
     {
         private readonly global::Sundew.Injection.ILifecycleParameters lifecycleParameters;
-        private readonly global::Sundew.Injection.LifecycleHandler lifecycleHandler;
+        private readonly global::OverallSuccess.SundewInjection.LifecycleHandler lifecycleHandler;
         private readonly global::OverallSuccess.RequiredInterface.IRequiredParameters requiredParameters;
         private readonly global::OverallSuccess.MultipleImplementations.IMultipleImplementationForArray multipleImplementationForArrayA;
         private readonly global::OverallSuccess.MultipleImplementations.IMultipleImplementationForArray multipleImplementationForArrayB;
@@ -43,7 +43,7 @@ namespace OverallSuccess
                 false,
                 default(global::Initialization.Interfaces.IInitializationReporter),
                 default(global::Disposal.Interfaces.IDisposalReporter));
-            this.lifecycleHandler = new global::Sundew.Injection.LifecycleHandler(this.lifecycleParameters, this.lifecycleParameters);
+            this.lifecycleHandler = new global::OverallSuccess.SundewInjection.LifecycleHandler(this.lifecycleParameters, this.lifecycleParameters);
             this.requiredParameters = requiredParameters;
             this.multipleImplementationForArrayA = new global::OverallSuccess.MultipleImplementations.MultipleImplementationForArrayA(this.requiredParameters.SecondSpecificallyNamedModuleParameter);
             this.lifecycleHandler.TryAdd(this.multipleImplementationForArrayA);

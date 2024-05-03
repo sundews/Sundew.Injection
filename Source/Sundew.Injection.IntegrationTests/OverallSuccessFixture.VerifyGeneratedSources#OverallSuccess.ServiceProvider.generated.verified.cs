@@ -7,7 +7,7 @@ namespace OverallSuccess
     public sealed partial class ServiceProvider : global::System.IServiceProvider
     {
         private const int BucketSize = 13;
-        private readonly global::Sundew.Injection.ResolverItem[] resolverItems;
+        private readonly global::OverallSuccess.SundewInjection.ResolverItem[] resolverItems;
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public ServiceProvider(
@@ -17,11 +17,11 @@ namespace OverallSuccess
             global::OverallSuccess.GeneratedOperationFactory generatedOperationFactory,
             global::OverallSuccess.ResolveRootFactory resolveRootFactory)
         {
-            this.resolverItems = global::Sundew.Injection.ResolverItemsFactory.Create(
+            this.resolverItems = global::OverallSuccess.SundewInjection.ResolverItemsFactory.Create(
                 BucketSize,
-                new global::Sundew.Injection.ResolverItem(typeof(global::OverallSuccess.TypeResolver.IMultipleImplementationForTypeResolver), () => new object[] { multipleImplementationForTypeResolverFactory.CreateMultipleImplementationForTypeResolverA(), multipleImplementationForTypeResolverFactory.CreateMultipleImplementationForTypeResolverB(), resolveRootFactory.CreateMultipleImplementationForTypeResolverC() }),
-                new global::Sundew.Injection.ResolverItem(typeof(global::OverallSuccessDependency.ManualMultipleSingletonDependency), () => manualMultipleDependencyFactory.ManualMultipleSingletonDependency),
-                new global::Sundew.Injection.ResolverItem(typeof(global::OverallSuccess.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory), () => resolveRootFactory.InterfaceSingleInstancePerFactory));
+                new global::OverallSuccess.SundewInjection.ResolverItem(typeof(global::OverallSuccess.TypeResolver.IMultipleImplementationForTypeResolver), () => new object[] { multipleImplementationForTypeResolverFactory.CreateMultipleImplementationForTypeResolverA(), multipleImplementationForTypeResolverFactory.CreateMultipleImplementationForTypeResolverB(), resolveRootFactory.CreateMultipleImplementationForTypeResolverC() }),
+                new global::OverallSuccess.SundewInjection.ResolverItem(typeof(global::OverallSuccessDependency.ManualMultipleSingletonDependency), () => manualMultipleDependencyFactory.ManualMultipleSingletonDependency),
+                new global::OverallSuccess.SundewInjection.ResolverItem(typeof(global::OverallSuccess.SingleInstancePerFactory.IInterfaceSingleInstancePerFactory), () => resolveRootFactory.InterfaceSingleInstancePerFactory));
         }
 
         public object GetService(global::System.Type serviceType)

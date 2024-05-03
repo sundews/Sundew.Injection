@@ -7,15 +7,14 @@
 
 #nullable enable
 
-namespace Sundew.Injection
-{
-    using System;
+namespace Sundew.Injection;
 
-    /// <summary>
-    /// Indicates that the decorated method is a factory target that does not return the created value directly.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Method)]
-    public class IndirectFactoryTargetAttribute : Attribute
-    {
-    }
+using System;
+
+/// <summary>
+/// Indicates that the decorated method is a factory target that does not return the created value directly.
+/// </summary>
+[AttributeUsage(AttributeTargets.Method)]
+public class IndirectFactoryTargetAttribute : Attribute
+{
 }

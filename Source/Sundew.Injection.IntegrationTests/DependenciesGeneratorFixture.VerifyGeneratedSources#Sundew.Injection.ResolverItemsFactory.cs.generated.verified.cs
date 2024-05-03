@@ -8,7 +8,7 @@
 
 #nullable enable
 
-namespace Sundew.Injection
+namespace OverallSuccess.SundewInjection
 {
     using System;
     using System.Runtime.CompilerServices;

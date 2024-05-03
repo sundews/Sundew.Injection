@@ -49,26 +49,6 @@ public static class KnownTypesProvider
         return R.From(compilation.GetTypeByMetadataName(typeof(Task<>).FullName!), () => "Task<> was not found");
     }
 
-    public static R<INamedTypeSymbol, string> GetLifecycleHandler(this Compilation compilation)
-    {
-        return R.From(compilation.GetTypesByMetadataName(typeof(LifecycleHandler).FullName!).FirstOrDefault(), () => "LifecycleHandler was not found");
-    }
-
-    public static R<INamedTypeSymbol, string> GetResolverItemsFactory(this Compilation compilation)
-    {
-        return R.From(compilation.GetTypesByMetadataName(typeof(ResolverItemsFactory).FullName!).FirstOrDefault(), () => "ResolverItemsFactoryType was not found");
-    }
-
-    public static R<INamedTypeSymbol, string> GetResolverItem(this Compilation compilation)
-    {
-        return R.From(compilation.GetTypesByMetadataName(typeof(ResolverItem).FullName!).FirstOrDefault(), () => "ResolverItemType was not found");
-    }
-
-    public static R<INamedTypeSymbol, string> GetILifecycleHandler(this Compilation compilation)
-    {
-        return R.From(compilation.GetTypesByMetadataName(typeof(ILifecycleHandler).FullName!).FirstOrDefault(), () => "ILifecycleHandler was not found");
-    }
-
     public static R<INamedTypeSymbol, string> GetConstructed(this Compilation compilation)
     {
         return R.From(compilation.GetTypeByMetadataName(typeof(Sundew.Injection.Constructed<>).FullName!), () => "Constructed<> was not found");

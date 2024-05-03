@@ -7,34 +7,33 @@
 
 #nullable enable
 
-namespace Sundew.Injection
+namespace Sundew.Injection;
+
+/// <summary>
+/// Contains the result of an factory 'CreateUninitialized' call.
+/// </summary>
+/// <typeparam name="TObject">The object type.</typeparam>
+public readonly struct Constructed<TObject>
+    where TObject : class
 {
     /// <summary>
-    /// Contains the result of an factory 'CreateUninitialized' call.
+    /// Initializes a new instance of the <see cref="Constructed{TObject}"/> struct.
     /// </summary>
-    /// <typeparam name="TObject">The object type.</typeparam>
-    public readonly struct Constructed<TObject>
-        where TObject : class
+    /// <param name="object">The object.</param>
+    /// <param name="lifecycleHandler">The lifecycle handler.</param>
+    public Constructed(TObject @object, ILifecycleHandler lifecycleHandler)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Constructed{TObject}"/> struct.
-        /// </summary>
-        /// <param name="object">The object.</param>
-        /// <param name="lifecycleHandler">The lifecycle handler.</param>
-        public Constructed(TObject @object, ILifecycleHandler lifecycleHandler)
-        {
-            this.Object = @object;
-            this.LifecycleHandler = lifecycleHandler;
-        }
-
-        /// <summary>
-        /// Gets the object.
-        /// </summary>
-        public TObject Object { get; }
-
-        /// <summary>
-        /// Gets the lifecycle handler.
-        /// </summary>
-        public ILifecycleHandler LifecycleHandler { get; }
+        this.Object = @object;
+        this.LifecycleHandler = lifecycleHandler;
     }
+
+    /// <summary>
+    /// Gets the object.
+    /// </summary>
+    public TObject Object { get; }
+
+    /// <summary>
+    /// Gets the lifecycle handler.
+    /// </summary>
+    public ILifecycleHandler LifecycleHandler { get; }
 }

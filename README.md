@@ -35,7 +35,7 @@ IResolveRoot resolveRoot = resolveRootFactory.Create();
 
 ## Specific examples
 
-* All features: [FactoryDeclaration](/Source/TestProjects/AllFeaturesSuccess/FactoryDeclaration.cs) and the [generated result](/Source/Sundew.Injection.IntegrationTests/InjectionGeneratorSuccessFixture.VerifyGeneratedSources%23AllFeaturesSuccess.ResolveRootFactory.generated.verified.cs)
+* All features: [FactoryDeclaration](/Source/TestProjects/OverallSuccess/InjectionDeclaration.cs) and the [generated result](/Source/Sundew.Injection.IntegrationTests/OverallSuccessFixture.VerifyGeneratedSources%23AllFeaturesSuccess.ResolveRootFactory.generated.verified.cs)
 
 ## Documentation
 TODO
@@ -115,20 +115,20 @@ An IDisposable/IAsyncDisposable object is considered owned by a factory in the f
 
 ## Not implemented yet:
 * First Beta
-  * Binding property factory method (implicit/explicit)
-  * Place generator dependencies in own namespace
+  * OnCreateMethods should pass lifecyleHandler
+  * Dependencies of an optional parameter should only be created if the optional is created
 * Generating documentation
 * IServiceProvider support (ASP.NET)
 * Interception
+* Performance tests
+  * Integrate test for Generator in CI
+  * Integrate test for Generated factory in CI
 * Custom lifetime scope, to support implementing something like single instance per thread or per session
 
 ### Challenges/Risk
 * Build performance
   * If solution cannot be implemented in a performant (enough) way with IIncrementalGenerator
     * Support fallback non-code-generated (common DI container) solution for non release builds?
-* Versioning across multiple projects, since the library contains some required types internal and public types.
-  * Internal types are added to the project, by public types like IInterceptor can only be included as a PackageReferences, so that other projects have a chance to implement an interceptor.
-  * Only expose generated factories? How can this work with a non-code-generated fallback? (It probably can't, as the generator has to run to determine the public interface (Only a problem if build performance is a problem))
 
 ### Integration with application frameworks
 | Framework            | Comments                                        |
@@ -136,4 +136,4 @@ An IDisposable/IAsyncDisposable object is considered owned by a factory in the f
 | ASP.NET/Blazor/Razor | Integrate through IServiceProvider              |
 | ReactiveUI           | Use factories directly or use IServiceProvider. |                                                                                                                                                                                                                                                 |
 | Maui                 | Use factories directly or use IServiceProvider. |
-| Console              | Use factories directly.                         |
+| Console              | Use factories directly or use IServiceProvider. |

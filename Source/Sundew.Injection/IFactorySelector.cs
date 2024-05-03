@@ -7,10 +7,9 @@
 
 #nullable enable
 
-namespace Sundew.Injection
+namespace Sundew.Injection;
+
+public interface IFactorySelector
 {
-    public interface IFactorySelector
-    {
-        IFactories Add<TFactory>();
-    }
+    IFactories Add<TFactory>();
 }

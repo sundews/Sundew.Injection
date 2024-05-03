@@ -7,7 +7,7 @@
 
 #nullable enable
 
-namespace Sundew.Injection.Initialization
+namespace Sundew.Injection.Dependencies.Initialization
 {
     using System;
     using System.Collections.Generic;

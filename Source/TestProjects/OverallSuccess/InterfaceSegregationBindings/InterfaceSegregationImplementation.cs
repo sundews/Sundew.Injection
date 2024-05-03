@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using OverallSuccess.SingleInstancePerRequest;
 using OverallSuccessDependency;
 
@@ -16,11 +15,6 @@ public sealed class InterfaceSegregationImplementation : IDisposable, IInterface
     }
 
     public int Id { get; }
-
-    public bool TryGet(string key, [NotNullWhen(true)] out string? value)
-    {
-        return this.registry.TryGetValue(key, out value);
-    }
 
     public IInterfaceSegregationA Add(string key, string value)
     {

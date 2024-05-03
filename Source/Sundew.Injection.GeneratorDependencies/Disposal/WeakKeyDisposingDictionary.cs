@@ -7,7 +7,7 @@
 
 #nullable enable
 
-namespace Sundew.Injection.Disposal
+namespace Sundew.Injection.Dependencies.Disposal
 {
     using System;
     using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace Sundew.Injection.Disposal
     using System.Threading;
     using System.Threading.Tasks;
     using global::Disposal.Interfaces;
-    using Sundew.Injection.WeakReferencing;
+    using global::Sundew.Injection.Dependencies.WeakReferencing;
 
     internal class WeakKeyDisposingDictionary<TKey> : IDisposable, IAsyncDisposable
         where TKey : class

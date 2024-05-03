@@ -6,7 +6,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace Sundew.Injection
+namespace OverallSuccess.SundewInjection
 {
     internal delegate object Resolve();
 }

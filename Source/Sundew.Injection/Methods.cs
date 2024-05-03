@@ -7,11 +7,10 @@
 
 #nullable enable
 
-namespace Sundew.Injection
+namespace Sundew.Injection;
+
+public enum Methods
 {
-    public enum Methods
-    {
-        Include,
-        Exclude,
-    }
+    Include,
+    Exclude,
 }

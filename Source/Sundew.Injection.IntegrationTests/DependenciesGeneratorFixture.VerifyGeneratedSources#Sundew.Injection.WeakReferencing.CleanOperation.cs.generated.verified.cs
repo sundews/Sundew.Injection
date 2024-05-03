@@ -8,7 +8,7 @@
 
 #nullable enable
 
-namespace Sundew.Injection.WeakReferencing
+namespace OverallSuccess.SundewInjection.WeakReferencing
 {
     using System;
 

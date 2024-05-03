@@ -7,15 +7,14 @@
 
 #nullable enable
 
-namespace Sundew.Injection
-{
-    using System;
+namespace Sundew.Injection;
 
-    /// <summary>
-    /// Indicates that the decorated method can act as a factory target.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
-    public class BindableFactoryTargetAttribute : Attribute
-    {
-    }
+using System;
+
+/// <summary>
+/// Indicates that the decorated method can act as a factory target.
+/// </summary>
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Property)]
+public class BindableFactoryTargetAttribute : Attribute
+{
 }

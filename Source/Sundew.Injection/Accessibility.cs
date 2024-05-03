@@ -7,14 +7,13 @@
 
 #nullable enable
 
-namespace Sundew.Injection
+namespace Sundew.Injection;
+
+/// <summary>
+/// Member accessibility.
+/// </summary>
+public enum Accessibility
 {
-    /// <summary>
-    /// Member accessibility.
-    /// </summary>
-    public enum Accessibility
-    {
-        Internal,
-        Public,
-    }
+    Internal,
+    Public,
 }
