@@ -46,7 +46,13 @@ internal sealed class NewInstanceGenerator(
 
         (factoryNode, var creationExpression) = newInstanceInjectionNode.OverridableNewParametersOption.GetValueOrDefault(
             factoryNode.FactoryImplementation.FactoryMethods,
-            (creationParameters, factoryMethods) => generatorFeatures.OnCreateMethodGenerator.Generate(factoryMethods, targetReferenceType, creationParameters, newInstanceInjectionNode.CreationSource, factoryNode),
+            (creationParameters, factoryMethods) => generatorFeatures.OnCreateMethodGenerator.Generate(
+                factoryMethods,
+                targetReferenceType,
+                creationParameters,
+                newInstanceInjectionNode.CreationSource,
+                generatorContext.KnownSyntax.ChildLifecycleHandler,
+                factoryNode),
             factoryMethods =>
             {
                 var creationResult = generatorFeatures.CreationExpressionGenerator.Generate(in factoryNode, newInstanceInjectionNode.CreationSource, factoryNode.DependantArguments);

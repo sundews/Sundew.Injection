@@ -33,7 +33,7 @@ internal static class TypeResolverSyntaxGenerator
             true,
             [
                 Member._Field(new FieldDeclaration(compilationData.IntType, BucketSize, FieldModifier.Const, CreationExpression.Literal(GetBucketSize(registrationCount).ToString()))),
-                Member._Field(new FieldDeclaration(compilationData.ResolverItemArrayType, ResolverItems, FieldModifier.Instance)),
+                Member._Field(new FieldDeclaration(compilationData.ProvidedSundewInjectionCompilationData.ResolverItemArrayType, ResolverItems, FieldModifier.Instance)),
                 constructor,
                 CreateResolveMethod(),
             ],
@@ -87,13 +87,13 @@ internal static class TypeResolverSyntaxGenerator
                     Expression.AssignmentExpression(
                         Expression.MemberAccessExpression(Identifier.This, ResolverItems),
                         Expression._StaticMethodCall(
-                            compilationData.ResolverItemsFactoryType,
+                            compilationData.ProvidedSundewInjectionCompilationData.ResolverItemsFactoryType,
                             CreateName,
                             ValueArray<FullTypeArgument>.Empty,
                             new[] { Expression.Identifier(BucketSize) }
                                 .Concat(
                                     supportedFactoryMethods.Select(factoryMethod => Expression._ConstructorCall(
-                                        compilationData.ResolverItemType,
+                                        compilationData.ProvidedSundewInjectionCompilationData.ResolverItemType,
                                         [
                                             Expression.TypeOf(factoryMethod.ReturnType),
                                             Expression.Lambda(

@@ -18,25 +18,40 @@ using InvocationExpressionBase = Sundew.Injection.Generator.Stages.CodeGeneratio
 using MethodImplementation = Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model.MethodImplementation;
 using Statement = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Statement;
 
-internal sealed class OnCreateMethodGenerator(GeneratorFeatures generatorFeatures, GeneratorContext generatorContext)
+internal sealed class OnCreateMethodGenerator
 {
     private const string OnCreate = "OnCreate";
-    private readonly GeneratorContext generatorContext = generatorContext;
+    private readonly GeneratorContext generatorContext;
+    private readonly GeneratorFeatures generatorFeatures;
+
+    public OnCreateMethodGenerator(GeneratorFeatures generatorFeatures, GeneratorContext generatorContext)
+    {
+        this.generatorContext = generatorContext;
+        this.generatorFeatures = generatorFeatures;
+    }
 
     public (FactoryNode FactoryNode, InvocationExpressionBase CreationExpression)
         Generate(
-            ImmutableList<DeclaredMethodImplementation> factoryMethods, Type targetType, ValueArray<FullParameter> parameters, CreationSource creationSource, FactoryNode factoryNode)
+            ImmutableList<DeclaredMethodImplementation> factoryMethods,
+            Type targetType,
+            ValueArray<FullParameter> parameters,
+            CreationSource creationSource,
+            KnownSyntax.LifecycleHandlerSyntax lifecycleHandlerSyntax,
+            FactoryNode factoryNode)
     {
-        var declaration = new MethodDeclaration(DeclaredAccessibility.Protected, true, OnCreate + NameHelper.GetFactoryMethodName(targetType.Name), parameters.Select(x => new ParameterDeclaration(x.Type, x.Name, null)).ToImmutableList(), new UsedType(targetType));
+        var parameterDeclarations = parameters.Select(x => new ParameterDeclaration(x.Type, x.Name)).ToImmutableList();
+        parameterDeclarations = parameterDeclarations.Add(lifecycleHandlerSyntax.OnCreateMethodParameterDeclaration);
+
+        var declaration = new MethodDeclaration(DeclaredAccessibility.Protected, true, OnCreate + NameHelper.GetFactoryMethodName(targetType.Name), parameterDeclarations, new UsedType(targetType));
         var existingFactoryMethod = factoryMethods.FirstOrDefault(x => x.Declaration == declaration);
         var resultingFactoryNode = factoryNode;
         if (Equals(existingFactoryMethod.Declaration, default))
         {
-            var creationExpressionPair = generatorFeatures.CreationExpressionGenerator.Generate(factoryNode, creationSource, declaration.Parameters.Select(x => new Identifier(x.Name)).ToImmutableArray());
+            var creationExpressionPair = this.generatorFeatures.CreationExpressionGenerator.Generate(factoryNode, creationSource, parameters.Select(x => new Identifier(x.Name)).ToImmutableArray());
             factoryMethods = factoryMethods.Add(new DeclaredMethodImplementation(declaration, new MethodImplementation(declaration.Parameters, ImmutableList<Declaration>.Empty, ImmutableList.Create<Statement>(new ReturnStatement(creationExpressionPair.CreationExpression)))));
             resultingFactoryNode = creationExpressionPair.FactoryNode;
         }
 
-        return (resultingFactoryNode with { FactoryImplementation = resultingFactoryNode.FactoryImplementation with { FactoryMethods = factoryMethods } }, new InvocationExpression(new MemberAccessExpression(Identifier.This, declaration.Name), factoryNode.DependantArguments));
+        return (resultingFactoryNode with { FactoryImplementation = resultingFactoryNode.FactoryImplementation with { FactoryMethods = factoryMethods } }, new InvocationExpression(new MemberAccessExpression(Identifier.This, declaration.Name), factoryNode.DependantArguments.Add(lifecycleHandlerSyntax.Access)));
     }
 }

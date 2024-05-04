@@ -56,7 +56,7 @@ internal sealed class InjectionTreeBuilder(
         var constructorParameterCreationNodes = new RecordList<InjectionNode>();
 
         var scope = scopeResolver.ResolveScope(binding.ReferencedType);
-        var needsLifecycleHandling = binding.HasLifecycle | binding.IsNewOverridable;
+        var needsLifecycleHandling = binding.HasLifecycle;
         var creationResult = this.GetCreationSource(binding, dependantInjectionNode, cancellationToken);
         if (!creationResult.IsSuccess)
         {
@@ -177,7 +177,7 @@ internal sealed class InjectionTreeBuilder(
             }
         }
 
-        return R.From(true, new InjectionModel(creationInjectionNode, needsLifecycleHandling, factoryConstructorParameters.ToImmutable()), errors.ToImmutable());
+        return R.From(true, new InjectionModel(creationInjectionNode, needsLifecycleHandling | binding.IsNewOverridable, factoryConstructorParameters.ToImmutable()), errors.ToImmutable());
     }
 
     private R<CreationModel, ImmutableList<InjectionStageError>> GetCreationSource(

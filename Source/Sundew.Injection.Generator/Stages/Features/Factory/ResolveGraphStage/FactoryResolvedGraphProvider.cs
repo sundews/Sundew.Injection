@@ -41,7 +41,7 @@ internal static class FactoryResolvedGraphProvider
                 injectionDefinition.BindingRegistrations,
                 injectionDefinition.GenericBindingRegistrations,
                 requiredParametersInjectionResolver,
-                ImmutableArray.Create(compilationData.LifecycleHandlerBinding),
+                ImmutableArray.Create(compilationData.ProvidedSundewInjectionCompilationData.LifecycleHandlerBinding),
                 new KnownEnumerableTypes(compilationData.IEnumerableOfTType, compilationData.IReadOnlyListOfTType));
             var scopeResolverBuilder = new ScopeResolverBuilder(bindingResolver, injectionDefinition.RequiredParameterScopes, injectionDefinition.FactoryCreationDefinitions);
             foreach (var factoryCreationDefinition in injectionDefinition.FactoryCreationDefinitions)
@@ -148,7 +148,7 @@ internal static class FactoryResolvedGraphProvider
     {
         if (needsLifecycleHandling)
         {
-            var rootBinding = compilationData.LifecycleHandlerBinding;
+            var rootBinding = compilationData.ProvidedSundewInjectionCompilationData.LifecycleHandlerBinding;
             var scopeResolverResult = scopeResolverBuilder.Build(factoryType, rootBinding);
             if (scopeResolverResult.TryGetError(out var bindingErrors))
             {

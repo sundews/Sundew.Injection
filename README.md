@@ -115,7 +115,6 @@ An IDisposable/IAsyncDisposable object is considered owned by a factory in the f
 
 ## Not implemented yet:
 * First Beta
-  * OnCreateMethods should pass lifecyleHandler
   * Dependencies of an optional parameter should only be created if the optional is created
 * Generating documentation
 * IServiceProvider support (ASP.NET)

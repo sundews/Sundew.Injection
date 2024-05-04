@@ -41,7 +41,7 @@ internal class FactorySyntaxGenerator(
     public FactoryDeclarations Generate()
     {
         var factoryImplementation = new Model.FactoryImplementation();
-        var interfaces = ImmutableList.Create(compilationData.IGeneratedFactoryType);
+        var interfaces = ImmutableList.Create(compilationData.ReferencedSundewInjectionCompilationData.IGeneratedFactoryType);
         var disposeMethods = ImmutableList<Member.MethodImplementation>.Empty;
         if (factoryResolvedGraph.LifecycleHandlingInjectionTree.HasValue())
         {
@@ -54,7 +54,7 @@ internal class FactorySyntaxGenerator(
 
             interfaces = ImmutableList.Create(compilationData.IDisposableType)
                 .Add(compilationData.IAsyncDisposableType)
-                .Add(compilationData.IGeneratedFactoryType);
+                .Add(compilationData.ReferencedSundewInjectionCompilationData.IGeneratedFactoryType);
 
             disposeMethods = ImmutableList.Create(
                 new Member.MethodImplementation(
@@ -179,8 +179,7 @@ internal class FactorySyntaxGenerator(
                                 knownSyntax.SharedLifecycleHandler.TryAddMethod,
                                 [constructedValueIdentifier, knownSyntax.ChildLifecycleHandler.Access,])));
 
-                var constructedType =
-                    compilationData.ConstructedType.ToClosedGenericType(
+                var constructedType = compilationData.ReferencedSundewInjectionCompilationData.ConstructedType.ToClosedGenericType(
                         ImmutableArray.Create(new FullTypeArgument(factoryMethodData.Return)));
                 var createMethodAsyncDeclaration = new MethodDeclaration(
                     DeclaredAccessibility.Public,

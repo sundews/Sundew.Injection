@@ -16,32 +16,30 @@ internal sealed record CompilationData(
     NamedType IAsyncInitializableType,
     NamedType IDisposableType,
     NamedType IAsyncDisposableType,
-    Binding LifecycleHandlerBinding,
-    NamedType IGeneratedFactoryType,
-    OpenGenericType ConstructedType,
     NamedType VoidType,
     NamedType ValueTaskType,
     OpenGenericType TaskType,
     OpenGenericType FuncType,
-    Type ResolverItemsFactoryType,
-    Type ResolverItemType,
-    ArrayType ResolverItemArrayType,
     NamedType TypeType,
     NamedType ObjectType,
     NamedType IntType,
     NamedType ServiceProviderType,
     ClosedGenericType SpanOfObjectType,
-    OpenGenericType ResolverType,
     OpenGenericType IEnumerableOfTType,
     OpenGenericType IReadOnlyListOfTType,
-    ProvidedCompilationData ProvidedCompilationData,
+    SundewInjectionReferencedCompilationData ReferencedSundewInjectionCompilationData,
+    SundewInjectionProvidedCompilationData ProvidedSundewInjectionCompilationData,
     string AssemblyName,
     string AssemblyNamespace);
 
-internal sealed record ProvidedCompilationData(
+internal sealed record SundewInjectionProvidedCompilationData(
     Binding LifecycleHandlerBinding,
-    OpenGenericType ConstructedType,
     Type ResolverItemsFactoryType,
     Type ResolverItemType,
     ArrayType ResolverItemArrayType,
-    OpenGenericType ResolverType);
+    OpenGenericType ResolverItemOfTType);
+
+internal sealed record SundewInjectionReferencedCompilationData(
+    Type ILifecycleHandlerType,
+    OpenGenericType ConstructedType,
+    NamedType IGeneratedFactoryType);

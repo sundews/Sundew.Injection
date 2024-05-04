@@ -53,7 +53,7 @@ namespace OverallSuccess
             this.injectedSeparatelyForInterfaceSingleInstancePerFactory = injectedSeparatelyForInterfaceSingleInstancePerFactory;
             this.generatedOperationFactory = new global::OverallSuccess.GeneratedOperationFactory();
             this.injectedByType = injectedByType;
-            this.interfaceSegregationOverridableNewImplementation = this.OnCreateInterfaceSegregationOverridableNew(this.injectedByType);
+            this.interfaceSegregationOverridableNewImplementation = this.OnCreateInterfaceSegregationOverridableNew(this.injectedByType, this.lifecycleHandler);
             this.lifecycleHandler.TryAdd(this.interfaceSegregationOverridableNewImplementation);
             this.interfaceSingleInstancePerFactory = new global::OverallSuccess.SingleInstancePerFactory.InterfaceSingleInstancePerFactory(
                 this.injectedSeparatelyForInterfaceSingleInstancePerFactory,
@@ -149,10 +149,6 @@ namespace OverallSuccess
             childLifecycleHandler.TryAdd(selectConstructorForIntercepted);
             var newInstanceAndDisposableForResources = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? childLifecycleHandler.TryAdd(new global::OverallSuccess.NewInstance.NewInstanceAndDisposable(this, default(global::OverallSuccess.OptionalInterface.IOmittedOptional)));
             var newInstanceAndDisposableForIntercepted = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? childLifecycleHandler.TryAdd(new global::OverallSuccess.NewInstance.NewInstanceAndDisposable(this, default(global::OverallSuccess.OptionalInterface.IOmittedOptional)));
-            var overrideableNewImplementationForIntercepted = this.OnCreateOverrideableNewImplementation(injectableSingleInstancePerRequest, this.injectableByInterface, requiredParameter);
-            childLifecycleHandler.TryAdd(overrideableNewImplementationForIntercepted);
-            var overrideableNewImplementationForResolveRoot = this.OnCreateOverrideableNewImplementation(injectableSingleInstancePerRequest, this.injectableByInterface, requiredParameter);
-            childLifecycleHandler.TryAdd(overrideableNewImplementationForResolveRoot);
             var newInstanceAndDisposableForConstructedChild = this.optionalParameters.NewInstanceAndDisposableFactory?.Invoke() ?? childLifecycleHandler.TryAdd(new global::OverallSuccess.NewInstance.NewInstanceAndDisposable(this, default(global::OverallSuccess.OptionalInterface.IOmittedOptional)));
             var constructedChildForResolveRoot = new global::OverallSuccess.ChildFactory.ConstructedChild(newInstanceAndDisposableForConstructedChild, this.dependencyFactory.CreateUninitialized().Object, this.manualMultipleDependencyFactory.CreateNewInstance());
             childLifecycleHandler.TryAdd(constructedChildForResolveRoot);
@@ -174,9 +170,17 @@ namespace OverallSuccess
                     selectConstructorForIntercepted,
                     new global::OverallSuccess.UnboundType.Resources(newInstanceAndDisposableForResources),
                     newInstanceAndDisposableForIntercepted,
-                    overrideableNewImplementationForIntercepted),
+                    this.OnCreateOverrideableNewImplementation(
+                        injectableSingleInstancePerRequest,
+                        this.injectableByInterface,
+                        requiredParameter,
+                        childLifecycleHandler)),
                 this.interfaceSingleInstancePerFactory,
-                overrideableNewImplementationForResolveRoot,
+                this.OnCreateOverrideableNewImplementation(
+                    injectableSingleInstancePerRequest,
+                    this.injectableByInterface,
+                    requiredParameter,
+                    childLifecycleHandler),
                 constructedChildForResolveRoot,
                 CreateMultipleImplementationForEnumerable(),
                 new global::OverallSuccess.NestingTypes.NestedConsumer(new global::OverallSuccess.NestingTypes.Nestee.Nested()),
@@ -217,13 +221,17 @@ namespace OverallSuccess
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        protected virtual global::OverallSuccess.InterfaceSegregationBindings.IInterfaceSegregationOverridableNew OnCreateInterfaceSegregationOverridableNew(global::OverallSuccess.RequiredInterface.IInjectedByType injectedByType)
+        protected virtual global::OverallSuccess.InterfaceSegregationBindings.IInterfaceSegregationOverridableNew OnCreateInterfaceSegregationOverridableNew(global::OverallSuccess.RequiredInterface.IInjectedByType injectedByType, global::Sundew.Injection.ILifecycleHandler lifecycleHandler)
         {
             return new global::OverallSuccess.InterfaceSegregationBindings.InterfaceSegregationOverridableNewImplementation(injectedByType);
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        protected virtual global::OverallSuccess.OverridableNew.OverrideableNewImplementation OnCreateOverrideableNewImplementation(global::OverallSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest injectableSingleInstancePerRequest, global::OverallSuccess.InterfaceImplementationBindings.IInjectableByInterface injectableByInterface, global::OverallSuccess.RequiredInterface.RequiredParameter requiredParameter)
+        protected virtual global::OverallSuccess.OverridableNew.OverrideableNewImplementation OnCreateOverrideableNewImplementation(
+            global::OverallSuccess.SingleInstancePerRequest.IInjectableSingleInstancePerRequest injectableSingleInstancePerRequest,
+            global::OverallSuccess.InterfaceImplementationBindings.IInjectableByInterface injectableByInterface,
+            global::OverallSuccess.RequiredInterface.RequiredParameter requiredParameter,
+            global::Sundew.Injection.ILifecycleHandler lifecycleHandler)
         {
             return new global::OverallSuccess.OverridableNew.OverrideableNewImplementation(injectableSingleInstancePerRequest, injectableByInterface, requiredParameter);
         }

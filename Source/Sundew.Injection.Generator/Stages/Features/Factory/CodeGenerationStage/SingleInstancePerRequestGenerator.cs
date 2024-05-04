@@ -71,7 +71,7 @@ internal class SingleInstancePerRequestGenerator
         var targetIdentifier = new Identifier(variableDeclaration.Name);
         if (wasAdded)
         {
-            (factoryNode, var creationExpression) = this.generatorFeatures.OptionalOverridableCreationGenerator.Generate(singleInstancePerRequestInjectionNode, factoryNode);
+            (factoryNode, var creationExpression) = this.generatorFeatures.OptionalOverridableCreationGenerator.Generate(singleInstancePerRequestInjectionNode, this.generatorContext.KnownSyntax.SharedLifecycleHandler, factoryNode);
             if (singleInstancePerRequestInjectionNode.ParameterNodeOption.TryGetValue(out var parameterNode))
             {
                 (factoryNode, _, var parameter, var parameterArgument, _) = factoryNode.GetOrAddCreateMethodParameter(parameterNode, variableDeclaration.Name, this.generatorContext.CompilationData);

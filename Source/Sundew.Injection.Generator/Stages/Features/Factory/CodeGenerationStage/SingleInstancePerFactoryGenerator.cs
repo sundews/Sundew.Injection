@@ -66,7 +66,7 @@ internal class SingleInstancePerFactoryGenerator(
         var dependeeArguments = ImmutableList.Create<Expression>(targetMemberAccessExpression);
         if (wasAdded)
         {
-            (factoryNode, var creationExpression) = generatorFeatures.OptionalOverridableCreationGenerator.Generate(singleInstancePerFactoryInjectionNode, in factoryNode);
+            (factoryNode, var creationExpression) = generatorFeatures.OptionalOverridableCreationGenerator.Generate(singleInstancePerFactoryInjectionNode, generatorContext.KnownSyntax.SharedLifecycleHandler, in factoryNode);
             if (singleInstancePerFactoryInjectionNode.ParameterNodeOption.TryGetValue(out var parameterNode))
             {
                 (factoryNode, _, var parameter, var parameterArgument, var needsFieldAssignment) = factoryNode.GetOrAddConstructorParameter(

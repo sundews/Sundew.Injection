@@ -8,6 +8,7 @@
 namespace Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage;
 
 using Sundew.Base;
+using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage;
 using InvocationExpressionBase = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.InvocationExpressionBase;
@@ -24,12 +25,12 @@ internal sealed class OptionalOverridableCreationGenerator
     }
 
     public (FactoryNode FactoryNode, InvocationExpressionBase CreationExpression)
-        Generate(IMayOverrideNewNode mayOverrideNew, in FactoryNode factoryNode)
+        Generate(IMayOverrideNewNode mayOverrideNew, KnownSyntax.LifecycleHandlerSyntax lifecycleHandlerSyntax, in FactoryNode factoryNode)
     {
         return mayOverrideNew.OverridableNewParametersOption.GetValueOrDefault(
             factoryNode.FactoryImplementation.FactoryMethods,
             factoryNode,
-            (creationParameters, factoryMethods, factoryNode) => this.generatorFeatures.OnCreateMethodGenerator.Generate(factoryMethods, mayOverrideNew.ReferencedType, creationParameters, mayOverrideNew.CreationSource, factoryNode),
+            (creationParameters, factoryMethods, factoryNode) => this.generatorFeatures.OnCreateMethodGenerator.Generate(factoryMethods, mayOverrideNew.ReferencedType, creationParameters, mayOverrideNew.CreationSource, lifecycleHandlerSyntax, factoryNode),
             (factoryMethods, factoryNode) =>
             {
                 var creationResult = this.generatorFeatures.CreationExpressionGenerator.Generate(factoryNode, mayOverrideNew.CreationSource, factoryNode.DependantArguments);

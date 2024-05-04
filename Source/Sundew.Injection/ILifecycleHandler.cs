@@ -17,4 +17,5 @@ using global::Initialization.Interfaces;
 /// </summary>
 public interface ILifecycleHandler : IInitializable, IAsyncInitializable, IDisposable, IAsyncDisposable
 {
+    TConstructed TryAdd<TConstructed>(TConstructed constructed);
 }
