@@ -36,6 +36,6 @@ internal sealed class ThisFactoryGenerator
         return new FactoryNode(
             factoryImplementation,
             method,
-            ImmutableList.Create(argument));
+            ImmutableList.Create<Expression>(argument));
     }
 }
