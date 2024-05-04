@@ -32,7 +32,7 @@ internal sealed class ThisFactoryGenerator
             in FactoryImplementation factoryImplementation,
             in MethodImplementation method)
     {
-        var argument = Expression.Identifier("this");
+        var argument = Identifier.This;
         return new FactoryNode(
             factoryImplementation,
             method,
