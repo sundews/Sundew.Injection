@@ -32,9 +32,14 @@ internal sealed class IteratorMethodGenerator
                             ImmutableArray<ParameterDeclaration>.Empty,
                             iteratorMethodCall.ReturnType,
                             arguments.Select(x => new YieldReturnStatement(x)).ToImmutableList<Statement>(),
-                            !arguments.Any(x => x is MemberAccessExpression))),
+                            !arguments.Any(ContainsThisExpression))),
             },
         },
             CreationExpression._StaticMethodCall(default, createMethodName, ImmutableArray<FullTypeArgument>.Empty, []));
+    }
+
+    private static bool ContainsThisExpression(Expression expression)
+    {
+        return expression == Identifier.This || (expression is MemberAccessExpression memberAccessExpression && ContainsThisExpression(memberAccessExpression.Expression));
     }
 }
