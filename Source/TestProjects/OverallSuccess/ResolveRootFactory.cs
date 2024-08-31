@@ -1,5 +1,3 @@
 ﻿namespace OverallSuccess;
 
-public partial class ResolveRootFactory : IResolveRootFactory
-{
-}
+public partial class ResolveRootFactory : IResolveRootFactory;

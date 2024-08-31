@@ -46,9 +46,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="DistinctErrorsFixture.VerifyReportedDiagnostics.verified.txt">
-      <DependentUpon>DistinctErrorsFixture.cs</DependentUpon>
-    </None>
     <None Update="OverallSuccessRuntimeFixture.FactoryLifetimeTest.verified.txt">
       <DependentUpon>OverallSuccessRuntimeFixture.cs</DependentUpon>
     </None>

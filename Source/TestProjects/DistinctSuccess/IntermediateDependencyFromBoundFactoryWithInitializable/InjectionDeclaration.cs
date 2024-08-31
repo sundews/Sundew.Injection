@@ -14,6 +14,8 @@ public class InjectionDeclaration : IInjectionDeclaration
     }
 }
 
+public partial class MainFactory;
+
 public class Root
 {
     public Root(Intermediate intermediate)
@@ -26,16 +28,11 @@ public class Intermediate : IInitializable
 {
     public Intermediate(Dependency dependency)
     {
-
     }
 
     public void Initialize()
     {
     }
-}
-
-public partial class MainFactory
-{
 }
 
 public class DependencyFactory : IDisposable

@@ -10,6 +10,4 @@ public class InjectionDeclaration : IInjectionDeclaration
     }
 }
 
-public partial class DependencyFactory : IGeneratedFactory
-{
-}
+public partial class DependencyFactory : IGeneratedFactory;

@@ -27,9 +27,9 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
 
     private readonly Dictionary<TypeId, ScopeContext> requiredParameterScopes = [];
 
-    private readonly List<FactoryCreationDefinition> factoryDefinitions = [];
+    private readonly List<FactoryImplementationDefinition> factoryDefinitions = [];
 
-    private readonly List<ResolverCreationDefinition> resolverDefinitions = [];
+    private readonly List<ServiceProviderImplementationDefinition> serviceProviderImplementationDefinitions = [];
 
     private readonly List<Diagnostic> diagnostics = [];
 
@@ -112,23 +112,23 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         }
     }
 
-    public void CreateFactory(
+    public void ImplementFactory(
         NamedType factoryType,
         NamedType? factoryInterface,
         FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder,
         Accessibility accessibility,
         Location location)
     {
-        this.factoryDefinitions.Add(new FactoryCreationDefinition(factoryType, factoryInterface, factoryMethodRegistrationBuilder.Build(), accessibility, location));
+        this.factoryDefinitions.Add(new FactoryImplementationDefinition(factoryType, factoryInterface, ValueArray<FactoryParameter>.Empty, factoryMethodRegistrationBuilder.Build(), accessibility, location));
     }
 
-    public void CreateResolver(
+    public void ImplementServiceProvider(
         FactoryRegistrationBuilder factoryRegistrationBuilder,
-        NamedType resolverType,
+        NamedType serviceProviderType,
         Accessibility accessibility,
         Location location)
     {
-        this.resolverDefinitions.Add(new ResolverCreationDefinition(resolverType, factoryRegistrationBuilder.Build(), accessibility, location));
+        this.serviceProviderImplementationDefinitions.Add(new ServiceProviderImplementationDefinition(serviceProviderType, factoryRegistrationBuilder.Build(), accessibility, location));
     }
 
     public void AddDiagnostics(IEnumerable<Diagnostic> diagnostics)
@@ -179,7 +179,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
             this.genericBindingRegistrations.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray().ToValueArray()),
             this.requiredParameterSources.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray().ToValueArray()),
             this.requiredParameterScopes.ToImmutableDictionary(),
-            this.resolverDefinitions.ToImmutableArray()));
+            this.serviceProviderImplementationDefinitions.ToImmutableArray()));
     }
 
     private void AddParameterSource(Type parameterType, ParameterSource parameterSource)

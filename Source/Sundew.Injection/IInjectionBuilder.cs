@@ -289,7 +289,7 @@ public interface IInjectionBuilder
     /// <param name="factoryMethods">A selector of the factory methods to be supported by the factory.</param>
     /// <param name="accessibility">The accessibility of the generated types.</param>
     void ImplementFactory<TFactory>(
-        Func<IFactoryMethodSelector, IFactoryMethods> factoryMethods,
+        Func<IFactoryMethodSelector, IFactoryMethods>? factoryMethods = null,
         Accessibility accessibility = Accessibility.Public);
 
     /// <summary>

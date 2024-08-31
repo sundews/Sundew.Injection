@@ -16,6 +16,7 @@ using Sundew.Base.Collections.Linq;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 using Accessibility = Sundew.Injection.Accessibility;
+using ISymbol = Microsoft.CodeAnalysis.ISymbol;
 using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
 
 internal static class AnalysisContextExtensions
@@ -135,35 +136,37 @@ internal static class AnalysisContextExtensions
         factoryRegistrationBuilder.Add(factoryTypeResult.Value.Type, GetFactoryTargets(factoryTypeSymbolWithLocation.TypeSymbol, analysisContext));
     }
 
+    internal static FactoryTarget? GetFactoryTarget(AnalysisContext analysisContext, ISymbol symbol)
+    {
+        switch (symbol)
+        {
+            case IMethodSymbol methodSymbol:
+                if (methodSymbol.MethodKind == Microsoft.CodeAnalysis.MethodKind.DeclareMethod
+                    && symbol.GetAttributes().All(x => x.AttributeClass?.ToDisplayString() != KnownTypesProvider.IndirectFactoryTargetName)
+                    && !symbol.MetadataName.Contains(Dispose))
+                {
+                    return analysisContext.TypeFactory.GetFactoryTarget(methodSymbol);
+                }
+
+                break;
+            case IPropertySymbol propertySymbol:
+                if (propertySymbol.GetMethod != default
+                    && symbol.GetAttributes().All(x => x.AttributeClass?.ToDisplayString() != KnownTypesProvider.IndirectFactoryTargetName)
+                    && !symbol.MetadataName.Contains(Dispose))
+                {
+                    return analysisContext.TypeFactory.GetFactoryTarget(propertySymbol);
+                }
+
+                break;
+        }
+
+        return default;
+    }
+
     private static ValueArray<FactoryTarget> GetFactoryTargets(ITypeSymbol factoryTypeSymbol, AnalysisContext analysisContext)
     {
         return factoryTypeSymbol.GetMembers()
-            .Select(symbol =>
-            {
-                switch (symbol)
-                {
-                    case IMethodSymbol methodSymbol:
-                        if (methodSymbol.MethodKind == Microsoft.CodeAnalysis.MethodKind.DeclareMethod
-                            && symbol.GetAttributes().All(x => x.AttributeClass?.ToDisplayString() != KnownTypesProvider.IndirectFactoryTargetName)
-                            && !symbol.MetadataName.Contains(Dispose))
-                        {
-                            return analysisContext.TypeFactory.GetFactoryTarget(methodSymbol);
-                        }
-
-                        break;
-                    case IPropertySymbol propertySymbol:
-                        if (propertySymbol.GetMethod != default
-                            && symbol.GetAttributes().All(x => x.AttributeClass?.ToDisplayString() != KnownTypesProvider.IndirectFactoryTargetName)
-                            && !symbol.MetadataName.Contains(Dispose))
-                        {
-                            return analysisContext.TypeFactory.GetFactoryTarget(propertySymbol);
-                        }
-
-                        break;
-                }
-
-                return default;
-            })
+            .Select(symbol => GetFactoryTarget(analysisContext, symbol))
             .WhereNotDefault()
             .ToValueArray();
     }

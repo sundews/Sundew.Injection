@@ -24,7 +24,7 @@ public static class TypeContainerResolvedGraphProvider
 {
     internal static IncrementalValuesProvider<ValueArray<ResolvedTypeResolverDefinition>>
         SetupResolveTypeResolverStage(
-            this IncrementalValuesProvider<(ValueArray<ResolverCreationDefinition> ResolverCreationDefinitions,
+            this IncrementalValuesProvider<(ValueArray<ServiceProviderImplementationDefinition> ResolverCreationDefinitions,
                 ImmutableArray<GeneratedTypeDeclaration> GeneratedFactoryDeclarations, CompilationData CompilationData)> typeResolverInputsProvider)
     {
         return typeResolverInputsProvider.Select((tuple, token) =>
@@ -42,7 +42,7 @@ public static class TypeContainerResolvedGraphProvider
 
             token.ThrowIfCancellationRequested();
             var factoryTypeAndCreateMethodsResolver = new FactoryTypeAndCreateMethodsResolver(nameRegistry);
-            IEnumerable<(ResolverCreationDefinition ResolverCreationDefinition, IEnumerable<(Type Type, ValueArray<FactoryTargetDeclaration> FactoryTargets)> FactoryTargets)> resolveCreationDefinitionResults = resolverCreationDefinitions
+            IEnumerable<(ServiceProviderImplementationDefinition ResolverCreationDefinition, IEnumerable<(Type Type, ValueArray<FactoryTargetDeclaration> FactoryTargets)> FactoryTargets)> resolveCreationDefinitionResults = resolverCreationDefinitions
                 .Select(resolverCreationDefinition => (resolverCreationDefinition,
                     createMethods: resolverCreationDefinition.FactoryRegistrations
                         .Select(resolverCreationDefinitionResult => factoryTypeAndCreateMethodsResolver.ResolveFactoryRegistration(resolverCreationDefinitionResult))));

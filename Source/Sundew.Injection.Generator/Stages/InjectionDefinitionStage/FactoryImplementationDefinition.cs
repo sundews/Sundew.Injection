@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ResolverCreationDefinition.cs" company="Sundews">
+// <copyright file="FactoryImplementationDefinition.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
@@ -12,8 +12,10 @@ using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.TypeSystem;
 using Accessibility = Sundew.Injection.Accessibility;
 
-internal readonly record struct ResolverCreationDefinition(
-    NamedType ResolverType,
-    ValueArray<FactoryRegistration> FactoryRegistrations,
+internal readonly record struct FactoryImplementationDefinition(
+    NamedType FactoryType,
+    NamedType? FactoryInterfaceType,
+    ValueArray<FactoryParameter> Parameters,
+    ValueArray<FactoryMethodRegistration> FactoryMethodRegistrations,
     Accessibility Accessibility,
     Location Location);

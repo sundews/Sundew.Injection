@@ -13,7 +13,7 @@ using InjectionGenerator = sig::Sundew.Injection.Generator.InjectionGenerator;
 public class Playground
 {
     [Test, Ignore("Only when using playground")]
-    public void Test()
+    public void InjectionDefinitionStageTest()
     {
         var compilation = TestProjects.TestPlayground.FromCurrentDirectory.Value;
         var demoModuleDeclaration = compilation.GetTypeByMetadataName("TestPlayground.InjectionDeclaration");

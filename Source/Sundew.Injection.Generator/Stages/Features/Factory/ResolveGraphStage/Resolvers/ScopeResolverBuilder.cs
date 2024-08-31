@@ -28,7 +28,7 @@ internal sealed class ScopeResolverBuilder
     public ScopeResolverBuilder(
         BindingResolver bindingResolver,
         ValueDictionary<TypeId, InjectionDefinitionStage.ScopeContext> requiredParameterScopes,
-        ValueArray<FactoryCreationDefinition> factoryCreationDefinitions)
+        ValueArray<FactoryImplementationDefinition> factoryCreationDefinitions)
         : this(
             bindingResolver,
             requiredParameterScopes.ToDictionary(
@@ -41,7 +41,7 @@ internal sealed class ScopeResolverBuilder
     internal ScopeResolverBuilder(
         BindingResolver bindingResolver,
         Dictionary<TypeId, ScopeContext> scopes,
-        ValueArray<FactoryCreationDefinition> factoryCreationDefinitions)
+        ValueArray<FactoryImplementationDefinition> factoryCreationDefinitions)
     {
         this.bindingResolver = bindingResolver;
         this.scopes = scopes;
