@@ -12,9 +12,9 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal record InjectionDefinition(
     Inject RequiredParameterInjection,
-    ValueArray<FactoryCreationDefinition> FactoryCreationDefinitions,
+    ValueArray<FactoryImplementationDefinition> FactoryImplementationDefinitions,
     ValueDictionary<TypeId, ValueArray<BindingRegistration>> BindingRegistrations,
     ValueDictionary<UnboundGenericType, ValueArray<GenericBindingRegistration>> GenericBindingRegistrations,
     ValueDictionary<TypeId, ValueArray<ParameterSource>> RequiredParameterSources,
     ValueDictionary<TypeId, ScopeContext> RequiredParameterScopes,
-    ValueArray<ResolverCreationDefinition> ResolverCreationDefinitions);
+    ValueArray<ServiceProviderImplementationDefinition> ServiceProviderImplementationDefinitions);

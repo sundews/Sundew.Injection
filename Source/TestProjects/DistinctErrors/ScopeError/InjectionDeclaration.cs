@@ -1,4 +1,4 @@
-﻿namespace Errors.ScopeError;
+﻿namespace DistinctErrors.ScopeError;
 
 using Sundew.Injection;
 

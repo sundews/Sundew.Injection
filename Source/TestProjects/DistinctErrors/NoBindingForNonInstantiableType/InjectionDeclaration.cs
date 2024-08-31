@@ -1,4 +1,4 @@
-﻿namespace Errors.NoBindingForNonInstantiableType;
+﻿namespace DistinctErrors.NoBindingForNonInstantiableType;
 
 using Sundew.Injection;
 

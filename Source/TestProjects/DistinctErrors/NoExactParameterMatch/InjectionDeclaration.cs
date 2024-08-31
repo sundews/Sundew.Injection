@@ -1,4 +1,4 @@
-﻿namespace Errors.NoExactParameterMatch;
+﻿namespace DistinctErrors.NoExactParameterMatch;
 
 using Sundew.Injection;
 

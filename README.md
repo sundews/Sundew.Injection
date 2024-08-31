@@ -131,8 +131,13 @@ An IDisposable/IAsyncDisposable object is considered owned by a factory in the f
 
 ### Integration with application frameworks
 | Framework            | Comments                                        |
-| -------------------- | ------------------------------------------------|
+| -------------------- | ----------------------------------------------- |
 | ASP.NET/Blazor/Razor | Integrate through IServiceProvider              |
-| ReactiveUI           | Use factories directly or use IServiceProvider. |                                                                                                                                                                                                                                                 |
+| ReactiveUI           | Use factories directly or use IServiceProvider. |
 | Maui                 | Use factories directly or use IServiceProvider. |
 | Console              | Use factories directly or use IServiceProvider. |
+
+### Design considerations for factories
+| Issue                                                                                                                                             | Comments                                                                                                                                          |
+| ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+|  Dependencies of an optional parameter will always be created. Even if the parameter was provided, which would render the dependency unnessecary. |  Dependencies of an optional parameter will always be created. Even if the parameter was provided, which would render the dependency unnessecary. |

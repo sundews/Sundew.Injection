@@ -1,4 +1,4 @@
-﻿namespace Errors.Recursive;
+﻿namespace DistinctErrors.Recursive;
 
 using Sundew.Injection;
 

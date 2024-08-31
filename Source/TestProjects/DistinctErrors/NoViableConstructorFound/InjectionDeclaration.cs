@@ -1,4 +1,4 @@
-﻿namespace Errors.NoViableConstructorFound;
+﻿namespace DistinctErrors.NoViableConstructorFound;
 
 using Sundew.Injection;
 

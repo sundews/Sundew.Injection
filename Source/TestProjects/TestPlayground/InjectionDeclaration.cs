@@ -1,55 +1,57 @@
 ﻿namespace TestPlayground;
 
-using System;
-using Initialization.Interfaces;
 using Sundew.Injection;
 
 public class InjectionDeclaration : IInjectionDeclaration
 {
     public void Configure(IInjectionBuilder injectionBuilder)
     {
-        injectionBuilder.BindFactory<DependencyFactory>(x => x.Dependency);
-
-        injectionBuilder.ImplementFactory<MainFactory>(x => x.Add<Root>());
-    }
-}
-
-public class Root
-{
-    public Root(Intermediate intermediate)
-    {
-
-    }
-}
-
-public class Intermediate : IInitializable
-{
-    public Intermediate(Dependency dependency)
-    {
-
-    }
-
-    public void Initialize()
-    {
+        // injectionBuilder.ImplementFactory<MainFactory>();
     }
 }
 
 public partial class MainFactory
 {
+    private static partial MainFactory Constructor(ConstructorParameter constructorParameter);
+
+    public CreatedSingleInstance CreatedSingleInstance { get; }
+
+    public partial Root Create(FactoryMethodParameter factoryMethodParameter);
 }
 
-public class DependencyFactory : IDisposable
+public class Root
 {
-    public Dependency Dependency { get; } = new Dependency();
-
-    public void Dispose()
+    public Root(ConstructorParameter constructorParameter, FactoryMethodParameter factoryMethodParameter)
     {
     }
 }
 
-public class Dependency : IInitializable
+public class FactoryMethodParameter;
+
+public class ConstructorParameter;
+
+public class CreatedSingleInstance;
+
+/// <summary>
+/// Generated
+/// </summary>
+public partial class MainFactory
 {
-    public void Initialize()
+    private readonly ConstructorParameter constructorParameter;
+
+    public MainFactory(ConstructorParameter constructorParameter)
     {
+        this.constructorParameter = constructorParameter;
+        this.CreatedSingleInstance = new CreatedSingleInstance();
+    }
+
+    private static partial MainFactory Constructor(ConstructorParameter constructorParameter)
+    {
+        return new MainFactory(constructorParameter);
+    }
+
+    public partial Root Create(FactoryMethodParameter factoryMethodParameter)
+    {
+        return new Root(this.constructorParameter, factoryMethodParameter);
     }
 }

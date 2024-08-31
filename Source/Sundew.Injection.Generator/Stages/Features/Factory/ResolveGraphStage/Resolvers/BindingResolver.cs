@@ -161,12 +161,12 @@ internal sealed class BindingResolver
     }
 
     public (NamedType FactoryType, NamedType? InterfaceType) CreateFactoryBinding(
-        FactoryCreationDefinition factoryCreationDefinition,
+        FactoryImplementationDefinition factoryImplementationDefinition,
         ImmutableList<FactoryConstructorParameter>.Builder factoryConstructorParameters,
         bool needLifecycleHandling)
     {
-        this.bindingFactory.CreateFactoryBinding(factoryCreationDefinition.FactoryType, factoryCreationDefinition.FactoryInterfaceType, factoryConstructorParameters, needLifecycleHandling);
-        return (factoryCreationDefinition.FactoryType, factoryCreationDefinition.FactoryInterfaceType);
+        this.bindingFactory.CreateFactoryBinding(factoryImplementationDefinition.FactoryType, factoryImplementationDefinition.FactoryInterfaceType, factoryConstructorParameters, needLifecycleHandling);
+        return (factoryImplementationDefinition.FactoryType, factoryImplementationDefinition.FactoryInterfaceType);
     }
 
     private ResolvedBinding? ResolveMultiItemBinding(

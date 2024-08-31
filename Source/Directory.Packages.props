@@ -3,7 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="BenchmarkDotNet" Version="0.13.12" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="Disposal.Interfaces" Version="1.0.1" />
     <PackageVersion Include="FluentAssertions" Version="6.12.0" />
@@ -18,21 +18,21 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.VisualBasic" Version="4.3.1" />
     <PackageVersion Include="Microsoft.CodeAnalysis" Version="4.3.1" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageVersion Include="NUnit.Analyzers" Version="4.1.0" />
-    <PackageVersion Include="NUnit" Version="4.1.0" />
-    <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
+    <PackageVersion Include="NUnit.Analyzers" Version="4.3.0" />
+    <PackageVersion Include="NUnit" Version="4.2.2" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="4.6.0" />
     <PackageVersion Include="PolySharp" Version="1.14.1" />
     <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
-    <PackageVersion Include="Sundew.Base.Collections" Version="13.0.1" />
-    <PackageVersion Include="Sundew.Base.Equality" Version="13.0.1" />
-    <PackageVersion Include="Sundew.Base.Memory" Version="13.0.1" />
-    <PackageVersion Include="Sundew.Base.Primitives" Version="13.0.1" />
-    <PackageVersion Include="Sundew.Base.Reporting" Version="13.0.1" />
-    <PackageVersion Include="Sundew.Base.Text" Version="13.0.1" />
+    <PackageVersion Include="Sundew.Base.Collections" Version="13.0.3" />
+    <PackageVersion Include="Sundew.Base.Equality" Version="13.0.3" />
+    <PackageVersion Include="Sundew.Base.Memory" Version="13.0.3" />
+    <PackageVersion Include="Sundew.Base.Primitives" Version="13.0.3" />
+    <PackageVersion Include="Sundew.Base.Reporting" Version="13.0.3" />
+    <PackageVersion Include="Sundew.Base.Text" Version="13.0.3" />
     <PackageVersion Include="Sundew.CommandLine" Version="10.0.13" />
-    <PackageVersion Include="Sundew.DiscriminatedUnions" Version="5.3.5" />
+    <PackageVersion Include="Sundew.DiscriminatedUnions" Version="5.3.6" />
     <PackageVersion Include="Sundew.Packaging.Publish" Version="10.0.8" />
     <PackageVersion Include="Sundew.Testing.CodeAnalysis" Version="0.3.3" />
     <PackageVersion Include="System.Collections.Concurrent" Version="4.3.0" />
@@ -40,10 +40,10 @@
     <PackageVersion Include="System.Threading.Tasks" Version="4.3.0" />
     <PackageVersion Include="System.ValueTuple" Version="4.5.0" />
     <PackageVersion Include="System.Memory" Version="4.5.5" />
-    <PackageVersion Include="Verify.NUnit" Version="24.1.0" />
-    <PackageVersion Include="Verify.SourceGenerators" Version="2.2.0" />
+    <PackageVersion Include="Verify.NUnit" Version="26.3.0" />
+    <PackageVersion Include="Verify.SourceGenerators" Version="2.4.0" />
   </ItemGroup>
   <ItemGroup>
-    <PackageVersion Update="ILRepack.Lib.MSBuild.Task" Version="2.0.29" />
+    <PackageVersion Update="ILRepack.Lib.MSBuild.Task" Version="2.0.34.2" />
   </ItemGroup>
 </Project>
