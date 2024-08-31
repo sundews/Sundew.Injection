@@ -119,6 +119,17 @@ Symbol: 'Errors.Recursive.Root' caused an infinite recursion, which was detected
 --> Errors.Recursive.NewInstance
 ---> Errors.Recursive.Recursive',
       Category: CodeGeneration
+    },
+    {
+      Id: SI0013,
+      Title: Requested versus referenced type mismatch.,
+      Severity: Error,
+      WarningLevel: 0,
+      Location: : (0,0)-(0,0),
+      Description: Occurs when a requested type (parameter or return type) cannot be provided by the factory, because the referenced type is a supertype of requested type.,
+      MessageFormat: The requested type '{0}' cannot be used as a parameter or return type, as it is more specialized than the referenced type: '{1}', when injection for '{2}',
+      Message: The requested type 'Class' cannot be used as a parameter or return type, as it is more specialized than the referenced type: 'Interface', when injection for 'Root',
+      Category: CodeGeneration
     }
   ]
 }

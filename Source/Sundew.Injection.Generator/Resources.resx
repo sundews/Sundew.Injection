@@ -259,9 +259,17 @@ Dependant node name: {3}.</value>
   </data>
   <data name="InfiniteRecursionMessageFormat" xml:space="preserve">
     <value>Symbol: '{0}' caused an infinite recursion, which was detected processing: '{1}'</value>
-    <comment> </comment>
   </data>
   <data name="InfiniteRecursionTitle" xml:space="preserve">
     <value>Infinite recursion detected</value>
+  </data>
+  <data name="ReferencedTypeMismatchDescription" xml:space="preserve">
+    <value>Occurs when a requested type (parameter or return type) cannot be provided by the factory, because the referenced type is a supertype of requested type.</value>
+  </data>
+  <data name="ReferencedTypeMismatchMessageFormat" xml:space="preserve">
+    <value>The requested type '{0}' cannot be used as a parameter or return type, as it is more specialized than the referenced type: '{1}', when injection for '{2}'</value>
+  </data>
+  <data name="ReferencedTypeMismatchTitle" xml:space="preserve">
+    <value>Requested versus referenced type mismatch.</value>
   </data>
 </root>

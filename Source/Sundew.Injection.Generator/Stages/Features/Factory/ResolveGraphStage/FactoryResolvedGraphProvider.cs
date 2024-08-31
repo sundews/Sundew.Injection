@@ -70,7 +70,7 @@ internal static class FactoryResolvedGraphProvider
                     }
 
                     var injectionTreeBuilder = new InjectionTreeBuilder(bindingResolver, requiredParametersInjectionResolver, scopeResolverResult.Value);
-                    var injectionTreeResult = injectionTreeBuilder.Build(rootBinding, cancellationToken);
+                    var injectionTreeResult = injectionTreeBuilder.Build(rootBinding, bindingRoot.ReturnType, cancellationToken);
                     if (injectionTreeResult.TryGetError(out var injectionErrors))
                     {
                         return Item.Fail(injectionErrors);
@@ -164,7 +164,7 @@ internal static class FactoryResolvedGraphProvider
             }
 
             var injectionTreeBuilder = new InjectionTreeBuilder(bindingResolver, requiredParametersInjectionResolver, scopeResolverResult.Value);
-            var injectionTreeResult = injectionTreeBuilder.Build(rootBinding, cancellationToken);
+            var injectionTreeResult = injectionTreeBuilder.Build(rootBinding, rootBinding.ReferencedType, cancellationToken);
             if (injectionTreeResult.TryGetError(out var injectionStageErrors))
             {
                 return R.Error(injectionStageErrors.Select(GetDiagnostic).ToImmutableList());
@@ -184,13 +184,13 @@ internal static class FactoryResolvedGraphProvider
             InjectionStageError.UnsupportedInstanceMethodError unsupportedInstanceMethod => Diagnostic.Create(
                 Diagnostics.UnsupportedInstanceMethodError,
                 Location.None,
-                unsupportedInstanceMethod.Type,
-                unsupportedInstanceMethod.Type,
+                unsupportedInstanceMethod.Type.Name,
+                unsupportedInstanceMethod.Type.Name,
                 unsupportedInstanceMethod.DependantNodeName),
             InjectionStageError.ResolveParameterError resolveRequiredParameterError => Diagnostic.Create(
                 Diagnostics.ResolveRequiredParameterError,
                 Location.None,
-                resolveRequiredParameterError.Type,
+                resolveRequiredParameterError.Type.Name,
                 resolveRequiredParameterError.DependantNodeName),
             InjectionStageError.ScopeError scopeError => Diagnostic.Create(
                 Diagnostics.ScopeError,
@@ -206,6 +206,7 @@ internal static class FactoryResolvedGraphProvider
                 createGenericMethodError.Error.Name,
                 createGenericMethodError.Error.FailedParameters.JoinToString((builder, tuple) => builder.Append(tuple.TargetParameter.Name).Append(mappingSign).Append(tuple.UnresolvedSymbol.Name), ','),
                 createGenericMethodError.DependantNodeName),
+            InjectionStageError.ReferencedTypeMismatchError referencedTypeMismatchError => Diagnostic.Create(Diagnostics.ReferencedTypeMismatchError, Location.None, referencedTypeMismatchError.ActualParameterType.Name, referencedTypeMismatchError.ReferencedType.Name, referencedTypeMismatchError.DependantNodeName),
         };
     }
 }

@@ -158,6 +158,15 @@ internal sealed record Diagnostics(ValueList<Diagnostic> Items) : IEnumerable<Di
         true,
         Resources.InfiniteRecursionDescription);
 
+    public static DiagnosticDescriptor ReferencedTypeMismatchError { get; } = new(
+        "SI0013",
+        Resources.ReferencedTypeMismatchTitle,
+        Resources.ReferencedTypeMismatchMessageFormat,
+        CodeGeneration,
+        DiagnosticSeverity.Error,
+        true,
+        Resources.ReferencedTypeMismatchDescription);
+
     public static Diagnostics Create(DiagnosticDescriptor diagnosticDescriptor, SymbolErrorWithLocation symbolErrorWithLocation, params object[] additionalArguments)
     {
         var arguments = new object[] { symbolErrorWithLocation.SymbolError.Symbol.FullName, symbolErrorWithLocation.SymbolError.GetErrorText() }.Concat(additionalArguments).ToArray();

@@ -21,4 +21,6 @@ internal abstract partial record InjectionStageError
     public sealed record ResolveParameterError(Type Type, string DependantNodeName, ValueArray<ParameterSource> ParameterSources) : InjectionStageError;
 
     public sealed record ScopeError(Type Type, Scope Scope, string DependantNodeName, string DependantScope) : InjectionStageError;
+
+    public sealed record ReferencedTypeMismatchError(Type ActualParameterType, Type ReferencedType, Scope Scope, string DependantNodeName) : InjectionStageError;
 }

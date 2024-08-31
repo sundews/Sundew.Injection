@@ -11,7 +11,6 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
-using Sundew.Injection.Generator.TypeSystem;
 using Type = Sundew.Injection.Generator.TypeSystem.Type;
 
 internal static class ImmutableListDeclarationExtensions

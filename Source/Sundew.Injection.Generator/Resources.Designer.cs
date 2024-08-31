@@ -279,6 +279,33 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Occurs when a requested type (parameter or return type) cannot be provided by the factory, because the referenced type is a supertype of requested type..
+        /// </summary>
+        internal static string ReferencedTypeMismatchDescription {
+            get {
+                return ResourceManager.GetString("ReferencedTypeMismatchDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The requested type &apos;{0}&apos; cannot be used as a parameter or return type, as it is more specialized than the referenced type: &apos;{1}&apos;, when injection for &apos;{2}&apos;.
+        /// </summary>
+        internal static string ReferencedTypeMismatchMessageFormat {
+            get {
+                return ResourceManager.GetString("ReferencedTypeMismatchMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Requested versus referenced type mismatch..
+        /// </summary>
+        internal static string ReferencedTypeMismatchTitle {
+            get {
+                return ResourceManager.GetString("ReferencedTypeMismatchTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Some types are required for the code generator, when not found in the compilation, this error is reported.
         /// </summary>
         internal static string RequiredTypeNotFoundErrorDescription {

@@ -12,7 +12,7 @@ using InjectionGenerator = sig::Sundew.Injection.Generator.InjectionGenerator;
 [TestFixture]
 public class Playground
 {
-    [Test]
+    [Test, Ignore("Only when using playground")]
     public void Test()
     {
         var compilation = TestProjects.TestPlayground.FromCurrentDirectory.Value;

@@ -149,15 +149,25 @@ internal sealed class BindingResolver
                 ? GetName()
                 : Create + GetName()
             : factoryMethodRegistration.CreateMethodName;
+        var targetType = factoryMethodRegistration.Target.Type;
+        var returnType = factoryMethodRegistration.Return.Type;
+        if (targetType == returnType)
+        {
+            if (this.bindingRegistrations.TryGetValue(targetType.Id, out var registrations) && registrations.TryGetOnlyOne(out var registration))
+            {
+                returnType = registration.ReferencedType;
+            }
+        }
+
         var binding = new Binding(
-            factoryMethodRegistration.Target.Type,
-            factoryMethodRegistration.Return.Type,
+            targetType,
+            returnType,
             factoryMethodRegistration.Scope,
             factoryMethodRegistration.Method with { Name = factoryMethodName },
             factoryMethodRegistration.Target.Metadata.HasLifecycle,
             false,
             factoryMethodRegistration.IsNewOverridable);
-        return new BindingRoot(binding, factoryMethodRegistration.Accessibility, factoryMethodRegistration.Return.Type);
+        return new BindingRoot(binding, factoryMethodRegistration.Accessibility, returnType);
     }
 
     public (NamedType FactoryType, NamedType? InterfaceType) CreateFactoryBinding(
