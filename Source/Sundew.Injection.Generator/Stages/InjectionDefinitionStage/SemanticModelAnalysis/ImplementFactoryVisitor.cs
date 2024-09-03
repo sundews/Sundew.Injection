@@ -7,7 +7,6 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticModelAnalysis;
 
-using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -107,7 +106,7 @@ internal class ImplementFactoryVisitor(
                     && symbol.GetAttributes().All(x => x.AttributeClass?.ToDisplayString() != KnownTypesProvider.IndirectFactoryTargetName)
                     && !symbol.MetadataName.Contains(dispose))
                 {
-                    return analysisContext.TypeFactory.GetFactoryMethod(propertySymbol).ToResult(() => new SymbolError(new NamedSymbol(propertySymbol.ToDisplayString()), Array.Empty<SymbolError>()));
+                    return analysisContext.TypeFactory.GetFactoryMethod(propertySymbol);
                 }
 
                 break;
@@ -126,7 +125,6 @@ internal class ImplementFactoryVisitor(
                 switch (member)
                 {
                     case IMethodSymbol methodSymbol:
-                        var containingType = analysisContext.TypeFactory.GetType(methodSymbol.ContainingType);
                         var returnTypeResult = analysisContext.TypeFactory.GetFullType(methodSymbol.ReturnType);
                         if (!returnTypeResult.IsError)
                         {
@@ -158,7 +156,7 @@ internal class ImplementFactoryVisitor(
                                     var createMethodResult = GetFactoryTarget(analysisContext, typeSymbol);
                                     if (!createMethodResult.HasValue)
                                     {
-                                        // analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, new SymbolErrorWithLocation(createMethodResult.Error, typeSymbolWithLocation.Location));
+                                        // analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, new ErrorWithLocation(createMethodResult.Error, typeSymbolWithLocation.Location));
                                         return;
                                     }
 

@@ -7,11 +7,11 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticModelAnalysis;
 
+using System;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Sundew.Base;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal class BindFactoryMethodVisitor(
@@ -46,7 +46,7 @@ internal class BindFactoryMethodVisitor(
         var factoryTypeResult = analysisContext.TypeFactory.GetFullType(factoryTypeSymbolWithLocation);
         if (!factoryTypeResult.TryGet(out var factoryType, out var errors))
         {
-            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, errors);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(errors);
             return;
         }
 
@@ -55,43 +55,46 @@ internal class BindFactoryMethodVisitor(
         {
             var addFactoryMethodBindingVisitor = new AddFactoryMethodBindingVisitor(methodSymbol, analysisContext);
             addFactoryMethodBindingVisitor.Visit(node);
-            analysisContext.BindFactory(factoryType, addFactoryMethodBindingVisitor.FactoryMethods);
+            analysisContext.BindFactory(factoryType, addFactoryMethodBindingVisitor.FactoryMethodTargets);
             return;
         }
 
         if (SymbolEqualityComparer.Default.Equals(methodSymbol.ContainingType, factoryTypeSymbolWithLocation.TypeSymbol))
         {
-            var factoryMethodResult = analysisContext.TypeFactory.GetFactoryMethod(methodSymbol);
-            if (factoryMethodResult.IsError)
+            var factoryMethodResult = analysisContext.TypeFactory.GetFactoryMethodTarget(methodSymbol);
+            if (factoryMethodResult.TryGet(out var factoryMethodTarget, out var error))
             {
-                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, factoryTypeSymbolWithLocation, (factoryMethodResult.Error with { Symbol = new NamedSymbol(methodSymbol.ToDisplayString()) }).GetErrorText());
+                var factoryMethodTargets = ImmutableArray.Create((FactoryMethodTarget: factoryMethodTarget, ReturnType: factoryTypeSymbolWithLocation with { TypeSymbol = methodSymbol.ReturnType }));
+                analysisContext.BindFactory(factoryType, factoryMethodTargets);
                 return;
             }
 
-            var factoryMethods = ImmutableArray.Create((Method: factoryMethodResult.Value, ReturnType: factoryTypeSymbolWithLocation with { TypeSymbol = methodSymbol.ReturnType }));
-            analysisContext.BindFactory(factoryType, factoryMethods);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(
+                new ErrorWithLocation(new Error(ErrorType.InvalidFactoryMethodBinding, new SymbolError(new NamedSymbol(methodSymbol.ToDisplayString()), [error])), factoryTypeSymbolWithLocation.Location),
+                factoryTypeSymbolWithLocation);
         }
     }
 
     private void VisitBuilderCall(MemberAccessExpressionSyntax node, IPropertySymbol propertySymbol)
     {
         var factoryTypeResult = analysisContext.TypeFactory.GetFullType(factoryTypeSymbolWithLocation);
-        if (!factoryTypeResult.TryGet(out var factoryType, out var errors))
+        if (!factoryTypeResult.TryGet(out var factoryType, out var errorWithLocation))
         {
-            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, errors);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(errorWithLocation);
             return;
         }
 
         if (propertySymbol.GetMethod != default && SymbolEqualityComparer.Default.Equals(propertySymbol.ContainingType, factoryTypeSymbolWithLocation.TypeSymbol))
         {
-            var factoryMethodResult = analysisContext.TypeFactory.GetFactoryMethod(propertySymbol);
-            if (!factoryMethodResult.HasValue())
+            var factoryMethodResult = analysisContext.TypeFactory.GetFactoryMethodTarget(propertySymbol);
+            if (factoryMethodResult.TryGet(out var factoryMethodTarget, out var error))
             {
+                var factoryMethodTargets = ImmutableArray.Create((FactoryMethodTarget: factoryMethodTarget, ReturnType: factoryTypeSymbolWithLocation with { TypeSymbol = propertySymbol.Type }));
+                analysisContext.BindFactory(factoryType, factoryMethodTargets);
                 return;
             }
 
-            var factoryMethods = ImmutableArray.Create((Method: factoryMethodResult, ReturnType: factoryTypeSymbolWithLocation with { TypeSymbol = propertySymbol.Type }));
-            analysisContext.BindFactory(factoryType, factoryMethods);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(new ErrorWithLocation(error, node.GetLocation()));
         }
     }
 }

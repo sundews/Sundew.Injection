@@ -55,7 +55,7 @@ internal class BindGenericVisitor(
         var parameters = methodSymbol.Parameters;
         var i = 0;
         var scope = new ScopeContext((Scope?)parameters[i++].ExplicitDefaultValue ?? Scope._Auto, ScopeSelection.Implicit);
-        var method = R.SuccessOption((GenericMethod?)parameters[i++].ExplicitDefaultValue).Omits<SymbolErrorWithLocation>();
+        var method = R.SuccessOption((GenericMethod?)parameters[i++].ExplicitDefaultValue).Omits<ErrorWithLocation>();
         var argumentIndex = 0;
         foreach (var argumentSyntax in node.Arguments)
         {
@@ -125,7 +125,7 @@ internal class BindGenericVisitor(
         return ExpressionAnalysisHelper.GetScope(analysisContext.SemanticModel, argumentSyntax, analysisContext.TypeFactory, targetType);
     }
 
-    private R<GenericMethod?, SymbolErrorWithLocation> GetGenericMethod(ArgumentSyntax argumentSyntax)
+    private R<GenericMethod?, ErrorWithLocation> GetGenericMethod(ArgumentSyntax argumentSyntax)
     {
         return ExpressionAnalysisHelper.GetGenericMethod(argumentSyntax, analysisContext.SemanticModel, analysisContext.TypeFactory).ToValueOptionResult();
     }

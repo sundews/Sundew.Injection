@@ -21,7 +21,7 @@ internal static class BindingHelper
     public static void BindFactory(
         this AnalysisContext analysisContext,
         FullType factoryType,
-        IEnumerable<(Method Method, TypeSymbolWithLocation ReturnType)> factoryMethods)
+        IEnumerable<(FactoryMethodTarget FactoryMethodTarget, TypeSymbolWithLocation ReturnType)> factoryMethodTargets)
     {
         if (!analysisContext.CompiletimeInjectionDefinitionBuilder.HasBinding(factoryType.Type) &&
             factoryType.DefaultConstructor.TryGetValue(out var defaultConstructor))
@@ -30,7 +30,7 @@ internal static class BindingHelper
             analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<Type>.Empty, factoryType, actualMethod, new ScopeContext(Scope._SingleInstancePerFactory(Location.None), ScopeSelection.Implicit), false, false);
         }
 
-        foreach (var methodAndReturnType in factoryMethods)
+        foreach (var methodAndReturnType in factoryMethodTargets)
         {
             var returnTypeResult = analysisContext.TypeFactory.GetFullType(methodAndReturnType.ReturnType);
             if (returnTypeResult.IsError)
@@ -40,7 +40,7 @@ internal static class BindingHelper
             }
 
             var returnType = returnTypeResult.Value with { Metadata = returnTypeResult.Value.Metadata with { HasLifecycle = false } };
-            analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<Type>.Empty, returnType, methodAndReturnType.Method, new ScopeContext(Scope._Auto, ScopeSelection.Implicit), false, false);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<Type>.Empty, returnType, methodAndReturnType.FactoryMethodTarget.Method, new ScopeContext(Scope._Auto, ScopeSelection.Implicit), false, false);
 
             if (SymbolEqualityComparer.Default.Equals(methodAndReturnType.ReturnType.TypeSymbol.OriginalDefinition, analysisContext.KnownAnalysisTypes.ConstructedTypeSymbol))
             {

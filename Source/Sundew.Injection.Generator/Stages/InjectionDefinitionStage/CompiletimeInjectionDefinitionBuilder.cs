@@ -16,6 +16,7 @@ using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticModelAnalysis;
 using Sundew.Injection.Generator.TypeSystem;
 using Accessibility = Sundew.Injection.Accessibility;
+using Type = Sundew.Injection.Generator.TypeSystem.Type;
 
 internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefinitionBuilder
 {
@@ -144,9 +145,16 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         this.diagnostics.Add(diagnostic);
     }
 
-    public void AddDiagnostic(DiagnosticDescriptor diagnosticDescriptor, SymbolErrorWithLocation symbolErrorWithLocation, params object[] additionalArguments)
+    public void AddDiagnostic(ErrorWithLocation errorWithLocation, params object[] additionalArguments)
     {
-        foreach (var diagnostic in Diagnostics.Create(diagnosticDescriptor, symbolErrorWithLocation, additionalArguments))
+        var diagnosticDescriptor = errorWithLocation.Error.ErrorType switch
+        {
+            ErrorType.InfiniteRecursions => Diagnostics.InfiniteRecursionError,
+            ErrorType.NoPropertyGetMethodFound => Diagnostics.NoFactoryMethodFoundForTypeError,
+            ErrorType.ParameterTypeResolutionFailed => Diagnostics.ResolveRequiredParameterError,
+        };
+
+        foreach (var diagnostic in Diagnostics.Create(diagnosticDescriptor, errorWithLocation, additionalArguments))
         {
             this.AddDiagnostic(diagnostic);
         }

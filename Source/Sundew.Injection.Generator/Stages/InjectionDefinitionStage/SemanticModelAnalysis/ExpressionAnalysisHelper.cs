@@ -17,7 +17,7 @@ using Scope = Sundew.Injection.Generator.TypeSystem.Scope;
 
 internal static class ExpressionAnalysisHelper
 {
-    public static R<Method?, SymbolErrorWithLocation> GetMethod(ArgumentSyntax argumentSyntax, SemanticModel semanticModel, TypeFactory typeFactory)
+    public static R<Method?, ErrorWithLocation> GetMethod(ArgumentSyntax argumentSyntax, SemanticModel semanticModel, TypeFactory typeFactory)
     {
         if (argumentSyntax.Expression is ParenthesizedLambdaExpressionSyntax parenthesizedLambdaExpressionSyntax)
         {
@@ -28,7 +28,7 @@ internal static class ExpressionAnalysisHelper
                     if (invocationSymbolInfo.Symbol is IMethodSymbol invocationMethodSymbol)
                     {
                         return typeFactory.GetFactoryMethod(invocationMethodSymbol)
-                            .WithError(x => new SymbolErrorWithLocation(x, argumentSyntax.GetLocation()))
+                            .WithError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()))
                             .ToOptionResult();
                     }
 
@@ -38,7 +38,7 @@ internal static class ExpressionAnalysisHelper
                     if (initializerSymbolInfo.Symbol is IMethodSymbol objectCreationMethodSymbol)
                     {
                         return typeFactory.GetFactoryMethod(objectCreationMethodSymbol)
-                            .WithError(x => new SymbolErrorWithLocation(x, argumentSyntax.GetLocation()))
+                            .WithError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()))
                             .ToOptionResult();
                     }
 
@@ -49,7 +49,7 @@ internal static class ExpressionAnalysisHelper
                     {
                         case IMethodSymbol memberAccessMethodSymbol:
                             return typeFactory.GetFactoryMethod(memberAccessMethodSymbol)
-                                .WithError(x => new SymbolErrorWithLocation(x, argumentSyntax.GetLocation()))
+                                .WithError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()))
                                 .ToOptionResult();
                         case IPropertySymbol memberAccessPropertySymbol:
                             return R.SuccessOption(typeFactory.GetFactoryMethod(memberAccessPropertySymbol));
@@ -62,7 +62,7 @@ internal static class ExpressionAnalysisHelper
         return R.SuccessOption<Method>();
     }
 
-    public static R<GenericMethod, SymbolErrorWithLocation> GetGenericMethod(ArgumentSyntax argumentSyntax, SemanticModel semanticModel, TypeFactory typeFactory)
+    public static R<GenericMethod, ErrorWithLocation> GetGenericMethod(ArgumentSyntax argumentSyntax, SemanticModel semanticModel, TypeFactory typeFactory)
     {
         if (argumentSyntax.Expression is ParenthesizedLambdaExpressionSyntax parenthesizedLambdaExpressionSyntax)
         {
@@ -72,7 +72,7 @@ internal static class ExpressionAnalysisHelper
                     var invocationSymbolInfo = semanticModel.GetSymbolInfo(invocationExpressionSyntax.Expression);
                     if (invocationSymbolInfo.Symbol is IMethodSymbol invocationMethodSymbol)
                     {
-                        return typeFactory.GetGenericMethod(invocationMethodSymbol.ConstructedFrom).WithError(x => new SymbolErrorWithLocation(x, argumentSyntax.GetLocation()));
+                        return typeFactory.GetGenericMethod(invocationMethodSymbol.ConstructedFrom).WithError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()));
                     }
 
                     break;
@@ -80,7 +80,7 @@ internal static class ExpressionAnalysisHelper
                     var initializerSymbolInfo = semanticModel.GetSymbolInfo(objectCreationExpressionSyntax);
                     if (initializerSymbolInfo.Symbol is IMethodSymbol objectCreationMethodSymbol)
                     {
-                        return typeFactory.GetGenericMethod(objectCreationMethodSymbol.ConstructedFrom).WithError(x => new SymbolErrorWithLocation(x, argumentSyntax.GetLocation()));
+                        return typeFactory.GetGenericMethod(objectCreationMethodSymbol.ConstructedFrom).WithError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()));
                     }
 
                     break;

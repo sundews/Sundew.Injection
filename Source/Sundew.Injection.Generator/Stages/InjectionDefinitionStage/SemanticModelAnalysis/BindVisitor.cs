@@ -27,7 +27,7 @@ internal class BindVisitor(
         var parameters = methodSymbol.Parameters;
         var i = 0;
         var scope = new ScopeContext((Scope?)parameters[i++].ExplicitDefaultValue ?? Scope._Auto, ScopeSelection.Implicit);
-        var constructorSelector = R.SuccessOption((Method?)parameters[i++].ExplicitDefaultValue).Omits<SymbolErrorWithLocation>();
+        var constructorSelector = R.SuccessOption((Method?)parameters[i++].ExplicitDefaultValue).Omits<ErrorWithLocation>();
         var isInjectable = (bool?)parameters[i++].ExplicitDefaultValue ?? false;
         var isNewOverridable = (bool?)parameters[i++].ExplicitDefaultValue ?? false;
         var argumentIndex = 0;
@@ -108,7 +108,7 @@ internal class BindVisitor(
         return ExpressionAnalysisHelper.GetScope(analysisContext.SemanticModel, argumentSyntax, analysisContext.TypeFactory, targetType);
     }
 
-    private R<Method?, SymbolErrorWithLocation> GetMethod(ArgumentSyntax argumentSyntax)
+    private R<Method?, ErrorWithLocation> GetMethod(ArgumentSyntax argumentSyntax)
     {
         return ExpressionAnalysisHelper.GetMethod(argumentSyntax, analysisContext.SemanticModel, analysisContext.TypeFactory);
     }

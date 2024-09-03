@@ -36,21 +36,21 @@ internal static class AnalysisContextExtensions
         var interfaceTypeResult = analysisContext.TypeFactory.GetFullType(interfaceTypeSymbolWithLocation);
         if (interfaceTypeResult.IsError)
         {
-            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, interfaceTypeResult.Error);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(interfaceTypeResult.Error);
             return;
         }
 
         var implementationTypeResult = analysisContext.TypeFactory.GetFullType(implementationTypeSymbolWithLocation);
         if (implementationTypeResult.IsError)
         {
-            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, implementationTypeResult.Error);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(implementationTypeResult.Error);
             return;
         }
 
         if (factoryMethod == null)
         {
             var createMethodResult = GetFactoryTarget(analysisContext, implementationTypeSymbolWithLocation.TypeSymbol);
-            if (createMethodResult.IsError)
+            if (createMethodResult.TryGet(out var factoryMethod, out var error))
             {
                 analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, implementationTypeSymbolWithLocation, createMethodResult.Error.GetErrorText());
                 return;
@@ -79,7 +79,7 @@ internal static class AnalysisContextExtensions
         var interfaceTypeResult = analysisContext.TypeFactory.GetFullType(typeSymbolWithLocation);
         if (interfaceTypeResult.IsError)
         {
-            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, interfaceTypeResult.Error);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(interfaceTypeResult.Error);
             return;
         }
 
@@ -105,14 +105,14 @@ internal static class AnalysisContextExtensions
             if (typeSymbol.IsInstantiable() && interfaceType.DefaultConstructor.TryGetValue(out var method))
             {
                 analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray.Create(interfaceType.Type), interfaceType, method, new ScopeContext(Scope._Auto, ScopeSelection.Implicit), false, isNewOverridable);
-                var createMethodResult = GetFactoryTarget(analysisContext, typeSymbol);
-                if (createMethodResult.IsError)
+                var factoryMethodResult = GetFactoryTarget(analysisContext, typeSymbol);
+                if (factoryMethodResult.TryGet(out var factoryMethod, out var error))
                 {
-                    analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, new SymbolErrorWithLocation(createMethodResult.Error, typeSymbolWithLocation.Location));
+                    factoryMethodRegistrationBuilder.Add(interfaceType, interfaceType, new ScopeContext(Scope._NewInstance(Location.None), ScopeSelection.Implicit), factoryMethod, default, accessibility, isNewOverridable);
                     return;
                 }
 
-                factoryMethodRegistrationBuilder.Add(interfaceType, interfaceType, new ScopeContext(Scope._NewInstance(Location.None), ScopeSelection.Implicit), createMethodResult.Value, default, accessibility, isNewOverridable);
+                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(new ErrorWithLocation(error, typeSymbolWithLocation.Location));
             }
             else
             {
@@ -129,14 +129,14 @@ internal static class AnalysisContextExtensions
         var factoryTypeResult = analysisContext.TypeFactory.GetFullType(factoryTypeSymbolWithLocation);
         if (factoryTypeResult.IsError)
         {
-            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, factoryTypeResult.Error);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(factoryTypeResult.Error);
             return;
         }
 
-        factoryRegistrationBuilder.Add(factoryTypeResult.Value.Type, GetFactoryTargets(factoryTypeSymbolWithLocation.TypeSymbol, analysisContext));
+        factoryRegistrationBuilder.Add(factoryTypeResult.Value.Type, GetFactoryTargets(factoryTypeSymbolWithLocation, analysisContext));
     }
 
-    internal static FactoryTarget? GetFactoryTarget(AnalysisContext analysisContext, ISymbol symbol)
+    internal static FactoryMethodTarget? GetFactoryTarget(AnalysisContext analysisContext, ISymbol symbol, Location location)
     {
         switch (symbol)
         {
@@ -145,7 +145,13 @@ internal static class AnalysisContextExtensions
                     && symbol.GetAttributes().All(x => x.AttributeClass?.ToDisplayString() != KnownTypesProvider.IndirectFactoryTargetName)
                     && !symbol.MetadataName.Contains(Dispose))
                 {
-                    return analysisContext.TypeFactory.GetFactoryTarget(methodSymbol);
+                    var factoryMethodTargetResult = analysisContext.TypeFactory.GetFactoryMethodTarget(methodSymbol);
+                    if (factoryMethodTargetResult.TryGet(out var factoryMethodTarget, out var error))
+                    {
+                        return factoryMethodTarget;
+                    }
+
+                    analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostic.Create(Diagnostics.InvalidFactoryMethodError, location, error.GetErrorText()));
                 }
 
                 break;
@@ -154,7 +160,13 @@ internal static class AnalysisContextExtensions
                     && symbol.GetAttributes().All(x => x.AttributeClass?.ToDisplayString() != KnownTypesProvider.IndirectFactoryTargetName)
                     && !symbol.MetadataName.Contains(Dispose))
                 {
-                    return analysisContext.TypeFactory.GetFactoryTarget(propertySymbol);
+                    var factoryMethodTargetResult = analysisContext.TypeFactory.GetFactoryMethodTarget(propertySymbol);
+                    if (factoryMethodTargetResult.TryGet(out var factoryMethodTarget, out var error))
+                    {
+                        return factoryMethodTarget;
+                    }
+
+                    analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostic.Create(Diagnostics.InvalidFactoryMethodError, location, error.GetErrorText()));
                 }
 
                 break;
@@ -163,15 +175,15 @@ internal static class AnalysisContextExtensions
         return default;
     }
 
-    private static ValueArray<FactoryTarget> GetFactoryTargets(ITypeSymbol factoryTypeSymbol, AnalysisContext analysisContext)
+    private static ValueArray<FactoryMethodTarget> GetFactoryTargets(TypeSymbolWithLocation factoryTypeSymbol, AnalysisContext analysisContext)
     {
-        return factoryTypeSymbol.GetMembers()
-            .Select(symbol => GetFactoryTarget(analysisContext, symbol))
+        return factoryTypeSymbol.TypeSymbol.GetMembers()
+            .Select(symbol => GetFactoryTarget(analysisContext, symbol, factoryTypeSymbol.Location))
             .WhereNotDefault()
             .ToValueArray();
     }
 
-    private static R<Method, SymbolError> GetFactoryTarget(AnalysisContext analysisContext, ITypeSymbol implementationType)
+    private static R<Method, Error> GetFactoryTarget(AnalysisContext analysisContext, ITypeSymbol implementationType)
     {
         var defaultConstructor = TypeHelper.GetDefaultConstructorMethod(implementationType);
         if (defaultConstructor != null)

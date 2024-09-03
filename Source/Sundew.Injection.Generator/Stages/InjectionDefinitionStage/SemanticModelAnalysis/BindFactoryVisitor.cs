@@ -59,9 +59,9 @@ internal class BindFactoryVisitor(
                 }
 
                 var factoryTypeResult = analysisContext.TypeFactory.GetFullType(factoryTypeSymbol);
-                if (!factoryTypeResult.TryGet(out var factoryType, out var error))
+                if (!factoryTypeResult.TryGet(out var factoryType, out var errorWithLocation))
                 {
-                    analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, error);
+                    analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(errorWithLocation);
                     return;
                 }
 

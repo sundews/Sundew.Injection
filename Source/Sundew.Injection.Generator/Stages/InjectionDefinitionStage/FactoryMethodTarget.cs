@@ -7,7 +7,8 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
-using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal readonly record struct FactoryTarget(string Name, ValueList<Parameter> Parameters, Type ReturnType, bool IsProperty);
+internal readonly record struct FactoryMethodTarget(
+    Method Method,
+    Type ReturnType);

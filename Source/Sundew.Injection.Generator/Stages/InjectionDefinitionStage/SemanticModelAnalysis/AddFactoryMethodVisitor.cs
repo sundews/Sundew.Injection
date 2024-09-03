@@ -33,7 +33,7 @@ internal class AddFactoryMethodVisitor(
         var implementationType = typeArguments.Length == 2 ? typeArguments[1] : interfaceType;
         var parameters = methodSymbol.Parameters;
         var i = 0;
-        var constructorSelector = R.SuccessOption((Method?)parameters[i++].ExplicitDefaultValue).Omits<SymbolErrorWithLocation>();
+        var constructorSelector = R.SuccessOption((Method?)parameters[i++].ExplicitDefaultValue).Omits<ErrorWithLocation>();
         var factoryMethodName = (string?)parameters[i++].ExplicitDefaultValue;
         var accessibility = parameters[i++].ExplicitDefaultValue.ToEnumOrDefault(Injection.Accessibility.Public);
         var isNewOverridable = (bool?)parameters[i++].ExplicitDefaultValue ?? true;
@@ -95,7 +95,7 @@ internal class AddFactoryMethodVisitor(
         analysisContext.AddFactoryMethodFromTypeSymbol(interfaceType, implementationType, constructorSelector.Value, factoryMethodName, accessibility, isNewOverridable, factoryMethodRegistrationBuilder);
     }
 
-    private R<Method?, SymbolErrorWithLocation> GetMethod(ArgumentSyntax argumentSyntax)
+    private R<Method?, ErrorWithLocation> GetMethod(ArgumentSyntax argumentSyntax)
     {
         return ExpressionAnalysisHelper.GetMethod(argumentSyntax, analysisContext.SemanticModel, analysisContext.TypeFactory);
     }

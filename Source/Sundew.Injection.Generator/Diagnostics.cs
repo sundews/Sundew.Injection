@@ -7,6 +7,7 @@
 
 namespace Sundew.Injection.Generator;
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -167,12 +168,13 @@ internal sealed record Diagnostics(ValueList<Diagnostic> Items) : IEnumerable<Di
         true,
         Resources.ReferencedTypeMismatchDescription);
 
-    public static Diagnostics Create(DiagnosticDescriptor diagnosticDescriptor, SymbolErrorWithLocation symbolErrorWithLocation, params object[] additionalArguments)
+    public static Diagnostics Create(DiagnosticDescriptor diagnosticDescriptor, ErrorWithLocation errorWithLocation, params object[] additionalArguments)
     {
-        var arguments = new object[] { symbolErrorWithLocation.SymbolError.Symbol.FullName, symbolErrorWithLocation.SymbolError.GetErrorText() }.Concat(additionalArguments).ToArray();
-        if (symbolErrorWithLocation.Location.HasValue())
+        var argumentArray = errorWithLocation.Error.SymbolError != null ? [errorWithLocation.Error.SymbolError.Value.Symbol.FullName, errorWithLocation.Error.SymbolError.Value.GetErrorText()] : Array.Empty<string>();
+        var arguments = argumentArray.Concat(additionalArguments).ToArray();
+        if (errorWithLocation.Location.HasValue())
         {
-            return new Diagnostics(Diagnostic.Create(diagnosticDescriptor, symbolErrorWithLocation.Location, arguments));
+            return new Diagnostics(Diagnostic.Create(diagnosticDescriptor, errorWithLocation.Location, arguments));
         }
 
         return new Diagnostics(Diagnostic.Create(diagnosticDescriptor, Location.None, arguments));

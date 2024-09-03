@@ -19,9 +19,9 @@ internal class AddFactoryMethodBindingVisitor(
     AnalysisContext analysisContext)
     : CSharpSyntaxWalker
 {
-    private readonly List<(Method Method, TypeSymbolWithLocation ReturnType)> factoryMethods = new();
+    private readonly List<(FactoryMethodTarget FactoryMethodTarget, TypeSymbolWithLocation ReturnType)> factoryMethodTargets = new();
 
-    public IEnumerable<(Method Method, TypeSymbolWithLocation ReturnType)> FactoryMethods => this.factoryMethods;
+    public IEnumerable<(FactoryMethodTarget FactoryMethodTarget, TypeSymbolWithLocation ReturnType)> FactoryMethodTargets => this.factoryMethodTargets;
 
     public override void VisitInvocationExpression(InvocationExpressionSyntax node)
     {
@@ -33,7 +33,7 @@ internal class AddFactoryMethodBindingVisitor(
         base.VisitArgumentList(node);
         var parameters = addMethodSymbol.Parameters;
         var i = 0;
-        var factoryMethodSelector = R.Success((Method: (Method?)parameters[i++].ExplicitDefaultValue, Location: Location.None)).Omits<SymbolErrorWithLocation>();
+        var factoryMethodSelector = R.Success((Method: (Method?)parameters[i++].ExplicitDefaultValue, Location: Location.None)).Omits<ErrorWithLocation>();
         var argumentIndex = 0;
         foreach (var argumentSyntax in node.Arguments)
         {
@@ -67,11 +67,11 @@ internal class AddFactoryMethodBindingVisitor(
 
         if (factoryMethodSelector.Value.Method != default)
         {
-            this.factoryMethods.Add((factoryMethodSelector.Value.Method, new TypeSymbolWithLocation(addMethodSymbol.ReturnType, factoryMethodSelector.Value.Location)));
+            this.factoryMethodTargets.Add((new FactoryMethodTarget(factoryMethodSelector.Value.Method, analysisContext.TypeFactory.GetType(addMethodSymbol.ReturnType)), new TypeSymbolWithLocation(addMethodSymbol.ReturnType, factoryMethodSelector.Value.Location)));
         }
     }
 
-    private R<(Method? Method, Location Location), SymbolErrorWithLocation> GetMethod(ArgumentSyntax argumentSyntax)
+    private R<(Method? Method, Location Location), ErrorWithLocation> GetMethod(ArgumentSyntax argumentSyntax)
     {
         return ExpressionAnalysisHelper.GetMethod(argumentSyntax, analysisContext.SemanticModel, analysisContext.TypeFactory)
             .With(method => (Method: method, argumentSyntax.GetLocation()));
