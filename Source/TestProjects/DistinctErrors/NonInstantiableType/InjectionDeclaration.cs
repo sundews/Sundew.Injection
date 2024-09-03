@@ -1,4 +1,4 @@
-﻿namespace Errors.NonInstantiableType;
+﻿namespace DistinctErrors.NonInstantiableType;
 
 using Sundew.Injection;
 

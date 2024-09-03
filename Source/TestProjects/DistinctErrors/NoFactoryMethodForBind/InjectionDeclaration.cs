@@ -1,4 +1,4 @@
-﻿namespace Errors.NoFactoryMethodForBind;
+﻿namespace DistinctErrors.NoFactoryMethodForBind;
 
 using Sundew.Injection;
 

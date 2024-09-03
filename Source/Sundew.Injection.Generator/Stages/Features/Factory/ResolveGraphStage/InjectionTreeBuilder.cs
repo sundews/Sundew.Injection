@@ -217,7 +217,7 @@ internal sealed class InjectionTreeBuilder(
                     case ScopeError scopeError:
                         return R.Error(ImmutableList.Create(InjectionStageError._ScopeError(scopeError.CurrentType, scopeError.CurrentScope, Root, scopeError.Dependant.Scope.ToString())));
                     case SingleParameter singleParameter:
-                        var injectionModelResult = this.GetInjectionModel(singleParameter.Binding, dependantInjectionNode, singleParameter.Binding.TargetType, (singleParameter.Binding.TargetType.Name, Metadata: instance.ContainingTypeMetadata), cancellationToken);
+                        var injectionModelResult = this.GetInjectionModel(singleParameter.Binding, dependantInjectionNode, singleParameter.Binding.ReferencedType, (singleParameter.Binding.TargetType.Name, Metadata: instance.ContainingTypeMetadata), cancellationToken);
                         return injectionModelResult.With(injectionModel =>
                             new CreationModel(CreationSource._InstanceMethodCall(bindingMethod.ContainingType, bindingMethod, injectionModel.InjectionNode, instance.IsProperty), injectionModel.NeedsLifecycleHandling, injectionModel.FactoryConstructorParameters));
                     case MultiItemParameter multiItemParameter:

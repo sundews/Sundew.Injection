@@ -8,7 +8,7 @@
       Location: {SolutionDirectory}TestProjects/DistinctErrors/ImplementFactoryForNonNamedType/InjectionDeclaration.cs: (8,42)-(8,53),
       Description: Occurs when ImplementFactory is called with invalid type parameters,
       MessageFormat: Symbol '{0}' must be a regular class,
-      Message: Symbol 'Errors.ImplementFactoryForNonNamedType.NamedType[]' must be a regular class,
+      Message: Symbol 'DistinctErrors.ImplementFactoryForNonNamedType.NamedType[]' must be a regular class,
       Category: CodeGeneration
     },
     {
@@ -23,6 +23,17 @@
       Category: CodeGeneration
     },
     {
+      Id: SI0003,
+      Title: Could not resolve required parameter,
+      Severity: Error,
+      WarningLevel: 0,
+      Location: : (0,0)-(0,0),
+      Description: Occurs when a required parameter cannot be resolved,
+      MessageFormat: Could not resolve type: '{0}' as a parameter for: '{1}' from the available parameter sources: '{2}',
+      Message: Could not resolve type: '{0}' as a parameter for: '{1}' from the available parameter sources: '{2}',
+      Category: CodeGeneration
+    },
+    {
       Id: SI0006,
       Title: TImplementationType must be generic.,
       Severity: Error,
@@ -30,7 +41,7 @@
       Location: {SolutionDirectory}TestProjects/DistinctErrors/NonGenericBind/InjectionDeclaration.cs: (8,37)-(8,51),
       Description: Only generic types are supported,
       MessageFormat: Symbol: '{0}' is not a generic type,
-      Message: Symbol: 'Errors.NonGenericBind.NonGenericType' is not a generic type,
+      Message: Symbol: 'DistinctErrors.NonGenericBind.NonGenericType' is not a generic type,
       Category: CodeGeneration
     },
     {
@@ -41,7 +52,7 @@
       Location: {SolutionDirectory}TestProjects/DistinctErrors/NonInstantiableType/InjectionDeclaration.cs: (8,37)-(8,64),
       Description: Symbol is either an abstract class or a string, which cannot be instantiated,
       MessageFormat: Symbol: '{0}' cannot be instantiated,
-      Message: Symbol: 'Errors.NonInstantiableType.AbstractGenericType<object>' cannot be instantiated,
+      Message: Symbol: 'DistinctErrors.NonInstantiableType.AbstractGenericType<object>' cannot be instantiated,
       Category: CodeGeneration
     },
     {
@@ -52,7 +63,7 @@
       Location: {SolutionDirectory}TestProjects/DistinctErrors/NoViableConstructorFound/InjectionDeclaration.cs: (8,37)-(8,64),
       Description: Types without a viable constructor are not supported,
       MessageFormat: Symbol: '{0}' did not contain a viable constructor,
-      Message: Symbol: 'Errors.NoViableConstructorFound.NoViableConstructor<object>' did not contain a viable constructor,
+      Message: Symbol: 'DistinctErrors.NoViableConstructorFound.NoViableConstructor<object>' did not contain a viable constructor,
       Category: CodeGeneration
     },
     {
@@ -63,7 +74,7 @@
       Location: {SolutionDirectory}TestProjects/DistinctErrors/NoFactoryMethodForBind/InjectionDeclaration.cs: (8,30)-(8,53),
       Description: Occurs when a binding does not specify a factory method or constructor and no constructor could be resovled automatically,
       MessageFormat: Could not Resolve factory method for type: '{0}',
-      Message: Could not Resolve factory method for type: 'Errors.NoFactoryMethodForBind.NoAccessibleConstructor',
+      Message: Could not Resolve factory method for type: 'DistinctErrors.NoFactoryMethodForBind.NoAccessibleConstructor',
       Category: CodeGeneration
     },
     {
@@ -74,7 +85,7 @@
       Location: {SolutionDirectory}TestProjects/DistinctErrors/NoBindingForNonInstantiableType/InjectionDeclaration.cs: (8,80)-(8,85),
       Description: Occurs when there is no way to construct a type, either by missing a binding, the type not having a constructor or being abstract/interface,
       MessageFormat: Binding not found for type: '{0}' and type is not constructable,
-      Message: Binding not found for type: 'Errors.NoBindingForNonInstantiableType.IRoot' and type is not constructable,
+      Message: Binding not found for type: 'DistinctErrors.NoBindingForNonInstantiableType.IRoot' and type is not constructable,
       Category: CodeGeneration
     },
     {
@@ -86,9 +97,9 @@
       Description: Occurs when an infinite recursion is detected, typically because of a circular dependency between constructors,
       MessageFormat: Symbol: '{0}' caused an infinite recursion, which was detected processing: '{1}',
       Message:
-Symbol: 'Errors.Recursive.NewInstance' caused an infinite recursion, which was detected processing: 'Errors.Recursive.NewInstance
--> Errors.Recursive.Recursive
---> Errors.Recursive.NewInstance',
+Symbol: 'DistinctErrors.Recursive.NewInstance' caused an infinite recursion, which was detected processing: 'DistinctErrors.Recursive.NewInstance
+-> DistinctErrors.Recursive.Recursive
+--> DistinctErrors.Recursive.NewInstance',
       Category: CodeGeneration
     },
     {
@@ -100,9 +111,9 @@ Symbol: 'Errors.Recursive.NewInstance' caused an infinite recursion, which was d
       Description: Occurs when an infinite recursion is detected, typically because of a circular dependency between constructors,
       MessageFormat: Symbol: '{0}' caused an infinite recursion, which was detected processing: '{1}',
       Message:
-Symbol: 'Errors.Recursive.Recursive' caused an infinite recursion, which was detected processing: 'Errors.Recursive.Recursive
--> Errors.Recursive.NewInstance
---> Errors.Recursive.Recursive',
+Symbol: 'DistinctErrors.Recursive.Recursive' caused an infinite recursion, which was detected processing: 'DistinctErrors.Recursive.Recursive
+-> DistinctErrors.Recursive.NewInstance
+--> DistinctErrors.Recursive.Recursive',
       Category: CodeGeneration
     },
     {
@@ -114,10 +125,10 @@ Symbol: 'Errors.Recursive.Recursive' caused an infinite recursion, which was det
       Description: Occurs when an infinite recursion is detected, typically because of a circular dependency between constructors,
       MessageFormat: Symbol: '{0}' caused an infinite recursion, which was detected processing: '{1}',
       Message:
-Symbol: 'Errors.Recursive.Root' caused an infinite recursion, which was detected processing: 'Errors.Recursive.Root
--> Errors.Recursive.Recursive
---> Errors.Recursive.NewInstance
----> Errors.Recursive.Recursive',
+Symbol: 'DistinctErrors.Recursive.Root' caused an infinite recursion, which was detected processing: 'DistinctErrors.Recursive.Root
+-> DistinctErrors.Recursive.Recursive
+--> DistinctErrors.Recursive.NewInstance
+---> DistinctErrors.Recursive.Recursive',
       Category: CodeGeneration
     },
     {

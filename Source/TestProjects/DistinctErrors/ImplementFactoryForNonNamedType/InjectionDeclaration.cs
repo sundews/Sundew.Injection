@@ -1,4 +1,4 @@
-﻿namespace Errors.ImplementFactoryForNonNamedType;
+﻿namespace DistinctErrors.ImplementFactoryForNonNamedType;
 
 using Sundew.Injection;
 

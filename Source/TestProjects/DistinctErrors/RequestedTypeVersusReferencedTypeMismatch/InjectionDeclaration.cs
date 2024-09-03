@@ -1,4 +1,4 @@
-﻿namespace TestPlayground;
+﻿namespace DistinctErrors.RequestedTypeVersusReferencedTypeMismatch;
 
 using Sundew.Injection;
 

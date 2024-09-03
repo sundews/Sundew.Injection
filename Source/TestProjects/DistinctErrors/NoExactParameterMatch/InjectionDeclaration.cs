@@ -1,4 +1,4 @@
-﻿namespace Errors.NoExactParameterMatch;
+﻿namespace DistinctErrors.NoExactParameterMatch;
 
 using Sundew.Injection;
 
@@ -7,28 +7,28 @@ public class InjectionDeclaration : IInjectionDeclaration
     public void Configure(IInjectionBuilder injectionBuilder)
     {
         injectionBuilder.AddParameterProperties<IArguments>();
-        injectionBuilder.AddParameter<Parameter>();
+        injectionBuilder.AddParameter<IParameter>();
 
         injectionBuilder.ImplementFactory<MainFactory>(x => x.Add<Root>());
     }
 }
 
-public class MainFactory
+public partial class MainFactory
 {
 }
 
 public class Root
 {
-    public Root(Parameter parameter)
+    public Root(IParameter parameter)
     {
     }
 }
 
-public class Parameter
+public interface IParameter
 {
 }
 
 public interface IArguments
 {
-    public Parameter NonMatchingParameter { get; set; }
+    public IParameter NonMatchingParameter { get; set; }
 }

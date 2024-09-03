@@ -1,4 +1,4 @@
-﻿namespace Errors.NonGenericBind;
+﻿namespace DistinctErrors.NonGenericBind;
 
 using Sundew.Injection;
 
