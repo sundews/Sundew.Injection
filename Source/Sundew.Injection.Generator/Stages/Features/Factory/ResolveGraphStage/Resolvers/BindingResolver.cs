@@ -139,15 +139,20 @@ internal sealed class BindingResolver
 
     public BindingRoot CreateBindingRoot(FactoryMethodRegistration factoryMethodRegistration, bool useTargetTypeNameForCreateMethod)
     {
-        string GetName()
+        static string GetName(FactoryMethodRegistration factoryMethodRegistration, bool useTargetTypeNameForCreateMethod)
         {
             return useTargetTypeNameForCreateMethod ? factoryMethodRegistration.Target.Type.Name : string.Empty;
         }
 
+        static string GetSingletonName(FactoryMethodRegistration factoryMethodRegistration, bool useTargetTypeNameForCreateMethod)
+        {
+            return useTargetTypeNameForCreateMethod ? factoryMethodRegistration.Target.Type.Name : factoryMethodRegistration.Return.Type.Name;
+        }
+
         var factoryMethodName = factoryMethodRegistration.CreateMethodName.IsNullOrEmpty()
             ? factoryMethodRegistration.Scope.Scope is Scope.SingleInstancePerFactory
-                ? GetName()
-                : Create + GetName()
+                ? GetSingletonName(factoryMethodRegistration, useTargetTypeNameForCreateMethod)
+                : Create + GetName(factoryMethodRegistration, useTargetTypeNameForCreateMethod)
             : factoryMethodRegistration.CreateMethodName;
         var targetType = factoryMethodRegistration.Target.Type;
         var returnType = factoryMethodRegistration.Return.Type;

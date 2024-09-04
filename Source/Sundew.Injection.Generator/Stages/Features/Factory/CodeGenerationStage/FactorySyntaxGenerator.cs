@@ -137,10 +137,11 @@ internal class FactorySyntaxGenerator(
             .OrderBy(x => x.Key)
             .SelectMany(x => x)
             .ToImmutableList();
+
         var createMethodDeclaration = new MethodDeclaration(
             DeclaredAccessibility.Public,
             false,
-            factoryMethodData.FactoryMethodName,
+            NameHelper.GetFactoryMethodName(factoryMethodData.FactoryMethodName),
             createMethodParameters,
             new UsedType(factoryMethodData.Return.Type));
 
@@ -152,7 +153,7 @@ internal class FactorySyntaxGenerator(
             {
                 var createPropertyDeclaration = new PropertyDeclaration(
                     factoryMethodData.Return.Type,
-                    factoryMethodData.FactoryMethodName,
+                    NameHelper.GetFactoryMethodName(factoryMethodData.FactoryMethodName),
                     ImmutableList.Create(knownSyntax.BindableCreateMethodAttribute));
 
                 factoryMethodStatements = factoryMethodStatements.Add(Statement.ExpressionStatement(
@@ -260,7 +261,7 @@ internal class FactorySyntaxGenerator(
             {
                 var createPropertyDeclaration = new PropertyDeclaration(
                     factoryMethodData.Return.Type,
-                    factoryMethodData.FactoryMethodName,
+                    NameHelper.GetFactoryMethodName(factoryMethodData.FactoryMethodName),
                     ImmutableList.Create(knownSyntax.BindableCreateMethodAttribute));
                 factoryMethodStatements =
                     factoryMethodStatements.Add(
