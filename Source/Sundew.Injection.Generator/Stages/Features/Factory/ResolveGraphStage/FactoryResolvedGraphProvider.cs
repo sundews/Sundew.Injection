@@ -98,7 +98,7 @@ internal static class FactoryResolvedGraphProvider
                         bindingResolver,
                         requiredParametersInjectionResolver,
                         cancellationToken);
-                    if (lifecycleInjectionNodeResult.TryGetError(out var diagnostics))
+                    if (lifecycleInjectionNodeResult.TryGetError(out var diagnostics, out var lifecycleInjectionNode))
                     {
                         factoryDefinitionResults.Add(R.Error(new Diagnostics(diagnostics)));
                         break;
@@ -109,7 +109,7 @@ internal static class FactoryResolvedGraphProvider
                         factoryInterfaceType,
                         factoryImplementationDefinition.Accessibility,
                         needsLifecycleHandling,
-                        lifecycleInjectionNodeResult.Value,
+                        lifecycleInjectionNode,
                         all.Items.ToImmutableArray());
 
                     factoryDefinitionResults.Add(R.Success(factoryDefinition));

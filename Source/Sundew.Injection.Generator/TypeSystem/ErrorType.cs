@@ -7,4 +7,5 @@ public enum ErrorType
     NoPropertyGetMethodFound,
     ParameterTypeResolutionFailed,
     InvalidFactoryMethodBinding,
+    UnsupportedSymbol,
 }

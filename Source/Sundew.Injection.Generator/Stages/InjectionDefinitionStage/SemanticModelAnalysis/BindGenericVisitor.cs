@@ -89,7 +89,7 @@ internal class BindGenericVisitor(
 
         if (method.IsError)
         {
-            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, method.Error);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(method.Error);
             return;
         }
 
@@ -103,13 +103,12 @@ internal class BindGenericVisitor(
             }
 
             var genericMethodResult = analysisContext.TypeFactory.GetGenericMethod(lastNamedTypeSymbol.Constructors.GetDefaultMethodWithMostParameters());
-            if (genericMethodResult.IsError)
+            if (genericMethodResult.TryGetError(out var error, out actualMethod))
             {
-                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, last, genericMethodResult.Error.GetErrorText());
+                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(new ErrorWithLocation(error, last.Location));
                 return;
             }
 
-            actualMethod = genericMethodResult.Value;
             if (actualMethod == default)
             {
                 analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.NoViableConstructorFoundError, last);

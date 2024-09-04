@@ -89,49 +89,6 @@
       Category: CodeGeneration
     },
     {
-      Id: SI0012,
-      Title: Infinite recursion detected,
-      Severity: Error,
-      WarningLevel: 0,
-      Location: {SolutionDirectory}TestProjects/DistinctErrors/Recursive/InjectionDeclaration.cs: (8,30)-(8,41),
-      Description: Occurs when an infinite recursion is detected, typically because of a circular dependency between constructors,
-      MessageFormat: Symbol: '{0}' caused an infinite recursion, which was detected processing: '{1}',
-      Message:
-Symbol: 'DistinctErrors.Recursive.NewInstance' caused an infinite recursion, which was detected processing: 'DistinctErrors.Recursive.NewInstance
--> DistinctErrors.Recursive.Recursive
---> DistinctErrors.Recursive.NewInstance',
-      Category: CodeGeneration
-    },
-    {
-      Id: SI0012,
-      Title: Infinite recursion detected,
-      Severity: Error,
-      WarningLevel: 0,
-      Location: {SolutionDirectory}TestProjects/DistinctErrors/Recursive/InjectionDeclaration.cs: (9,30)-(9,39),
-      Description: Occurs when an infinite recursion is detected, typically because of a circular dependency between constructors,
-      MessageFormat: Symbol: '{0}' caused an infinite recursion, which was detected processing: '{1}',
-      Message:
-Symbol: 'DistinctErrors.Recursive.Recursive' caused an infinite recursion, which was detected processing: 'DistinctErrors.Recursive.Recursive
--> DistinctErrors.Recursive.NewInstance
---> DistinctErrors.Recursive.Recursive',
-      Category: CodeGeneration
-    },
-    {
-      Id: SI0012,
-      Title: Infinite recursion detected,
-      Severity: Error,
-      WarningLevel: 0,
-      Location: {SolutionDirectory}TestProjects/DistinctErrors/Recursive/InjectionDeclaration.cs: (11,80)-(11,84),
-      Description: Occurs when an infinite recursion is detected, typically because of a circular dependency between constructors,
-      MessageFormat: Symbol: '{0}' caused an infinite recursion, which was detected processing: '{1}',
-      Message:
-Symbol: 'DistinctErrors.Recursive.Root' caused an infinite recursion, which was detected processing: 'DistinctErrors.Recursive.Root
--> DistinctErrors.Recursive.Recursive
---> DistinctErrors.Recursive.NewInstance
----> DistinctErrors.Recursive.Recursive',
-      Category: CodeGeneration
-    },
-    {
       Id: SI0013,
       Title: Requested versus referenced type mismatch.,
       Severity: Error,
@@ -140,6 +97,49 @@ Symbol: 'DistinctErrors.Recursive.Root' caused an infinite recursion, which was 
       Description: Occurs when a requested type (parameter or return type) cannot be provided by the factory, because the referenced type is a supertype of requested type.,
       MessageFormat: The requested type '{0}' cannot be used as a parameter or return type, as it is more specialized than the referenced type: '{1}', when injection for '{2}',
       Message: The requested type 'Class' cannot be used as a parameter or return type, as it is more specialized than the referenced type: 'Interface', when injection for 'Root',
+      Category: CodeGeneration
+    },
+    {
+      Id: SI0015,
+      Title: Could not resolve all parameters,
+      Severity: Error,
+      WarningLevel: 0,
+      Location: {SolutionDirectory}TestProjects/DistinctErrors/Recursive/InjectionDeclaration.cs: (8,30)-(8,41),
+      Description: Occurs when parameter type could not be resolved.,
+      MessageFormat: The parameter '{0}' could not be resolved. Context: {1},
+      Message:
+The parameter 'DistinctErrors.Recursive.NewInstance' could not be resolved. Context: DistinctErrors.Recursive.NewInstance
+-> DistinctErrors.Recursive.Recursive >>> Could not resolve all parameters
+--> DistinctErrors.Recursive.NewInstance >>> Infinite recursion detected,
+      Category: CodeGeneration
+    },
+    {
+      Id: SI0015,
+      Title: Could not resolve all parameters,
+      Severity: Error,
+      WarningLevel: 0,
+      Location: {SolutionDirectory}TestProjects/DistinctErrors/Recursive/InjectionDeclaration.cs: (9,30)-(9,39),
+      Description: Occurs when parameter type could not be resolved.,
+      MessageFormat: The parameter '{0}' could not be resolved. Context: {1},
+      Message:
+The parameter 'DistinctErrors.Recursive.Recursive' could not be resolved. Context: DistinctErrors.Recursive.Recursive
+-> DistinctErrors.Recursive.NewInstance >>> Could not resolve all parameters
+--> DistinctErrors.Recursive.Recursive >>> Infinite recursion detected,
+      Category: CodeGeneration
+    },
+    {
+      Id: SI0015,
+      Title: Could not resolve all parameters,
+      Severity: Error,
+      WarningLevel: 0,
+      Location: {SolutionDirectory}TestProjects/DistinctErrors/Recursive/InjectionDeclaration.cs: (11,80)-(11,84),
+      Description: Occurs when parameter type could not be resolved.,
+      MessageFormat: The parameter '{0}' could not be resolved. Context: {1},
+      Message:
+The parameter 'DistinctErrors.Recursive.Root' could not be resolved. Context: DistinctErrors.Recursive.Root
+-> DistinctErrors.Recursive.Recursive >>> Could not resolve all parameters
+--> DistinctErrors.Recursive.NewInstance >>> Could not resolve all parameters
+---> DistinctErrors.Recursive.Recursive >>> Infinite recursion detected,
       Category: CodeGeneration
     }
   ]

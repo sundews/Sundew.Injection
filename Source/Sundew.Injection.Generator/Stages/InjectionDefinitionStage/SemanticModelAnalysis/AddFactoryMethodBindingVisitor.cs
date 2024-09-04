@@ -59,15 +59,15 @@ internal class AddFactoryMethodBindingVisitor(
             }
         }
 
-        if (factoryMethodSelector.IsError)
+        if (factoryMethodSelector.TryGetError(out var error, out var factoryMethod))
         {
-            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, factoryMethodSelector.Error);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(error);
             return;
         }
 
-        if (factoryMethodSelector.Value.Method != default)
+        if (factoryMethod.Method != default)
         {
-            this.factoryMethodTargets.Add((new FactoryMethodTarget(factoryMethodSelector.Value.Method, analysisContext.TypeFactory.GetType(addMethodSymbol.ReturnType)), new TypeSymbolWithLocation(addMethodSymbol.ReturnType, factoryMethodSelector.Value.Location)));
+            this.factoryMethodTargets.Add((new FactoryMethodTarget(factoryMethod.Method, analysisContext.TypeFactory.GetType(addMethodSymbol.ReturnType)), new TypeSymbolWithLocation(addMethodSymbol.ReturnType, factoryMethodSelector.Value.Location)));
         }
     }
 

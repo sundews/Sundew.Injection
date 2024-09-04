@@ -28,24 +28,24 @@ internal sealed class ScopeResolverBuilder
     public ScopeResolverBuilder(
         BindingResolver bindingResolver,
         ValueDictionary<TypeId, InjectionDefinitionStage.ScopeContext> requiredParameterScopes,
-        ValueArray<FactoryImplementationDefinition> factoryCreationDefinitions)
+        ValueArray<FactoryImplementationDefinition> factoryImplementationDefinitions)
         : this(
             bindingResolver,
             requiredParameterScopes.ToDictionary(
                 x => x.Key,
                 x => new ScopeContext(x.Value.Scope, x.Value.Selection)),
-            factoryCreationDefinitions)
+            factoryImplementationDefinitions)
     {
     }
 
     internal ScopeResolverBuilder(
         BindingResolver bindingResolver,
         Dictionary<TypeId, ScopeContext> scopes,
-        ValueArray<FactoryImplementationDefinition> factoryCreationDefinitions)
+        ValueArray<FactoryImplementationDefinition> factoryImplementationDefinitions)
     {
         this.bindingResolver = bindingResolver;
         this.scopes = scopes;
-        foreach (var factoryCreationDefinition in factoryCreationDefinitions)
+        foreach (var factoryCreationDefinition in factoryImplementationDefinitions)
         {
             var scopeContext = new ScopeContext(Scope._SingleInstancePerRequest(Location.None), ScopeSelection.Implicit);
             this.scopes.Add(factoryCreationDefinition.FactoryType.Id, scopeContext);

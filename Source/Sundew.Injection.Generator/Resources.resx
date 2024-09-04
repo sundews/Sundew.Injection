@@ -272,4 +272,40 @@ Dependant node name: {3}.</value>
   <data name="ReferencedTypeMismatchTitle" xml:space="preserve">
     <value>Requested versus referenced type mismatch.</value>
   </data>
+  <data name="InvalidFactoryMethodBindingDescription" xml:space="preserve">
+    <value />
+  </data>
+  <data name="InvalidFactoryMethodBindingMessageFormat" xml:space="preserve">
+    <value>InvalidFactoryMethodBinding '{0}'</value>
+  </data>
+  <data name="InvalidFactoryMethodBindingTitle" xml:space="preserve">
+    <value />
+  </data>
+  <data name="NoPropertyGetMethodFoundDescription" xml:space="preserve">
+    <value>Occurs when binding a property that does not have a getter.</value>
+  </data>
+  <data name="NoPropertyGetMethodFoundMessageFormat" xml:space="preserve">
+    <value>No property get method found for: '{0}'</value>
+  </data>
+  <data name="NoPropertyGetMethodFoundTitle" xml:space="preserve">
+    <value>Cannot bind properties that do not have a get method.</value>
+  </data>
+  <data name="ParameterTypeResolutionFailedDescription" xml:space="preserve">
+    <value>Occurs when parameter type could not be resolved.</value>
+  </data>
+  <data name="ParameterTypeResolutionFailedMessageFormat" xml:space="preserve">
+    <value>The parameter '{0}' could not be resolved. Context: {1}</value>
+  </data>
+  <data name="ParameterTypeResolutionFailedTitle" xml:space="preserve">
+    <value>Could not resolve all parameters</value>
+  </data>
+  <data name="UnsupportedSymbolDescription" xml:space="preserve">
+    <value>Occurs when attempting to bind a factory to symbols that are not a method or a property.</value>
+  </data>
+  <data name="UnsupportedSymbolMessageFormat" xml:space="preserve">
+    <value>The symbol '{0}' is not supported. Only methods and properties can be used.</value>
+  </data>
+  <data name="UnsupportedSymbolTitle" xml:space="preserve">
+    <value>Attempted to bind unsupported symbol.</value>
+  </data>
 </root>

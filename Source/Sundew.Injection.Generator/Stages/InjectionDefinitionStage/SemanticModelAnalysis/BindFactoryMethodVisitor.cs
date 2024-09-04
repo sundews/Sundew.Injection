@@ -70,7 +70,7 @@ internal class BindFactoryMethodVisitor(
             }
 
             analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(
-                new ErrorWithLocation(new Error(ErrorType.InvalidFactoryMethodBinding, new SymbolError(new NamedSymbol(methodSymbol.ToDisplayString()), [error])), factoryTypeSymbolWithLocation.Location),
+                new ErrorWithLocation(new Error(ErrorType.InvalidFactoryMethodBinding, new NamedSymbol(methodSymbol.ToDisplayString()), [error]), factoryTypeSymbolWithLocation.Location),
                 factoryTypeSymbolWithLocation);
         }
     }

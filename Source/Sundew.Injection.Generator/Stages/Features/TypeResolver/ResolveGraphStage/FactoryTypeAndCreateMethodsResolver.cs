@@ -24,10 +24,10 @@ internal class FactoryTypeAndCreateMethodsResolver(
             var factoryTargetResults = factoryRegistration.FactoryTargets.Select(factoryTarget =>
                 {
                     return new FactoryTargetDeclaration(
-                        factoryTarget.Name,
-                        factoryTarget.Parameters.Select(parameter => new ParameterDeclaration(parameter.Type, parameter.Name)).ToValueList(),
+                        factoryTarget.Method.Name,
+                        factoryTarget.Method.Parameters.Select(parameter => new ParameterDeclaration(parameter.Type, parameter.Name)).ToValueList(),
                         factoryTarget.ReturnType,
-                        factoryTarget.IsProperty);
+                        factoryTarget.Method.Kind is MethodKind.Instance { IsProperty: true });
                 }).ToValueArray();
 
             return (factoryRegistration.FactoryType, factoryTargetResults);

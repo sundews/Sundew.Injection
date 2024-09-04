@@ -80,9 +80,9 @@ internal class AddFactoryMethodVisitor(
             }
         }
 
-        if (constructorSelector.IsError)
+        if (constructorSelector.TryGetError(out var error, out var constructorMethod))
         {
-            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, constructorSelector.Error);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(error);
             return;
         }
 
@@ -92,7 +92,7 @@ internal class AddFactoryMethodVisitor(
             return;
         }
 
-        analysisContext.AddFactoryMethodFromTypeSymbol(interfaceType, implementationType, constructorSelector.Value, factoryMethodName, accessibility, isNewOverridable, factoryMethodRegistrationBuilder);
+        analysisContext.AddFactoryMethodFromTypeSymbol(interfaceType, implementationType, constructorMethod, factoryMethodName, accessibility, isNewOverridable, factoryMethodRegistrationBuilder);
     }
 
     private R<Method?, ErrorWithLocation> GetMethod(ArgumentSyntax argumentSyntax)

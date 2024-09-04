@@ -143,7 +143,7 @@ internal sealed class InjectionTreeBuilder(
 
                         errors.AddAnyErrors(parameterInjectionNodePairs);
 
-                        var successes = parameterInjectionNodePairs.GetSuccesses().ToReadOnly();
+                        var successes = parameterInjectionNodePairs.GetSuccesses().ToReadOnlyCollection();
                         arrayConstructorInjectionNodes.AddRange(successes.Select(x => x.InjectionNode));
                         BooleanHelper.SetIfTrue(ref needsLifecycleHandling, successes.Any(x => x.NeedsLifecycleHandling));
 

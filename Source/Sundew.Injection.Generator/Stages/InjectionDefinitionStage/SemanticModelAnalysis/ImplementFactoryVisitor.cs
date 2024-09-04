@@ -87,7 +87,7 @@ internal class ImplementFactoryVisitor(
         analysisContext.CompiletimeInjectionDefinitionBuilder.ImplementFactory(factoryType.Value, factoryInterfaceType, factoryMethods, accessibility, location);
     }
 
-    internal static R<Method, SymbolError>? GetFactoryTarget(AnalysisContext analysisContext, ISymbol symbol)
+    internal static R<Method, Error>? GetFactoryTarget(AnalysisContext analysisContext, ISymbol symbol)
     {
         const string dispose = "Dispose";
         switch (symbol)
@@ -112,12 +112,12 @@ internal class ImplementFactoryVisitor(
                 break;
         }
 
-        return default;
+        return R.Error(default(Error));
     }
 
     private void GetFactoryMethods(FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder, TypeSymbolWithLocation factoryTypeSymbol, TypeSymbolWithLocation? factoryInterfaceTypeSymbol)
     {
-        var factories = (factory: factoryTypeSymbol.TypeSymbol, members: factoryTypeSymbol.TypeSymbol.GetMembers()).ToEnumerable().Concat(factoryTypeSymbol.TypeSymbol.AllInterfaces.Select(x => (factory: (ITypeSymbol)x, members: x.GetMembers())));
+        var factories = (factory: factoryTypeSymbol.TypeSymbol, members: factoryTypeSymbol.TypeSymbol.GetMembers()).ToEnumerableValue().Concat(factoryTypeSymbol.TypeSymbol.AllInterfaces.Select(x => (factory: (ITypeSymbol)x, members: x.GetMembers())));
         foreach (var factory in factories)
         {
             foreach (var member in factory.members)

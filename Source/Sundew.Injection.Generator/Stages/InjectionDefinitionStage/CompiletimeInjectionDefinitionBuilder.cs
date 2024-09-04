@@ -147,14 +147,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
 
     public void AddDiagnostic(ErrorWithLocation errorWithLocation, params object[] additionalArguments)
     {
-        var diagnosticDescriptor = errorWithLocation.Error.ErrorType switch
-        {
-            ErrorType.InfiniteRecursions => Diagnostics.InfiniteRecursionError,
-            ErrorType.NoPropertyGetMethodFound => Diagnostics.NoFactoryMethodFoundForTypeError,
-            ErrorType.ParameterTypeResolutionFailed => Diagnostics.ResolveRequiredParameterError,
-        };
-
-        foreach (var diagnostic in Diagnostics.Create(diagnosticDescriptor, errorWithLocation, additionalArguments))
+        foreach (var diagnostic in Diagnostics.Create(errorWithLocation, additionalArguments))
         {
             this.AddDiagnostic(diagnostic);
         }

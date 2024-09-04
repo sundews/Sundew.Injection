@@ -36,30 +36,24 @@ internal class BindFactoryVisitor(
                     .Select(symbol =>
                         symbol switch
                         {
-                            IPropertySymbol propertySymbol =>
-                                R.Success(analysisContext.TypeFactory.GetFactoryMethod(propertySymbol)
-                                        .With(x => (Method: x, ReturnType: factoryTypeSymbol with { TypeSymbol = propertySymbol.Type })))
-                                    .Omits<SymbolError>()
-                                    .ToResultOption(),
+                            IPropertySymbol propertySymbol => analysisContext.TypeFactory.GetFactoryMethodTarget(propertySymbol)
+                                        .With(x => (Method: x, ReturnType: factoryTypeSymbol with { TypeSymbol = propertySymbol.Type })),
                             IMethodSymbol methodSymbol =>
-                                analysisContext.TypeFactory.GetFactoryMethod(methodSymbol)
-                                    .With(x => (Method: x, ReturnType: factoryTypeSymbol with { TypeSymbol = methodSymbol.ReturnType }))
-                                    .ToResultOption(),
-                            _ => R.Error(new SymbolError(new NamedSymbol(symbol.ToDisplayString()), []))
-                                .Omits<(Method Method, TypeSymbolWithLocation ReturnType)>()
-                                .ToResultOption(),
+                                analysisContext.TypeFactory.GetFactoryMethodTarget(methodSymbol)
+                                    .With(x => (Method: x, ReturnType: factoryTypeSymbol with { TypeSymbol = methodSymbol.ReturnType })),
+                            _ => R.Error(new Error(ErrorType.UnsupportedSymbol, new NamedSymbol(symbol.ToDisplayString()), []))
+                                .Omits<(FactoryMethodTarget Method, TypeSymbolWithLocation ReturnType)>(),
                         })
-                    .WhereNotDefault()
                     .AllOrFailed(x => x.ToItem());
 
-                if (!factoryMethodResults.TryGet(out var all, out var factoryMethodErrors))
+                if (factoryMethodResults.TryGetError(out var factoryMethodErrors, out var all))
                 {
-                    factoryMethodErrors.ForEach(x => analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, factoryTypeSymbol, x.Error.GetErrorText()));
+                    factoryMethodErrors.ForEach(x => analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(new ErrorWithLocation(x.Error, node.GetLocation())));
                     return;
                 }
 
                 var factoryTypeResult = analysisContext.TypeFactory.GetFullType(factoryTypeSymbol);
-                if (!factoryTypeResult.TryGet(out var factoryType, out var errorWithLocation))
+                if (factoryTypeResult.TryGetError(out var errorWithLocation, out var factoryType))
                 {
                     analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(errorWithLocation);
                     return;

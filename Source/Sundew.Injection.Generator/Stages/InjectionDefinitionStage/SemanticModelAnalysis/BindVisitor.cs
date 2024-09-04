@@ -34,9 +34,9 @@ internal class BindVisitor(
         var interfaceTypes = typeArguments.Take(typeArguments.Length - 1).Select(x => analysisContext.TypeFactory.GetType(x.TypeSymbol)).ToImmutableArray();
         var implementationTypeSymbol = typeArguments.Last();
         var implementationTypeResult = analysisContext.TypeFactory.GetFullType(implementationTypeSymbol.TypeSymbol);
-        if (!implementationTypeResult.TryGet(out var implementationType, out var error))
+        if (!implementationTypeResult.TryGet(out var implementationType, out var implementTypeError))
         {
-            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, implementationTypeSymbol, error.GetErrorText());
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(new ErrorWithLocation(implementTypeError, implementationTypeSymbol.Location));
             return;
         }
 
@@ -82,9 +82,9 @@ internal class BindVisitor(
             }
         }
 
-        if (constructorSelector.IsError)
+        if (constructorSelector.TryGetError(out var error))
         {
-            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, constructorSelector.Error);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(error);
             return;
         }
 

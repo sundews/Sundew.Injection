@@ -45,7 +45,7 @@ internal sealed class TypeFactory(
         return TypeConverter.GetNamedType(namedTypeSymbol);
     }
 
-    public R<Method, SymbolError> GetFactoryMethod(IPropertySymbol propertySymbol)
+    public R<Method, Error> GetFactoryMethod(IPropertySymbol propertySymbol)
     {
         return TypeConverter.GetMethod(propertySymbol, knownInjectableTypes);
     }
@@ -71,20 +71,20 @@ internal sealed class TypeFactory(
         return (GenericTypeConverter.GetGenericType(genericTypeSymbol), this.GetTypeMetadata(genericTypeSymbol));
     }
 
-    public R<GenericMethod, SymbolError> GetGenericMethod(IMethodSymbol? methodSymbol)
+    public R<GenericMethod, Error> GetGenericMethod(IMethodSymbol? methodSymbol)
     {
         if (methodSymbol.HasValue())
         {
             var genericParametersResult = methodSymbol.Parameters.AllOrFailed(x => this.GetGenericParameter(x).ToItem());
-            if (genericParametersResult.IsError)
+            if (genericParametersResult.TryGetError(out var failedItems, out var genericParameters))
             {
-                return R.Error(new SymbolError(new NamedSymbol(methodSymbol.ToDisplayString()), (System.Collections.Generic.IReadOnlyList<Error>)genericParametersResult.Error.GetErrors()));
+                return R.Error(new Error(ErrorType.ParameterTypeResolutionFailed, new NamedSymbol(methodSymbol.ToDisplayString()), failedItems.GetErrors()));
             }
 
             return R.Success(
                 new GenericMethod(
                     methodSymbol.MetadataName,
-                    genericParametersResult.Value.Items,
+                    genericParameters.Items,
                     TypeConverter.GetContaineeType(methodSymbol),
                     TypeConverter.GetMethodKind(methodSymbol, knownInjectableTypes)));
         }

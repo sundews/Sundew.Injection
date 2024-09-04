@@ -101,11 +101,11 @@ internal static class TypeConverter
             (visitedTypes, var wasAdded) = visitedTypes.TryAdd(containingType.Id);
             if (!wasAdded)
             {
-                return R.Error(new Error(ErrorType.InfiniteRecursions, new SymbolError(containingType, ImmutableList<Error>.Empty)));
+                return R.Error(new Error(ErrorType.InfiniteRecursions, containingType, ImmutableList<Error>.Empty));
             }
 
             var parametersResult = methodSymbol.Parameters.AllOrFailed(x => GetFullParameter(x, knownInjectableTypes, visitedTypes).ToItem());
-            if (parametersResult.TryGet(out var all, out var errors))
+            if (parametersResult.TryGet(out var all, out var failedParameters))
             {
                 return R.SuccessOption(new Method(
                     containingType,
@@ -115,7 +115,7 @@ internal static class TypeConverter
                     MethodKind._Constructor));
             }
 
-            return R.Error(new Error(ErrorType.ParameterTypeResolutionFailed, new SymbolError(containingType, errors.GetErrors())));
+            return R.Error(new Error(ErrorType.ParameterTypeResolutionFailed, containingType, failedParameters.GetErrors()));
         }
 
         return R.SuccessOption<Method?>();
@@ -124,22 +124,22 @@ internal static class TypeConverter
     public static R<Method, Error> GetMethod(IMethodSymbol methodSymbol, IKnownInjectableTypes knownInjectableTypes)
     {
         var containingType = GetType(methodSymbol.ContainingType, knownInjectableTypes);
-        var parameters = methodSymbol.Parameters.AllOrFailed(x => GetFullParameter(x, knownInjectableTypes, ImmutableHashSet<TypeId>.Empty).ToItem());
-        if (parameters.IsError)
+        var parametersResult = methodSymbol.Parameters.AllOrFailed(x => GetFullParameter(x, knownInjectableTypes, ImmutableHashSet<TypeId>.Empty).ToItem());
+        if (parametersResult.TryGetError(out var failedParameters, out var parameters))
         {
-            return R.Error(new Error(ErrorType.ParameterTypeResolutionFailed, new SymbolError(containingType, parameters.Error.GetErrors())));
+            return R.Error(new Error(ErrorType.ParameterTypeResolutionFailed, containingType, failedParameters.GetErrors()));
         }
 
         return R.Success(
             new Method(
                 containingType,
                 methodSymbol.MetadataName,
-                parameters.Value.Items,
+                parameters.Items,
                 ValueArray<FullTypeArgument>.Empty,
                 GetMethodKind(methodSymbol, knownInjectableTypes)));
     }
 
-    public static R<Method, SymbolError> GetMethod(IPropertySymbol propertySymbol, IKnownInjectableTypes knownInjectableTypes)
+    public static R<Method, Error> GetMethod(IPropertySymbol propertySymbol, IKnownInjectableTypes knownInjectableTypes)
     {
         if (propertySymbol.GetMethod != null)
         {
@@ -152,7 +152,7 @@ internal static class TypeConverter
         }
 
         var containingType = GetType(propertySymbol.ContainingType, knownInjectableTypes);
-        return R.Error(new SymbolError(containingType, []));
+        return R.Error(new Error(ErrorType.NoPropertyGetMethodFound, new NamedSymbol(containingType.FullName + '.' + propertySymbol.MetadataName), []));
     }
 
     public static R<FactoryMethodTarget, Error> GetFactoryMethodTarget(IMethodSymbol methodSymbol, IKnownInjectableTypes knownInjectableTypes)
@@ -163,13 +163,8 @@ internal static class TypeConverter
 
     public static R<FactoryMethodTarget, Error> GetFactoryMethodTarget(IPropertySymbol propertySymbol, IKnownInjectableTypes knownInjectableTypes)
     {
-        if (propertySymbol.GetMethod != null)
-        {
-            var methodResult = GetMethod(propertySymbol.GetMethod, knownInjectableTypes);
-            return methodResult.With(method => new FactoryMethodTarget(method, GetType(propertySymbol.Type, knownInjectableTypes)));
-        }
-
-        return R.Error(new Error(ErrorType.NoPropertyGetMethodFound, new SymbolError(GetType(propertySymbol.ContainingType, knownInjectableTypes), [])));
+        var methodResult = GetMethod(propertySymbol, knownInjectableTypes);
+        return methodResult.With(method => new FactoryMethodTarget(method, GetType(propertySymbol.Type, knownInjectableTypes)));
     }
 
     public static Parameter GetParameter(IParameterSymbol parameterSymbol, IKnownInjectableTypes knownInjectableTypes)

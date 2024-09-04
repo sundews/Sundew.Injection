@@ -33,28 +33,28 @@ internal static class BindingHelper
         foreach (var methodAndReturnType in factoryMethodTargets)
         {
             var returnTypeResult = analysisContext.TypeFactory.GetFullType(methodAndReturnType.ReturnType);
-            if (returnTypeResult.IsError)
+            if (returnTypeResult.TryGetError(out var returnTypeError, out var returnType))
             {
-                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, returnTypeResult.Error);
+                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(returnTypeError);
                 return;
             }
 
-            var returnType = returnTypeResult.Value with { Metadata = returnTypeResult.Value.Metadata with { HasLifecycle = false } };
+            returnType = returnType with { Metadata = returnTypeResult.Value.Metadata with { HasLifecycle = false } };
             analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<Type>.Empty, returnType, methodAndReturnType.FactoryMethodTarget.Method, new ScopeContext(Scope._Auto, ScopeSelection.Implicit), false, false);
 
             if (SymbolEqualityComparer.Default.Equals(methodAndReturnType.ReturnType.TypeSymbol.OriginalDefinition, analysisContext.KnownAnalysisTypes.ConstructedTypeSymbol))
             {
                 var typeSymbol = ((INamedTypeSymbol)methodAndReturnType.ReturnType.TypeSymbol).TypeArguments.Single();
-                var returnTypeFirstTypeParameterResult = analysisContext.TypeFactory.GetFullType(typeSymbol);
-                if (returnTypeFirstTypeParameterResult.IsError)
+                var returnTypeFromFirstTypeParameterResult = analysisContext.TypeFactory.GetFullType(typeSymbol);
+                if (returnTypeFromFirstTypeParameterResult.TryGetError(out var error, out var returnTypeFromFirstTypeParameter))
                 {
-                    analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, methodAndReturnType.ReturnType with { TypeSymbol = typeSymbol }, returnTypeFirstTypeParameterResult.Error.GetErrorText());
+                    analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, methodAndReturnType.ReturnType with { TypeSymbol = typeSymbol }, error);
                     return;
                 }
 
                 analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(
                     ImmutableArray<Type>.Empty,
-                    returnTypeFirstTypeParameterResult.Value with { Metadata = returnTypeFirstTypeParameterResult.Value.Metadata with { HasLifecycle = false } },
+                    returnTypeFromFirstTypeParameter with { Metadata = returnTypeFromFirstTypeParameter.Metadata with { HasLifecycle = false } },
                     new Method(
                         returnType.Type,
                         nameof(Constructed<object>.Object),

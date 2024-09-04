@@ -52,7 +52,7 @@ internal static class ExpressionAnalysisHelper
                                 .WithError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()))
                                 .ToOptionResult();
                         case IPropertySymbol memberAccessPropertySymbol:
-                            return R.SuccessOption(typeFactory.GetFactoryMethod(memberAccessPropertySymbol));
+                            return typeFactory.GetFactoryMethod(memberAccessPropertySymbol).WithError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation())).ToOptionResult();
                     }
 
                     break;

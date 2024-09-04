@@ -10,6 +10,7 @@ namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
+using Sundew.Base;
 using Sundew.Base.Collections;
 using Sundew.Base.Text;
 using Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model;
