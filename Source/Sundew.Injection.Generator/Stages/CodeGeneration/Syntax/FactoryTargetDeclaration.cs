@@ -10,4 +10,4 @@ namespace Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal readonly record struct FactoryTargetDeclaration(string Name, ValueList<ParameterDeclaration> Parameters, Type ReturnType, bool IsProperty);
+internal readonly record struct FactoryTargetDeclaration(string Name, ValueList<ParameterDeclaration> Parameters, Type ReturnType, bool IsProperty, ValueArray<string> BindableFactoryTargets);

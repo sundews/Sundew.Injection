@@ -28,7 +28,7 @@ internal class RequiredParametersInjectionResolver(
             return this.ResolveParameterSource(type, name, parameterSources);
         }
 
-        return ResolvedParameterSource._NotFound(ParameterSource.DirectParameter(this.Inject));
+        return ResolvedParameterSource._NotFound(ParameterSource.DirectParameter(type, type.Name.Uncapitalize(), false, false, ParameterNecessity._Required, this.Inject));
     }
 
     private ResolvedParameterSource ResolveParameterSource(Type type, string name, ValueArray<ParameterSource> parameterSources)
@@ -37,7 +37,7 @@ internal class RequiredParametersInjectionResolver(
         switch (parameterSources.Count)
         {
             case 0:
-                return ResolvedParameterSource._Found(ParameterSource.DirectParameter(this.Inject));
+                return ResolvedParameterSource._Found(ParameterSource.DirectParameter(type, type.Name.Uncapitalize(), false, false, ParameterNecessity._Required, this.Inject));
             case 1:
                 return ResolvedParameterSource._Found(parameterSources[0]);
             default:

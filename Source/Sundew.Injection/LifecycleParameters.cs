@@ -12,10 +12,11 @@ namespace Sundew.Injection;
 using Disposal.Interfaces;
 using Initialization.Interfaces;
 
-public sealed class LifecycleParameters(bool initializeConcurrently = false,
-        bool disposeConcurrently = false,
-        IInitializationReporter? initializationReporter = default,
-        IDisposalReporter? disposalReporter = default)
+public sealed class LifecycleParameters(
+    bool initializeConcurrently = false,
+    bool disposeConcurrently = false,
+    IInitializationReporter? initializationReporter = default,
+    IDisposalReporter? disposalReporter = default)
     : ILifecycleParameters
 {
     public static LifecycleParameters Default { get; } = new();

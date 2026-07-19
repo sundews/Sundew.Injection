@@ -37,10 +37,10 @@ internal class BindFactoryVisitor(
                         symbol switch
                         {
                             IPropertySymbol propertySymbol => analysisContext.TypeFactory.GetFactoryMethodTarget(propertySymbol)
-                                        .With(x => (Method: x, ReturnType: factoryTypeSymbol with { TypeSymbol = propertySymbol.Type })),
+                                        .Map(x => (Method: x, ReturnType: factoryTypeSymbol with { TypeSymbol = propertySymbol.Type })),
                             IMethodSymbol methodSymbol =>
                                 analysisContext.TypeFactory.GetFactoryMethodTarget(methodSymbol)
-                                    .With(x => (Method: x, ReturnType: factoryTypeSymbol with { TypeSymbol = methodSymbol.ReturnType })),
+                                    .Map(x => (Method: x, ReturnType: factoryTypeSymbol with { TypeSymbol = methodSymbol.ReturnType })),
                             _ => R.Error(new Error(ErrorType.UnsupportedSymbol, new NamedSymbol(symbol.ToDisplayString()), []))
                                 .Omits<(FactoryMethodTarget Method, TypeSymbolWithLocation ReturnType)>(),
                         })

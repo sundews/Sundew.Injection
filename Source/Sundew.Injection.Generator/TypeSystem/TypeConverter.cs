@@ -11,9 +11,11 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Base.Collections.Linq;
+using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticModelAnalysis;
 
@@ -25,7 +27,7 @@ internal static class TypeConverter
             typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypes,
             genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
             localOptions: SymbolDisplayLocalOptions.IncludeType,
-            miscellaneousOptions: SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers | SymbolDisplayMiscellaneousOptions.UseSpecialTypes | SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
+            miscellaneousOptions: SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers | SymbolDisplayMiscellaneousOptions.UseSpecialTypes);
 
     public static SymbolDisplayFormat TypeNameFormat { get; } = new(
         globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
@@ -121,10 +123,10 @@ internal static class TypeConverter
         return R.SuccessOption<Method?>();
     }
 
-    public static R<Method, Error> GetMethod(IMethodSymbol methodSymbol, IKnownInjectableTypes knownInjectableTypes)
+    public static R<Method, Error> GetMethod(IMethodSymbol methodSymbol, IKnownInjectableTypes knownInjectableTypes, bool isForSpecialFactoryConstructor = false)
     {
         var containingType = GetType(methodSymbol.ContainingType, knownInjectableTypes);
-        var parametersResult = methodSymbol.Parameters.AllOrFailed(x => GetFullParameter(x, knownInjectableTypes, ImmutableHashSet<TypeId>.Empty).ToItem());
+        var parametersResult = methodSymbol.Parameters.AllOrFailed(x => GetFullParameter(x, knownInjectableTypes, ImmutableHashSet<TypeId>.Empty, isForSpecialFactoryConstructor).ToItem());
         if (parametersResult.TryGetError(out var failedParameters, out var parameters))
         {
             return R.Error(new Error(ErrorType.ParameterTypeResolutionFailed, containingType, failedParameters.GetErrors()));
@@ -158,30 +160,41 @@ internal static class TypeConverter
     public static R<FactoryMethodTarget, Error> GetFactoryMethodTarget(IMethodSymbol methodSymbol, IKnownInjectableTypes knownInjectableTypes)
     {
         var methodResult = GetMethod(methodSymbol, knownInjectableTypes);
-        return methodResult.With(method => new FactoryMethodTarget(method, GetType(methodSymbol.ReturnType, knownInjectableTypes)));
+        return methodResult.Map(method => new FactoryMethodTarget(method, GetType(methodSymbol.ReturnType, knownInjectableTypes), methodSymbol.IsPartialDefinition, false));
     }
 
     public static R<FactoryMethodTarget, Error> GetFactoryMethodTarget(IPropertySymbol propertySymbol, IKnownInjectableTypes knownInjectableTypes)
     {
         var methodResult = GetMethod(propertySymbol, knownInjectableTypes);
-        return methodResult.With(method => new FactoryMethodTarget(method, GetType(propertySymbol.Type, knownInjectableTypes)));
+        return methodResult.Map(method => new FactoryMethodTarget(method, GetType(propertySymbol.Type, knownInjectableTypes), !propertySymbol.ContainingType.IsInstantiable(), true /*propertySymbol.IsPartialDefinition Waiting for Partial RootFactoryProperties*/));
     }
 
-    public static Parameter GetParameter(IParameterSymbol parameterSymbol, IKnownInjectableTypes knownInjectableTypes)
-    {
-        return new Parameter(GetType(parameterSymbol.Type, knownInjectableTypes), parameterSymbol.MetadataName);
-    }
-
-    public static R<FullParameter, Error> GetFullParameter(IParameterSymbol parameterSymbol, IKnownInjectableTypes knownInjectableTypes, ImmutableHashSet<TypeId> visitedTypes)
+    public static R<FullParameter, Error> GetFullParameter(IParameterSymbol parameterSymbol, IKnownInjectableTypes knownInjectableTypes, ImmutableHashSet<TypeId> visitedTypes, bool isForSpecialFactoryConstructor = false)
     {
         var typeWithConstructors = GetTypeWithConstructors(parameterSymbol.Type, knownInjectableTypes);
         var constructorResult = GetConstructor(typeWithConstructors.Constructors.GetDefaultMethodWithMostParameters(), typeWithConstructors.Type, knownInjectableTypes, visitedTypes);
-        return constructorResult.With(
-            constructor => new FullParameter(typeWithConstructors.Type, parameterSymbol.MetadataName, GetTypeMetadata(parameterSymbol.Type, knownInjectableTypes), constructor, GetParameterNecessity(parameterSymbol)));
+        return constructorResult.Map(
+            constructor => new FullParameter(typeWithConstructors.Type, parameterSymbol.MetadataName, GetTypeMetadata(parameterSymbol.Type, knownInjectableTypes), constructor, GetParameterNecessity(parameterSymbol, isForSpecialFactoryConstructor)));
     }
 
-    public static ParameterNecessity GetParameterNecessity(IParameterSymbol parameterSymbol)
+    public static ParameterNecessity GetParameterNecessity(IParameterSymbol parameterSymbol, bool isForSpecialFactoryConstructor)
     {
+        var isOptional = parameterSymbol.NullableAnnotation == NullableAnnotation.Annotated || parameterSymbol.Type.SpecialType == SpecialType.System_Nullable_T;
+        if (isForSpecialFactoryConstructor)
+        {
+            const string valueText = "value";
+            if (parameterSymbol.GetAttributes().FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == KnownTypesProvider.DefaultValueName)
+                ?.ApplicationSyntaxReference?.GetSyntax() is AttributeSyntax defaultValueAttributeSyntax)
+            {
+                var defaultValueArgument = defaultValueAttributeSyntax.ArgumentList?.Arguments.FirstOrDefault(x =>
+                    x.NameColon == null || x.NameColon.Name.Identifier.ToString() == valueText);
+                if (defaultValueArgument != null)
+                {
+                    return ParameterNecessity._Optional(true, defaultValueArgument.Expression.ToFullString());
+                }
+            }
+        }
+
         if (parameterSymbol.HasExplicitDefaultValue)
         {
             var defaultValue = parameterSymbol.ExplicitDefaultValue switch
@@ -191,10 +204,10 @@ internal static class TypeConverter
                 null => default,
             };
 
-            return new ParameterNecessity.Optional(defaultValue);
+            return ParameterNecessity._Optional(true, defaultValue);
         }
 
-        return parameterSymbol.NullableAnnotation == NullableAnnotation.Annotated ? new ParameterNecessity.Optional(default) : ParameterNecessity._Required;
+        return isOptional ? ParameterNecessity._Optional(false, default) : ParameterNecessity._Required;
     }
 
     public static ContaineeType GetContaineeType(IMethodSymbol methodSymbol)
@@ -219,7 +232,7 @@ internal static class TypeConverter
         var enumerableMetadata = implementIEnumerable
             ? new EnumerableMetadata(true, GetArrayMetadata(typeSymbol, knownInjectableTypes))
             : new EnumerableMetadata(false, false, false);
-        return new TypeMetadata(enumerableMetadata, HasLifecycle(typeSymbol, knownInjectableTypes));
+        return new TypeMetadata(enumerableMetadata, GetLifecycle(typeSymbol, knownInjectableTypes));
     }
 
     public static MethodKind GetMethodKind(IMethodSymbol methodSymbol, IKnownInjectableTypes knownInjectableTypes)
@@ -233,12 +246,19 @@ internal static class TypeConverter
         };
     }
 
-    private static bool HasLifecycle(ITypeSymbol typeSymbol, IKnownInjectableTypes knownInjectableTypes)
+    private static Lifecycle GetLifecycle(ITypeSymbol typeSymbol, IKnownInjectableTypes knownInjectableTypes)
+    {
+        var initializeLifecycle = (typeSymbol.CanBeAssignedTo(knownInjectableTypes.IAsyncInitializableTypeSymbol) ||
+               typeSymbol.CanBeAssignedTo(knownInjectableTypes.IInitializableTypeSymbol)) ? Lifecycle.Initialization : Lifecycle.None;
+        var disposalLifecycle = (typeSymbol.CanBeAssignedTo(knownInjectableTypes.IAsyncDisposableTypeSymbol) ||
+               typeSymbol.CanBeAssignedTo(knownInjectableTypes.IDisposableTypeSymbol)) ? Lifecycle.Disposal : Lifecycle.None;
+        return initializeLifecycle | disposalLifecycle;
+    }
+
+    private static bool HasDisposalLifecycle(ITypeSymbol typeSymbol, IKnownInjectableTypes knownInjectableTypes)
     {
         return typeSymbol.CanBeAssignedTo(knownInjectableTypes.IAsyncDisposableTypeSymbol) ||
-               typeSymbol.CanBeAssignedTo(knownInjectableTypes.IDisposableTypeSymbol) ||
-               typeSymbol.CanBeAssignedTo(knownInjectableTypes.IAsyncInitializableTypeSymbol) ||
-               typeSymbol.CanBeAssignedTo(knownInjectableTypes.IInitializableTypeSymbol);
+               typeSymbol.CanBeAssignedTo(knownInjectableTypes.IDisposableTypeSymbol);
     }
 
     private static (bool IsArrayCompatible, bool IsArrayRequired) GetArrayMetadata(ITypeSymbol typeSymbol, IKnownInjectableTypes knownInjectableTypes)
@@ -270,7 +290,12 @@ internal static class TypeConverter
     {
         if (namedTypeSymbol.IsGenericType && !namedTypeSymbol.IsUnboundGenericType)
         {
-            var (name, @namespace, _) = GetName(namedTypeSymbol);
+            var (name, @namespace, isShortNameAlias) = GetName(namedTypeSymbol);
+            if (isShortNameAlias)
+            {
+                return Type.NamedType(name, @namespace, namedTypeSymbol.ContainingAssembly.Identity.ToString(), namedTypeSymbol.IsValueType);
+            }
+
             return Type.ClosedGenericType(
                 name,
                 @namespace,
@@ -312,7 +337,8 @@ internal static class TypeConverter
             default:
                 if (typeSymbol.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T)
                 {
-                    return (typeSymbol.ToDisplayString(NameQualifiedTypeFormat), string.Empty, true);
+                    var nullableName = typeSymbol.ToDisplayString(NameQualifiedTypeFormat);
+                    return (nullableName.Substring(0, nullableName.Length - 1), string.Empty, true);
                 }
 
                 var name = typeSymbol.ToDisplayString(TypeNameFormat);

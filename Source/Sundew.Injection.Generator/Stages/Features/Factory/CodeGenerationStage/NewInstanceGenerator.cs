@@ -13,6 +13,7 @@ using Sundew.Base;
 using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Nodes;
+using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
 using Expression = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Expression;
 using MethodImplementation = Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model.MethodImplementation;
 
@@ -31,12 +32,12 @@ internal sealed class NewInstanceGenerator(
             (factoryNode, nextCreationNode) =>
             {
                 var factory = factoryNode.FactoryImplementation;
-                var factoryMethod = factoryNode.CreateMethod;
+                var factoryMethod = factoryNode.RootFactoryMethod;
                 var result = generatorFeatures.InjectionNodeExpressionGenerator.Generate(nextCreationNode, in factory, in factoryMethod);
                 return factoryNode with
                 {
                     FactoryImplementation = result.FactoryImplementation,
-                    CreateMethod = result.CreateMethod,
+                    RootFactoryMethod = result.RootFactoryMethod,
                     DependantArguments = factoryNode.DependantArguments.AddRange(result.DependantArguments),
                 };
             });
@@ -59,9 +60,9 @@ internal sealed class NewInstanceGenerator(
                 return creationResult;
             });
 
-        var variables = factoryNode.CreateMethod.Variables;
-        var statements = factoryNode.CreateMethod.Statements;
-        var variableDeclarationOption = (newInstanceInjectionNode.NeedsLifecycleHandling || newInstanceInjectionNode.ParameterNodeOption.HasValue()).ToOption(
+        var variables = factoryNode.RootFactoryMethod.Variables;
+        var statements = factoryNode.RootFactoryMethod.Statements;
+        var variableDeclarationOption = (newInstanceInjectionNode.Lifecycle != Lifecycle.None || newInstanceInjectionNode.ParameterNodeOption.HasValue()).ToOption(
             () =>
             {
                 var variableName = NameHelper.GetDependantScopedName(newInstanceInjectionNode);
@@ -71,18 +72,14 @@ internal sealed class NewInstanceGenerator(
                     name => new Declaration(targetReferenceType, name));
             });
 
-        var factoryMethodParameters = factoryNode.CreateMethod.Parameters;
         if (newInstanceInjectionNode.ParameterNodeOption.TryGetValue(out var parameterNode) && variableDeclarationOption.TryGetValue(out var variableDeclaration))
         {
-            var (parameterDeclarations, _, parameter, argument, _) = ParameterHelper.VisitParameter(
+            var (argument, _) = ParameterHelper.VisitParameter(
                 parameterNode,
-                null,
-                factoryMethodParameters,
-                factoryImplementation.Constructor.Parameters,
                 generatorContext.CompilationData);
             var (newVariables, _, declaration) = variableDeclaration;
             variables = newVariables;
-            if (newInstanceInjectionNode.NeedsLifecycleHandling)
+            if (newInstanceInjectionNode.Lifecycle != Lifecycle.None)
             {
                 creationExpression = new InvocationExpression(generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, [creationExpression]);
             }
@@ -91,7 +88,6 @@ internal sealed class NewInstanceGenerator(
             statements = statements.Add(localDeclarationStatement);
             var localDeclarationIdentifier = new Identifier(localDeclarationStatement.Name);
             dependeeArguments = dependeeArguments.Add(localDeclarationIdentifier);
-            factoryMethodParameters = parameterDeclarations;
         }
         else
         {
@@ -115,11 +111,10 @@ internal sealed class NewInstanceGenerator(
 
         return factoryNode with
         {
-            CreateMethod = factoryNode.CreateMethod with
+            RootFactoryMethod = factoryNode.RootFactoryMethod with
             {
                 Variables = variables,
                 Statements = statements,
-                Parameters = factoryMethodParameters,
             },
             DependantArguments = dependeeArguments,
         };

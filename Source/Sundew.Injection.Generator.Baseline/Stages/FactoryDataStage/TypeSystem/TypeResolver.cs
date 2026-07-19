@@ -46,7 +46,7 @@ public sealed class TypeResolver
                 : Item.Fail<DefiniteTypeArgument, FailedResolve>(result.Error);
         });
 
-        return result.With(
+        return result.Map(
             all => DefiniteType.DefiniteBoundGenericType(boundGenericType.Name, boundGenericType.Namespace, boundGenericType.AssemblyName, boundGenericType.TypeParameters, all.Items),
             failed => new FailedResolve(boundGenericType, failed.Items.Select(x => x.Error).ToImmutableArray()));
     }

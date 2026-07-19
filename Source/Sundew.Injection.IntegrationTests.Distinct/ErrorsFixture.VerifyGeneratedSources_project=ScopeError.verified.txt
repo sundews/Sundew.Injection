@@ -1,0 +1,24 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: /*
+    {
+        injectionBuilder.Bind<NewInstance>(Scope.NewInstance);
+                                           ^^^^^^^^^^^^^^^^^
+        injectionBuilder.Bind<SingleInstancePerFactory>(Scope.SingleInstancePerFactory());
+*/
+ {SolutionDirectory}TestProjects\DistinctErrors\ScopeError\Setup.cs: (8,43)-(8,60),
+      Message: Symbol: 'NewInstance' with scope: 'NewInstance' is invalid due to the parent: SingleInstancePerFactory with scope: SingleInstancePerFactory,
+      Severity: Error,
+      Descriptor: {
+        Id: SI0002,
+        Title: Invalid lifetime scope,
+        Description: Occurs when a type is registered with an invalid lifetime scope ,
+        MessageFormat: Symbol: '{0}' with scope: '{1}' is invalid due to the parent: {2} with scope: {3},
+        Category: CodeGeneration,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

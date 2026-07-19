@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Sundew.Base;
 using Sundew.Injection.Generator.TypeSystem;
+using MethodKind = Microsoft.CodeAnalysis.MethodKind;
 
 internal class AddFactoryMethodBindingVisitor(
     IMethodSymbol addMethodSymbol,
@@ -67,13 +68,13 @@ internal class AddFactoryMethodBindingVisitor(
 
         if (factoryMethod.Method != default)
         {
-            this.factoryMethodTargets.Add((new FactoryMethodTarget(factoryMethod.Method, analysisContext.TypeFactory.GetType(addMethodSymbol.ReturnType)), new TypeSymbolWithLocation(addMethodSymbol.ReturnType, factoryMethodSelector.Value.Location)));
+            this.factoryMethodTargets.Add((new FactoryMethodTarget(factoryMethod.Method, analysisContext.TypeFactory.GetType(addMethodSymbol.ReturnType), false, addMethodSymbol.MethodKind == MethodKind.PropertyGet), new TypeSymbolWithLocation(addMethodSymbol.ReturnType, factoryMethodSelector.Value.Location)));
         }
     }
 
     private R<(Method? Method, Location Location), ErrorWithLocation> GetMethod(ArgumentSyntax argumentSyntax)
     {
         return ExpressionAnalysisHelper.GetMethod(argumentSyntax, analysisContext.SemanticModel, analysisContext.TypeFactory)
-            .With(method => (Method: method, argumentSyntax.GetLocation()));
+            .Map(method => (Method: method, argumentSyntax.GetLocation()));
     }
 }

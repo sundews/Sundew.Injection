@@ -231,7 +231,7 @@ Dependant node name: {3}.</value>
     <value>Occurs when there is no way to construct a type, either by missing a binding, the type not having a constructor or being abstract/interface</value>
   </data>
   <data name="NoBindingFoundForNonConstructableTypeErrorMessageFormat" xml:space="preserve">
-    <value>Binding not found for type: '{0}' and type is not constructable</value>
+    <value>Binding not found for type: '{1}' and type is not constructable for factory: {0}.</value>
   </data>
   <data name="NoBindingFoundForNonConstructableTypeErrorTitle" xml:space="preserve">
     <value>Binding not found</value>

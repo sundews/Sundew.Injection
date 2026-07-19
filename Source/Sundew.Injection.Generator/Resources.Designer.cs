@@ -207,7 +207,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Binding not found for type: &apos;{0}&apos; and type is not constructable.
+        ///   Looks up a localized string similar to Binding not found for type: &apos;{1}&apos; and type is not constructable for factory: {0}..
         /// </summary>
         internal static string NoBindingFoundForNonConstructableTypeErrorMessageFormat {
             get {

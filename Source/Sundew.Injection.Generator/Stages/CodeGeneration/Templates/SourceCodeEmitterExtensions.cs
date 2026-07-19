@@ -146,15 +146,23 @@ internal static class SourceCodeEmitterExtensions
             {
                 builder.Append(' ', indentation);
                 builder.AppendFullyQualifiedType(declaration.Type);
-                if (areNullableAnnotationsSupported && !declaration.Type.IsValueType && declaration.DefaultValue != null)
+
+                var (isOptional, defaultValue) = declaration.ParameterNecessity switch
+                {
+                    ParameterNecessity.Required => (false, null),
+                    ParameterNecessity.Optional optional => (true, optional.HasDefaultValue ? optional.DefaultValue?.ToString() ?? "default" : null),
+                    null => (false, null),
+                };
+
+                if ((areNullableAnnotationsSupported || declaration.Type.IsValueType) && isOptional)
                 {
                     stringBuilder.Append('?');
                 }
 
                 stringBuilder.Append(' ').Append(declaration.Name);
-                if (declaration.DefaultValue != null)
+                if (defaultValue != null)
                 {
-                    builder.Append(' ').Append('=').Append(' ').Append(declaration.DefaultValue);
+                    builder.Append(' ').Append('=').Append(' ').Append(defaultValue);
                 }
             },
             actualSeparator);

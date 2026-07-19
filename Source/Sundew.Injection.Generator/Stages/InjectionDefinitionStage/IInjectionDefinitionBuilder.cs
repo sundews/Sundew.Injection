@@ -11,5 +11,5 @@ using Sundew.Base;
 
 internal interface IInjectionDefinitionBuilder
 {
-    R<InjectionDefinition, Diagnostics> Build();
+    R<InjectionDefinition, Diagnostics> Build(AnalysisContext analysisContext);
 }

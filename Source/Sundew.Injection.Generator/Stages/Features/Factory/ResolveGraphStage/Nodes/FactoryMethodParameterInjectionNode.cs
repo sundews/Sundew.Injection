@@ -15,7 +15,6 @@ internal sealed record FactoryMethodParameterInjectionNode(
     string Name,
     ParameterSource ParameterSource,
     TypeMetadata TypeMetadata,
-    bool PrefersNewInstance,
     string DependantName) : InjectionNode(DependantName), IParameterNode
 {
     public override string Name { get; } = Name;

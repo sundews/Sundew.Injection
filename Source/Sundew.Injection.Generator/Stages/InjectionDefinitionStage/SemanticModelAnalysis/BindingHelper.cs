@@ -13,6 +13,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
+using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
 using Sundew.Injection.Generator.TypeSystem;
 using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
 
@@ -39,7 +40,7 @@ internal static class BindingHelper
                 return;
             }
 
-            returnType = returnType with { Metadata = returnTypeResult.Value.Metadata with { HasLifecycle = false } };
+            returnType = returnType with { Metadata = returnTypeResult.Value.Metadata with { Lifecycle = Lifecycle.None } };
             analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<Type>.Empty, returnType, methodAndReturnType.FactoryMethodTarget.Method, new ScopeContext(Scope._Auto, ScopeSelection.Implicit), false, false);
 
             if (SymbolEqualityComparer.Default.Equals(methodAndReturnType.ReturnType.TypeSymbol.OriginalDefinition, analysisContext.KnownAnalysisTypes.ConstructedTypeSymbol))
@@ -54,7 +55,7 @@ internal static class BindingHelper
 
                 analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(
                     ImmutableArray<Type>.Empty,
-                    returnTypeFromFirstTypeParameter with { Metadata = returnTypeFromFirstTypeParameter.Metadata with { HasLifecycle = false } },
+                    returnTypeFromFirstTypeParameter with { Metadata = returnTypeFromFirstTypeParameter.Metadata with { Lifecycle = Lifecycle.None } },
                     new Method(
                         returnType.Type,
                         nameof(Constructed<object>.Object),

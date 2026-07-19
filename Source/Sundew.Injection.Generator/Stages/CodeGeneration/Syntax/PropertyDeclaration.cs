@@ -10,4 +10,4 @@ namespace Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal sealed record PropertyDeclaration(Type Type, string Name, ValueList<AttributeDeclaration> Attributes) : MemberDeclaration, IDeclaration;
+internal sealed record PropertyDeclaration(Type Type, string Name, bool IsPartialDefinition, ValueList<AttributeDeclaration> Attributes) : MemberDeclaration, IDeclaration;

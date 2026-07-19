@@ -1,6 +1,5 @@
 ﻿namespace OverallSuccess;
 
-using OverallSuccess.ChildFactory;
 using OverallSuccess.ConstructorSelection;
 using OverallSuccess.Generics;
 using OverallSuccess.InterfaceImplementationBindings;
@@ -8,7 +7,6 @@ using OverallSuccess.InterfaceSegregationBindings;
 using OverallSuccess.MultipleImplementations;
 using OverallSuccess.NewInstance;
 using OverallSuccess.Operations;
-using OverallSuccess.OptionalInterface;
 using OverallSuccess.OverridableNew;
 using OverallSuccess.RequiredInterface;
 using OverallSuccess.SingleInstancePerFactory;
@@ -22,7 +20,7 @@ internal class InjectionDeclaration : IInjectionDeclaration
 {
     public void Configure(IInjectionBuilder injectionBuilder)
     {
-        // The default method for matching declared parameters
+        /*// The default method for matching declared parameters
         injectionBuilder.RequiredParameterInjection = Inject.ByParameterName;
 
         // Each consumer will have its own parameter generated
@@ -36,13 +34,13 @@ internal class InjectionDeclaration : IInjectionDeclaration
         injectionBuilder.AddParameter<RequiredParameter>();
 
         // Same as above, but these parameters are optional
-        injectionBuilder.AddParameterProperties<OptionalParameters>();
+        injectionBuilder.AddParameterProperties<OptionalParameters>();*/
 
         // Generic binding for any type of IEnumerable<> to an ImmutableList<>
         injectionBuilder.BindGeneric<IGeneric<object>, Generic<object>>(Scope.Auto, () => CreateGeneric<object>(default!));
 
         // Declares parameters for controlling initialization and disposal of the generated factory
-        injectionBuilder.Bind<IInitializationParameters, IDisposalParameters, ILifecycleParameters, LifecycleParameters>(isInjectable: true);
+        injectionBuilder.Bind<IInitializationParameters, IDisposalParameters, ILifecycleParameters, LifecycleParameters>();
 
         // Interface to implementation binding, where the instance may be provided by a parameter (see OptionalParameters)
         injectionBuilder.Bind<IInjectableByInterface, InjectableByInterface>(isInjectable: true);
@@ -87,16 +85,15 @@ internal class InjectionDeclaration : IInjectionDeclaration
         injectionBuilder.Bind<IIntercepted, Intercepted>();
 
         // Creates a factory for ConstructedChild
-        injectionBuilder.ImplementFactory<ConstructedChildFactory, IConstructedChildFactory>(
-            x => x.Add<ConstructedChild>());
+        injectionBuilder.ImplementFactory<ConstructedChildFactory, IConstructedChildFactory>();
 
         injectionBuilder.Bind<IMultipleImplementationForTypeResolver, MultipleImplementationForTypeResolverA>();
         injectionBuilder.Bind<IMultipleImplementationForTypeResolver, MultipleImplementationForTypeResolverB>();
+        injectionBuilder.Bind<IMultipleImplementationForTypeResolver, MultipleImplementationForTypeResolverC>();
 
         injectionBuilder.Bind<DependencyShared>(Scope.SingleInstancePerFactory());
 
-        injectionBuilder.ImplementFactory<MultipleImplementationForTypeResolverFactory, IMultipleImplementationForTypeResolverFactory>(
-            x => x.Add<IMultipleImplementationForTypeResolver>());
+        injectionBuilder.ImplementFactory<MultipleImplementationForTypeResolverFactory, IMultipleImplementationForTypeResolverFactory>();
 
         // Binding to a generated factory in another assembly
         injectionBuilder.BindFactory<DependencyFactory>();
@@ -111,18 +108,16 @@ internal class InjectionDeclaration : IInjectionDeclaration
         injectionBuilder.BindFactory<ManualDependencyFactory>(x => x.CreateNewInstance());
         injectionBuilder.BindFactory<ManualSingletonDependencyFactory>(x => x.ManualSingletonDependency);
 
+        injectionBuilder.Bind<IOperation, OperationA>();
+        injectionBuilder.Bind<IOperation, OperationB>();
+
         // Creates a factory with a create method for each of the added operations
-        injectionBuilder.ImplementFactory<GeneratedOperationFactory, IGeneratedOperationFactory>(
-            factories => factories
-                    .Add<IOperation, OperationA>()
-                    .Add<IOperation, OperationB>());
+        injectionBuilder.ImplementFactory<GeneratedOperationFactory, IGeneratedOperationFactory>();
+
+        injectionBuilder.Bind<IResolveRoot, ResolveRoot>();
 
         // Creates a factory for ResolveRoot and generates an interface for it as well
-        injectionBuilder.ImplementFactory<ResolveRootFactory, IResolveRootFactory>(
-            factories => factories
-                .Add<IResolveRoot, ResolveRoot>()
-                .Add<IInterfaceSingleInstancePerFactory>()
-                .Add<IMultipleImplementationForTypeResolver, MultipleImplementationForTypeResolverC>());
+        injectionBuilder.ImplementFactory<ResolveRootFactory, IResolveRootFactory>();
 
         injectionBuilder.ImplementServiceProvider<ServiceProvider>(x => x
                 .Add<MultipleImplementationForTypeResolverFactory>()

@@ -7,6 +7,7 @@
 
 namespace Sundew.Injection.Generator.Stages.Features.TypeResolver.ResolveGraphStage;
 
+using System.Collections.Immutable;
 using System.Linq;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
@@ -25,9 +26,10 @@ internal class FactoryTypeAndCreateMethodsResolver(
                 {
                     return new FactoryTargetDeclaration(
                         factoryTarget.Method.Name,
-                        factoryTarget.Method.Parameters.Select(parameter => new ParameterDeclaration(parameter.Type, parameter.Name)).ToValueList(),
+                        factoryTarget.Method.Parameters.Select(parameter => new ParameterDeclaration(parameter.Type, parameter.Name, parameter.ParameterNecessity)).ToValueList(),
                         factoryTarget.ReturnType,
-                        factoryTarget.Method.Kind is MethodKind.Instance { IsProperty: true });
+                        factoryTarget.Method.Kind is MethodKind.Instance { IsProperty: true },
+                        ImmutableArray<string>.Empty);
                 }).ToValueArray();
 
             return (factoryRegistration.FactoryType, factoryTargetResults);

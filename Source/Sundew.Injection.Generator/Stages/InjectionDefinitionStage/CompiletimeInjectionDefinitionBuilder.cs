@@ -13,6 +13,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
+using Sundew.Base.Collections.Linq;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticModelAnalysis;
 using Sundew.Injection.Generator.TypeSystem;
 using Accessibility = Sundew.Injection.Accessibility;
@@ -24,17 +25,11 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
 
     private readonly Dictionary<UnboundGenericType, List<GenericBindingRegistration>> genericBindingRegistrations = [];
 
-    private readonly Dictionary<TypeId, List<ParameterSource>> requiredParameterSources = [];
-
-    private readonly Dictionary<TypeId, ScopeContext> requiredParameterScopes = [];
-
     private readonly List<FactoryImplementationDefinition> factoryDefinitions = [];
 
     private readonly List<ServiceProviderImplementationDefinition> serviceProviderImplementationDefinitions = [];
 
     private readonly List<Diagnostic> diagnostics = [];
-
-    public Inject RequiredParameterInjection { get; set; }
 
     public bool HasBinding(Type type)
     {
@@ -51,18 +46,6 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         return [];
     }
 
-    public void AddParameter(Type parameterType, Inject inject = Inject.Shared, ScopeContext scope = default)
-    {
-        this.AddParameterSource(parameterType, ParameterSource.DirectParameter(inject));
-        this.AddParameterScope(parameterType, scope);
-    }
-
-    public void AddPropertyParameter(Type parameterType, AccessorProperty accessorProperty, bool needsInvocation, ScopeContext scope = default)
-    {
-        this.AddParameterSource(parameterType, ParameterSource.PropertyAccessorParameter(accessorProperty, needsInvocation));
-        this.AddParameterScope(parameterType, scope);
-    }
-
     public void Bind(
         ImmutableArray<Type> interfaces,
         FullType target,
@@ -71,25 +54,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         bool isInjectable = false,
         bool isNewOverridable = false)
     {
-        void AddBinding(TypeId typeId, BindingRegistration binding)
-        {
-            if (!this.bindingRegistrations.TryGetValue(typeId, out var bindingList))
-            {
-                bindingList = [];
-                this.bindingRegistrations.Add(typeId, bindingList);
-            }
-
-            bindingList.Add(binding);
-        }
-
-        var targetReferencingType = interfaces.Length > 0 ? interfaces.Last() : target.Type;
-
-        var bindingRegistration = new BindingRegistration(target, targetReferencingType, scope ?? new ScopeContext(Scope._Auto, ScopeSelection.Implicit), method, isInjectable, isNewOverridable);
-        AddBinding(target.Type.Id, bindingRegistration);
-        foreach (var @interface in interfaces)
-        {
-            AddBinding(@interface.Id, bindingRegistration);
-        }
+        Bind(interfaces, target, method, scope, isInjectable, isNewOverridable, this.bindingRegistrations);
     }
 
     public void BindGeneric(ImmutableArray<(UnboundGenericType Type, TypeMetadata TypeMetadata)> interfaces, (OpenGenericType Type, TypeMetadata TypeMetadata) implementation, ScopeContext scope, GenericMethod genericMethod)
@@ -105,7 +70,7 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
             bindingList.Add(genericBinding);
         }
 
-        var genericBinding = new GenericBindingRegistration(implementation.Type, scope, genericMethod, Injection.Accessibility.Internal, implementation.TypeMetadata.HasLifecycle, false);
+        var genericBinding = new GenericBindingRegistration(implementation.Type, scope, genericMethod, Injection.Accessibility.Internal, implementation.TypeMetadata.Lifecycle, false);
         AddBinding(implementation.Type.ToUnboundGenericType(), genericBinding);
         foreach (var @interface in interfaces)
         {
@@ -116,11 +81,13 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
     public void ImplementFactory(
         NamedType factoryType,
         NamedType? factoryInterface,
+        DeclaredConstructor declaredConstructor,
+        ValueDictionary<TypeId, ParameterSourceContexts> constructorParameterSourceContexts,
         FactoryMethodRegistrationBuilder factoryMethodRegistrationBuilder,
         Accessibility accessibility,
         Location location)
     {
-        this.factoryDefinitions.Add(new FactoryImplementationDefinition(factoryType, factoryInterface, ValueArray<FactoryParameter>.Empty, factoryMethodRegistrationBuilder.Build(), accessibility, location));
+        this.factoryDefinitions.Add(new FactoryImplementationDefinition(factoryType, factoryInterface, declaredConstructor, constructorParameterSourceContexts, factoryMethodRegistrationBuilder.Build(), accessibility, location));
     }
 
     public void ImplementServiceProvider(
@@ -166,37 +133,71 @@ internal sealed class CompiletimeInjectionDefinitionBuilder : IInjectionDefiniti
         }
     }
 
-    public R<InjectionDefinition, Diagnostics> Build()
+    public R<InjectionDefinition, Diagnostics> Build(AnalysisContext analysisContext)
     {
+        var lifecycleParameterResult = analysisContext.TypeFactory.GetFullType(analysisContext.KnownAnalysisTypes.LifecycleParameters);
+        if (lifecycleParameterResult.TryGetError(out var error, out var lifecycleParameter))
+        {
+            this.AddDiagnostic(Diagnostic.Create(Diagnostics.RequiredTypeNotFoundError, default, error));
+        }
+
+        if (lifecycleParameter.DefaultConstructor == default)
+        {
+            this.AddDiagnostic(Diagnostic.Create(Diagnostics.NoFactoryMethodFoundForTypeError, default, analysisContext.KnownAnalysisTypes.LifecycleParameters.ToDisplayString()));
+        }
+
+        var initializationParameter = analysisContext.TypeFactory.GetType(analysisContext.KnownAnalysisTypes.InitializationParameters);
+        var disposalParameter = analysisContext.TypeFactory.GetType(analysisContext.KnownAnalysisTypes.DisposalParameters);
+        var ilifecycleParameter = analysisContext.TypeFactory.GetType(analysisContext.KnownAnalysisTypes.ILifecycleParameters);
+        var result = new[] { initializationParameter, disposalParameter, ilifecycleParameter }.AllOrFailed(x => x.ToItem());
+        if (result.TryGetError(out var errors, out var interfaceTypes))
+        {
+            this.AddDiagnostics(errors.Items.Select(x => Diagnostic.Create(Diagnostics.RequiredTypeNotFoundError, default, x.Item)));
+        }
+
         if (this.diagnostics.Any())
         {
             return R.Error(new Diagnostics(this.diagnostics.ToImmutableList()));
         }
 
+        Dictionary<TypeId, List<BindingRegistration>> fallbackBindingRegistrations = [];
+        Bind(interfaceTypes.Items.ToImmutableArray(), lifecycleParameter, lifecycleParameterResult.Value.DefaultConstructor!, new ScopeContext(Scope._Auto, ScopeSelection.Default), false, false, fallbackBindingRegistrations);
+
         return R.Success(new InjectionDefinition(
-            this.RequiredParameterInjection,
             this.factoryDefinitions.ToImmutableArray(),
-            this.bindingRegistrations.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray().ToValueArray()),
-            this.genericBindingRegistrations.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray().ToValueArray()),
-            this.requiredParameterSources.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray().ToValueArray()),
-            this.requiredParameterScopes.ToImmutableDictionary(),
+            fallbackBindingRegistrations.ToImmutableDictionary(x => x.Key, x => x.Value.ToValueArray()),
+            this.bindingRegistrations.ToImmutableDictionary(x => x.Key, x => x.Value.ToValueArray()),
+            this.genericBindingRegistrations.ToImmutableDictionary(x => x.Key, x => x.Value.ToValueArray()),
             this.serviceProviderImplementationDefinitions.ToImmutableArray()));
     }
 
-    private void AddParameterSource(Type parameterType, ParameterSource parameterSource)
+    private static void Bind(
+        ImmutableArray<Type> interfaces,
+        FullType target,
+        Method method,
+        ScopeContext? scope,
+        bool isInjectable,
+        bool isNewOverridable,
+        Dictionary<TypeId, List<BindingRegistration>> bindings)
     {
-        var parameterTypeId = parameterType.Id;
-        if (!this.requiredParameterSources.TryGetValue(parameterTypeId, out var parameterSources))
+        void AddBinding(TypeId typeId, BindingRegistration binding)
         {
-            parameterSources = [];
-            this.requiredParameterSources.Add(parameterTypeId, parameterSources);
+            if (!bindings.TryGetValue(typeId, out var bindingList))
+            {
+                bindingList = [];
+                bindings.Add(typeId, bindingList);
+            }
+
+            bindingList.Add(binding);
         }
 
-        parameterSources.Add(parameterSource);
-    }
+        var targetReferencingType = interfaces.Length > 0 ? interfaces.Last() : target.Type;
 
-    private void AddParameterScope(Type parameterType, ScopeContext? scope)
-    {
-        this.requiredParameterScopes[parameterType.Id] = scope ?? new ScopeContext(Scope._SingleInstancePerRequest(Location.None), ScopeSelection.Implicit);
+        var bindingRegistration = new BindingRegistration(target, targetReferencingType, scope ?? new ScopeContext(Scope._Auto, ScopeSelection.Implicit), method, isInjectable, isNewOverridable);
+        AddBinding(target.Type.Id, bindingRegistration);
+        foreach (var @interface in interfaces)
+        {
+            AddBinding(@interface.Id, bindingRegistration);
+        }
     }
 }

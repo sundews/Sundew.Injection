@@ -1,0 +1,24 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: /*
+    {
+        injectionBuilder.ImplementFactory<NamedType[]>(selector => selector.Add<Root>());
+                                          ^^^^^^^^^^^
+    }
+*/
+ {SolutionDirectory}TestProjects\DistinctErrors\ImplementFactoryForNonNamedType\Setup.cs: (8,42)-(8,53),
+      Message: Symbol 'DistinctErrors.ImplementFactoryForNonNamedType.NamedType[]' must be a regular class,
+      Severity: Error,
+      Descriptor: {
+        Id: SI0001,
+        Title: Factory types must be a regular class,
+        Description: Occurs when ImplementFactory is called with invalid type parameters,
+        MessageFormat: Symbol '{0}' must be a regular class,
+        Category: CodeGeneration,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

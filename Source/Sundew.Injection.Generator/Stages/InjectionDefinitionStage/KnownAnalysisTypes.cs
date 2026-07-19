@@ -29,7 +29,11 @@ internal sealed class KnownAnalysisTypes : IKnownInjectableTypes
         INamedTypeSymbol factoryMethodBindingSelectorTypeSymbol,
         INamedTypeSymbol constructedTypeSymbol,
         INamedTypeSymbol readonlyListTypeSymbol,
-        INamedTypeSymbol enumerableOfTTypeSymbol)
+        INamedTypeSymbol enumerableOfTTypeSymbol,
+        INamedTypeSymbol lifecycleParameters,
+        INamedTypeSymbol iLifecycleParameters,
+        INamedTypeSymbol initializationParameters,
+        INamedTypeSymbol disposalParameters)
     {
         this.FuncTypeSymbol = funcTypeSymbol;
         this.IEnumerableTypeSymbol = enumerableTypeSymbol;
@@ -44,6 +48,10 @@ internal sealed class KnownAnalysisTypes : IKnownInjectableTypes
         this.ConstructedTypeSymbol = constructedTypeSymbol;
         this.IReadOnlyListOfTTypeSymbol = readonlyListTypeSymbol;
         this.IEnumerableOfTTypeSymbol = enumerableOfTTypeSymbol;
+        this.LifecycleParameters = lifecycleParameters;
+        this.ILifecycleParameters = iLifecycleParameters;
+        this.InitializationParameters = initializationParameters;
+        this.DisposalParameters = disposalParameters;
     }
 
     public INamedTypeSymbol FuncTypeSymbol { get; }
@@ -61,6 +69,14 @@ internal sealed class KnownAnalysisTypes : IKnownInjectableTypes
     public INamedTypeSymbol IReadOnlyListOfTTypeSymbol { get; }
 
     public INamedTypeSymbol IEnumerableOfTTypeSymbol { get; }
+
+    public INamedTypeSymbol LifecycleParameters { get; }
+
+    public INamedTypeSymbol ILifecycleParameters { get; }
+
+    public INamedTypeSymbol InitializationParameters { get; }
+
+    public INamedTypeSymbol DisposalParameters { get; }
 
     public INamedTypeSymbol InjectionDeclarationType { get; }
 
@@ -88,12 +104,20 @@ internal sealed class KnownAnalysisTypes : IKnownInjectableTypes
             compilation.GetConstructed(),
             compilation.GetIReadOnlyListOfT(),
             compilation.GetIEnumerableOfT(),
+            compilation.GetLifecycleParameters(),
+            compilation.GetILifecycleParameters(),
+            compilation.GetIInitializationParameters(),
+            compilation.GetIDisposalParameters(),
         }.AllOrFailed();
 
         if (requiredTypes.TryGet(out var all, out var errors))
         {
             var index = 0;
             return R.Success(new KnownAnalysisTypes(
+                all[index++],
+                all[index++],
+                all[index++],
+                all[index++],
                 all[index++],
                 all[index++],
                 all[index++],

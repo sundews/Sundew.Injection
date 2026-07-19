@@ -7,10 +7,23 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
+using System.Diagnostics.CodeAnalysis;
+
 [DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record ParameterNecessity
 {
-    internal sealed record Required : ParameterNecessity;
+    public abstract bool IsOptional { get; }
 
-    internal sealed record Optional(object? DefaultValue) : ParameterNecessity;
+    internal sealed record Required : ParameterNecessity
+    {
+        public override bool IsOptional => false;
+    }
+
+    internal sealed record Optional(bool HasDefaultValue, object? DefaultValue) : ParameterNecessity
+    {
+        [MemberNotNullWhen(true, nameof(DefaultValue))]
+        public bool HasDefaultValue { get; init; } = HasDefaultValue;
+
+        public override bool IsOptional => true;
+    }
 }

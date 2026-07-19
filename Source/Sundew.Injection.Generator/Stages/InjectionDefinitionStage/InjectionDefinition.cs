@@ -11,10 +11,8 @@ using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal record InjectionDefinition(
-    Inject RequiredParameterInjection,
     ValueArray<FactoryImplementationDefinition> FactoryImplementationDefinitions,
+    ValueDictionary<TypeId, ValueArray<BindingRegistration>> FallbackBindingRegistrations,
     ValueDictionary<TypeId, ValueArray<BindingRegistration>> BindingRegistrations,
     ValueDictionary<UnboundGenericType, ValueArray<GenericBindingRegistration>> GenericBindingRegistrations,
-    ValueDictionary<TypeId, ValueArray<ParameterSource>> RequiredParameterSources,
-    ValueDictionary<TypeId, ScopeContext> RequiredParameterScopes,
     ValueArray<ServiceProviderImplementationDefinition> ServiceProviderImplementationDefinitions);

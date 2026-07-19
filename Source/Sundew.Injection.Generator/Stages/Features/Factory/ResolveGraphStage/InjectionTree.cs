@@ -7,8 +7,7 @@
 
 namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage;
 
-using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Nodes;
-using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Resolvers;
+using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
 
-internal sealed record InjectionTree(InjectionNode Root, ValueList<FactoryConstructorParameter> FactoryConstructorParameters, bool NeedsLifecycleHandling, bool RootNeedsLifecycleHandling);
+internal sealed record InjectionTree(InjectionNode Root, Lifecycle Lifecycle, Lifecycle RootLifecycle);

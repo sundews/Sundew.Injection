@@ -11,4 +11,6 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal readonly record struct FactoryMethodTarget(
     Method Method,
-    Type ReturnType);
+    Type ReturnType,
+    bool IsPartialDefinition,
+    bool IsProperty);

@@ -112,6 +112,7 @@ internal static class ImplementationSourceCodeEmitter
             .AppendFieldModifier(field.Declaration.FieldModifier)
             .Append(' ')
             .AppendFullyQualifiedType(field.Declaration.Type)
+            .If(field.Declaration.IsOptional, builder => builder.Append('?'))
             .Append(' ')
             .Append(field.Declaration.Name)
             .If(
@@ -127,6 +128,9 @@ internal static class ImplementationSourceCodeEmitter
             .AppendAttributes(propertyImplementation.Declaration.Attributes, indentation)
             .Append(' ', indentation)
             .Append(Trivia.Public)
+            .If(
+                propertyImplementation.Declaration.IsPartialDefinition,
+                builder => builder.Append(' ').Append(Trivia.Partial))
             .Append(' ')
             .AppendFullyQualifiedType(propertyImplementation.Declaration.Type)
             .Append(' ')
@@ -157,6 +161,12 @@ internal static class ImplementationSourceCodeEmitter
             .AppendAttributes(methodImplementation.Declaration.Attributes, indentation)
             .Append(' ', indentation)
             .AppendAccessibility(methodImplementation.Declaration.Accessibility)
+            .If(
+                methodImplementation.Declaration.IsStatic,
+                x => x.Append(' ').Append(Trivia.Static))
+            .If(
+                methodImplementation.Declaration.IsPartialDefinition,
+                x => x.Append(' ').Append(Trivia.Partial))
             .If(
                 methodImplementation.Declaration.IsAsync,
                 x => x.Append(' ').Append(Trivia.Async))
@@ -271,7 +281,7 @@ internal static class ImplementationSourceCodeEmitter
             case FuncInvocationExpression funcInvocationExpression:
                 stringBuilder.AppendExpression(funcInvocationExpression.DelegateAccessor, indentation, formattingOptions)
                     .If(
-                        funcInvocationExpression.IsNullable,
+                        funcInvocationExpression.IsOptional,
                         x => x.Append('?'))
                     .Append('.')
                     .Append(Trivia.InvokeCall);

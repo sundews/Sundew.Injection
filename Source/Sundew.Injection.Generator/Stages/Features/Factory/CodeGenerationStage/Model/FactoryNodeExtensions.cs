@@ -8,11 +8,7 @@
 namespace Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model;
 
 using System;
-using System.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
-using Sundew.Injection.Generator.Stages.CompilationDataStage;
-using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Nodes;
-using Expression = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Expression;
 using Statement = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Statement;
 using Type = Sundew.Injection.Generator.TypeSystem.Type;
 
@@ -44,46 +40,13 @@ internal static class FactoryNodeExtensions
         Func<string, Declaration> createDeclarationFunc,
         ModifyFactoryNode<Declaration>? preModifyFactoryNodeFunc = null)
     {
-        var (wasCreated, declaration) = factoryNode.CreateMethod.Variables.GetOrCreate(
+        var (wasCreated, declaration) = factoryNode.RootFactoryMethod.Variables.GetOrCreate(
             name,
             type,
             createDeclarationFunc);
         var modifiedFactoryNode = preModifyFactoryNodeFunc?.Invoke(factoryNode, wasCreated, declaration) ?? factoryNode;
-        var variables = wasCreated ? modifiedFactoryNode.CreateMethod.Variables.Add(declaration) : modifiedFactoryNode.CreateMethod.Variables;
-        return (modifiedFactoryNode with { CreateMethod = modifiedFactoryNode.CreateMethod with { Variables = variables } }, wasCreated, declaration);
-    }
-
-    public static (FactoryNode FactoryNode, bool WasAdded, Parameter Parameter, Expression Argument, bool CanAssignToField) GetOrAddConstructorParameter(
-        in this FactoryNode factoryNode,
-        IParameterNode parameterNode,
-        string? expectedParameterName,
-        ImmutableList<ParameterDeclaration> additionalParameters,
-        CompilationData compilationData)
-    {
-        var (parameters, wasAdded, parameter, argument, canAssignToField) = ParameterHelper.VisitParameter(
-            parameterNode,
-            expectedParameterName,
-            factoryNode.FactoryImplementation.Constructor.Parameters,
-            additionalParameters,
-            compilationData);
-
-        return (factoryNode with { FactoryImplementation = factoryNode.FactoryImplementation with { Constructor = factoryNode.FactoryImplementation.Constructor with { Parameters = parameters } } }, wasAdded, parameter, argument, canAssignToField);
-    }
-
-    public static (FactoryNode FactoryNode, bool WasAdded, Parameter Parameter, Expression Argument, bool CanAssignToField) GetOrAddCreateMethodParameter(
-        in this FactoryNode factoryNode,
-        IParameterNode parameterNode,
-        string? expectedParameterName,
-        CompilationData compilationData)
-    {
-        var (parameters, wasAdded, parameter, argument, canAssignToField) = ParameterHelper.VisitParameter(
-            parameterNode,
-            expectedParameterName,
-            factoryNode.CreateMethod.Parameters,
-            factoryNode.FactoryImplementation.Constructor.Parameters,
-            compilationData);
-
-        return (factoryNode with { CreateMethod = factoryNode.CreateMethod with { Parameters = parameters } }, wasAdded, parameter, argument, canAssignToField);
+        var variables = wasCreated ? modifiedFactoryNode.RootFactoryMethod.Variables.Add(declaration) : modifiedFactoryNode.RootFactoryMethod.Variables;
+        return (modifiedFactoryNode with { RootFactoryMethod = modifiedFactoryNode.RootFactoryMethod with { Variables = variables } }, wasCreated, declaration);
     }
 
     public static FactoryNode AddConstructorStatement(in this FactoryNode factoryNode, Statement statement)
@@ -93,6 +56,6 @@ internal static class FactoryNodeExtensions
 
     public static FactoryNode AddCreateMethodStatement(in this FactoryNode factoryNode, Statement statement)
     {
-        return factoryNode with { CreateMethod = factoryNode.CreateMethod with { Statements = factoryNode.CreateMethod.Statements.Add(statement) } };
+        return factoryNode with { RootFactoryMethod = factoryNode.RootFactoryMethod with { Statements = factoryNode.RootFactoryMethod.Statements.Add(statement) } };
     }
 }

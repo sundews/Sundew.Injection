@@ -19,8 +19,6 @@ internal sealed record FactoryConstructorParameterInjectionNode(
 {
     public override string Name { get; } = Name;
 
-    public bool PrefersNewInstance => false;
-
     public bool IsOptional => false;
 
     public bool IsForConstructor => true;

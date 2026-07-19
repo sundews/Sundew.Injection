@@ -28,7 +28,7 @@ internal static class ExpressionAnalysisHelper
                     if (invocationSymbolInfo.Symbol is IMethodSymbol invocationMethodSymbol)
                     {
                         return typeFactory.GetFactoryMethod(invocationMethodSymbol)
-                            .WithError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()))
+                            .MapError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()))
                             .ToOptionResult();
                     }
 
@@ -38,7 +38,7 @@ internal static class ExpressionAnalysisHelper
                     if (initializerSymbolInfo.Symbol is IMethodSymbol objectCreationMethodSymbol)
                     {
                         return typeFactory.GetFactoryMethod(objectCreationMethodSymbol)
-                            .WithError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()))
+                            .MapError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()))
                             .ToOptionResult();
                     }
 
@@ -49,10 +49,10 @@ internal static class ExpressionAnalysisHelper
                     {
                         case IMethodSymbol memberAccessMethodSymbol:
                             return typeFactory.GetFactoryMethod(memberAccessMethodSymbol)
-                                .WithError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()))
+                                .MapError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()))
                                 .ToOptionResult();
                         case IPropertySymbol memberAccessPropertySymbol:
-                            return typeFactory.GetFactoryMethod(memberAccessPropertySymbol).WithError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation())).ToOptionResult();
+                            return typeFactory.GetFactoryMethod(memberAccessPropertySymbol).MapError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation())).ToOptionResult();
                     }
 
                     break;
@@ -72,7 +72,7 @@ internal static class ExpressionAnalysisHelper
                     var invocationSymbolInfo = semanticModel.GetSymbolInfo(invocationExpressionSyntax.Expression);
                     if (invocationSymbolInfo.Symbol is IMethodSymbol invocationMethodSymbol)
                     {
-                        return typeFactory.GetGenericMethod(invocationMethodSymbol.ConstructedFrom).WithError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()));
+                        return typeFactory.GetGenericMethod(invocationMethodSymbol.ConstructedFrom).MapError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()));
                     }
 
                     break;
@@ -80,7 +80,7 @@ internal static class ExpressionAnalysisHelper
                     var initializerSymbolInfo = semanticModel.GetSymbolInfo(objectCreationExpressionSyntax);
                     if (initializerSymbolInfo.Symbol is IMethodSymbol objectCreationMethodSymbol)
                     {
-                        return typeFactory.GetGenericMethod(objectCreationMethodSymbol.ConstructedFrom).WithError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()));
+                        return typeFactory.GetGenericMethod(objectCreationMethodSymbol.ConstructedFrom).MapError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()));
                     }
 
                     break;

@@ -44,7 +44,7 @@ internal sealed class CreationExpressionGenerator
         IReadOnlyList<Expression> arguments,
         in FactoryNode factoryNode)
     {
-        var factoryFactoryNode = this.generatorFeatures.InjectionNodeExpressionGenerator.Generate(instanceMethodCall.Instance, factoryNode.FactoryImplementation, factoryNode.CreateMethod);
+        var factoryFactoryNode = this.generatorFeatures.InjectionNodeExpressionGenerator.Generate(instanceMethodCall.Instance, factoryNode.FactoryImplementation, factoryNode.RootFactoryMethod);
         if (instanceMethodCall.IsProperty)
         {
             return (factoryFactoryNode, InvocationExpressionBase.MemberAccessExpression(factoryFactoryNode.DependantArguments.Single(), instanceMethodCall.Method.Name));

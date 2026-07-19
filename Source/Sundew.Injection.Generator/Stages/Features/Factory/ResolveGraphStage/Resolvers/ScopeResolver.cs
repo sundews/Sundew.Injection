@@ -16,11 +16,7 @@ internal class ScopeResolver(
 {
     public Scope ResolveScope(Type type)
     {
-        if (!scopes.TryGetValue(type.Id, out var scope))
-        {
-            // TODO what if not found
-        }
-
+        var scope = scopes[type.Id];
         return scope?.Scope ?? Scope._NewInstance(Location.None);
     }
 }

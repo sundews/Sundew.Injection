@@ -1,0 +1,24 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: /*
+    {
+        injectionBuilder.BindGeneric<AbstractGenericType<object>>();
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    }
+*/
+ {SolutionDirectory}TestProjects\DistinctErrors\NonInstantiableType\Setup.cs: (8,37)-(8,64),
+      Message: Symbol: 'DistinctErrors.NonInstantiableType.AbstractGenericType<object>' cannot be instantiated,
+      Severity: Error,
+      Descriptor: {
+        Id: SI0007,
+        Title: TImplementationType must be instantiable,
+        Description: Symbol is either an abstract class or a string, which cannot be instantiated,
+        MessageFormat: Symbol: '{0}' cannot be instantiated,
+        Category: CodeGeneration,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

@@ -25,7 +25,7 @@ internal sealed record Identifier(string Name) : Expression
     public static readonly Identifier This = new("this");
 }
 
-internal sealed record FuncInvocationExpression(Expression DelegateAccessor, bool IsNullable) : Expression;
+internal sealed record FuncInvocationExpression(Expression DelegateAccessor, bool IsOptional) : Expression;
 
 internal sealed record Cast(Expression Source, UsedType TargetType) : Expression;
 

@@ -58,16 +58,18 @@ internal class ConfigureInvocationMemberAccessExpressionVisitor(
         cancellationToken.ThrowIfCancellationRequested();
         switch (name)
         {
-            case nameof(IInjectionBuilder.AddParameter):
-                new AddParameterVisitor(methodSymbols.First(), analysisContext).Visit(invocationExpressionSyntax);
-                break;
-            case nameof(IInjectionBuilder.AddParameterProperties):
-                new AddParameterPropertiesVisitor(methodSymbols.First(), analysisContext).Visit(invocationExpressionSyntax);
-                break;
             case nameof(IInjectionBuilder.Bind):
                 if (memberAccessExpressionSyntax.Name is GenericNameSyntax bindGenericNameSyntax)
                 {
-                    new BindVisitor(bindGenericNameSyntax, methodSymbols.First(), analysisContext).Visit(invocationExpressionSyntax);
+                    var methodSymbol = methodSymbols.First();
+                    var typeSymbolWithLocations = methodSymbol.MapTypeArguments(bindGenericNameSyntax);
+                    new BindVisitor(typeSymbolWithLocations, methodSymbol, analysisContext).Visit(invocationExpressionSyntax);
+                }
+                else if (memberAccessExpressionSyntax.Name is IdentifierNameSyntax identifierNameSyntax)
+                {
+                    var methodSymbol = methodSymbols.First();
+                    var typeSymbolWithLocations = methodSymbol.TypeArguments.Select(x => new TypeSymbolWithLocation(x, identifierNameSyntax.Identifier.GetLocation())).ToArray();
+                    new BindVisitor(typeSymbolWithLocations, methodSymbol, analysisContext).Visit(invocationExpressionSyntax);
                 }
 
                 break;

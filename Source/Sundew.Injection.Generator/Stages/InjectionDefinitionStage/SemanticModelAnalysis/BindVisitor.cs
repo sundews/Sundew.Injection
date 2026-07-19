@@ -7,6 +7,7 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticModelAnalysis;
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -16,14 +17,13 @@ using Sundew.Base;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal class BindVisitor(
-    GenericNameSyntax bindGenericNameSyntax,
+    IReadOnlyList<TypeSymbolWithLocation> typeArguments,
     IMethodSymbol methodSymbol,
     AnalysisContext analysisContext)
     : CSharpSyntaxWalker
 {
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
-        var typeArguments = methodSymbol.MapTypeArguments(bindGenericNameSyntax);
         var parameters = methodSymbol.Parameters;
         var i = 0;
         var scope = new ScopeContext((Scope?)parameters[i++].ExplicitDefaultValue ?? Scope._Auto, ScopeSelection.Implicit);
@@ -31,7 +31,7 @@ internal class BindVisitor(
         var isInjectable = (bool?)parameters[i++].ExplicitDefaultValue ?? false;
         var isNewOverridable = (bool?)parameters[i++].ExplicitDefaultValue ?? false;
         var argumentIndex = 0;
-        var interfaceTypes = typeArguments.Take(typeArguments.Length - 1).Select(x => analysisContext.TypeFactory.GetType(x.TypeSymbol)).ToImmutableArray();
+        var interfaceTypes = typeArguments.Take(typeArguments.Count - 1).Select(x => analysisContext.TypeFactory.GetType(x.TypeSymbol)).ToImmutableArray();
         var implementationTypeSymbol = typeArguments.Last();
         var implementationTypeResult = analysisContext.TypeFactory.GetFullType(implementationTypeSymbol.TypeSymbol);
         if (!implementationTypeResult.TryGet(out var implementationType, out var implementTypeError))

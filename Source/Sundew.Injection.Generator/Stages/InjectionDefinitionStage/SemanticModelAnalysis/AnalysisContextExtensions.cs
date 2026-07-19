@@ -16,6 +16,7 @@ using Sundew.Base.Collections.Linq;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 using Accessibility = Sundew.Injection.Accessibility;
+using Error = Sundew.Injection.Generator.TypeSystem.Error;
 using ISymbol = Microsoft.CodeAnalysis.ISymbol;
 using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
 
@@ -49,7 +50,7 @@ internal static class AnalysisContextExtensions
 
         if (factoryMethod == null)
         {
-            var createMethodResult = GetFactoryTarget(analysisContext, implementationTypeSymbolWithLocation.TypeSymbol);
+            var createMethodResult = GetFactoryMethod(analysisContext, implementationTypeSymbolWithLocation.TypeSymbol);
             if (createMethodResult.TryGetError(out var error, out factoryMethod))
             {
                 analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(new ErrorWithLocation(error, implementationTypeSymbolWithLocation.Location));
@@ -59,14 +60,19 @@ internal static class AnalysisContextExtensions
             factoryMethod = createMethodResult.Value;
         }
 
+        var interfaceType = interfaceTypeResult.Value;
         factoryMethodRegistrationBuilder.Add(
-            interfaceTypeResult.Value,
-            implementationTypeResult.Value,
-            new ScopeContext(Scope._NewInstance(Location.None), ScopeSelection.Implicit),
-            factoryMethod,
-            factoryMethodName,
-            accessibility,
-            isNewOverridable);
+            new NamedType(interfaceType.Type.Name, interfaceType.Type.Namespace, interfaceType.Type.AssemblyName, interfaceType.Type.IsValueType),
+            ImmutableArray.Create(new FactoryMethodRegistration(
+                interfaceTypeResult.Value,
+                implementationTypeResult.Value,
+                new ScopeContext(Scope._NewInstance(Location.None), ScopeSelection.Implicit),
+                factoryMethod,
+                accessibility,
+                isNewOverridable,
+                factoryMethodName,
+                default,
+                ValueDictionary<TypeId, ParameterSourceContexts>.Empty)));
     }
 
     public static void AddDefaultFactoryMethodFromTypeSymbol(
@@ -90,13 +96,17 @@ internal static class AnalysisContextExtensions
             foreach (var bindingRegistration in bindingRegistrations)
             {
                 factoryMethodRegistrationBuilder.Add(
-                    interfaceType,
-                    bindingRegistration.TargetType,
-                    bindingRegistration.Scope,
-                    bindingRegistration.Method,
-                    default,
-                    accessibility,
-                    isNewOverridable);
+                    new NamedType(interfaceType.Type.Name, interfaceType.Type.Namespace, interfaceType.Type.AssemblyName, interfaceType.Type.IsValueType),
+                    ImmutableArray.Create(new FactoryMethodRegistration(
+                        interfaceType,
+                        bindingRegistration.TargetType,
+                        bindingRegistration.Scope,
+                        bindingRegistration.Method,
+                        accessibility,
+                        isNewOverridable,
+                        default,
+                        default!,
+                        ValueDictionary<TypeId, ParameterSourceContexts>.Empty)));
             }
         }
         else
@@ -105,10 +115,21 @@ internal static class AnalysisContextExtensions
             if (typeSymbol.IsInstantiable() && interfaceType.DefaultConstructor.TryGetValue(out var method))
             {
                 analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray.Create(interfaceType.Type), interfaceType, method, new ScopeContext(Scope._Auto, ScopeSelection.Implicit), false, isNewOverridable);
-                var factoryMethodResult = GetFactoryTarget(analysisContext, typeSymbol);
+                var factoryMethodResult = GetFactoryMethod(analysisContext, typeSymbol);
                 if (factoryMethodResult.TryGet(out var factoryMethod, out var error))
                 {
-                    factoryMethodRegistrationBuilder.Add(interfaceType, interfaceType, new ScopeContext(Scope._NewInstance(Location.None), ScopeSelection.Implicit), factoryMethod, default, accessibility, isNewOverridable);
+                    factoryMethodRegistrationBuilder.Add(
+                        new NamedType(interfaceType.Type.Name, interfaceType.Type.Namespace, interfaceType.Type.AssemblyName, interfaceType.Type.IsValueType),
+                        ImmutableArray.Create(new FactoryMethodRegistration(
+                            interfaceType,
+                            interfaceType,
+                            new ScopeContext(Scope._NewInstance(Location.None), ScopeSelection.Implicit),
+                            factoryMethod,
+                            accessibility,
+                            isNewOverridable,
+                            default,
+                            default!,
+                            ValueDictionary<TypeId, ParameterSourceContexts>.Empty)));
                     return;
                 }
 
@@ -136,54 +157,28 @@ internal static class AnalysisContextExtensions
         factoryRegistrationBuilder.Add(factoryTypeResult.Value.Type, GetFactoryTargets(factoryTypeSymbolWithLocation, analysisContext));
     }
 
-    internal static FactoryMethodTarget? GetFactoryTarget(AnalysisContext analysisContext, ISymbol symbol, Location location)
+    public static R<FactoryMethodTarget, Error>? GetFactoryMethodTarget(AnalysisContext analysisContext, IMethodSymbol methodSymbol)
     {
-        switch (symbol)
+        if (methodSymbol.MethodKind == Microsoft.CodeAnalysis.MethodKind.Ordinary &&
+            IsFactoryMethodTargetCandidate(methodSymbol))
         {
-            case IMethodSymbol methodSymbol:
-                if (methodSymbol.MethodKind == Microsoft.CodeAnalysis.MethodKind.DeclareMethod
-                    && symbol.GetAttributes().All(x => x.AttributeClass?.ToDisplayString() != KnownTypesProvider.IndirectFactoryTargetName)
-                    && !symbol.MetadataName.Contains(Dispose))
-                {
-                    var factoryMethodTargetResult = analysisContext.TypeFactory.GetFactoryMethodTarget(methodSymbol);
-                    if (factoryMethodTargetResult.TryGet(out var factoryMethodTarget, out var error))
-                    {
-                        return factoryMethodTarget;
-                    }
-
-                    analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(new ErrorWithLocation(error, location));
-                }
-
-                break;
-            case IPropertySymbol propertySymbol:
-                if (propertySymbol.GetMethod != default
-                    && symbol.GetAttributes().All(x => x.AttributeClass?.ToDisplayString() != KnownTypesProvider.IndirectFactoryTargetName)
-                    && !symbol.MetadataName.Contains(Dispose))
-                {
-                    var factoryMethodTargetResult = analysisContext.TypeFactory.GetFactoryMethodTarget(propertySymbol);
-                    if (factoryMethodTargetResult.TryGet(out var factoryMethodTarget, out var error))
-                    {
-                        return factoryMethodTarget;
-                    }
-
-                    analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(new ErrorWithLocation(error, location));
-                }
-
-                break;
+            return analysisContext.TypeFactory.GetFactoryMethodTarget(methodSymbol).ToOption();
         }
 
         return default;
     }
 
-    private static ValueArray<FactoryMethodTarget> GetFactoryTargets(TypeSymbolWithLocation factoryTypeSymbol, AnalysisContext analysisContext)
+    public static R<FactoryMethodTarget, Error>? GetFactoryMethodTarget(AnalysisContext analysisContext, IPropertySymbol propertySymbol)
     {
-        return factoryTypeSymbol.TypeSymbol.GetMembers()
-            .Select(symbol => GetFactoryTarget(analysisContext, symbol, factoryTypeSymbol.Location))
-            .WhereNotDefault()
-            .ToValueArray();
+        if (propertySymbol.GetMethod != default && IsFactoryMethodTargetCandidate(propertySymbol))
+        {
+            return analysisContext.TypeFactory.GetFactoryMethodTarget(propertySymbol);
+        }
+
+        return default;
     }
 
-    private static R<Method, Error> GetFactoryTarget(AnalysisContext analysisContext, ITypeSymbol implementationType)
+    public static R<Method, Error> GetFactoryMethod(AnalysisContext analysisContext, ITypeSymbol implementationType)
     {
         var defaultConstructor = TypeHelper.GetDefaultConstructorMethod(implementationType);
         if (defaultConstructor != null)
@@ -196,5 +191,46 @@ internal static class AnalysisContextExtensions
                 analysisContext.TypeFactory.GetType(implementationType),
                 implementationType.MetadataName,
                 MethodKind._Constructor));
+    }
+
+    private static bool IsFactoryMethodTargetCandidate(ISymbol? symbol)
+    {
+        if (symbol == null)
+        {
+            return false;
+        }
+
+        return symbol.GetAttributes().All(x =>
+                   x.AttributeClass?.ToDisplayString() != KnownTypesProvider.IndirectFactoryTargetName)
+               && !symbol.MetadataName.Contains(Dispose);
+    }
+
+    private static ValueArray<FactoryMethodTarget> GetFactoryTargets(TypeSymbolWithLocation factoryTypeSymbol, AnalysisContext analysisContext)
+    {
+        return factoryTypeSymbol.TypeSymbol.GetMembers()
+            .Select(symbol =>
+            {
+                var result = symbol switch
+                {
+                    IMethodSymbol methodSymbol => GetFactoryMethodTarget(analysisContext, methodSymbol),
+                    IPropertySymbol propertySymbol => GetFactoryMethodTarget(analysisContext, propertySymbol),
+                    _ => default,
+                };
+
+                if (!result.HasValue)
+                {
+                    return default;
+                }
+
+                if (result.Value.TryGetError(out var error, out var factoryMethodTarget))
+                {
+                    analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(new ErrorWithLocation(error, factoryTypeSymbol.Location));
+                    return default;
+                }
+
+                return factoryMethodTarget;
+            })
+            .WhereNotDefault()
+            .ToValueArray();
     }
 }

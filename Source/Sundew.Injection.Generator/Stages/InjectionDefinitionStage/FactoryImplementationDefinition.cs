@@ -15,7 +15,8 @@ using Accessibility = Sundew.Injection.Accessibility;
 internal readonly record struct FactoryImplementationDefinition(
     NamedType FactoryType,
     NamedType? FactoryInterfaceType,
-    ValueArray<FactoryParameter> Parameters,
-    ValueArray<FactoryMethodRegistration> FactoryMethodRegistrations,
+    DeclaredConstructor DeclaredConstructor,
+    ValueDictionary<TypeId, ParameterSourceContexts> ParameterSources,
+    ValueDictionary<NamedType, ValueArray<FactoryMethodRegistration>> FactoryMethodRegistrations,
     Accessibility Accessibility,
     Location Location);

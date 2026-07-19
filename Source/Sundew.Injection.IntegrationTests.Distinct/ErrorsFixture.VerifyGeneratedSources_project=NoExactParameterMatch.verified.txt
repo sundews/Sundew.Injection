@@ -1,0 +1,19 @@
+﻿{
+  Diagnostics: [
+    {
+      Message:
+Could not resolve type: 'IParameter' as a parameter for: 'noMathParameter' from the available parameter sources: 'Direct: Name: parameter, IsParameterOptional: False, ParameterNecessity: Required { IsOptional = False }, 
+Property: DistinctErrors.NoExactParameterMatch.IArguments.NonMatchingParameter, IsParameterOptional: False, IsResultOptional: False',
+      Severity: Error,
+      Descriptor: {
+        Id: SI0003,
+        Title: Could not resolve required parameter,
+        Description: Occurs when a required parameter cannot be resolved,
+        MessageFormat: Could not resolve type: '{0}' as a parameter for: '{1}' from the available parameter sources: '{2}',
+        Category: CodeGeneration,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

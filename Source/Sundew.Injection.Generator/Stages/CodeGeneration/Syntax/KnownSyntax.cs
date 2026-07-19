@@ -8,7 +8,10 @@
 namespace Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Text;
+using Sundew.Base.Text;
 using Sundew.Injection.Generator.Stages.CompilationDataStage;
 using Sundew.Injection.Generator.TypeSystem;
 using Type = Sundew.Injection.Generator.TypeSystem.Type;
@@ -55,14 +58,17 @@ internal class KnownSyntax
     public AttributeDeclaration EditorBrowsableAttribute { get; } = new(
         "[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]");
 
-    public AttributeDeclaration FactoryAttribute { get; } = new(
-        "[global::Sundew.Injection.Factory]");
-
-    public AttributeDeclaration BindableCreateMethodAttribute { get; } = new(
+    public AttributeDeclaration BindableFactoryTargetAttribute { get; } = new(
         $"[global::{KnownTypesProvider.BindableFactoryTargetName}]");
 
     public AttributeDeclaration IndirectCreateMethodAttribute { get; } = new(
         $"[global::{KnownTypesProvider.IndirectFactoryTargetName}]");
+
+    public AttributeDeclaration FactoryAttribute(IEnumerable<string> bindableFactoryTargets)
+    {
+        const string separator = ", ";
+        return new(new StringBuilder(@"[global::Sundew.Injection.Factory(").AppendItems(bindableFactoryTargets, (builder, item) => builder.Append('"').Append(item).Append('"'), separator).Append(')').Append(']').ToString());
+    }
 
     public sealed record LifecycleHandlerSyntax(
         string AccessorName,
@@ -92,7 +98,7 @@ internal class KnownSyntax
                 new AwaitExpression(new InvocationExpression(new MemberAccessExpression(new InvocationExpression(new MemberAccessExpression(lifetimeHandlerAccess, InitializeAsync)), ConfigureAwait), [Literal.False])),
                 new MemberAccessExpression(lifetimeHandlerAccess, Dispose),
                 new MemberAccessExpression(lifetimeHandlerAccess, DisposeAsync),
-                new ParameterDeclaration(referencedLifetimeHandlerType, "lifecycleHandler"))
+                new ParameterDeclaration(referencedLifetimeHandlerType, "lifecycleHandler", ParameterNecessity._Required))
         {
         }
     }

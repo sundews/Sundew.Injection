@@ -7,6 +7,7 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
+using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed record GenericBindingRegistration(
@@ -14,5 +15,5 @@ internal sealed record GenericBindingRegistration(
     ScopeContext Scope,
     GenericMethod Method,
     Accessibility Accessibility,
-    bool HasLifecycle,
+    Lifecycle Lifecycle,
     bool IsNewOverridable);

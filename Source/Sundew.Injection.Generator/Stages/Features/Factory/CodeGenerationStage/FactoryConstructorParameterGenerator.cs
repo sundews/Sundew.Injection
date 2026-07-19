@@ -11,6 +11,7 @@ using System.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Nodes;
+using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Resolvers;
 using MethodImplementation = Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model.MethodImplementation;
 
 internal sealed class FactoryConstructorParameterGenerator
@@ -32,39 +33,44 @@ internal sealed class FactoryConstructorParameterGenerator
             in FactoryImplementation factoryImplementation,
             in MethodImplementation method)
     {
-        var factoryConstructorMethod = factoryImplementation.Constructor;
-        var (parameters, wasAdded, parameter, argument, _) = ParameterHelper.VisitParameter(
+        var factoryNode = new FactoryNode(in factoryImplementation, in method, ImmutableList<Expression>.Empty);
+
+        var (argument, _) = ParameterHelper.VisitParameter(
             factoryConstructorParameterInjectionNode,
-            null,
-            factoryConstructorMethod.Parameters,
-            ImmutableList<ParameterDeclaration>.Empty,
             this.generatorContext.CompilationData);
 
-        var identifier = new Identifier(parameter.Name);
+        var identifier = new Identifier(factoryConstructorParameterInjectionNode.ParameterSource.Name);
 
-        var fields = factoryImplementation.Fields;
         var statements = factoryImplementation.Constructor.Statements;
+        var isOptional = this.generatorContext.FactoryResolvedGraph.ReferencedTypesOptionality.TryGetValue(
+            new RequestedParameter(factoryConstructorParameterInjectionNode.ParameterSource.Type.Id, factoryConstructorParameterInjectionNode.ParameterSource.Name), out var value) && value;
+        (factoryNode, var wasAdded, var parameterField) = factoryNode.GetOrAddField(
+            factoryConstructorParameterInjectionNode.ParameterSource.Name,
+            factoryConstructorParameterInjectionNode.ParameterSource.Type,
+            (fieldName) => new FieldDeclaration(
+                factoryConstructorParameterInjectionNode.ParameterSource.Type,
+                fieldName,
+                isOptional,
+                FieldModifier.Instance));
+
         if (wasAdded)
         {
-            fields = fields.Add(new FieldDeclaration(parameter.Type, parameter.Name, FieldModifier.Instance, null));
-
             var assignmentStatement =
                 new ExpressionStatement(new AssignmentExpression(
-                    new MemberAccessExpression(new Identifier("this"), parameter.Name), identifier));
+                    new MemberAccessExpression(Identifier.This, parameterField.Name), identifier));
             statements = statements.Add(assignmentStatement);
         }
 
-        return new FactoryNode(
-            factoryImplementation with
+        return factoryNode with
+        {
+            FactoryImplementation = factoryNode.FactoryImplementation with
             {
-                Fields = fields,
-                Constructor = factoryImplementation.Constructor with
+                Constructor = factoryNode.FactoryImplementation.Constructor with
                 {
-                    Parameters = parameters,
                     Statements = statements,
                 },
             },
-            method,
-            ImmutableList.Create(argument));
+            DependantArguments = ImmutableList.Create(argument),
+        };
     }
 }

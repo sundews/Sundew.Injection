@@ -8,17 +8,18 @@
 namespace Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model;
 
 using System.Collections.Immutable;
-using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using Statement = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Statement;
 
 internal readonly record struct MethodImplementation(
-    ImmutableList<ParameterDeclaration> Parameters,
+
+    // ImmutableList<ParameterDeclaration> Parameters,
     ImmutableList<Declaration> Variables,
     ImmutableList<Statement> Statements)
 {
     public MethodImplementation()
         : this(
-            ImmutableList<ParameterDeclaration>.Empty,
+
+            // ImmutableList<ParameterDeclaration>.Empty,
             ImmutableList<Declaration>.Empty,
             ImmutableList<Statement>.Empty)
     {
