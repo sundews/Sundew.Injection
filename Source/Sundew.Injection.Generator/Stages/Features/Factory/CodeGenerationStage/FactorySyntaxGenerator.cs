@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="FactorySyntaxGenerator.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -179,29 +179,33 @@ internal class FactorySyntaxGenerator(
             new MethodImplementation());
         var targetTypeParameterName = NameHelper.GetIdentifierNameForType(resolvedRootFactoryMethod.Target.Type);
 
-        var fields = factoryNode.FactoryImplementation.Fields;
-
-        var disposeMethodImplementations = factoryImplementation.DisposeMethodImplementations;
-        var rootFactoryMethodStatements = factoryNode.RootFactoryMethod.Statements;
         var asyncRootFactoryMethodReturnType = compilationData.TaskType.ToClosedGenericType(ImmutableArray.Create(new FullTypeArgument(resolvedRootFactoryMethod.Return)));
-        var constructorStatements = factoryNode.FactoryImplementation.Constructor.Statements;
-        var rootFactoryProperties = factoryNode.FactoryImplementation.RootFactoryProperties;
-        var rootFactoryMethods = factoryNode.FactoryImplementation.RootFactoryMethods;
-        var rootInterfaceMembers = factoryNode.FactoryImplementation.RootInterfaceMembers;
 
-        var interfaceMembers = ImmutableArray<MemberDeclaration>.Empty;
         var factoryDefinition = new FactoryDefinition(
-            constructorStatements,
+            factoryNode.FactoryImplementation.Constructor.Statements,
             factoryNode.FactoryImplementation.Fields,
-            rootFactoryProperties,
-            rootFactoryMethods,
-            rootFactoryMethodStatements,
-            rootInterfaceMembers,
-            disposeMethodImplementations,
-            interfaceMembers);
+            factoryNode.FactoryImplementation.RootFactoryProperties,
+            factoryNode.FactoryImplementation.RootFactoryMethods,
+            factoryNode.RootFactoryMethod.Statements,
+            factoryNode.FactoryImplementation.RootInterfaceMembers,
+            factoryImplementation.DisposeMethodImplementations,
+            ImmutableArray<MemberDeclaration>.Empty);
 
         var rootFactoryMethodParameters = resolvedRootFactoryMethod.Parameters
-            .Select(x => new ParameterDeclaration(x.Type, x.Name, x.ParameterNecessity))
+            .Select(x =>
+            {
+                var parameterNecessity = x.ParameterNecessity;
+                if (resolvedRootFactoryMethod.IsPartialDefinition)
+                {
+                    parameterNecessity = parameterNecessity switch
+                    {
+                        ParameterNecessity.Optional optional => optional with { HasDefaultValue = false },
+                        ParameterNecessity.Required required => required,
+                    };
+                }
+
+                return new ParameterDeclaration(x.Type, x.Name, parameterNecessity);
+            })
             .ToImmutableList();
 
         var rootFactoryMethodDeclaration = new MethodDeclaration(
@@ -222,233 +226,21 @@ internal class FactorySyntaxGenerator(
             Lifecycle.None => this.AddCreationWithoutLifecycle(resolvedRootFactoryMethod, factoryNode, factoryInput, factoryDefinition, bindableFactoryTargets),
             Lifecycle.Initialization => this.AddCreationWithInitialization(resolvedRootFactoryMethod, factoryNode, factoryInput, factoryDefinition, bindableFactoryTargets),
             Lifecycle.Disposal => this.AddCreationWithDisposal(resolvedRootFactoryMethod, factoryNode, factoryInput, factoryDefinition, bindableFactoryTargets),
-            Lifecycle.Both => AddCreationWithInitializationAndDisposal(resolvedRootFactoryMethod, factoryNode, factoryInput, factoryDefinition, bindableFactoryTargets),
+            Lifecycle.Both => this.AddCreationWithInitializationAndDisposal(resolvedRootFactoryMethod, factoryNode, factoryInput, factoryDefinition, bindableFactoryTargets),
+            _ => throw new System.ArgumentOutOfRangeException(nameof(resolvedRootFactoryMethod), resolvedRootFactoryMethod.RootLifecycle, null),
         };
-
-        if (resolvedRootFactoryMethod.RootLifecycle != Lifecycle.None)
-        {
-            if (resolvedRootFactoryMethod.IsProperty)
-            {
-                var rootFactoryPropertyDeclaration = new PropertyDeclaration(
-                    resolvedRootFactoryMethod.Return.Type,
-                    resolvedRootFactoryMethod.Name,
-                    resolvedRootFactoryMethod.IsPartialDefinition,
-                    ImmutableList.Create(knownSyntax.BindableFactoryTargetAttribute));
-
-                bindableFactoryTargets.Add(resolvedRootFactoryMethod.Name);
-
-                rootFactoryMethodStatements = rootFactoryMethodStatements.Add(Statement.ExpressionStatement(
-                    new InvocationExpression(knownSyntax.SharedLifecycleHandler.InitializeMethod)));
-                rootFactoryMethodStatements =
-                    rootFactoryMethodStatements.Add(
-                        new ReturnStatement(factoryNode.DependantArguments.Single()));
-                rootFactoryProperties = rootFactoryProperties
-                    .Add(new DeclaredPropertyImplementation(
-                        rootFactoryPropertyDeclaration,
-                        rootFactoryMethodStatements));
-
-                if (resolvedRootFactoryMethod.IsPartialDefinition)
-                {
-                    rootInterfaceMembers = rootInterfaceMembers.Add(rootFactoryPropertyDeclaration);
-                    interfaceMembers = interfaceMembers.Add(rootFactoryPropertyDeclaration);
-                }
-
-                bindableFactoryTargets.Add(rootFactoryPropertyDeclaration.Name);
-            }
-            else
-            {
-                if (isSingleton)
-                {
-                    rootFactoryMethodStatements = rootFactoryMethodStatements.Add(Statement.ExpressionStatement(
-                        new InvocationExpression(knownSyntax.SharedLifecycleHandler.InitializeMethod)));
-                    rootFactoryMethodStatements =
-                        rootFactoryMethodStatements.Add(
-                            new ReturnStatement(factoryNode.DependantArguments.Single()));
-                    rootFactoryMethods = rootFactoryMethods
-                        .Add(new DeclaredMethodImplementation(
-                            rootFactoryMethodDeclaration,
-                            new MethodImplementation(ImmutableList<Declaration>.Empty, rootFactoryMethodStatements)));
-
-                    if (resolvedRootFactoryMethod.IsPartialDefinition)
-                    {
-                        rootInterfaceMembers = rootInterfaceMembers.Add(rootFactoryMethodDeclaration);
-                        interfaceMembers = interfaceMembers.Add(rootFactoryMethodDeclaration);
-                    }
-
-                    bindableFactoryTargets.Add(rootFactoryMethodDeclaration.Name);
-                }
-                else
-                {
-                    rootFactoryMethodStatements = rootFactoryMethodStatements.Insert(0, knownSyntax.SharedLifecycleHandler.CreateChildLifecycleHandlerAndAssignVarStatement);
-
-                    var constructedValueVariableName = injectionNode.GetInjectionNodeName().Uncapitalize() + Result;
-                    var constructedValueIdentifier = new Identifier(constructedValueVariableName);
-                    rootFactoryMethodStatements = rootFactoryMethodStatements.Add(
-                            new LocalDeclarationStatement(
-                                constructedValueVariableName,
-                                factoryNode.DependantArguments.Single()))
-                        .Add(
-                            new ExpressionStatement(
-                                new InvocationExpression(
-                                    knownSyntax.SharedLifecycleHandler.TryAddMethod,
-                                    [constructedValueIdentifier, knownSyntax.ChildLifecycleHandler.Access,])));
-
-                    var constructedType = compilationData.ReferencedSundewInjectionCompilationData.ConstructedType.ToClosedGenericType(
-                            ImmutableArray.Create(new FullTypeArgument(resolvedRootFactoryMethod.Return)));
-                    var createMethodAsyncDeclaration = new MethodDeclaration(
-                        DeclaredAccessibility.Public,
-                        false,
-                        false,
-                        false,
-                        true,
-                        resolvedRootFactoryMethod.Name + Trivia.AsyncName,
-                        rootFactoryMethodParameters,
-                        ImmutableArray.Create(knownSyntax.IndirectCreateMethodAttribute),
-                        new UsedType(asyncRootFactoryMethodReturnType));
-                    var createUnInitializedMethodDeclaration = new MethodDeclaration(
-                        DeclaredAccessibility.Public,
-                        false,
-                        false,
-                        false,
-                        false,
-                        resolvedRootFactoryMethod.Name + Uninitialized,
-                        rootFactoryMethodParameters,
-                        ImmutableArray.Create(knownSyntax.EditorBrowsableAttribute, knownSyntax.BindableFactoryTargetAttribute, knownSyntax.IndirectCreateMethodAttribute),
-                        new UsedType(constructedType));
-
-                    bindableFactoryTargets.Add(createUnInitializedMethodDeclaration.Name);
-                    rootInterfaceMembers = rootInterfaceMembers.Add(createMethodAsyncDeclaration).Add(createUnInitializedMethodDeclaration);
-                    interfaceMembers = interfaceMembers.Add(createMethodAsyncDeclaration).Add(createUnInitializedMethodDeclaration);
-
-                    var createStatement =
-                        new LocalDeclarationStatement(
-                            Constructed + resolvedRootFactoryMethod.Target.Type.Name,
-                            new InvocationExpression(
-                                new MemberAccessExpression(Identifier.This, createUnInitializedMethodDeclaration.Name),
-                                rootFactoryMethodParameters.Select(x => new Identifier(x.Name))
-                                    .ToImmutableArray()));
-                    rootFactoryMethods = rootFactoryMethods
-                        .Add(new DeclaredMethodImplementation(rootFactoryMethodDeclaration, factoryNode.RootFactoryMethod with
-                        {
-                            Statements = ImmutableList.Create<Statement>(createStatement)
-                                .Add(Statement.ExpressionStatement(
-                                    new InvocationExpression(knownSyntax.SharedLifecycleHandler.InitializeMethod)))
-                                .Add(new ReturnStatement(new MemberAccessExpression(new Identifier(createStatement.Name), ObjectPropertyName))),
-                        }))
-                        .Add(new DeclaredMethodImplementation(createMethodAsyncDeclaration, factoryNode.RootFactoryMethod with
-                        {
-                            Statements = ImmutableList.Create<Statement>(createStatement)
-                                .Add(Statement.ExpressionStatement(knownSyntax.SharedLifecycleHandler
-                                    .InitializeAsyncMethodCall))
-                                .Add(new ReturnStatement(new MemberAccessExpression(new Identifier(createStatement.Name), ObjectPropertyName))),
-                        }));
-                    rootFactoryMethods = rootFactoryMethods.Add(new DeclaredMethodImplementation(
-                        createUnInitializedMethodDeclaration,
-                        factoryNode.RootFactoryMethod with
-                        {
-                            Statements = rootFactoryMethodStatements.Add(new ReturnStatement(
-                                CreationExpression._ConstructorCall(constructedType, ImmutableArray.Create(new Identifier(constructedValueVariableName), knownSyntax.ChildLifecycleHandler.Access)))),
-                        }));
-
-                    var disposeForMethodDeclaration = new MethodDeclaration(
-                        DeclaredAccessibility.Public,
-                        false,
-                        false,
-                        false,
-                        knownSyntax.DisposeName,
-                        ImmutableList.Create(new ParameterDeclaration(resolvedRootFactoryMethod.Return.Type, targetTypeParameterName, ParameterNecessity._Required)),
-                        new UsedType(compilationData.VoidType));
-                    disposeMethodImplementations = disposeMethodImplementations.Add(
-                        new DeclaredDisposeMethodImplementation(
-                            disposeForMethodDeclaration,
-                            ImmutableList.Create<Statement>(new ExpressionStatement(
-                                new InvocationExpression(
-                                    knownSyntax.SharedLifecycleHandler.DisposeMethod,
-                                    [new Identifier(targetTypeParameterName)])))));
-                    interfaceMembers = interfaceMembers.Add(disposeForMethodDeclaration);
-
-                    var disposeForAsyncMethodDeclaration = new MethodDeclaration(
-                        DeclaredAccessibility.Public,
-                        false,
-                        false,
-                        false,
-                        knownSyntax.DisposeAsyncName,
-                        ImmutableList.Create(new ParameterDeclaration(resolvedRootFactoryMethod.Return.Type, targetTypeParameterName, ParameterNecessity._Required)),
-                        new UsedType(compilationData.ValueTaskType));
-                    disposeMethodImplementations = disposeMethodImplementations.Add(
-                        new DeclaredDisposeMethodImplementation(
-                            disposeForAsyncMethodDeclaration,
-                            ImmutableList.Create<Statement>(new ReturnStatement(
-                                new InvocationExpression(
-                                    knownSyntax.SharedLifecycleHandler.DisposeAsyncMethod,
-                                    [new Identifier(targetTypeParameterName)])))));
-                    interfaceMembers = interfaceMembers.Add(disposeForAsyncMethodDeclaration);
-                }
-            }
-        }
-        else
-        {
-            if (resolvedRootFactoryMethod.IsProperty)
-            {
-                bindableFactoryTargets.Add(resolvedRootFactoryMethod.Name);
-
-                if (resolvedRootFactoryMethod.IsPartialDefinition)
-                {
-                    var rootFactoryPropertyDeclaration = new PropertyDeclaration(
-                        resolvedRootFactoryMethod.Return.Type,
-                        resolvedRootFactoryMethod.Name,
-                        resolvedRootFactoryMethod.IsPartialDefinition,
-                        ImmutableList.Create(knownSyntax.BindableFactoryTargetAttribute));
-
-                    rootFactoryMethodStatements =
-                        rootFactoryMethodStatements.Add(
-                            new ReturnStatement(factoryNode.DependantArguments.Single()));
-                    rootFactoryProperties = rootFactoryProperties
-                        .Add(new DeclaredPropertyImplementation(
-                            rootFactoryPropertyDeclaration,
-                            rootFactoryMethodStatements));
-
-                    if (resolvedRootFactoryMethod.IsPartialDefinition)
-                    {
-                        rootInterfaceMembers = rootInterfaceMembers.Add(rootFactoryPropertyDeclaration);
-                        interfaceMembers = interfaceMembers.Add(rootFactoryPropertyDeclaration);
-                    }
-                }
-                else
-                {
-                    constructorStatements = constructorStatements.Add(Statement.ExpressionStatement(Expression.AssignmentExpression(Expression.MemberAccessExpression(Identifier.This, resolvedRootFactoryMethod.Name), factoryNode.DependantArguments.Single())));
-                }
-            }
-            else
-            {
-                rootFactoryMethodStatements =
-                    rootFactoryMethodStatements.Add(
-                        new ReturnStatement(factoryNode.DependantArguments.Single()));
-                rootFactoryMethods = rootFactoryMethods
-                    .Add(new DeclaredMethodImplementation(
-                        rootFactoryMethodDeclaration with { Attributes = ImmutableList.Create(knownSyntax.BindableFactoryTargetAttribute), }, factoryNode.RootFactoryMethod with { Statements = rootFactoryMethodStatements }));
-
-                bindableFactoryTargets.Add(rootFactoryMethodDeclaration.Name);
-
-                if (resolvedRootFactoryMethod.IsPartialDefinition)
-                {
-                    rootInterfaceMembers = rootInterfaceMembers.Add(rootFactoryMethodDeclaration);
-                    interfaceMembers = interfaceMembers.Add(rootFactoryMethodDeclaration);
-                }
-            }
-        }
 
         return (factoryNode.FactoryImplementation with
         {
-            Constructor = factoryNode.FactoryImplementation.Constructor with { Statements = constructorStatements },
-            Fields = fields,
-            RootFactoryProperties = rootFactoryProperties,
-            RootFactoryMethods = rootFactoryMethods,
-            RootInterfaceMembers = rootInterfaceMembers,
-            DisposeMethodImplementations = disposeMethodImplementations,
+            Constructor = factoryNode.FactoryImplementation.Constructor with { Statements = factoryDefinition.FactoryConstructorStatements },
+            Fields = factoryDefinition.Fields,
+            RootFactoryProperties = factoryDefinition.RootFactoryProperties,
+            RootFactoryMethods = factoryDefinition.RootFactoryMethods,
+            RootInterfaceMembers = factoryDefinition.RootInterfaceMembers,
+            DisposeMethodImplementations = factoryDefinition.DisposeMethods,
         },
             new FactoryTargetDeclaration(rootFactoryMethodDeclaration.Name, rootFactoryMethodDeclaration.Parameters, resolvedRootFactoryMethod.Return.Type, resolvedRootFactoryMethod.IsProperty, bindableFactoryTargets.ToImmutable()),
-            interfaceMembers);
+            factoryDefinition.InterfaceMembers);
     }
 
     private FactoryDefinition AddCreationWithInitialization(
@@ -468,55 +260,55 @@ internal class FactorySyntaxGenerator(
 
             bindableFactoryTargets.Add(resolvedRootFactoryMethod.Name);
 
-            rootFactoryMethodStatements = rootFactoryMethodStatements.Add(Statement.ExpressionStatement(
+            factoryDefinition.RootFactoryMethodStatements = factoryDefinition.RootFactoryMethodStatements.Add(Statement.ExpressionStatement(
                 new InvocationExpression(knownSyntax.SharedLifecycleHandler.InitializeMethod)));
-            rootFactoryMethodStatements =
-                rootFactoryMethodStatements.Add(
+            factoryDefinition.RootFactoryMethodStatements =
+                factoryDefinition.RootFactoryMethodStatements.Add(
                     new ReturnStatement(factoryNode.DependantArguments.Single()));
-            rootFactoryProperties = rootFactoryProperties
+            factoryDefinition.RootFactoryProperties = factoryDefinition.RootFactoryProperties
                 .Add(new DeclaredPropertyImplementation(
                     rootFactoryPropertyDeclaration,
-                    rootFactoryMethodStatements));
+                    factoryDefinition.RootFactoryMethodStatements));
 
             if (resolvedRootFactoryMethod.IsPartialDefinition)
             {
-                rootInterfaceMembers = rootInterfaceMembers.Add(rootFactoryPropertyDeclaration);
-                interfaceMembers = interfaceMembers.Add(rootFactoryPropertyDeclaration);
+                factoryDefinition.RootInterfaceMembers = factoryDefinition.RootInterfaceMembers.Add(rootFactoryPropertyDeclaration);
+                factoryDefinition.InterfaceMembers = factoryDefinition.InterfaceMembers.Add(rootFactoryPropertyDeclaration);
             }
 
             bindableFactoryTargets.Add(rootFactoryPropertyDeclaration.Name);
         }
         else
         {
-            if (isSingleton)
+            if (factoryInput.IsSingleton)
             {
-                rootFactoryMethodStatements = rootFactoryMethodStatements.Add(Statement.ExpressionStatement(
+                factoryDefinition.RootFactoryMethodStatements = factoryDefinition.RootFactoryMethodStatements.Add(Statement.ExpressionStatement(
                     new InvocationExpression(knownSyntax.SharedLifecycleHandler.InitializeMethod)));
-                rootFactoryMethodStatements =
-                    rootFactoryMethodStatements.Add(
+                factoryDefinition.RootFactoryMethodStatements =
+                    factoryDefinition.RootFactoryMethodStatements.Add(
                         new ReturnStatement(factoryNode.DependantArguments.Single()));
-                rootFactoryMethods = rootFactoryMethods
+                factoryDefinition.RootFactoryMethods = factoryDefinition.RootFactoryMethods
                     .Add(new DeclaredMethodImplementation(
-                        rootFactoryMethodDeclaration,
-                        new MethodImplementation(ImmutableList<Declaration>.Empty, rootFactoryMethodStatements)));
+                        factoryInput.RootFactoryMethodDeclaration,
+                        new MethodImplementation(ImmutableList<Declaration>.Empty, factoryDefinition.RootFactoryMethodStatements)));
 
                 if (resolvedRootFactoryMethod.IsPartialDefinition)
                 {
-                    rootInterfaceMembers = rootInterfaceMembers.Add(rootFactoryMethodDeclaration);
-                    interfaceMembers = interfaceMembers.Add(rootFactoryMethodDeclaration);
+                    factoryDefinition.RootInterfaceMembers = factoryDefinition.RootInterfaceMembers.Add(factoryInput.RootFactoryMethodDeclaration);
+                    factoryDefinition.InterfaceMembers = factoryDefinition.InterfaceMembers.Add(factoryInput.RootFactoryMethodDeclaration);
                 }
 
-                bindableFactoryTargets.Add(rootFactoryMethodDeclaration.Name);
+                bindableFactoryTargets.Add(factoryInput.RootFactoryMethodDeclaration.Name);
             }
             else
             {
-                rootFactoryMethodStatements = rootFactoryMethodStatements.Insert(
+                factoryDefinition.RootFactoryMethodStatements = factoryDefinition.RootFactoryMethodStatements.Insert(
                     0,
                     knownSyntax.SharedLifecycleHandler.CreateChildLifecycleHandlerAndAssignVarStatement);
 
-                var constructedValueVariableName = injectionNode.GetInjectionNodeName().Uncapitalize() + Result;
+                var constructedValueVariableName = resolvedRootFactoryMethod.InjectionTree.GetInjectionNodeName().Uncapitalize() + Result;
                 var constructedValueIdentifier = new Identifier(constructedValueVariableName);
-                rootFactoryMethodStatements = rootFactoryMethodStatements.Add(
+                factoryDefinition.RootFactoryMethodStatements = factoryDefinition.RootFactoryMethodStatements.Add(
                         new LocalDeclarationStatement(
                             constructedValueVariableName,
                             factoryNode.DependantArguments.Single()))
@@ -536,9 +328,9 @@ internal class FactorySyntaxGenerator(
                     false,
                     true,
                     resolvedRootFactoryMethod.Name + Trivia.AsyncName,
-                    rootFactoryMethodParameters,
+                    factoryInput.RootFactoryMethodDeclaration.Parameters,
                     ImmutableArray.Create(knownSyntax.IndirectCreateMethodAttribute),
-                    new UsedType(asyncRootFactoryMethodReturnType));
+                    new UsedType(factoryInput.AsyncRootFactoryMethodReturnType));
                 var createUnInitializedMethodDeclaration = new MethodDeclaration(
                     DeclaredAccessibility.Public,
                     false,
@@ -546,7 +338,7 @@ internal class FactorySyntaxGenerator(
                     false,
                     false,
                     resolvedRootFactoryMethod.Name + Uninitialized,
-                    rootFactoryMethodParameters,
+                    factoryInput.RootFactoryMethodDeclaration.Parameters,
                     ImmutableArray.Create(
                         knownSyntax.EditorBrowsableAttribute,
                         knownSyntax.BindableFactoryTargetAttribute,
@@ -554,9 +346,9 @@ internal class FactorySyntaxGenerator(
                     new UsedType(constructedType));
 
                 bindableFactoryTargets.Add(createUnInitializedMethodDeclaration.Name);
-                rootInterfaceMembers = rootInterfaceMembers.Add(createMethodAsyncDeclaration)
+                factoryDefinition.RootInterfaceMembers = factoryDefinition.RootInterfaceMembers.Add(createMethodAsyncDeclaration)
                     .Add(createUnInitializedMethodDeclaration);
-                interfaceMembers = interfaceMembers.Add(createMethodAsyncDeclaration)
+                factoryDefinition.InterfaceMembers = factoryDefinition.InterfaceMembers.Add(createMethodAsyncDeclaration)
                     .Add(createUnInitializedMethodDeclaration);
 
                 var createStatement =
@@ -564,11 +356,11 @@ internal class FactorySyntaxGenerator(
                         Constructed + resolvedRootFactoryMethod.Target.Type.Name,
                         new InvocationExpression(
                             new MemberAccessExpression(Identifier.This, createUnInitializedMethodDeclaration.Name),
-                            rootFactoryMethodParameters.Select(x => new Identifier(x.Name))
+                            factoryInput.RootFactoryMethodDeclaration.Parameters.Select(x => new Identifier(x.Name))
                                 .ToImmutableArray()));
-                rootFactoryMethods = rootFactoryMethods
+                factoryDefinition.RootFactoryMethods = factoryDefinition.RootFactoryMethods
                     .Add(new DeclaredMethodImplementation(
-                        rootFactoryMethodDeclaration,
+                        factoryInput.RootFactoryMethodDeclaration,
                         factoryNode.RootFactoryMethod with
                         {
                             Statements = ImmutableList.Create<Statement>(createStatement)
@@ -589,11 +381,11 @@ internal class FactorySyntaxGenerator(
                                         new Identifier(createStatement.Name),
                                         ObjectPropertyName))),
                         }));
-                rootFactoryMethods = rootFactoryMethods.Add(new DeclaredMethodImplementation(
+                factoryDefinition.RootFactoryMethods = factoryDefinition.RootFactoryMethods.Add(new DeclaredMethodImplementation(
                     createUnInitializedMethodDeclaration,
                     factoryNode.RootFactoryMethod with
                     {
-                        Statements = rootFactoryMethodStatements.Add(new ReturnStatement(
+                        Statements = factoryDefinition.RootFactoryMethodStatements.Add(new ReturnStatement(
                             CreationExpression._ConstructorCall(
                                 constructedType,
                                 ImmutableArray.Create(
@@ -606,6 +398,17 @@ internal class FactorySyntaxGenerator(
         return factoryDefinition;
     }
 
+    private FactoryDefinition AddCreationWithInitializationAndDisposal(
+        ResolvedRootFactoryMethod resolvedRootFactoryMethod,
+        FactoryNode factoryNode,
+        FactoryInput factoryInput,
+        FactoryDefinition factoryDefinition,
+        ImmutableArray<string>.Builder bindableFactoryTargets)
+    {
+        factoryDefinition = this.AddCreationWithInitialization(resolvedRootFactoryMethod, factoryNode, factoryInput, factoryDefinition, bindableFactoryTargets);
+        return this.AddDisposal(resolvedRootFactoryMethod, factoryInput, factoryDefinition);
+    }
+
     private FactoryDefinition AddCreationWithDisposal(
         ResolvedRootFactoryMethod resolvedRootFactoryMethod,
         FactoryNode factoryNode,
@@ -613,7 +416,42 @@ internal class FactorySyntaxGenerator(
         FactoryDefinition factoryDefinition,
         ImmutableArray<string>.Builder bindableFactoryTargets)
     {
-        factoryDefinition = this.AddCreationWithoutLifecycle(resolvedRootFactoryMethod, factoryNode, factoryInput, factoryDefinition, bindableFactoryTargets);
+        if (resolvedRootFactoryMethod.IsProperty || factoryInput.IsSingleton)
+        {
+            factoryDefinition = this.AddCreationWithoutLifecycle(resolvedRootFactoryMethod, factoryNode, factoryInput, factoryDefinition, bindableFactoryTargets);
+        }
+        else
+        {
+            factoryDefinition.RootFactoryMethodStatements = factoryDefinition.RootFactoryMethodStatements.Insert(
+                0,
+                knownSyntax.SharedLifecycleHandler.CreateChildLifecycleHandlerAndAssignVarStatement);
+
+            var constructedValueVariableName = resolvedRootFactoryMethod.InjectionTree.GetInjectionNodeName().Uncapitalize() + Result;
+            var constructedValueIdentifier = new Identifier(constructedValueVariableName);
+            factoryDefinition.RootFactoryMethodStatements = factoryDefinition.RootFactoryMethodStatements.Add(
+                    new LocalDeclarationStatement(
+                        constructedValueVariableName,
+                        factoryNode.DependantArguments.Single()))
+                .Add(
+                    new ExpressionStatement(
+                        new InvocationExpression(
+                            knownSyntax.SharedLifecycleHandler.TryAddMethod,
+                            [constructedValueIdentifier, knownSyntax.ChildLifecycleHandler.Access,])))
+                .Add(new ReturnStatement(constructedValueIdentifier));
+
+            factoryDefinition.RootFactoryMethods = factoryDefinition.RootFactoryMethods
+                .Add(new DeclaredMethodImplementation(
+                    factoryInput.RootFactoryMethodDeclaration, factoryNode.RootFactoryMethod with { Statements = factoryDefinition.RootFactoryMethodStatements }));
+
+            bindableFactoryTargets.Add(factoryInput.RootFactoryMethodDeclaration.Name);
+
+            if (resolvedRootFactoryMethod.IsPartialDefinition)
+            {
+                factoryDefinition.RootInterfaceMembers = factoryDefinition.RootInterfaceMembers.Add(factoryInput.RootFactoryMethodDeclaration);
+                factoryDefinition.InterfaceMembers = factoryDefinition.InterfaceMembers.Add(factoryInput.RootFactoryMethodDeclaration);
+            }
+        }
+
         return this.AddDisposal(resolvedRootFactoryMethod, factoryInput, factoryDefinition);
     }
 

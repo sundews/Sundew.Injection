@@ -59,6 +59,7 @@
         </PackageReference>
 
         <!-- Generator dependencies -->
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" GeneratePathProperty="true" PrivateAssets="all" />
         <PackageReference Include="Microsoft.Bcl.HashCode" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
         <PackageReference Include="Microsoft.CodeAnalysis.Features" />
