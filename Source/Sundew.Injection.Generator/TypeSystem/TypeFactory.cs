@@ -73,7 +73,7 @@ internal sealed class TypeFactory(
 
     public R<GenericMethod, Error> GetGenericMethod(IMethodSymbol? methodSymbol)
     {
-        if (methodSymbol.HasValue())
+        if (methodSymbol.HasValue)
         {
             var genericParametersResult = methodSymbol.Parameters.AllOrFailed(x => this.GetGenericParameter(x).ToItem());
             if (genericParametersResult.TryGetError(out var failedItems, out var genericParameters))

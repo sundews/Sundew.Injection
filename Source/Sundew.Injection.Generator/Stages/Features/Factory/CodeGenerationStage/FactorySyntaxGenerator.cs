@@ -50,7 +50,7 @@ internal class FactorySyntaxGenerator(
 
         var interfaces = ImmutableList.Create(compilationData.ReferencedSundewInjectionCompilationData.IGeneratedFactoryType);
         var disposeMethods = ImmutableList<Member.MethodImplementation>.Empty;
-        if (factoryResolvedGraph.LifecycleHandlingInjectionTree.HasValue())
+        if (factoryResolvedGraph.LifecycleHandlingInjectionTree.HasValue)
         {
             var factoryNode = this.generatorFeatures.InjectionNodeExpressionGenerator.Generate(
                 factoryResolvedGraph.LifecycleHandlingInjectionTree.Root,

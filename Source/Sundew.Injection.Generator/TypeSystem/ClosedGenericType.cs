@@ -10,7 +10,7 @@ namespace Sundew.Injection.Generator.TypeSystem;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Base.Text;
 
-internal sealed record ClosedGenericType(
+internal sealed partial record ClosedGenericType(
         string Name,
         string Namespace,
         string AssemblyName,

@@ -59,9 +59,9 @@ internal class ParametersInjectionResolver
                     {
                         return x switch
                         {
-                            DirectParameter directParameter => directParameter.Name == name || (dependantTypeOption.HasValue() && directParameter.Name.Contains(dependantTypeOption.Name)),
+                            DirectParameter directParameter => directParameter.Name == name || (dependantTypeOption.HasValue && directParameter.Name.Contains(dependantTypeOption.Name)),
                             PropertyAccessorParameter propertyAccessorParameter => propertyAccessorParameter
-                                .AccessorProperty.Name.Uncapitalize() == name || (dependantTypeOption.HasValue() && propertyAccessorParameter.AccessorProperty.Name.Contains(dependantTypeOption.Name)),
+                                .AccessorProperty.Name.Uncapitalize() == name || (dependantTypeOption.HasValue && propertyAccessorParameter.AccessorProperty.Name.Contains(dependantTypeOption.Name)),
                         };
                     });
                 if (parameterSource != null)

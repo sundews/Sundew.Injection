@@ -7,7 +7,7 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-public sealed record DefiniteArrayType(DefiniteType ElementType)
+public sealed partial record DefiniteArrayType(DefiniteType ElementType)
     : DefiniteType(ElementType.Name, ElementType.Namespace, ElementType.AssemblyName)
 {
     public override string FullName => $"{this.Namespace}.{this.Name}";

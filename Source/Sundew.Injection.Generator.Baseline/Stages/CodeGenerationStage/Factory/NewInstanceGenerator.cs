@@ -66,7 +66,7 @@ internal sealed class NewInstanceGenerator
             (methodParameters, factoryMethods) => FactoryMethodHelper.GenerateFactoryMethod(factoryMethods, commonType, methodParameters, newInstanceInjectionNode.CreationSource, factoryNode.Arguments),
             factoryMethods => (factoryMethods, new CreationExpression(newInstanceInjectionNode.CreationSource, factoryNode.Arguments)));
 
-        var variableDeclarationOption = (newInstanceInjectionNode.TargetImplementsDisposable || newInstanceInjectionNode.ParameterNodeOption.HasValue()).ToOption(
+        var variableDeclarationOption = (newInstanceInjectionNode.TargetImplementsDisposable || newInstanceInjectionNode.ParameterNodeOption.HasValue).ToOption(
             () =>
             {
                 var variableName = NameHelper.GetUniqueName(newInstanceInjectionNode.Name, newInstanceInjectionNode.ParentInjectionNode);
@@ -78,7 +78,7 @@ internal sealed class NewInstanceGenerator
             });
 
         var factoryMethodParameters = factoryNode.CreateMethod.Parameters;
-        if (newInstanceInjectionNode.ParameterNodeOption.HasValue() && variableDeclarationOption.HasValue)
+        if (newInstanceInjectionNode.ParameterNodeOption.HasValue && variableDeclarationOption.HasValue)
         {
             var (parameterDeclarations, wasAdded, parameter, argument) = ParameterHelper.VisitParameter(
                 newInstanceInjectionNode.ParameterNodeOption,

@@ -7,4 +7,4 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-public sealed record ErrorType(string Name) : Type(Name);
+public sealed partial record ErrorType(string Name) : Type(Name);

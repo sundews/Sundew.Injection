@@ -7,7 +7,7 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-internal sealed record ArrayType(Type ElementType)
+internal sealed partial record ArrayType(Type ElementType)
     : Type(
         ElementType.Name,
         ElementType.Namespace,

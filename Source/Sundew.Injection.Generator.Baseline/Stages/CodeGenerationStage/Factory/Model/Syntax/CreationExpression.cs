@@ -11,7 +11,7 @@ using System;
 using System.Collections.Generic;
 using CreationSource = Sundew.Injection.Generator.Stages.FactoryDataStage.CreationSource;
 
-internal sealed record CreationExpression
+internal sealed partial record CreationExpression
     (CreationSource CreationSource, IReadOnlyList<Expression> Arguments) : InvocationExpressionBase(Arguments)
 {
     public CreationExpression(CreationSource creationSource)

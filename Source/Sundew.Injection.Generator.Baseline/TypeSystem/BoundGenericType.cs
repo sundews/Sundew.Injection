@@ -9,7 +9,7 @@ namespace Sundew.Injection.Generator.TypeSystem;
 
 using Sundew.Base.Collections.Immutable;
 
-public sealed record BoundGenericType(
+public sealed partial record BoundGenericType(
         string Name,
         string Namespace,
         string AssemblyName,

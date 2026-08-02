@@ -36,7 +36,7 @@ internal class InjectionDeclarationVisitor(
         {
             var parameterSyntax = node.ParameterList.Parameters.FirstOrDefault();
             var parameterSymbol = symbol.Parameters.FirstOrDefault();
-            if (parameterSyntax.HasValue() && parameterSymbol.HasValue() && parameterSymbol.DeclaringSyntaxReferences.Any(x => x.GetSyntax(cancellationToken) == parameterSyntax))
+            if (parameterSyntax.HasValue && parameterSymbol.HasValue && parameterSymbol.DeclaringSyntaxReferences.Any(x => x.GetSyntax(cancellationToken) == parameterSyntax))
             {
                 new ConfigureInvocationExpressionVisitor(parameterSyntax, analysisContext, cancellationToken).VisitMethodDeclaration(node);
             }

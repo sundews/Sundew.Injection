@@ -12,7 +12,7 @@ using Sundew.Injection.Generator.TypeSystem;
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record ParameterSource(Type Type, string Name, bool IsMember, bool NeedsInvocation, bool IsOptional);
 
-internal sealed record DirectParameter(Type Type, string Name, bool IsMember, bool NeedsInvocation, ParameterNecessity ParameterNecessity, Inject Inject) : ParameterSource(Type, Name, IsMember, NeedsInvocation, ParameterNecessity.IsOptional)
+internal sealed partial record DirectParameter(Type Type, string Name, bool IsMember, bool NeedsInvocation, ParameterNecessity ParameterNecessity, Inject Inject) : ParameterSource(Type, Name, IsMember, NeedsInvocation, ParameterNecessity.IsOptional)
 {
     public override string ToString()
     {
@@ -20,7 +20,7 @@ internal sealed record DirectParameter(Type Type, string Name, bool IsMember, bo
     }
 }
 
-internal sealed record PropertyAccessorParameter(Type Type, string Name, bool IsMember, AccessorProperty AccessorProperty, bool NeedsInvocation) : ParameterSource(Type, Name, IsMember, NeedsInvocation, AccessorProperty.IsParameterOptional | AccessorProperty.IsResultOptional)
+internal sealed partial record PropertyAccessorParameter(Type Type, string Name, bool IsMember, AccessorProperty AccessorProperty, bool NeedsInvocation) : ParameterSource(Type, Name, IsMember, NeedsInvocation, AccessorProperty.IsParameterOptional | AccessorProperty.IsResultOptional)
 {
     public override string ToString()
     {

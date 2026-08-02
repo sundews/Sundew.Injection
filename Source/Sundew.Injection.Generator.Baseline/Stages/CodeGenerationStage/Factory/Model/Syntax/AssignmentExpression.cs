@@ -7,4 +7,4 @@
 
 namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.Syntax;
 
-internal sealed record AssignmentExpression(Expression Lhs, Expression Rhs) : Expression;
+internal sealed partial record AssignmentExpression(Expression Lhs, Expression Rhs) : Expression;

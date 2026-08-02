@@ -10,7 +10,7 @@ namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record ParameterSource;
 
-internal sealed record DirectParameter(Inject Inject) : ParameterSource
+internal sealed partial record DirectParameter(Inject Inject) : ParameterSource
 {
     public override string ToString()
     {
@@ -18,7 +18,7 @@ internal sealed record DirectParameter(Inject Inject) : ParameterSource
     }
 }
 
-internal sealed record PropertyAccessorParameter(AccessorProperty AccessorProperty) : ParameterSource
+internal sealed partial record PropertyAccessorParameter(AccessorProperty AccessorProperty) : ParameterSource
 {
     public override string ToString()
     {

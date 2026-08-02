@@ -126,7 +126,7 @@ internal class BindingFactory(
         var resolvedBinding = ResolvedBinding.SingleParameter(binding);
         resolvedBindingTypeRegistrar.Register(factoryTypeId, factoryInterfaceTypeId, resolvedBinding, true);
         nameTypeRegistrar.Register(factoryType.Name, factoryType);
-        if (factoryInterfaceType.HasValue())
+        if (factoryInterfaceType.HasValue)
         {
             nameTypeRegistrar.Register(factoryInterfaceType.Name, factoryInterfaceType);
         }

@@ -14,12 +14,12 @@ internal abstract partial record ParameterNecessity
 {
     public abstract bool IsOptional { get; }
 
-    internal sealed record Required : ParameterNecessity
+    internal sealed partial record Required : ParameterNecessity
     {
         public override bool IsOptional => false;
     }
 
-    internal sealed record Optional(bool HasDefaultValue, object? DefaultValue) : ParameterNecessity
+    internal sealed partial record Optional(bool HasDefaultValue, object? DefaultValue) : ParameterNecessity
     {
         [MemberNotNullWhen(true, nameof(DefaultValue))]
         public bool HasDefaultValue { get; init; } = HasDefaultValue;

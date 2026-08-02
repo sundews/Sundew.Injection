@@ -13,6 +13,6 @@ using Sundew.Base.Collections.Immutable;
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record CodeGenerationResult;
 
-internal sealed record Success(ValueArray<GeneratedOutput> GeneratedOutputs) : CodeGenerationResult;
+internal sealed partial record Success(ValueArray<GeneratedOutput> GeneratedOutputs) : CodeGenerationResult;
 
-internal sealed record Error(ValueArray<Diagnostic> Diagnostics) : CodeGenerationResult;
+internal sealed partial record Error(ValueArray<Diagnostic> Diagnostics) : CodeGenerationResult;

@@ -10,7 +10,7 @@ namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.N
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal sealed record FactoryConstructorParameterInjectionNode(
+internal sealed partial record FactoryConstructorParameterInjectionNode(
     Type Type,
     string Name,
     ParameterSource ParameterSource,

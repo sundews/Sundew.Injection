@@ -2,7 +2,7 @@
 
 using Sundew.Injection.Generator.TypeSystem;
 
-internal sealed record ThisFactoryInjectionNode(
+internal sealed partial record ThisFactoryInjectionNode(
     NamedType FactoryType,
     string? DependantName)
     : InjectionNode(DependantName)

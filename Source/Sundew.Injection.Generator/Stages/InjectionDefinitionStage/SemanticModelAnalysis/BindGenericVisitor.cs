@@ -126,6 +126,6 @@ internal class BindGenericVisitor(
 
     private R<GenericMethod?, ErrorWithLocation> GetGenericMethod(ArgumentSyntax argumentSyntax)
     {
-        return ExpressionAnalysisHelper.GetGenericMethod(argumentSyntax, analysisContext.SemanticModel, analysisContext.TypeFactory).ToValueOptionResult();
+        return ExpressionAnalysisHelper.GetGenericMethod(argumentSyntax, analysisContext.SemanticModel, analysisContext.TypeFactory).MapToValueOptionResult();
     }
 }

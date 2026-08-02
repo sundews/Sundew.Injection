@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal sealed record NewInstanceInjectionNode(
+internal sealed partial record NewInstanceInjectionNode(
     DefiniteType TargetType,
     DefiniteType ReferencedType,
     bool TargetImplementsDisposable,

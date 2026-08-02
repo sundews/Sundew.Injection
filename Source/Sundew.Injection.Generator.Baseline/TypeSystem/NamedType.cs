@@ -7,4 +7,4 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-public sealed record NamedType(string Name, string Namespace, string AssemblyName) : DefiniteType(Name, Namespace, AssemblyName);
+public sealed partial record NamedType(string Name, string Namespace, string AssemblyName) : DefiniteType(Name, Namespace, AssemblyName);

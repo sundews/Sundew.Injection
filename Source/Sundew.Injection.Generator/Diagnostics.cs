@@ -224,7 +224,7 @@ internal sealed record Diagnostics(ValueList<Diagnostic> Items) : IEnumerable<Di
     public static Diagnostics Create(DiagnosticDescriptor diagnosticDescriptor, ErrorWithLocation errorWithLocation, params object[] additionalArguments)
     {
         var arguments = new[] { errorWithLocation.Error.Symbol.FullName, GetErrorText(errorWithLocation.Error) }.Concat(additionalArguments).ToArray();
-        if (errorWithLocation.Location.HasValue())
+        if (errorWithLocation.Location.HasValue)
         {
             return new Diagnostics(Diagnostic.Create(diagnosticDescriptor, errorWithLocation.Location, arguments));
         }
@@ -240,7 +240,7 @@ internal sealed record Diagnostics(ValueList<Diagnostic> Items) : IEnumerable<Di
     public static Diagnostics Create(DiagnosticDescriptor diagnosticDescriptor, ISymbol symbol, Location? location = default, params object[] additionalArguments)
     {
         var arguments = symbol.ToDisplayString().ToEnumerable().Concat(additionalArguments).ToArray();
-        if (location.HasValue())
+        if (location.HasValue)
         {
             return new Diagnostics(Diagnostic.Create(diagnosticDescriptor, location, arguments));
         }

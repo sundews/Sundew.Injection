@@ -209,8 +209,8 @@ internal sealed class BindingResolver
             return resolvedParameterSource switch
             {
                 Found found => ResolvedBinding.RequiredParameter(type, typeMetadata, found.ParameterSource),
-                NotFound notFound => optionalOption.HasValue() ? ResolvedBinding.OptionalParameter(optionalOption.DefaultValue, type, typeMetadata) : ResolvedBinding.RequiredParameter(type, typeMetadata, notFound.ProposedParameterSource),
-                NoExactMatch noExactMatch => optionalOption.HasValue() ? ResolvedBinding.OptionalParameter(optionalOption.DefaultValue, type, typeMetadata) : ResolvedBindingError.ParameterError(type, parameterName, noExactMatch.ParameterSources),
+                NotFound notFound => optionalOption.HasValue ? ResolvedBinding.OptionalParameter(optionalOption.DefaultValue, type, typeMetadata) : ResolvedBinding.RequiredParameter(type, typeMetadata, notFound.ProposedParameterSource),
+                NoExactMatch noExactMatch => optionalOption.HasValue ? ResolvedBinding.OptionalParameter(optionalOption.DefaultValue, type, typeMetadata) : ResolvedBindingError.ParameterError(type, parameterName, noExactMatch.ParameterSources),
             };
         }
     }

@@ -11,7 +11,7 @@ using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal sealed record NewInstanceInjectionNode(
+internal sealed partial record NewInstanceInjectionNode(
     Type TargetType,
     Type ReferencedType,
     Lifecycle Lifecycle,

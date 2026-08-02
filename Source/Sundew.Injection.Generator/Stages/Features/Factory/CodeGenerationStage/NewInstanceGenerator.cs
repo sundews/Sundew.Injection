@@ -62,7 +62,7 @@ internal sealed class NewInstanceGenerator(
 
         var variables = factoryNode.RootFactoryMethod.Variables;
         var statements = factoryNode.RootFactoryMethod.Statements;
-        var variableDeclarationOption = (newInstanceInjectionNode.Lifecycle != Lifecycle.None || newInstanceInjectionNode.ParameterNodeOption.HasValue()).ToOption(
+        var variableDeclarationOption = (newInstanceInjectionNode.Lifecycle != Lifecycle.None || newInstanceInjectionNode.ParameterNodeOption.HasValue).ToOption(
             () =>
             {
                 var variableName = NameHelper.GetDependantScopedName(newInstanceInjectionNode);

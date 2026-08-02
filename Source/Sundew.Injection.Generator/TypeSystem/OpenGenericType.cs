@@ -9,4 +9,4 @@ namespace Sundew.Injection.Generator.TypeSystem;
 
 using Sundew.Base.Collections.Immutable;
 
-internal sealed record OpenGenericType(string Name, string Namespace, string AssemblyName, ValueArray<TypeParameter> TypeParameters, bool IsValueType) : Symbol(Name);
+internal sealed partial record OpenGenericType(string Name, string Namespace, string AssemblyName, ValueArray<TypeParameter> TypeParameters, bool IsValueType) : Symbol(Name);

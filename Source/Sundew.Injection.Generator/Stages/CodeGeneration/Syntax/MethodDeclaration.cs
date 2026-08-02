@@ -10,7 +10,7 @@ namespace Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using System.Collections.Immutable;
 using Sundew.Base.Collections.Immutable;
 
-internal sealed record MethodDeclaration(
+internal sealed partial record MethodDeclaration(
     DeclaredAccessibility Accessibility,
     bool IsStatic,
     bool IsPartialDefinition,

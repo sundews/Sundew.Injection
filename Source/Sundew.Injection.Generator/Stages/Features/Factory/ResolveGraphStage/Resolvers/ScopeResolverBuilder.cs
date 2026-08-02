@@ -61,7 +61,7 @@ internal sealed class ScopeResolverBuilder
     {
         var errors = ImmutableList.CreateBuilder<ResolvedBindingError>();
         this.ResolveBindingScopes(ResolvedBinding.SingleParameter(binding), default, parametersInjectionResolver, new Dependant(factoryType, Scope._NewInstance(Location.None)), errors);
-        return R.From(errors.IsEmpty(), new ScopeResolver(this.scopes), errors.ToImmutable());
+        return R.From(errors.IsEmpty, new ScopeResolver(this.scopes), errors.ToImmutable());
     }
 
     public ValueDictionary<RequestedParameter, bool> Build()
@@ -174,7 +174,7 @@ internal sealed class ScopeResolverBuilder
             case ThisFactoryParameter thisFactoryParameter:
                 this.UpdateReferencedType(thisFactoryParameter.FactoryType, requestedParameterMetadataOption, true, errors);
                 this.UpdateParameterScope(thisFactoryParameter.FactoryType, dependant with { Scope = Scope._SingleInstancePerFactory(Location.None) }, errors);
-                if (thisFactoryParameter.FactoryInterfaceType.HasValue())
+                if (thisFactoryParameter.FactoryInterfaceType.HasValue)
                 {
                     this.UpdateReferencedType(thisFactoryParameter.FactoryInterfaceType, requestedParameterMetadataOption, true, errors);
                     this.UpdateParameterScope(thisFactoryParameter.FactoryInterfaceType, dependant with { Scope = Scope._SingleInstancePerFactory(Location.None) }, errors);

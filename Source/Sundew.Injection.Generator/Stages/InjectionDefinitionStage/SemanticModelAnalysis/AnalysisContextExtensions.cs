@@ -162,7 +162,7 @@ internal static class AnalysisContextExtensions
         if (methodSymbol.MethodKind == Microsoft.CodeAnalysis.MethodKind.Ordinary &&
             IsFactoryMethodTargetCandidate(methodSymbol))
         {
-            return analysisContext.TypeFactory.GetFactoryMethodTarget(methodSymbol).ToOption();
+            return analysisContext.TypeFactory.GetFactoryMethodTarget(methodSymbol).MapToOption();
         }
 
         return default;

@@ -29,7 +29,7 @@ internal static class ExpressionAnalysisHelper
                     {
                         return typeFactory.GetFactoryMethod(invocationMethodSymbol)
                             .MapError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()))
-                            .ToOptionResult();
+                            .MapToOptionResult();
                     }
 
                     break;
@@ -39,7 +39,7 @@ internal static class ExpressionAnalysisHelper
                     {
                         return typeFactory.GetFactoryMethod(objectCreationMethodSymbol)
                             .MapError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()))
-                            .ToOptionResult();
+                            .MapToOptionResult();
                     }
 
                     break;
@@ -50,9 +50,9 @@ internal static class ExpressionAnalysisHelper
                         case IMethodSymbol memberAccessMethodSymbol:
                             return typeFactory.GetFactoryMethod(memberAccessMethodSymbol)
                                 .MapError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation()))
-                                .ToOptionResult();
+                                .MapToOptionResult();
                         case IPropertySymbol memberAccessPropertySymbol:
-                            return typeFactory.GetFactoryMethod(memberAccessPropertySymbol).MapError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation())).ToOptionResult();
+                            return typeFactory.GetFactoryMethod(memberAccessPropertySymbol).MapError(x => new ErrorWithLocation(x, argumentSyntax.GetLocation())).MapToOptionResult();
                     }
 
                     break;

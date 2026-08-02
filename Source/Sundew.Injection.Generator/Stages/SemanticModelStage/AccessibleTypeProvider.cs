@@ -93,7 +93,7 @@ internal static class AccessibleTypeProvider
                     case IMethodSymbol methodSymbol when IsDeclaredAccessible(methodSymbol.DeclaredAccessibility)
                                                          && HasValidReturnType(methodSymbol.ReturnType):
                     case IPropertySymbol propertySymbol when IsDeclaredAccessible(propertySymbol.DeclaredAccessibility)
-                                                             && propertySymbol.GetMethod.HasValue()
+                                                             && propertySymbol.GetMethod.HasValue
                                                              && HasValidReturnType(propertySymbol.GetMethod.ReturnType):
                         return true;
                     default:

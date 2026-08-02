@@ -363,7 +363,7 @@ internal static class ImplementationSourceCodeEmitter
                     .Append('.')
                     .Append(instanceMethodCall.Name)
                     .If(
-                        !instanceMethodCall.TypeArguments.IsEmpty(),
+                        !instanceMethodCall.TypeArguments.IsEmpty,
                         x => x.Append('<').AppendItems(instanceMethodCall.TypeArguments, (builder, argument) => builder.AppendFullyQualifiedType(argument.Type), Trivia.ListSeparator).Append('>'))
                     .Append('(')
                     .AppendArguments(instanceMethodCall.Arguments, newIndentation, formattingOptions)
@@ -376,7 +376,7 @@ internal static class ImplementationSourceCodeEmitter
                         (builder, type) => builder.AppendFullyQualifiedType(type).Append('.'))
                     .Append(staticMethodCall.Name)
                     .If(
-                        !staticMethodCall.TypeArguments.IsEmpty(),
+                        !staticMethodCall.TypeArguments.IsEmpty,
                         x => x.Append('<').AppendItems(staticMethodCall.TypeArguments, (builder, argument) => builder.AppendFullyQualifiedType(argument.Type), Trivia.ListSeparator).Append('>'))
                     .Append('(')
                     .AppendArguments(staticMethodCall.Arguments, newIndentation, formattingOptions)

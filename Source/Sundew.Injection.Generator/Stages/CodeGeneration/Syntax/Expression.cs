@@ -16,27 +16,27 @@ using Type = Sundew.Injection.Generator.TypeSystem.Type;
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record Expression;
 
-internal sealed record Lambda(IReadOnlyList<Expression> Parameters, Expression Expression) : Expression;
+internal sealed partial record Lambda(IReadOnlyList<Expression> Parameters, Expression Expression) : Expression;
 
-internal sealed record IndexerAccess(Expression Source, int Index) : Expression;
+internal sealed partial record IndexerAccess(Expression Source, int Index) : Expression;
 
-internal sealed record Identifier(string Name) : Expression
+internal sealed partial record Identifier(string Name) : Expression
 {
     public static readonly Identifier This = new("this");
 }
 
-internal sealed record FuncInvocationExpression(Expression DelegateAccessor, bool IsOptional) : Expression;
+internal sealed partial record FuncInvocationExpression(Expression DelegateAccessor, bool IsOptional) : Expression;
 
-internal sealed record Cast(Expression Source, UsedType TargetType) : Expression;
+internal sealed partial record Cast(Expression Source, UsedType TargetType) : Expression;
 
-internal sealed record AssignmentExpression(Expression Lhs, Expression Rhs) : Expression;
+internal sealed partial record AssignmentExpression(Expression Lhs, Expression Rhs) : Expression;
 
-internal sealed record AwaitExpression(Expression Expression) : Expression;
+internal sealed partial record AwaitExpression(Expression Expression) : Expression;
 
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record InvocationExpressionBase(IReadOnlyList<Expression> Arguments) : Expression;
 
-internal sealed record InvocationExpression(Expression Expression, IReadOnlyList<Expression> Arguments) : InvocationExpressionBase(Arguments)
+internal sealed partial record InvocationExpression(Expression Expression, IReadOnlyList<Expression> Arguments) : InvocationExpressionBase(Arguments)
 {
     public InvocationExpression(Expression expression)
         : this(expression, [])
@@ -47,30 +47,30 @@ internal sealed record InvocationExpression(Expression Expression, IReadOnlyList
 [DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record CreationExpression(IReadOnlyList<Expression> Arguments) : InvocationExpressionBase(Arguments)
 {
-    public sealed record Array
+    public sealed partial record Array
         (Type ElementType, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
 
-    public sealed record ConstructorCall
+    public sealed partial record ConstructorCall
         (Type Type, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
 
-    public sealed record StaticMethodCall
+    public sealed partial record StaticMethodCall
         (Type? Type, string Name, ValueArray<FullTypeArgument> TypeArguments, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
 
-    public sealed record InstanceMethodCall
+    public sealed partial record InstanceMethodCall
         (Expression FactoryAccessExpression, string Name, ValueArray<FullTypeArgument> TypeArguments, IReadOnlyList<Expression> Arguments) : CreationExpression(Arguments);
 
-    public sealed record DefaultValue(Type Type) : CreationExpression(System.Array.Empty<Expression>());
+    public sealed partial record DefaultValue(Type Type) : CreationExpression(System.Array.Empty<Expression>());
 }
 
-internal sealed record Literal(string Value) : CreationExpression(System.Array.Empty<Expression>())
+internal sealed partial record Literal(string Value) : CreationExpression(System.Array.Empty<Expression>())
 {
     public static readonly Literal Null = new("null");
     public static readonly Literal False = new("false");
     public static readonly Literal True = new("true");
 }
 
-internal sealed record NullCoalescingOperatorExpression(Expression Lhs, Expression Rhs, bool IsAssignment = false) : Expression;
+internal sealed partial record NullCoalescingOperatorExpression(Expression Lhs, Expression Rhs, bool IsAssignment = false) : Expression;
 
-internal sealed record TypeOf(Type Type) : Expression;
+internal sealed partial record TypeOf(Type Type) : Expression;
 
-internal sealed record MemberAccessExpression(Expression Expression, string Name) : InvocationExpressionBase(Array.Empty<Expression>());
+internal sealed partial record MemberAccessExpression(Expression Expression, string Name) : InvocationExpressionBase(Array.Empty<Expression>());

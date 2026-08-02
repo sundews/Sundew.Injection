@@ -102,7 +102,7 @@ internal class ConfigureInvocationMemberAccessExpressionVisitor(
                     Multiple<IMethodSymbol> multiple => multiple.Items.FirstOrDefault(x => x.IsGenericMethod == isGeneric),
                 };
 
-                if (!methodSymbol2.HasValue())
+                if (!methodSymbol2.HasValue)
                 {
                     return;
                 }
