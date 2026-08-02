@@ -35,6 +35,8 @@ public class SuccessFixture
     [TestCase(@"Parameters\OptionalLifecycleWithoutRegistration")]
     [TestCase(@"Parameters\OptionalReferenceType")]
     [TestCase(@"Parameters\OptionalString")]
+    [TestCase(@"PartialConstructor")]
+    [TestCase(@"PartialProperty")]
     [TestCase(@"SelectedConstructor")]
     [TestCase(@"SingletonFactory")]
     public Task VerifyGeneratedSources(string project)

@@ -2,7 +2,7 @@
   Diagnostics: [
     {
       Message:
-Could not resolve type: 'IParameter' as a parameter for: 'noMathParameter' from the available parameter sources: 'Direct: Name: parameter, IsParameterOptional: False, ParameterNecessity: Required { IsOptional = False }, 
+Could not resolve type: 'IParameter' as a parameter for: 'noMathParameter' from the available parameter sources: 'Direct: Name: parameter, IsOptional: False, ParameterNecessity: Required { IsOptional = False }, 
 Property: DistinctErrors.NoExactParameterMatch.IArguments.NonMatchingParameter, IsParameterOptional: False, IsResultOptional: False',
       Severity: Error,
       Descriptor: {

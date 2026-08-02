@@ -109,7 +109,8 @@ internal sealed class InjectionTreeBuilder
                         parameterPair.Metadata,
                         scope is Scope.NewInstance,
                         scope is Scope.SingleInstancePerFactory,
-                        dependantInjectionNode?.GetInjectionNodeName())));
+                        dependantInjectionNode?.GetInjectionNodeName(),
+                        parameterPair.IsOptional)));
         lifecycle |= creation.Lifecycle;
 
         foreach (var childParameter in binding.Method.Parameters)
@@ -176,7 +177,7 @@ internal sealed class InjectionTreeBuilder
                     var requiredParameterScope = this.scopeResolver.ResolveScope(requiredParameter.Type);
                     var requiredParameterInjectionNode = this.CreateParameterInjectionNode(
                         requiredParameter.Type,
-                        new NamedParameter(childParameter.Name, childParameter.TypeMetadata, childParameter.DefaultConstructor),
+                        new NamedParameter(childParameter.Name, childParameter.TypeMetadata, childParameter.DefaultConstructor, childParameter.ParameterNecessity.IsOptional),
                         creationInjectionNode.GetInjectionNodeName(),
                         requiredParameterScope,
                         requiredParameter.ParameterSource);
@@ -253,11 +254,11 @@ internal sealed class InjectionTreeBuilder
         if (scope is Scope.SingleInstancePerFactory)
         {
             var factoryConstructorParameterInjectionNode =
-                new FactoryConstructorParameterInjectionNode(type, parameter.Name, parameterSource, parameter.Metadata, dependantName);
+                new FactoryConstructorParameterInjectionNode(type, parameter.Name, parameterSource, parameter.Metadata, dependantName, parameter.IsTargetOptional);
             return factoryConstructorParameterInjectionNode;
         }
 
-        return InjectionNode.FactoryMethodParameterInjectionNode(type, parameter.Name, parameterSource, parameter.Metadata, dependantName);
+        return InjectionNode.FactoryMethodParameterInjectionNode(type, parameter.Name, parameterSource, parameter.Metadata, dependantName, parameter.IsTargetOptional);
     }
 
     private ParameterSource? GetParameterSource(Type type, string parameterName, Type? dependantTypeOption, ImmutableList<InjectionStageError>.Builder diagnostics)

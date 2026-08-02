@@ -2,4 +2,4 @@
 
 using Sundew.Base.Collections.Immutable;
 
-internal readonly record struct DeclaredConstructor(ValueArray<FullParameter> Parameters, bool IsPublic, bool IsPartialDefinition);
+internal readonly record struct DeclaredConstructor(ValueArray<FullParameter> Parameters, bool IsPublic, bool IsPartialDefinition, bool IsConstructor = false);

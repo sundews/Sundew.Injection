@@ -25,6 +25,8 @@ internal class KnownSyntax
     private const string InitializeAsync = "InitializeAsync";
     private const string Dispose = "Dispose";
     private const string DisposeAsync = "DisposeAsync";
+    private const string Complete = "Complete";
+    private const string CompleteAsync = "CompleteAsync";
     private readonly Lazy<LifecycleHandlerSyntax> lifecycleHandler;
     private readonly Lazy<LifecycleHandlerSyntax> childLifecycleHandler;
 
@@ -81,6 +83,8 @@ internal class KnownSyntax
         AwaitExpression InitializeAsyncMethodCall,
         MemberAccessExpression DisposeMethod,
         MemberAccessExpression DisposeAsyncMethod,
+        MemberAccessExpression CompleteMethod,
+        MemberAccessExpression CompleteAsyncMethod,
         ParameterDeclaration OnCreateMethodParameterDeclaration)
     {
         private const string Initialize = "Initialize";
@@ -98,6 +102,8 @@ internal class KnownSyntax
                 new AwaitExpression(new InvocationExpression(new MemberAccessExpression(new InvocationExpression(new MemberAccessExpression(lifetimeHandlerAccess, InitializeAsync)), ConfigureAwait), [Literal.False])),
                 new MemberAccessExpression(lifetimeHandlerAccess, Dispose),
                 new MemberAccessExpression(lifetimeHandlerAccess, DisposeAsync),
+                new MemberAccessExpression(lifetimeHandlerAccess, Complete),
+                new MemberAccessExpression(lifetimeHandlerAccess, CompleteAsync),
                 new ParameterDeclaration(referencedLifetimeHandlerType, "lifecycleHandler", ParameterNecessity._Required))
         {
         }

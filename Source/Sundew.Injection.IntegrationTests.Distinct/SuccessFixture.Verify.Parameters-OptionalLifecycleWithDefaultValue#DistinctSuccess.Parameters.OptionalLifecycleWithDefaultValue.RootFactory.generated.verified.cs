@@ -5,7 +5,7 @@ namespace DistinctSuccess.Parameters.OptionalLifecycleWithDefaultValue
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Sundew.Injection.Generator", "0.1.0.0")]
     [global::Sundew.Injection.Factory("CreateUninitialized")]
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public sealed partial class RootFactory : global::System.IDisposable, global::System.IAsyncDisposable, global::Sundew.Injection.IGeneratedFactory
+    public sealed partial class RootFactory : global::Sundew.Injection.IGeneratedFactory
     {
         private readonly global::Sundew.Injection.ILifecycleParameters lifecycleParameters;
         private readonly global::OptionalLifecycleWithDefaultValue.SundewInjection.LifecycleHandler lifecycleHandler;
@@ -50,30 +50,6 @@ namespace DistinctSuccess.Parameters.OptionalLifecycleWithDefaultValue
             var rootResult = root;
             this.lifecycleHandler.TryAdd(rootResult, childLifecycleHandler);
             return new global::Sundew.Injection.Constructed<global::DistinctSuccess.Parameters.OptionalLifecycleWithDefaultValue.Root>(rootResult, childLifecycleHandler);
-        }
-
-        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        public void Dispose(global::DistinctSuccess.Parameters.OptionalLifecycleWithDefaultValue.Root root)
-        {
-            this.lifecycleHandler.Dispose(root);
-        }
-
-        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        public global::System.Threading.Tasks.ValueTask DisposeAsync(global::DistinctSuccess.Parameters.OptionalLifecycleWithDefaultValue.Root root)
-        {
-            return this.lifecycleHandler.DisposeAsync(root);
-        }
-
-        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        public void Dispose()
-        {
-            this.lifecycleHandler.Dispose();
-        }
-
-        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        public global::System.Threading.Tasks.ValueTask DisposeAsync()
-        {
-            return this.lifecycleHandler.DisposeAsync();
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]

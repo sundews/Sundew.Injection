@@ -59,16 +59,19 @@ internal class FactorySyntaxGenerator(
 
             factoryImplementation = factoryNode.FactoryImplementation;
 
-            interfaces = ImmutableList.Create(compilationData.IDisposableType)
-                .Add(compilationData.IAsyncDisposableType)
-                .Add(compilationData.ReferencedSundewInjectionCompilationData.IGeneratedFactoryType);
+            if (factoryResolvedGraph.Lifecycle.HasFlag(Lifecycle.Disposal))
+            {
+                interfaces = ImmutableList.Create(compilationData.IDisposableType)
+                    .Add(compilationData.IAsyncDisposableType)
+                    .Add(compilationData.ReferencedSundewInjectionCompilationData.IGeneratedFactoryType);
 
-            disposeMethods = ImmutableList.Create(
-                new Member.MethodImplementation(
-                    new MethodDeclaration(DeclaredAccessibility.Public, false, false, false, knownSyntax.DisposeName, ImmutableList<ParameterDeclaration>.Empty, new UsedType(compilationData.VoidType)), ImmutableList.Create<Statement>(new ExpressionStatement(
-                        new InvocationExpression(knownSyntax.SharedLifecycleHandler.DisposeMethod)))),
-                new Member.MethodImplementation(
-                    new MethodDeclaration(DeclaredAccessibility.Public, false, false, false, knownSyntax.DisposeAsyncName, ImmutableList<ParameterDeclaration>.Empty, new UsedType(compilationData.ValueTaskType)), ImmutableList.Create<Statement>(new ReturnStatement(new InvocationExpression(knownSyntax.SharedLifecycleHandler.DisposeAsyncMethod)))));
+                disposeMethods = ImmutableList.Create(
+                    new Member.MethodImplementation(
+                        new MethodDeclaration(DeclaredAccessibility.Public, false, false, false, knownSyntax.DisposeName, ImmutableList<ParameterDeclaration>.Empty, new UsedType(compilationData.VoidType)), ImmutableList.Create<Statement>(new ExpressionStatement(
+                            new InvocationExpression(knownSyntax.SharedLifecycleHandler.CompleteMethod)))),
+                    new Member.MethodImplementation(
+                        new MethodDeclaration(DeclaredAccessibility.Public, false, false, false, knownSyntax.DisposeAsyncName, ImmutableList<ParameterDeclaration>.Empty, new UsedType(compilationData.ValueTaskType)), ImmutableList.Create<Statement>(new ReturnStatement(new InvocationExpression(knownSyntax.SharedLifecycleHandler.CompleteAsyncMethod)))));
+            }
         }
 
         (factoryImplementation, var interfaceDeclarations, var defaultMethodDeclarations) = factoryResolvedGraph.ResolvedRootFactoryMethods.Aggregate(
@@ -109,7 +112,24 @@ internal class FactorySyntaxGenerator(
             interfaces = ImmutableList.Create(factoryResolvedGraph.FactoryInterfaceType);
         }
 
-        var constructorMethodDeclaration = factoryResolvedGraph.DeclaredConstructor.IsPartialDefinition
+        var declaredConstructor = factoryResolvedGraph.DeclaredConstructor;
+        var isPartialConstructor = declaredConstructor is { IsConstructor: true, IsPartialDefinition: true };
+        var constructorParameters = factoryImplementation.Constructor.Parameters;
+        if (isPartialConstructor)
+        {
+            constructorParameters = constructorParameters.Select(x => x with
+            {
+                ParameterNecessity = x.ParameterNecessity switch
+                {
+                    ParameterNecessity.Optional optional => optional with { HasDefaultValue = false },
+                    ParameterNecessity.Required required => required,
+                },
+            }).ToImmutableList();
+        }
+
+        var constructorAccessibility = !isPartialConstructor || declaredConstructor.IsPublic ? DeclaredAccessibility.Public : DeclaredAccessibility.Private;
+
+        var constructorMethodDeclaration = declaredConstructor.IsPartialDefinition && !declaredConstructor.IsConstructor
             ? Member._MethodImplementation(
                     new MethodDeclaration(
                         factoryResolvedGraph.DeclaredConstructor.IsPublic ? DeclaredAccessibility.Public : DeclaredAccessibility.Private,
@@ -149,7 +169,7 @@ internal class FactorySyntaxGenerator(
                 factoryImplementation.Fields.Select(x => new Member.Field(x))
                     .Concat(
                         new Member.MethodImplementation(
-                            new MethodDeclaration(DeclaredAccessibility.Public, false, false, false, factoryResolvedGraph.FactoryType.Name, factoryImplementation.Constructor.Parameters),
+                            new MethodDeclaration(constructorAccessibility, false, isPartialConstructor, false, factoryResolvedGraph.FactoryType.Name, constructorParameters),
                             factoryImplementation.Constructor.Statements).ToEnumerable<Member>(),
                         factoryImplementation.RootFactoryProperties.Select(x => Member._PropertyImplementation(x.Declaration, x.GetPropertyImplementation)),
                         factoryImplementation.RootFactoryMethods.Select(x =>
@@ -192,20 +212,7 @@ internal class FactorySyntaxGenerator(
             ImmutableArray<MemberDeclaration>.Empty);
 
         var rootFactoryMethodParameters = resolvedRootFactoryMethod.Parameters
-            .Select(x =>
-            {
-                var parameterNecessity = x.ParameterNecessity;
-                if (resolvedRootFactoryMethod.IsPartialDefinition)
-                {
-                    parameterNecessity = parameterNecessity switch
-                    {
-                        ParameterNecessity.Optional optional => optional with { HasDefaultValue = false },
-                        ParameterNecessity.Required required => required,
-                    };
-                }
-
-                return new ParameterDeclaration(x.Type, x.Name, parameterNecessity);
-            })
+            .Select(x => new ParameterDeclaration(x.Type, x.Name, x.ParameterNecessity))
             .ToImmutableList();
 
         var rootFactoryMethodDeclaration = new MethodDeclaration(
@@ -406,6 +413,11 @@ internal class FactorySyntaxGenerator(
         ImmutableArray<string>.Builder bindableFactoryTargets)
     {
         factoryDefinition = this.AddCreationWithInitialization(resolvedRootFactoryMethod, factoryNode, factoryInput, factoryDefinition, bindableFactoryTargets);
+        if (resolvedRootFactoryMethod.IsProperty || factoryInput.IsSingleton)
+        {
+            return factoryDefinition;
+        }
+
         return this.AddDisposal(resolvedRootFactoryMethod, factoryInput, factoryDefinition);
     }
 
@@ -418,7 +430,7 @@ internal class FactorySyntaxGenerator(
     {
         if (resolvedRootFactoryMethod.IsProperty || factoryInput.IsSingleton)
         {
-            factoryDefinition = this.AddCreationWithoutLifecycle(resolvedRootFactoryMethod, factoryNode, factoryInput, factoryDefinition, bindableFactoryTargets);
+            return this.AddCreationWithoutLifecycle(resolvedRootFactoryMethod, factoryNode, factoryInput, factoryDefinition, bindableFactoryTargets);
         }
         else
         {

@@ -7,12 +7,18 @@ namespace DistinctSuccess.InitializableDependency
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class MainFactory : global::Sundew.Injection.IGeneratedFactory
     {
+        private readonly global::Sundew.Injection.ILifecycleParameters lifecycleParameters;
         private readonly global::InitializableDependency.SundewInjection.LifecycleHandler lifecycleHandler;
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public MainFactory()
         {
-            this.lifecycleHandler = new global::InitializableDependency.SundewInjection.LifecycleHandler(default(global::Sundew.Injection.IInitializationParameters), default(global::Sundew.Injection.IDisposalParameters));
+            this.lifecycleParameters = new global::Sundew.Injection.LifecycleParameters(
+                false,
+                false,
+                default(global::Initialization.Interfaces.IInitializationReporter),
+                default(global::Disposal.Interfaces.IDisposalReporter));
+            this.lifecycleHandler = new global::InitializableDependency.SundewInjection.LifecycleHandler(this.lifecycleParameters, this.lifecycleParameters);
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]

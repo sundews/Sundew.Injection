@@ -17,7 +17,8 @@ internal sealed record ParameterNode(
     TypeMetadata TypeMetadata,
     bool PrefersNewInstance,
     bool IsForConstructor,
-    string? DependantName) : IParameterNode
+    string? DependantName,
+    bool IsTargetOptional = false) : IParameterNode
 {
     public bool IsOptional => true;
 }

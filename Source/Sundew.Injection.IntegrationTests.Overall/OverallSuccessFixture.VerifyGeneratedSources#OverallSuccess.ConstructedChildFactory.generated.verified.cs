@@ -22,7 +22,6 @@ namespace OverallSuccess
                 default(global::Disposal.Interfaces.IDisposalReporter));
             this.lifecycleHandler = new global::OverallSuccess.SundewInjection.LifecycleHandler(this.lifecycleParameters, this.lifecycleParameters);
             this.dependencyFactory = new global::OverallSuccessDependency.DependencyFactory();
-            this.lifecycleHandler.TryAdd(this.dependencyFactory);
             this.manualMultipleDependencyFactory = new global::OverallSuccessDependency.ManualMultipleDependencyFactory();
         }
 
@@ -73,13 +72,13 @@ namespace OverallSuccess
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public void Dispose()
         {
-            this.lifecycleHandler.Dispose();
+            this.lifecycleHandler.Complete();
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public global::System.Threading.Tasks.ValueTask DisposeAsync()
         {
-            return this.lifecycleHandler.DisposeAsync();
+            return this.lifecycleHandler.CompleteAsync();
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]

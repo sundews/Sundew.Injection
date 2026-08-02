@@ -16,7 +16,7 @@ namespace Sundew.Injection.Dependencies
     using global::Sundew.Injection.Dependencies.Disposal;
     using global::Sundew.Injection.Dependencies.Initialization;
 
-    internal sealed class ChildLifecycleHandler : ILifecycleHandler
+    internal sealed class ChildLifecycleHandler : ILifecycleHandler, global::System.IDisposable, global::System.IAsyncDisposable
     {
         private readonly InitializingList<object> sharedInitializingList;
         private readonly InitializingList<object> initializingList;

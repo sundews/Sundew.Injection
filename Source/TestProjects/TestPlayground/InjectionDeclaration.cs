@@ -12,9 +12,9 @@ public class InjectionDeclaration : IInjectionDeclaration
 
 public partial class MainFactory
 {
-    public static partial MainFactory Constructor(ConstructorParameter constructorParameter);
+    public partial MainFactory(ConstructorParameter constructorParameter);
 
-    public CreatedSingleInstance CreatedSingleInstance { get; }
+    public partial CreatedSingleInstance CreatedSingleInstance { get; }
 
     public partial Root Create(FactoryMethodParameter factoryMethodParameter);
 }

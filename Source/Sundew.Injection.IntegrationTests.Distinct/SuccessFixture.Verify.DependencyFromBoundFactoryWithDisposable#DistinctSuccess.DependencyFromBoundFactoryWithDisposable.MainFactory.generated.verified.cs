@@ -3,7 +3,7 @@
 namespace DistinctSuccess.DependencyFromBoundFactoryWithDisposable
 {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Sundew.Injection.Generator", "0.1.0.0")]
-    [global::Sundew.Injection.Factory("CreateUninitialized")]
+    [global::Sundew.Injection.Factory("Create")]
     [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public sealed partial class MainFactory : global::System.IDisposable, global::System.IAsyncDisposable, global::Sundew.Injection.IGeneratedFactory
     {
@@ -27,30 +27,10 @@ namespace DistinctSuccess.DependencyFromBoundFactoryWithDisposable
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public partial global::DistinctSuccess.DependencyFromBoundFactoryWithDisposable.Root Create()
         {
-            var constructedRoot = this.CreateUninitialized();
-            this.lifecycleHandler.Initialize();
-            return constructedRoot.Object;
-        }
-
-        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        [global::Sundew.Injection.IndirectFactoryTargetAttribute]
-        public async global::System.Threading.Tasks.Task<global::DistinctSuccess.DependencyFromBoundFactoryWithDisposable.Root> CreateAsync()
-        {
-            var constructedRoot = this.CreateUninitialized();
-            await this.lifecycleHandler.InitializeAsync().ConfigureAwait(false);
-            return constructedRoot.Object;
-        }
-
-        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-        [global::Sundew.Injection.BindableFactoryTargetAttribute]
-        [global::Sundew.Injection.IndirectFactoryTargetAttribute]
-        public global::Sundew.Injection.Constructed<global::DistinctSuccess.DependencyFromBoundFactoryWithDisposable.Root> CreateUninitialized()
-        {
             var childLifecycleHandler = this.lifecycleHandler.CreateChildLifecycleHandler();
             var rootResult = new global::DistinctSuccess.DependencyFromBoundFactoryWithDisposable.Root(this.dependencyFactory.Dependency);
             this.lifecycleHandler.TryAdd(rootResult, childLifecycleHandler);
-            return new global::Sundew.Injection.Constructed<global::DistinctSuccess.DependencyFromBoundFactoryWithDisposable.Root>(rootResult, childLifecycleHandler);
+            return rootResult;
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
@@ -68,13 +48,13 @@ namespace DistinctSuccess.DependencyFromBoundFactoryWithDisposable
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public void Dispose()
         {
-            this.lifecycleHandler.Dispose();
+            this.lifecycleHandler.Complete();
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public global::System.Threading.Tasks.ValueTask DisposeAsync()
         {
-            return this.lifecycleHandler.DisposeAsync();
+            return this.lifecycleHandler.CompleteAsync();
         }
     }
 }

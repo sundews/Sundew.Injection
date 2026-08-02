@@ -1,8 +1,9 @@
-﻿namespace Sundew.Injection.Testing;
+namespace Sundew.Injection.Testing;
 
 using System;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Sundew.Base.IO;
 using Sundew.Testing.CodeAnalysis;
 using AssemblyReference = Sundew.Testing.CodeAnalysis.AssemblyReference;
@@ -23,7 +24,7 @@ public class TestProject(string path, params string[] additionalPaths)
                             new AssemblyReference(Paths.FindPathUpwards("Initialization.Interfaces.dll")!),
                             new AssemblyReference(Paths.FindPathUpwards("Disposal.Interfaces.dll")!)
                     ]).ToArray()));
-        return project.Compile();
+        return WithPreviewLanguageVersion(project.Compile());
     });
 
     public Lazy<Compilation> FromEntryAssembly { get; } = new(() =>
@@ -40,6 +41,17 @@ public class TestProject(string path, params string[] additionalPaths)
                                 new AssemblyReference(Paths.FindPathUpwards("Initialization.Interfaces.dll")!),
                                 new AssemblyReference(Paths.FindPathUpwards("Disposal.Interfaces.dll")!)
                         ]).ToArray()));
-            return project.Compile();
+            return WithPreviewLanguageVersion(project.Compile());
         });
+
+    private static Compilation WithPreviewLanguageVersion(Compilation compilation)
+    {
+        var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Preview);
+        var syntaxTrees = compilation.SyntaxTrees
+            .Select(syntaxTree => CSharpSyntaxTree.ParseText(syntaxTree.GetText(), parseOptions, syntaxTree.FilePath))
+            .ToArray();
+
+        // The trees must be swapped in one go, because a compilation cannot contain trees with differing language versions.
+        return compilation.RemoveAllSyntaxTrees().AddSyntaxTrees(syntaxTrees);
+    }
 }

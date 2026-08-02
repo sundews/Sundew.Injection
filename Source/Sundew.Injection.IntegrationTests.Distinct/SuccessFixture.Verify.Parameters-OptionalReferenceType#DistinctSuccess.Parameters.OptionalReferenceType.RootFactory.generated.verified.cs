@@ -14,7 +14,7 @@ namespace DistinctSuccess.Parameters.OptionalReferenceType
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         [global::Sundew.Injection.BindableFactoryTargetAttribute]
-        public partial global::DistinctSuccess.Parameters.OptionalReferenceType.Root Create(global::DistinctSuccess.Parameters.OptionalReferenceType.IOption? option = default)
+        public partial global::DistinctSuccess.Parameters.OptionalReferenceType.Root Create(global::DistinctSuccess.Parameters.OptionalReferenceType.IOption? option)
         {
             return new global::DistinctSuccess.Parameters.OptionalReferenceType.Root(option);
         }

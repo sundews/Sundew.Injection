@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="FactoryMethodParameterInjectionNode.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -15,7 +15,8 @@ internal sealed record FactoryMethodParameterInjectionNode(
     string Name,
     ParameterSource ParameterSource,
     TypeMetadata TypeMetadata,
-    string DependantName) : InjectionNode(DependantName), IParameterNode
+    string DependantName,
+    bool IsTargetOptional = false) : InjectionNode(DependantName), IParameterNode
 {
     public override string Name { get; } = Name;
 

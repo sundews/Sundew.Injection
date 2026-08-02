@@ -76,7 +76,28 @@ internal class ImplementFactoryVisitor(
         R<NamedType, TypeSymbolWithLocation>? factoryInterfaceTypeResult = factoryInterfaceTypeSymbol.HasValue ? analysisContext.TypeFactory.GetNamedType(factoryInterfaceTypeSymbol.Value) : null;
         DeclaredConstructor constructor = new DeclaredConstructor(ValueArray<FullParameter>.Empty, false, false);
         var factoryParameterSourcesBuilder = ImmutableDictionary.CreateBuilder<TypeId, (List<ParameterSource> ParameterSources, ScopeContext ScopeContext)>();
-        if (factoryTypeSymbol.TypeSymbol.GetMembers().Where(x => x.IsStatic).OfType<IMethodSymbol>().TryGetOnlyOne(x => x!.Name == "Constructor", out var factoryConstructor))
+        if (factoryTypeSymbol.TypeSymbol is INamedTypeSymbol namedFactoryTypeSymbol
+            && namedFactoryTypeSymbol.InstanceConstructors.TryGetOnlyOne(x => x!.IsPartialDefinition, out var declaredPartialConstructor))
+        {
+            if (analysisContext.TypeFactory.GetFactoryMethod(declaredPartialConstructor, true).TryGetError(out var partialConstructorError, out var partialConstructorMethod))
+            {
+                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(
+                    new ErrorWithLocation(
+                    partialConstructorError,
+                    declaredPartialConstructor.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax(CancellationToken.None).GetLocation() ?? Location.None));
+                return;
+            }
+
+            constructor = new DeclaredConstructor(
+                partialConstructorMethod.Parameters,
+                declaredPartialConstructor.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Public,
+                true,
+                true);
+
+            var partialConstructorScope = new ScopeContext(Scope._SingleInstancePerFactory(Location.None), ScopeSelection.Default);
+            this.AddParametersAndProperties(declaredPartialConstructor.Parameters, partialConstructorScope, true, factoryParameterSourcesBuilder);
+        }
+        else if (factoryTypeSymbol.TypeSymbol.GetMembers().Where(x => x.IsStatic).OfType<IMethodSymbol>().TryGetOnlyOne(x => x!.Name == "Constructor", out var factoryConstructor))
         {
             if (analysisContext.TypeFactory.GetFactoryMethod(factoryConstructor, true).TryGetError(out var error, out var factoryConstructorMethod))
             {

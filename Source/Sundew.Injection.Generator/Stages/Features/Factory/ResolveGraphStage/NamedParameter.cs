@@ -2,4 +2,4 @@
 
 using Sundew.Injection.Generator.TypeSystem;
 
-internal readonly record struct NamedParameter(string Name, TypeMetadata Metadata, Method? DefaultConstructor);
+internal readonly record struct NamedParameter(string Name, TypeMetadata Metadata, Method? DefaultConstructor, bool IsTargetOptional = false);

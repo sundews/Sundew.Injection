@@ -71,7 +71,6 @@ namespace OverallSuccess
                 this.interfaceSegregationOverridableNewImplementation,
                 this.name);
             this.dependencyFactory = new global::OverallSuccessDependency.DependencyFactory();
-            this.lifecycleHandler.TryAdd(this.dependencyFactory);
             this.manualMultipleDependencyFactory = new global::OverallSuccessDependency.ManualMultipleDependencyFactory();
             this.manualSingletonDependencyFactory = new global::OverallSuccessDependency.ManualSingletonDependencyFactory();
             this.lifecycleHandler.TryAdd(this.manualSingletonDependencyFactory);
@@ -208,13 +207,13 @@ namespace OverallSuccess
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public void Dispose()
         {
-            this.lifecycleHandler.Dispose();
+            this.lifecycleHandler.Complete();
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public global::System.Threading.Tasks.ValueTask DisposeAsync()
         {
-            return this.lifecycleHandler.DisposeAsync();
+            return this.lifecycleHandler.CompleteAsync();
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]

@@ -71,13 +71,13 @@ namespace DistinctSuccess.Parameters.OptionalLifecycleWithoutRegistration
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public void Dispose()
         {
-            this.lifecycleHandler.Dispose();
+            this.lifecycleHandler.Complete();
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         public global::System.Threading.Tasks.ValueTask DisposeAsync()
         {
-            return this.lifecycleHandler.DisposeAsync();
+            return this.lifecycleHandler.CompleteAsync();
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]

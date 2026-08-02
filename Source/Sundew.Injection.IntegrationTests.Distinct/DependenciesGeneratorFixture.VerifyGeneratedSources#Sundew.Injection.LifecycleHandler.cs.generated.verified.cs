@@ -78,14 +78,14 @@ namespace DistinctSuccess.SundewInjection
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        public void Dispose()
+        public void Complete()
         {
             this.perRequestDisposingDictionary.Dispose();
             this.sharedDisposingList.Dispose();
         }
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
-        public async ValueTask DisposeAsync()
+        public async ValueTask CompleteAsync()
         {
             await this.perRequestDisposingDictionary.DisposeAsync().ConfigureAwait(false);
             await this.sharedDisposingList.DisposeAsync().ConfigureAwait(false);

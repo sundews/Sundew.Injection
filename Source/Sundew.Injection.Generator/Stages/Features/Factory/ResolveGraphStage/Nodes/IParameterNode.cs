@@ -23,5 +23,7 @@ internal interface IParameterNode : IInjectionNode
 
     bool IsOptional { get; }
 
+    bool IsTargetOptional { get; }
+
     bool IsForConstructor { get; }
 }

@@ -15,7 +15,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      solutionPath: ./Source/Sundew.Injection.sln
+      solutionPath: ./Source/Sundew.Injection.slnx
       versioningProjectPath: ./Source/Sundew.Injection/Sundew.Injection.csproj
       repository: 'https://sundew-dev:${{ secrets.SUNDEW_DEV_TOKEN }}@github.com/sundews/Sundew.Injection.git'
       source: 'https://api.nuget.org/v3/index.json'

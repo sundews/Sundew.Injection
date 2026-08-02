@@ -9,10 +9,12 @@ namespace Sundew.Injection.Generator.Stages.CodeGeneration.Templates;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Sundew.Base.Collections;
 using Sundew.Base.Text;
 using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
+using Sundew.Injection.Generator.TypeSystem;
 using CreationExpression = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.CreationExpression;
 using Expression = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Expression;
 using Member = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Member;
@@ -174,7 +176,7 @@ internal static class ImplementationSourceCodeEmitter
                 methodImplementation.Declaration.IsVirtual,
                 x => x.Append(' ').Append(Trivia.Virtual))
             .Append(' ')
-            .AppendMethodDeclaration(methodImplementation.Declaration, options, indentation)
+            .AppendMethodDeclaration(methodImplementation.Declaration, options, indentation, !methodImplementation.Declaration.IsPartialDefinition)
             .AppendLine()
             .Append(' ', indentation)
             .Append('{')

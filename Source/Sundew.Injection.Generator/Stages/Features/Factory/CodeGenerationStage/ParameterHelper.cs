@@ -38,7 +38,7 @@ internal static class ParameterHelper
             argument = new FuncInvocationExpression(argument, parameterNode.IsOptional);
         }
 
-        if (directParameter.ParameterNecessity.IsOptional && directParameter.Type.IsValueType)
+        if (directParameter.ParameterNecessity.IsOptional && directParameter.Type.IsValueType && !parameterNode.IsTargetOptional)
         {
             argument = Expression.InvocationExpression(Expression.MemberAccessExpression(argument, "GetValueOrDefault"), []);
         }

@@ -166,7 +166,7 @@ internal static class TypeConverter
     public static R<FactoryMethodTarget, Error> GetFactoryMethodTarget(IPropertySymbol propertySymbol, IKnownInjectableTypes knownInjectableTypes)
     {
         var methodResult = GetMethod(propertySymbol, knownInjectableTypes);
-        return methodResult.Map(method => new FactoryMethodTarget(method, GetType(propertySymbol.Type, knownInjectableTypes), !propertySymbol.ContainingType.IsInstantiable(), true /*propertySymbol.IsPartialDefinition Waiting for Partial RootFactoryProperties*/));
+        return methodResult.Map(method => new FactoryMethodTarget(method, GetType(propertySymbol.Type, knownInjectableTypes), propertySymbol.IsPartialDefinition || !propertySymbol.ContainingType.IsInstantiable(), true));
     }
 
     public static R<FullParameter, Error> GetFullParameter(IParameterSymbol parameterSymbol, IKnownInjectableTypes knownInjectableTypes, ImmutableHashSet<TypeId> visitedTypes, bool isForSpecialFactoryConstructor = false)

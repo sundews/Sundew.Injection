@@ -14,7 +14,7 @@ namespace DistinctSuccess.Parameters.OptionalInt
 
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         [global::Sundew.Injection.BindableFactoryTargetAttribute]
-        public partial global::DistinctSuccess.Parameters.OptionalInt.Root Create(int? index = 3)
+        public partial global::DistinctSuccess.Parameters.OptionalInt.Root Create(int? index)
         {
             return new global::DistinctSuccess.Parameters.OptionalInt.Root(index);
         }
