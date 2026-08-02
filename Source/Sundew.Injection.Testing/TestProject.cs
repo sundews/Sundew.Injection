@@ -1,6 +1,7 @@
 namespace Sundew.Injection.Testing;
 
 using System;
+using System.IO;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -13,16 +14,16 @@ public class TestProject(string path, params string[] additionalPaths)
     public Lazy<Compilation> FromCurrentDirectory { get; } = new(() =>
     {
         var project = new CSharpProject(
-            Paths.FindPathUpwards(path)!, //Path.Combine(path, "Recursive")
+            FindPathUpwards(path),
             null,
             new Paths("bin", "obj"),
             new References(
-                additionalPaths.Select(x => (IReference)new AssemblyReference(Paths.FindPathUpwards(x)!))
+                additionalPaths.Select(x => (IReference)new AssemblyReference(FindPathUpwards(x)))
                     .Concat([
-                        new AssemblyReference(Paths.FindPathUpwards("Sundew.Injection.dll")!),
-                            new AssemblyReference(Paths.FindPathUpwards("Microsoft.Bcl.AsyncInterfaces.dll")!),
-                            new AssemblyReference(Paths.FindPathUpwards("Initialization.Interfaces.dll")!),
-                            new AssemblyReference(Paths.FindPathUpwards("Disposal.Interfaces.dll")!)
+                        new AssemblyReference(FindPathUpwards("Sundew.Injection.dll")),
+                            new AssemblyReference(FindPathUpwards("Microsoft.Bcl.AsyncInterfaces.dll")),
+                            new AssemblyReference(FindPathUpwards("Initialization.Interfaces.dll")),
+                            new AssemblyReference(FindPathUpwards("Disposal.Interfaces.dll"))
                     ]).ToArray()));
         return WithPreviewLanguageVersion(project.Compile());
     });
@@ -30,19 +31,27 @@ public class TestProject(string path, params string[] additionalPaths)
     public Lazy<Compilation> FromEntryAssembly { get; } = new(() =>
         {
             var project = new CSharpProject(
-                Paths.FindPathUpwards(path)!,
+                FindPathUpwards(path),
                 null,
                 new Paths("bin", "obj"),
                 new References(
-                    additionalPaths.Select(x => (IReference)new AssemblyReference(Paths.FindPathUpwards(x)!))
+                    additionalPaths.Select(x => (IReference)new AssemblyReference(FindPathUpwards(x)))
                         .Concat([
-                            new AssemblyReference(Paths.FindPathUpwards("Sundew.Injection.dll")!),
-                                new AssemblyReference(Paths.FindPathUpwards("Microsoft.Bcl.AsyncInterfaces.dll")!),
-                                new AssemblyReference(Paths.FindPathUpwards("Initialization.Interfaces.dll")!),
-                                new AssemblyReference(Paths.FindPathUpwards("Disposal.Interfaces.dll")!)
+                            new AssemblyReference(FindPathUpwards("Sundew.Injection.dll")),
+                                new AssemblyReference(FindPathUpwards("Microsoft.Bcl.AsyncInterfaces.dll")),
+                                new AssemblyReference(FindPathUpwards("Initialization.Interfaces.dll")),
+                                new AssemblyReference(FindPathUpwards("Disposal.Interfaces.dll"))
                         ]).ToArray()));
             return WithPreviewLanguageVersion(project.Compile());
         });
+
+    // Test paths are written with Windows separators, so they must be normalized to run on Linux and macOS too.
+    private static string FindPathUpwards(string searchPath)
+    {
+        var normalizedPath = searchPath.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+        return Paths.FindPathUpwards(normalizedPath)
+               ?? throw new DirectoryNotFoundException($"Could not find '{normalizedPath}' searching upwards from '{Directory.GetCurrentDirectory()}'.");
+    }
 
     private static Compilation WithPreviewLanguageVersion(Compilation compilation)
     {
