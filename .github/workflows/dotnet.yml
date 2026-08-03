@@ -15,6 +15,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
+      solutionDir: ./Source
+      solutionFileName: Sundew.Injection.slnx
       solutionPath: ./Source/Sundew.Injection.slnx
       versioningProjectPath: ./Source/Sundew.Injection/Sundew.Injection.csproj
       repository: 'https://sundew-dev:${{ secrets.SUNDEW_DEV_TOKEN }}@github.com/sundews/Sundew.Injection.git'
@@ -84,7 +86,7 @@ jobs:
         -p:"PackageOutputPath=${{ steps.stage-build.outputs.nuGetPackagesPath }}"
     - name: Test
       working-directory: ${{ env.solutionDir }}
-      run: dotnet test --solution ${{ env.solutionPath }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-build
+      run: dotnet test --solution ${{ env.solutionFileName }} --verbosity normal --configuration ${{ steps.stage-build.outputs.buildConfiguration }} --no-build
     - name: 'Publish package(s)'
       if: ${{ steps.stage-build.outputs.stage != 'none' }}
       run: cb -c "spt|push -s ${{ steps.stage-build.outputs.pushSource }} -k ${{ steps.stage-build.outputs.apiKey }} -ss ${{ steps.stage-build.outputs.symbolsPushSource }} -sk ${{ steps.stage-build.outputs.symbolsApiKey }} --retries 10 {1}" -bs NewLine -bvs '=' -bf ${{ env.source-packages-to-push }}
