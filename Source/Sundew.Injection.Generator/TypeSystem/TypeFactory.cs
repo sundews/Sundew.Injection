@@ -27,17 +27,17 @@ internal sealed class TypeFactory(
         return TypeConverter.GetType(typeSymbol, knownInjectableTypes);
     }
 
-    public R<FullType, SymbolErrorWithLocation> GetFullType(TypeSymbolWithLocation typeSymbolWithLocation)
+    public R<FullType, ErrorWithLocation> GetFullType(TypeSymbolWithLocation typeSymbolWithLocation)
     {
         var constructorResult = this.GetFullType(typeSymbolWithLocation.TypeSymbol);
-        return constructorResult.WithError(error => new SymbolErrorWithLocation(error, typeSymbolWithLocation.Location));
+        return constructorResult.MapError(error => new ErrorWithLocation(error, typeSymbolWithLocation.Location));
     }
 
-    public R<FullType, SymbolError> GetFullType(ITypeSymbol typeSymbol)
+    public R<FullType, Error> GetFullType(ITypeSymbol typeSymbol)
     {
         var type = TypeConverter.GetTypeWithConstructors(typeSymbol, knownInjectableTypes);
         var constructorResult = TypeConverter.GetConstructor(type.Constructors.GetDefaultMethodWithMostParameters(), type.Type, knownInjectableTypes, ImmutableHashSet<TypeId>.Empty);
-        return constructorResult.With(constructor => new FullType(type.Type, this.GetTypeMetadata(typeSymbol), constructor));
+        return constructorResult.Map(constructor => new FullType(type.Type, this.GetTypeMetadata(typeSymbol), constructor));
     }
 
     public NamedType GetNamedType(INamedTypeSymbol namedTypeSymbol)
@@ -45,24 +45,24 @@ internal sealed class TypeFactory(
         return TypeConverter.GetNamedType(namedTypeSymbol);
     }
 
-    public Method? GetFactoryMethod(IPropertySymbol propertySymbol)
+    public R<Method, Error> GetFactoryMethod(IPropertySymbol propertySymbol)
     {
         return TypeConverter.GetMethod(propertySymbol, knownInjectableTypes);
     }
 
-    public R<Method, SymbolError> GetFactoryMethod(IMethodSymbol methodSymbol)
+    public R<Method, Error> GetFactoryMethod(IMethodSymbol methodSymbol, bool isForSpecialFactoryConstructor = false)
     {
-        return TypeConverter.GetMethod(methodSymbol, knownInjectableTypes);
+        return TypeConverter.GetMethod(methodSymbol, knownInjectableTypes, isForSpecialFactoryConstructor);
     }
 
-    public FactoryTarget GetFactoryTarget(IMethodSymbol methodSymbol)
+    public R<FactoryMethodTarget, Error> GetFactoryMethodTarget(IMethodSymbol methodSymbol)
     {
-        return TypeConverter.GetFactoryTarget(methodSymbol, knownInjectableTypes);
+        return TypeConverter.GetFactoryMethodTarget(methodSymbol, knownInjectableTypes);
     }
 
-    public FactoryTarget GetFactoryTarget(IPropertySymbol propertySymbol)
+    public R<FactoryMethodTarget, Error> GetFactoryMethodTarget(IPropertySymbol propertySymbol)
     {
-        return TypeConverter.GetFactoryTarget(propertySymbol, knownInjectableTypes);
+        return TypeConverter.GetFactoryMethodTarget(propertySymbol, knownInjectableTypes);
     }
 
     public (OpenGenericType Type, TypeMetadata TypeMatadata) GetGenericType(INamedTypeSymbol namedTypeSymbol)
@@ -71,20 +71,20 @@ internal sealed class TypeFactory(
         return (GenericTypeConverter.GetGenericType(genericTypeSymbol), this.GetTypeMetadata(genericTypeSymbol));
     }
 
-    public R<GenericMethod, SymbolError> GetGenericMethod(IMethodSymbol? methodSymbol)
+    public R<GenericMethod, Error> GetGenericMethod(IMethodSymbol? methodSymbol)
     {
-        if (methodSymbol.HasValue())
+        if (methodSymbol.HasValue)
         {
             var genericParametersResult = methodSymbol.Parameters.AllOrFailed(x => this.GetGenericParameter(x).ToItem());
-            if (genericParametersResult.IsError)
+            if (genericParametersResult.TryGetError(out var failedItems, out var genericParameters))
             {
-                return R.Error(new SymbolError(new NamedSymbol(methodSymbol.ToDisplayString()), genericParametersResult.Error.GetErrors()));
+                return R.Error(new Error(ErrorType.ParameterTypeResolutionFailed, new NamedSymbol(methodSymbol.ToDisplayString()), failedItems.GetErrors()));
             }
 
             return R.Success(
                 new GenericMethod(
                     methodSymbol.MetadataName,
-                    genericParametersResult.Value.Items,
+                    genericParameters.Items,
                     TypeConverter.GetContaineeType(methodSymbol),
                     TypeConverter.GetMethodKind(methodSymbol, knownInjectableTypes)));
         }
@@ -92,11 +92,11 @@ internal sealed class TypeFactory(
         return R.Success();
     }
 
-    public R<GenericParameter, SymbolError> GetGenericParameter(IParameterSymbol parameterSymbol)
+    public R<GenericParameter, Error> GetGenericParameter(IParameterSymbol parameterSymbol)
     {
         var fullSymbol = TypeConverter.GetSymbolWithConstructors(parameterSymbol.Type, knownInjectableTypes);
         var defaultConstructorResult = TypeConverter.GetConstructor(fullSymbol.Constructors.GetDefaultMethodWithMostParameters(), fullSymbol.Symbol as Type, knownInjectableTypes, ImmutableHashSet<TypeId>.Empty);
-        return defaultConstructorResult.With(x => new GenericParameter(fullSymbol.Symbol, parameterSymbol.MetadataName, this.GetTypeMetadata(parameterSymbol.Type), x));
+        return defaultConstructorResult.Map(x => new GenericParameter(fullSymbol.Symbol, parameterSymbol.MetadataName, this.GetTypeMetadata(parameterSymbol.Type), x));
     }
 
     public (UnboundGenericType Type, TypeMetadata TypeMetadata) GetUnboundGenericType(INamedTypeSymbol unboundGenericTypeSymbol)

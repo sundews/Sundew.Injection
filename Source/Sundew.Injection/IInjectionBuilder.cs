@@ -18,26 +18,6 @@ using Sundew.Injection.Interception;
 public interface IInjectionBuilder
 {
     /// <summary>
-    /// Sets the default value for how required parameters are injected.
-    /// </summary>
-    Inject RequiredParameterInjection { set; }
-
-    /// <summary>
-    /// Indicates a type is a part of the required interface and should be accepted as a parameter to the generated factory.
-    /// </summary>
-    /// <typeparam name="TParameter">The type parameter.</typeparam>
-    /// <param name="inject">Indicates how to inject the parameter.</param>
-    /// <param name="scope">Indicates the scope of the parameter.</param>
-    void AddParameter<TParameter>(Inject inject = Inject.Shared, Scope? scope = null);
-
-    /// <summary>
-    /// Indicates that a type and its properties are a part of the required interface and should be accepted as a parameter to the generated factory.
-    /// </summary>
-    /// <typeparam name="TProperties">The properties type.</typeparam>
-    /// <param name="scope">Indicates the scope of the properties.</param>
-    void AddParameterProperties<TProperties>(Scope? scope = null);
-
-    /// <summary>
     /// Configures usage of the default initialization reporter.
     /// </summary>
     /// <param name="isInjectable">Indicates whether instantiation can be overruled by passing a parameter.</param>
@@ -289,7 +269,7 @@ public interface IInjectionBuilder
     /// <param name="factoryMethods">A selector of the factory methods to be supported by the factory.</param>
     /// <param name="accessibility">The accessibility of the generated types.</param>
     void ImplementFactory<TFactory>(
-        Func<IFactoryMethodSelector, IFactoryMethods> factoryMethods,
+        Func<IFactoryMethodSelector, IFactoryMethods>? factoryMethods = null,
         Accessibility accessibility = Accessibility.Public);
 
     /// <summary>
@@ -298,7 +278,7 @@ public interface IInjectionBuilder
     /// <param name="factoryMethods">A selector of the factory methods to be supported by the factory.</param>
     /// <param name="accessibility">The accessibility of the generated types.</param>
     void ImplementFactory<TFactory, TFactoryInterface>(
-        Func<IFactoryMethodSelector, IFactoryMethods> factoryMethods,
+        Func<IFactoryMethodSelector, IFactoryMethods>? factoryMethods = null,
         Accessibility accessibility = Accessibility.Public)
         where TFactory : TFactoryInterface;
 

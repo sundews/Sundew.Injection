@@ -1,0 +1,74 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: /*
+    {
+        injectionBuilder.Bind<NewInstance>(Scope.NewInstance);
+                              ^^^^^^^^^^^
+        injectionBuilder.Bind<Recursive>(Scope.SingleInstancePerFactory());
+*/
+ {SolutionDirectory}TestProjects\DistinctErrors\Recursive\Setup.cs: (8,30)-(8,41),
+      Message:
+The parameter 'DistinctErrors.Recursive.NewInstance' could not be resolved. Context: DistinctErrors.Recursive.NewInstance
+-> DistinctErrors.Recursive.Recursive >>> Could not resolve all parameters
+--> DistinctErrors.Recursive.NewInstance >>> Infinite recursion detected,
+      Severity: Error,
+      Descriptor: {
+        Id: SI0015,
+        Title: Could not resolve all parameters,
+        Description: Occurs when parameter type could not be resolved.,
+        MessageFormat: The parameter '{0}' could not be resolved. Context: {1},
+        Category: CodeGeneration,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    },
+    {
+      Location: /*
+        injectionBuilder.Bind<NewInstance>(Scope.NewInstance);
+        injectionBuilder.Bind<Recursive>(Scope.SingleInstancePerFactory());
+                              ^^^^^^^^^
+
+*/
+ {SolutionDirectory}TestProjects\DistinctErrors\Recursive\Setup.cs: (9,30)-(9,39),
+      Message:
+The parameter 'DistinctErrors.Recursive.Recursive' could not be resolved. Context: DistinctErrors.Recursive.Recursive
+-> DistinctErrors.Recursive.NewInstance >>> Could not resolve all parameters
+--> DistinctErrors.Recursive.Recursive >>> Infinite recursion detected,
+      Severity: Error,
+      Descriptor: {
+        Id: SI0015,
+        Title: Could not resolve all parameters,
+        Description: Occurs when parameter type could not be resolved.,
+        MessageFormat: The parameter '{0}' could not be resolved. Context: {1},
+        Category: CodeGeneration,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    },
+    {
+      Location: /*
+
+        injectionBuilder.ImplementFactory<RootFactory>();
+                                          ^^^^^^^^^^^
+    }
+*/
+ {SolutionDirectory}TestProjects\DistinctErrors\Recursive\Setup.cs: (11,42)-(11,53),
+      Message:
+The parameter 'DistinctErrors.Recursive.Root' could not be resolved. Context: DistinctErrors.Recursive.Root
+-> DistinctErrors.Recursive.Recursive >>> Could not resolve all parameters
+--> DistinctErrors.Recursive.NewInstance >>> Could not resolve all parameters
+---> DistinctErrors.Recursive.Recursive >>> Infinite recursion detected,
+      Severity: Error,
+      Descriptor: {
+        Id: SI0015,
+        Title: Could not resolve all parameters,
+        Description: Occurs when parameter type could not be resolved.,
+        MessageFormat: The parameter '{0}' could not be resolved. Context: {1},
+        Category: CodeGeneration,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

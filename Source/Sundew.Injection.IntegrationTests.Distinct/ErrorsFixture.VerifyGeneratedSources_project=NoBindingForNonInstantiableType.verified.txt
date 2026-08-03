@@ -1,0 +1,24 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: /*
+    {
+        injectionBuilder.ImplementFactory<RootFactory>();
+                                          ^^^^^^^^^^^
+    }
+*/
+ {SolutionDirectory}TestProjects\DistinctErrors\NoBindingForNonInstantiableType\Setup.cs: (8,42)-(8,53),
+      Message: Binding not found for type: 'DistinctErrors.NoBindingForNonInstantiableType.IRoot' and type is not constructable for factory: DistinctErrors.NoBindingForNonInstantiableType.RootFactory.,
+      Severity: Error,
+      Descriptor: {
+        Id: SI0011,
+        Title: Binding not found,
+        Description: Occurs when there is no way to construct a type, either by missing a binding, the type not having a constructor or being abstract/interface,
+        MessageFormat: Binding not found for type: '{1}' and type is not constructable for factory: {0}.,
+        Category: CodeGeneration,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

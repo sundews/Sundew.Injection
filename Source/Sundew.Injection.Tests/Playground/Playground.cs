@@ -2,18 +2,17 @@
 
 extern alias sbt;
 extern alias sig;
-using FluentAssertions.Execution;
+using AwesomeAssertions.Execution;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using sbt::Sundew.Base.Text;
 using Sundew.Injection.Testing;
 using InjectionGenerator = sig::Sundew.Injection.Generator.InjectionGenerator;
 
-[TestFixture]
 public class Playground
 {
-    [Test, Ignore("Only when using playground")]
-    public void Test()
+    [Test, Skip("Only when using playground")]
+    public void InjectionDefinitionStageTest()
     {
         var compilation = TestProjects.TestPlayground.FromCurrentDirectory.Value;
         var demoModuleDeclaration = compilation.GetTypeByMetadataName("TestPlayground.InjectionDeclaration");

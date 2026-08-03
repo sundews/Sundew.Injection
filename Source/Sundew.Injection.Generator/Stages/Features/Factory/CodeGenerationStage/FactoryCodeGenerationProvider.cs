@@ -12,6 +12,7 @@ using System.Collections.Immutable;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Sundew.Base;
+using Sundew.Base.Collections;
 using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.Stages.CodeGeneration;
 using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
@@ -36,10 +37,13 @@ internal static class FactoryCodeGenerationProvider
             var options = new Options(compilationData.AreNullableAnnotationsSupported);
             var classText = ImplementationSourceCodeEmitter.Emit(Sundew.Injection.Accessibility.Public, factoryDeclarations.ClassNamespaceDeclaration, options);
             var generatedOutputs = ImmutableArray.Create(new GeneratedCodeOutput(factoryResolvedGraph.FactoryType.FullName, classText));
-            if (factoryResolvedGraph.FactoryInterfaceType != null && factoryDeclarations.InterfaceNamespaceDeclaration != null)
+            if (factoryResolvedGraph.FactoryInterfaceType != null && !factoryDeclarations.InterfaceNamespaceDeclarations.IsEmpty)
             {
-                var interfaceText = InterfaceSourceCodeEmitter.Emit(Sundew.Injection.Accessibility.Public, factoryDeclarations.InterfaceNamespaceDeclaration, options);
-                generatedOutputs = generatedOutputs.Add(new GeneratedCodeOutput(factoryResolvedGraph.FactoryInterfaceType.FullName, interfaceText));
+                factoryDeclarations.InterfaceNamespaceDeclarations.ForEach(x =>
+                {
+                    var interfaceText = InterfaceSourceCodeEmitter.Emit(Sundew.Injection.Accessibility.Public, x, options);
+                    generatedOutputs = generatedOutputs.Add(new GeneratedCodeOutput(factoryResolvedGraph.FactoryInterfaceType.FullName, interfaceText));
+                });
             }
 
             return R.Success(new GeneratedOutput(new GeneratedTypeDeclaration(factoryResolvedGraph.FactoryType, factoryResolvedGraph.FactoryInterfaceType, factoryDeclarations.CreateMethods), generatedOutputs.ToValueArray()));

@@ -36,7 +36,7 @@ commandLineParser.WithArguments(new Arguments(new InfluxDbConnectionInfo()), arg
                 var point = PointData
                     .Measurement(report.BenchmarkCase.Descriptor.DisplayInfo)
                     .Tag("Runtime", report.BenchmarkCase.Job.Id)
-                    .Tag("CPU", summary.HostEnvironmentInfo.CpuInfo.Value.ProcessorName)
+                    .Tag("CPU", summary.HostEnvironmentInfo.Cpu.Value.ProcessorName)
                     .Tag("Configuration", summary.HostEnvironmentInfo.Configuration)
                     .Field("Allocated", report.Metrics.Where(x => x.Value.Descriptor.DisplayName == "Allocated").First().Value.Value)
                     .Field("Mean", report.ResultStatistics!.Mean)

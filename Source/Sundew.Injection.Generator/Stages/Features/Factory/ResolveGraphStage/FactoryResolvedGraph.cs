@@ -8,12 +8,16 @@
 namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage;
 
 using Sundew.Base.Collections.Immutable;
+using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Resolvers;
+using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed record FactoryResolvedGraph(
     NamedType FactoryType,
     NamedType? FactoryInterfaceType,
+    DeclaredConstructor DeclaredConstructor,
     Accessibility Accessibility,
-    bool NeedsLifecycleHandling,
+    Lifecycle Lifecycle,
     InjectionTree? LifecycleHandlingInjectionTree,
-    ValueList<FactoryMethodData> FactoryMethodInfos);
+    ValueDictionary<RequestedParameter, bool> ReferencedTypesOptionality,
+    ValueDictionary<NamedType, ValueArray<ResolvedRootFactoryMethod>> ResolvedRootFactoryMethods);

@@ -64,8 +64,12 @@ internal static class InterfaceSourceCodeEmitter
                 stringBuilder.AppendLine();
             }
 
-            stringBuilder.AppendAttributes(methodDeclaration.Attributes, indentation);
-            return stringBuilder.Append(' ', indentation).AppendMethodDeclaration(methodDeclaration, options, indentation).Append(';');
+            return stringBuilder.AppendAttributes(methodDeclaration.Attributes, indentation)
+                .Append(' ', indentation)
+                .If(
+                    methodDeclaration.IsPartialDefinition,
+                    x => x.Append(Trivia.Partial).Append(' '))
+                .AppendMethodDeclaration(methodDeclaration, options, indentation).Append(';');
         }
 
         static StringBuilder AppendPropertyDeclaration(StringBuilder stringBuilder, PropertyDeclaration propertyDeclaration, bool isSuccessive, Options options, int indentation)
@@ -75,8 +79,12 @@ internal static class InterfaceSourceCodeEmitter
                 stringBuilder.AppendLine();
             }
 
-            stringBuilder.AppendAttributes(propertyDeclaration.Attributes, indentation);
-            return stringBuilder.Append(' ', indentation).AppendPropertyDeclaration(propertyDeclaration, options, indentation);
+            return stringBuilder.AppendAttributes(propertyDeclaration.Attributes, indentation)
+                .Append(' ', indentation)
+                .If(
+                    propertyDeclaration.IsPartialDefinition,
+                    x => x.Append(Trivia.Partial).Append(' '))
+                .AppendPropertyDeclaration(propertyDeclaration, options, indentation);
         }
 
         StringBuilder AppendMember(MemberDeclaration memberDeclaration, StringBuilder builder, bool isSuccessive)

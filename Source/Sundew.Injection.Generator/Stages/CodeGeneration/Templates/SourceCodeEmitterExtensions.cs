@@ -100,7 +100,7 @@ internal static class SourceCodeEmitterExtensions
         return stringBuilder;
     }
 
-    public static StringBuilder AppendMethodDeclaration(this StringBuilder stringBuilder, MethodDeclaration methodDeclaration, Options options, int indentation)
+    public static StringBuilder AppendMethodDeclaration(this StringBuilder stringBuilder, MethodDeclaration methodDeclaration, Options options, int indentation, bool areDefaultValuesAllowed = true)
     {
         stringBuilder.If(
             methodDeclaration.ReturnType,
@@ -109,7 +109,7 @@ internal static class SourceCodeEmitterExtensions
                 .If(returnType.CanHaveDefaultValue && !returnType.Type.IsValueType && options.AreNullableAnnotationsSupported, builder => builder.Append('?'))
                 .Append(' '));
 
-        return stringBuilder.Append(methodDeclaration.Name).Append('(').AppendParameters(methodDeclaration.Parameters, options.AreNullableAnnotationsSupported, indentation + 4).Append(')');
+        return stringBuilder.Append(methodDeclaration.Name).Append('(').AppendParameters(methodDeclaration.Parameters, options.AreNullableAnnotationsSupported, indentation + 4, areDefaultValuesAllowed).Append(')');
     }
 
     public static StringBuilder AppendPropertyDeclaration(this StringBuilder stringBuilder, PropertyDeclaration propertyDeclaration, Options options, int indentation)
@@ -126,7 +126,7 @@ internal static class SourceCodeEmitterExtensions
         return stringBuilder.AppendItems(attributes, (builder, declaration) => builder.Append(' ', indentation).AppendLine(declaration.Value));
     }
 
-    public static StringBuilder AppendParameters(this StringBuilder stringBuilder, ImmutableList<ParameterDeclaration> parameters, bool areNullableAnnotationsSupported, int indentation)
+    public static StringBuilder AppendParameters(this StringBuilder stringBuilder, ImmutableList<ParameterDeclaration> parameters, bool areNullableAnnotationsSupported, int indentation, bool areDefaultValuesAllowed = true)
     {
         var useNewLine = parameters.Count > 3;
         var actualSeparator = Trivia.ListSeparator;
@@ -146,15 +146,23 @@ internal static class SourceCodeEmitterExtensions
             {
                 builder.Append(' ', indentation);
                 builder.AppendFullyQualifiedType(declaration.Type);
-                if (areNullableAnnotationsSupported && !declaration.Type.IsValueType && declaration.DefaultValue != null)
+
+                var (isOptional, defaultValue) = declaration.ParameterNecessity switch
+                {
+                    ParameterNecessity.Required => (false, null),
+                    ParameterNecessity.Optional optional => (true, optional.HasDefaultValue ? optional.DefaultValue?.ToString() ?? "default" : null),
+                    null => (false, null),
+                };
+
+                if ((areNullableAnnotationsSupported || declaration.Type.IsValueType) && isOptional)
                 {
                     stringBuilder.Append('?');
                 }
 
                 stringBuilder.Append(' ').Append(declaration.Name);
-                if (declaration.DefaultValue != null)
+                if (defaultValue != null && areDefaultValuesAllowed)
                 {
-                    builder.Append(' ').Append('=').Append(' ').Append(declaration.DefaultValue);
+                    builder.Append(' ').Append('=').Append(' ').Append(defaultValue);
                 }
             },
             actualSeparator);

@@ -57,7 +57,7 @@ internal sealed class MethodFactory
                     new FullParameter(
                         new ArrayType(typeArgument.Type),
                         parameterName,
-                        new TypeMetadata(new EnumerableMetadata(true, true, true), false),
+                        new TypeMetadata(new EnumerableMetadata(true, true, true), Lifecycle.None),
                         default,
                         ParameterNecessity._Required));
             }
@@ -83,7 +83,7 @@ internal sealed class MethodFactory
                 };
             });
 
-        return methodParameters.With(
+        return methodParameters.Map(
             all => CreateMethod(genericMethod, all.Items.ToImmutableArray(), closedGenericType),
             failed => new CreateGenericMethodError(genericMethod.Name, genericMethod.ContainingType, failed.Items.Select(x => (x.Item, x.Error)).ToImmutableArray()));
     }

@@ -55,23 +55,6 @@ internal class InjectionDeclarationVisitor : CSharpSyntaxWalker
         }
     }
 
-    public override void VisitAssignmentExpression(AssignmentExpressionSyntax node)
-    {
-        switch (node.Left)
-        {
-            case MemberAccessExpressionSyntax memberAccessExpressionSyntax:
-                var symbolInfo = this.semanticModel.GetSymbolInfo(memberAccessExpressionSyntax.Expression);
-                if (symbolInfo.Symbol is IParameterSymbol parameterSymbol && SymbolEqualityComparer.Default.Equals(parameterSymbol.Type, this.knownAnalysisTypes.InjectionBuilderType) && memberAccessExpressionSyntax.Name.Identifier.Text == nameof(IInjectionBuilder.RequiredParameterInjection))
-                {
-                    new RequiredParameterInjectionVisitor(this.compiletimeInjectionDefinitionBuilder).Visit(node.Right);
-                }
-
-                break;
-        }
-
-        base.VisitAssignmentExpression(node);
-    }
-
     public override void VisitInvocationExpression(InvocationExpressionSyntax node)
     {
         var symbolInfo = this.semanticModel.GetSymbolInfo(node);
@@ -95,12 +78,6 @@ internal class InjectionDeclarationVisitor : CSharpSyntaxWalker
         this.cancellationToken.ThrowIfCancellationRequested();
         switch (methodSymbol.Name)
         {
-            case nameof(Injection.IInjectionBuilder.AddParameter):
-                new AddParameterVisitor(this.semanticModel, this.typeFactory, this.compiletimeInjectionDefinitionBuilder, methodSymbol).Visit(node);
-                break;
-            case nameof(Injection.IInjectionBuilder.AddParameterProperties):
-                new AddParameterPropertiesVisitor(this.semanticModel, this.typeFactory, this.compiletimeInjectionDefinitionBuilder, this.knownAnalysisTypes, methodSymbol).Visit(node);
-                break;
             case nameof(Injection.IInjectionBuilder.Bind):
                 new BindVisitor(this.semanticModel, this.typeFactory, this.compiletimeInjectionDefinitionBuilder, methodSymbol).Visit(node);
                 break;

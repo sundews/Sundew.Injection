@@ -220,7 +220,7 @@ internal static class FactoryImplementationFileGenerator
                         stringBuilder.AppendFullyQualifiedType(staticMethodCall.Method.ContainingType)
                             .Append('.')
                             .Append(staticMethodCall.Method.Name);
-                        if (!staticMethodCall.Method.TypeArguments.IsEmpty())
+                        if (!staticMethodCall.Method.TypeArguments.IsEmpty)
                         {
                             stringBuilder.Append('<').AppendItems(staticMethodCall.Method.TypeArguments, (builder, argument) => builder.AppendFullyQualifiedType(argument.Type), Trivia.ListSeparator).Append('>');
                         }

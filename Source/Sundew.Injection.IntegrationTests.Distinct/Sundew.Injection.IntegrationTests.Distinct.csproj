@@ -1,0 +1,73 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <IsPackable>false</IsPackable>
+    <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <Configurations>Debug;Release;DebugTests</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
+    <PackageReference Include="Disposal.Interfaces" />
+    <PackageReference Include="Initialization.Interfaces" />
+    <PackageReference Include="AwesomeAssertions" />
+    <PackageReference Include="Microsoft.CodeAnalysis" />
+    <PackageReference Include="TUnit" />
+    <PackageReference Include="StyleCop.Analyzers">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Sundew.Testing.CodeAnalysis" />
+    <PackageReference Include="Verify.SourceGenerators" />
+    <PackageReference Include="Verify.TUnit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sundew.Injection.CodeFixes\Sundew.Injection.CodeFixes.csproj" />
+    <ProjectReference Include="..\Sundew.Injection.Generator\Sundew.Injection.Generator.csproj" />
+    <ProjectReference Include="..\Sundew.Injection.Testing\Sundew.Injection.Testing.csproj" />
+    <ProjectReference Include="..\Sundew.Injection\Sundew.Injection.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ErrorsFixture.VerifyGeneratedSources_project=ScopeError.verified.txt">
+      <DependentUpon>ErrorsFixture.cs</DependentUpon>
+    </None>
+    <None Update="ErrorsFixture.VerifyGeneratedSources_project=RequestedTypeVersusReferencedTypeMismatch.verified.txt">
+      <DependentUpon>ErrorsFixture.cs</DependentUpon>
+    </None>
+    <None Update="ErrorsFixture.VerifyGeneratedSources_project=Recursive.verified.txt">
+      <DependentUpon>ErrorsFixture.cs</DependentUpon>
+    </None>
+    <None Update="ErrorsFixture.VerifyGeneratedSources_project=NoViableConstructorFound.verified.txt">
+      <DependentUpon>ErrorsFixture.cs</DependentUpon>
+    </None>
+    <None Update="ErrorsFixture.VerifyGeneratedSources_project=NonInstantiableType.verified.txt">
+      <DependentUpon>ErrorsFixture.cs</DependentUpon>
+    </None>
+    <None Update="ErrorsFixture.VerifyGeneratedSources_project=NonGenericBind.verified.txt">
+      <DependentUpon>ErrorsFixture.cs</DependentUpon>
+    </None>
+    <None Update="ErrorsFixture.VerifyGeneratedSources_project=NoFactoryMethodForBind.verified.txt">
+      <DependentUpon>ErrorsFixture.cs</DependentUpon>
+    </None>
+    <None Update="ErrorsFixture.VerifyGeneratedSources_project=NoExactParameterMatch.verified.txt">
+      <DependentUpon>ErrorsFixture.cs</DependentUpon>
+    </None>
+    <None Update="ErrorsFixture.VerifyGeneratedSources_project=NoBindingForNonInstantiableType.verified.txt">
+      <DependentUpon>ErrorsFixture.cs</DependentUpon>
+    </None>
+    <None Update="ErrorsFixture.VerifyGeneratedSources_project=ImplementFactoryForNonNamedType.verified.txt">
+      <DependentUpon>ErrorsFixture.cs</DependentUpon>
+    </None>
+  </ItemGroup>
+</Project>

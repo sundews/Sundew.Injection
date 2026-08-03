@@ -7,10 +7,8 @@
 
 namespace Sundew.Injection.Generator.Stages.FactoryDataStage.Resolvers;
 
-using System;
 using System.Collections.Generic;
 using Sundew.Base.Equality;
-using Sundew.DiscriminatedUnions;
 using Sundew.Injection.Generator.Stages.FactoryDataStage.TypeSystem;
 using Sundew.Injection.Generator.TypeSystem;
 using Type = Sundew.Injection.Generator.TypeSystem.Type;

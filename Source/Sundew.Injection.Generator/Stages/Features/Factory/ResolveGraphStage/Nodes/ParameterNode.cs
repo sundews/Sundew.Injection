@@ -10,14 +10,15 @@ namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.N
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal record ParameterNode(
+internal sealed record ParameterNode(
     Type Type,
     ParameterSource ParameterSource,
     string Name,
     TypeMetadata TypeMetadata,
     bool PrefersNewInstance,
     bool IsForConstructor,
-    string? DependantName) : IParameterNode
+    string? DependantName,
+    bool IsTargetOptional = false) : IParameterNode
 {
     public bool IsOptional => true;
 }

@@ -14,8 +14,9 @@ using Statement = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Statem
 internal readonly record struct FactoryImplementation(
     ImmutableList<FieldDeclaration> Fields,
     Constructor Constructor,
-    ImmutableList<DeclaredPropertyImplementation> Properties,
-    ImmutableList<DeclaredMethodImplementation> CreateMethods,
+    ImmutableList<DeclaredPropertyImplementation> RootFactoryProperties,
+    ImmutableList<DeclaredMethodImplementation> RootFactoryMethods,
+    ImmutableList<MemberDeclaration> RootInterfaceMembers,
     ImmutableList<DeclaredMethodImplementation> FactoryMethods,
     ImmutableList<DeclaredDisposeMethodImplementation> DisposeMethodImplementations,
     ImmutableList<DeclaredMethodImplementation> PrivateCreateMethods)
@@ -28,9 +29,23 @@ internal readonly record struct FactoryImplementation(
                 ImmutableList<Statement>.Empty),
             ImmutableList<DeclaredPropertyImplementation>.Empty,
             ImmutableList<DeclaredMethodImplementation>.Empty,
+            ImmutableList<MemberDeclaration>.Empty,
             ImmutableList<DeclaredMethodImplementation>.Empty,
             ImmutableList<DeclaredDisposeMethodImplementation>.Empty,
             ImmutableList<DeclaredMethodImplementation>.Empty)
+    {
+    }
+
+    public FactoryImplementation(Constructor constructor)
+    : this(
+        ImmutableList<FieldDeclaration>.Empty,
+        constructor,
+        ImmutableList<DeclaredPropertyImplementation>.Empty,
+        ImmutableList<DeclaredMethodImplementation>.Empty,
+        ImmutableList<MemberDeclaration>.Empty,
+        ImmutableList<DeclaredMethodImplementation>.Empty,
+        ImmutableList<DeclaredDisposeMethodImplementation>.Empty,
+        ImmutableList<DeclaredMethodImplementation>.Empty)
     {
     }
 }

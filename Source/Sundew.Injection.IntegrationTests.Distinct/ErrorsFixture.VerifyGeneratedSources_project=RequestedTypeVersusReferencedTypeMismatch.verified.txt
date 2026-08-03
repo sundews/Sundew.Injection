@@ -1,0 +1,17 @@
+﻿{
+  Diagnostics: [
+    {
+      Message: The requested type 'Class' cannot be used as a parameter or return type, as it is more specialized than the referenced type: 'Interface', when injection for 'Root',
+      Severity: Error,
+      Descriptor: {
+        Id: SI0013,
+        Title: Requested versus referenced type mismatch.,
+        Description: Occurs when a requested type (parameter or return type) cannot be provided by the factory, because the referenced type is a supertype of requested type.,
+        MessageFormat: The requested type '{0}' cannot be used as a parameter or return type, as it is more specialized than the referenced type: '{1}', when injection for '{2}',
+        Category: CodeGeneration,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

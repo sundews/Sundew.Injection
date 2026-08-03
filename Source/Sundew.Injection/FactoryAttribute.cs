@@ -17,4 +17,17 @@ using System;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
 public class FactoryAttribute : Attribute
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FactoryAttribute"/> class.
+    /// </summary>
+    /// <param name="bindableFactoryTargets">The bindable factory targets.</param>
+    public FactoryAttribute(params string[] bindableFactoryTargets)
+    {
+        this.BindableFactoryTargets = bindableFactoryTargets;
+    }
+
+    /// <summary>
+    /// Gets the bindable factory targets.
+    /// </summary>
+    public string[] BindableFactoryTargets { get; }
 }

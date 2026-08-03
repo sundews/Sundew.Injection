@@ -10,8 +10,10 @@ namespace Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using System.Collections.Immutable;
 using Sundew.Base.Collections.Immutable;
 
-internal sealed record MethodDeclaration(
+internal sealed partial record MethodDeclaration(
     DeclaredAccessibility Accessibility,
+    bool IsStatic,
+    bool IsPartialDefinition,
     bool IsVirtual,
     bool IsAsync,
     string Name,
@@ -21,11 +23,13 @@ internal sealed record MethodDeclaration(
 {
     public MethodDeclaration(
         DeclaredAccessibility accessibility,
+        bool isStatic,
+        bool isPartialDefinition,
         bool isVirtual,
         string name,
         ValueList<ParameterDeclaration> parameters,
         UsedType? returnType = null)
-    : this(accessibility, isVirtual, false, name, parameters, ImmutableArray<AttributeDeclaration>.Empty, returnType)
+    : this(accessibility, isStatic, isPartialDefinition, isVirtual, false, name, parameters, ImmutableArray<AttributeDeclaration>.Empty, returnType)
     {
     }
 }

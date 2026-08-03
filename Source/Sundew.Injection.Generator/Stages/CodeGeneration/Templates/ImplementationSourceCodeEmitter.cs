@@ -9,10 +9,12 @@ namespace Sundew.Injection.Generator.Stages.CodeGeneration.Templates;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Sundew.Base.Collections;
 using Sundew.Base.Text;
 using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
+using Sundew.Injection.Generator.TypeSystem;
 using CreationExpression = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.CreationExpression;
 using Expression = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Expression;
 using Member = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Member;
@@ -112,6 +114,7 @@ internal static class ImplementationSourceCodeEmitter
             .AppendFieldModifier(field.Declaration.FieldModifier)
             .Append(' ')
             .AppendFullyQualifiedType(field.Declaration.Type)
+            .If(field.Declaration.IsOptional, builder => builder.Append('?'))
             .Append(' ')
             .Append(field.Declaration.Name)
             .If(
@@ -127,6 +130,9 @@ internal static class ImplementationSourceCodeEmitter
             .AppendAttributes(propertyImplementation.Declaration.Attributes, indentation)
             .Append(' ', indentation)
             .Append(Trivia.Public)
+            .If(
+                propertyImplementation.Declaration.IsPartialDefinition,
+                builder => builder.Append(' ').Append(Trivia.Partial))
             .Append(' ')
             .AppendFullyQualifiedType(propertyImplementation.Declaration.Type)
             .Append(' ')
@@ -158,13 +164,19 @@ internal static class ImplementationSourceCodeEmitter
             .Append(' ', indentation)
             .AppendAccessibility(methodImplementation.Declaration.Accessibility)
             .If(
+                methodImplementation.Declaration.IsStatic,
+                x => x.Append(' ').Append(Trivia.Static))
+            .If(
+                methodImplementation.Declaration.IsPartialDefinition,
+                x => x.Append(' ').Append(Trivia.Partial))
+            .If(
                 methodImplementation.Declaration.IsAsync,
                 x => x.Append(' ').Append(Trivia.Async))
             .If(
                 methodImplementation.Declaration.IsVirtual,
                 x => x.Append(' ').Append(Trivia.Virtual))
             .Append(' ')
-            .AppendMethodDeclaration(methodImplementation.Declaration, options, indentation)
+            .AppendMethodDeclaration(methodImplementation.Declaration, options, indentation, !methodImplementation.Declaration.IsPartialDefinition)
             .AppendLine()
             .Append(' ', indentation)
             .Append('{')
@@ -271,7 +283,7 @@ internal static class ImplementationSourceCodeEmitter
             case FuncInvocationExpression funcInvocationExpression:
                 stringBuilder.AppendExpression(funcInvocationExpression.DelegateAccessor, indentation, formattingOptions)
                     .If(
-                        funcInvocationExpression.IsNullable,
+                        funcInvocationExpression.IsOptional,
                         x => x.Append('?'))
                     .Append('.')
                     .Append(Trivia.InvokeCall);
@@ -351,7 +363,7 @@ internal static class ImplementationSourceCodeEmitter
                     .Append('.')
                     .Append(instanceMethodCall.Name)
                     .If(
-                        !instanceMethodCall.TypeArguments.IsEmpty(),
+                        !instanceMethodCall.TypeArguments.IsEmpty,
                         x => x.Append('<').AppendItems(instanceMethodCall.TypeArguments, (builder, argument) => builder.AppendFullyQualifiedType(argument.Type), Trivia.ListSeparator).Append('>'))
                     .Append('(')
                     .AppendArguments(instanceMethodCall.Arguments, newIndentation, formattingOptions)
@@ -364,7 +376,7 @@ internal static class ImplementationSourceCodeEmitter
                         (builder, type) => builder.AppendFullyQualifiedType(type).Append('.'))
                     .Append(staticMethodCall.Name)
                     .If(
-                        !staticMethodCall.TypeArguments.IsEmpty(),
+                        !staticMethodCall.TypeArguments.IsEmpty,
                         x => x.Append('<').AppendItems(staticMethodCall.TypeArguments, (builder, argument) => builder.AppendFullyQualifiedType(argument.Type), Trivia.ListSeparator).Append('>'))
                     .Append('(')
                     .AppendArguments(staticMethodCall.Arguments, newIndentation, formattingOptions)

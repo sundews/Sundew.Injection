@@ -23,8 +23,8 @@ internal abstract partial record CreationSource
     }
 }
 
-internal sealed record ArrayCreation(DefiniteType ElementType) : CreationSource;
+internal sealed partial record ArrayCreation(DefiniteType ElementType) : CreationSource;
 
-internal sealed record ConstructorCall(DefiniteType Type) : CreationSource;
+internal sealed partial record ConstructorCall(DefiniteType Type) : CreationSource;
 
-internal sealed record StaticMethodCall(DefiniteType Type, DefiniteMethod Method) : CreationSource;
+internal sealed partial record StaticMethodCall(DefiniteType Type, DefiniteMethod Method) : CreationSource;

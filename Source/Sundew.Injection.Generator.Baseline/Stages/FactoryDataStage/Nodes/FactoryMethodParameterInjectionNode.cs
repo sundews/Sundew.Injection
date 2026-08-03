@@ -10,7 +10,7 @@ namespace Sundew.Injection.Generator.Stages.FactoryDataStage.Nodes;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal sealed record FactoryMethodParameterInjectionNode : InjectionNode, IParameterNode
+internal sealed partial record FactoryMethodParameterInjectionNode : InjectionNode, IParameterNode
 {
     public FactoryMethodParameterInjectionNode(DefiniteType type, string name, ParameterSource parameterSource, TypeMetadata typeMetadata, bool requiresNewInstance, InjectionNode parentInjectionNode)
         : base(parentInjectionNode)

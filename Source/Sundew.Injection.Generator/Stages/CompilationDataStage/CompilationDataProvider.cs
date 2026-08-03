@@ -71,7 +71,7 @@ internal static class CompilationDataProvider
             var iReadOnlyListOfTSymbol = all[index++];
             var lifecycleHandlerType = GetProvidedNamedType(typeof(LifecycleHandler), assemblyNamespace, assemblyName);
             var lifecycleHandlerConstructorParameters = typeof(LifecycleHandler).GetConstructors().Where(x => x.IsPublic && !x.IsStatic).Select(x => x.GetParameters()).FirstOrDefault(x => x.Length == 2);
-            var defaultMetadata = new TypeMetadata(EnumerableMetadata.NonEnumerableMetadata, false);
+            var defaultMetadata = new TypeMetadata(EnumerableMetadata.NonEnumerableMetadata, Lifecycle.None);
             var lifecycleHandlerBinding = new Binding(
                 lifecycleHandlerType,
                 lifecycleHandlerType,
@@ -79,11 +79,10 @@ internal static class CompilationDataProvider
                 new Method(
                     lifecycleHandlerType,
                     lifecycleHandlerType.Name,
-                    lifecycleHandlerConstructorParameters!.Select(x => new FullParameter(GetNamedType(x.ParameterType), x.Name, defaultMetadata, default, ParameterNecessity._Optional(null))).ToValueArray(),
+                    lifecycleHandlerConstructorParameters!.Select(x => new FullParameter(GetNamedType(x.ParameterType), x.Name, defaultMetadata, default, ParameterNecessity._Optional(true, null))).ToValueArray(),
                     ImmutableArray<FullTypeArgument>.Empty,
                     MethodKind._Constructor),
-                false,
-                false,
+                Lifecycle.None,
                 false);
             var objectType = new NamedType(ObjectName, string.Empty, string.Empty, false);
             var intType = new NamedType(IntName, string.Empty, string.Empty, false);
@@ -102,7 +101,7 @@ internal static class CompilationDataProvider
                 objectType,
                 intType,
                 GetNamedType(typeof(IServiceProvider)),
-                GetGenericType(typeof(Span<>), string.Empty).ToClosedGenericType(ImmutableArray.Create(new FullTypeArgument(objectType, new TypeMetadata(EnumerableMetadata.NonEnumerableMetadata, false)))),
+                GetGenericType(typeof(Span<>), string.Empty).ToClosedGenericType(ImmutableArray.Create(new FullTypeArgument(objectType, new TypeMetadata(EnumerableMetadata.NonEnumerableMetadata, Lifecycle.None)))),
                 GenericTypeConverter.GetGenericType(iEnumerableOfTSymbol),
                 GenericTypeConverter.GetGenericType(iEnumerableOfTSymbol),
                 new SundewInjectionReferencedCompilationData(

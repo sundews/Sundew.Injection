@@ -14,10 +14,10 @@ using Sundew.Injection.Generator.TypeSystem;
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record ResolvedBinding;
 
-internal sealed record Error(BindingError BindingError) : ResolvedBinding;
+internal sealed partial record Error(BindingError BindingError) : ResolvedBinding;
 
-internal sealed record ExternalParameter(DefiniteType Type, TypeMetadata TypeMetadata) : ResolvedBinding;
+internal sealed partial record ExternalParameter(DefiniteType Type, TypeMetadata TypeMetadata) : ResolvedBinding;
 
-internal sealed record SingleParameter(Binding Binding) : ResolvedBinding;
+internal sealed partial record SingleParameter(Binding Binding) : ResolvedBinding;
 
-internal sealed record ArrayParameter(DefiniteArrayType ArrayType, IReadOnlyList<Binding> Bindings) : ResolvedBinding;
+internal sealed partial record ArrayParameter(DefiniteArrayType ArrayType, IReadOnlyList<Binding> Bindings) : ResolvedBinding;

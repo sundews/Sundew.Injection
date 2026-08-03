@@ -1,11 +1,10 @@
 ﻿namespace Sundew.Injection.Tests.InjectionDefinitionStage;
 
 extern alias sig;
-using FluentAssertions;
+using AwesomeAssertions;
 using Sundew.Injection.Testing;
 using InjectionDefinitionProvider = sig::Sundew.Injection.Generator.Stages.InjectionDefinitionStage.InjectionDefinitionProvider;
 
-[TestFixture]
 public class InjectionDefinitionEqualityFixture
 {
     [Test]

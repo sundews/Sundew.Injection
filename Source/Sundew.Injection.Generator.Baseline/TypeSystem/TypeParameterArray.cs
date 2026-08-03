@@ -7,4 +7,4 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-public sealed record TypeParameterArray(TypeParameter ElementTypeParameter) : Symbol(ElementTypeParameter);
+public sealed partial record TypeParameterArray(TypeParameter ElementTypeParameter) : Symbol(ElementTypeParameter);

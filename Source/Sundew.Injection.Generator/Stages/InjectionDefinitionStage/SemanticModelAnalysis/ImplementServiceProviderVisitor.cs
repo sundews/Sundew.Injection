@@ -65,6 +65,6 @@ internal class ImplementServiceProviderVisitor(
             return;
         }
 
-        analysisContext.CompiletimeInjectionDefinitionBuilder.CreateResolver(factories, resolverTypeResult.Value, accessibility, location);
+        analysisContext.CompiletimeInjectionDefinitionBuilder.ImplementServiceProvider(factories, resolverTypeResult.Value, accessibility, location);
     }
 }

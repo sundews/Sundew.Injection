@@ -24,9 +24,9 @@ internal sealed class IteratorMethodGenerator
         var createMethodName = Create + NameHelper.GetFactoryMethodName(iteratorMethodCall.ElementType.Name);
         return (factoryNode with
         {
-            CreateMethod = factoryNode.CreateMethod with
+            RootFactoryMethod = factoryNode.RootFactoryMethod with
             {
-                Statements = factoryNode.CreateMethod.Statements.Add(
+                Statements = factoryNode.RootFactoryMethod.Statements.Add(
                         Statement.LocalFunctionStatement(
                             createMethodName,
                             ImmutableArray<ParameterDeclaration>.Empty,

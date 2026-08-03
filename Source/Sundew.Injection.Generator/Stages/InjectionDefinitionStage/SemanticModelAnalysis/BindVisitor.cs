@@ -7,6 +7,7 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticModelAnalysis;
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -16,27 +17,26 @@ using Sundew.Base;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal class BindVisitor(
-    GenericNameSyntax bindGenericNameSyntax,
+    IReadOnlyList<TypeSymbolWithLocation> typeArguments,
     IMethodSymbol methodSymbol,
     AnalysisContext analysisContext)
     : CSharpSyntaxWalker
 {
     public override void VisitArgumentList(ArgumentListSyntax node)
     {
-        var typeArguments = methodSymbol.MapTypeArguments(bindGenericNameSyntax);
         var parameters = methodSymbol.Parameters;
         var i = 0;
         var scope = new ScopeContext((Scope?)parameters[i++].ExplicitDefaultValue ?? Scope._Auto, ScopeSelection.Implicit);
-        var constructorSelector = R.SuccessOption((Method?)parameters[i++].ExplicitDefaultValue).Omits<SymbolErrorWithLocation>();
+        var constructorSelector = R.SuccessOption((Method?)parameters[i++].ExplicitDefaultValue).Omits<ErrorWithLocation>();
         var isInjectable = (bool?)parameters[i++].ExplicitDefaultValue ?? false;
         var isNewOverridable = (bool?)parameters[i++].ExplicitDefaultValue ?? false;
         var argumentIndex = 0;
-        var interfaceTypes = typeArguments.Take(typeArguments.Length - 1).Select(x => analysisContext.TypeFactory.GetType(x.TypeSymbol)).ToImmutableArray();
+        var interfaceTypes = typeArguments.Take(typeArguments.Count - 1).Select(x => analysisContext.TypeFactory.GetType(x.TypeSymbol)).ToImmutableArray();
         var implementationTypeSymbol = typeArguments.Last();
         var implementationTypeResult = analysisContext.TypeFactory.GetFullType(implementationTypeSymbol.TypeSymbol);
-        if (!implementationTypeResult.TryGet(out var implementationType, out var error))
+        if (!implementationTypeResult.TryGet(out var implementationType, out var implementTypeError))
         {
-            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, implementationTypeSymbol, error.GetErrorText());
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(new ErrorWithLocation(implementTypeError, implementationTypeSymbol.Location));
             return;
         }
 
@@ -82,9 +82,9 @@ internal class BindVisitor(
             }
         }
 
-        if (constructorSelector.IsError)
+        if (constructorSelector.TryGetError(out var error))
         {
-            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, constructorSelector.Error);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(error);
             return;
         }
 
@@ -108,7 +108,7 @@ internal class BindVisitor(
         return ExpressionAnalysisHelper.GetScope(analysisContext.SemanticModel, argumentSyntax, analysisContext.TypeFactory, targetType);
     }
 
-    private R<Method?, SymbolErrorWithLocation> GetMethod(ArgumentSyntax argumentSyntax)
+    private R<Method?, ErrorWithLocation> GetMethod(ArgumentSyntax argumentSyntax)
     {
         return ExpressionAnalysisHelper.GetMethod(argumentSyntax, analysisContext.SemanticModel, analysisContext.TypeFactory);
     }

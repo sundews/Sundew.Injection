@@ -7,7 +7,7 @@
 
 namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.Syntax;
 
-internal sealed record Identifier(string Name) : Expression
+internal sealed partial record Identifier(string Name) : Expression
 {
     public static readonly Identifier This = new Identifier("this");
 }

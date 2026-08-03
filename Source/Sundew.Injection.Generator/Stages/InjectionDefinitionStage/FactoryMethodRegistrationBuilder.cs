@@ -13,20 +13,15 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal sealed class FactoryMethodRegistrationBuilder
 {
-    private readonly ImmutableArray<FactoryMethodRegistration>.Builder registrations = ImmutableArray.CreateBuilder<FactoryMethodRegistration>();
+    private readonly ImmutableDictionary<NamedType, ImmutableArray<FactoryMethodRegistration>>.Builder registrations = ImmutableDictionary.CreateBuilder<NamedType, ImmutableArray<FactoryMethodRegistration>>();
 
     public FactoryMethodRegistrationBuilder Add(
-        FullType interfaceType,
-        FullType implementationType,
-        ScopeContext scope,
-        Method method,
-        string? factoryMethodName,
-        Accessibility accessibility,
-        bool isNewOverridable)
+        NamedType containingType,
+        ImmutableArray<FactoryMethodRegistration> factoryMethodRegistrations)
     {
-        this.registrations.Add(new FactoryMethodRegistration(interfaceType, implementationType, scope, method, accessibility, isNewOverridable, factoryMethodName));
+        this.registrations.Add(containingType, factoryMethodRegistrations);
         return this;
     }
 
-    public ValueArray<FactoryMethodRegistration> Build() => this.registrations.ToImmutable();
+    public ValueDictionary<NamedType, ValueArray<FactoryMethodRegistration>> Build() => this.registrations.ToImmutableDictionary(x => x.Key, x => x.Value.ToValueArray());
 }

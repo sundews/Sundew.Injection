@@ -39,9 +39,10 @@ internal static class InjectionDefinitionProvider
 
             var compiletimeInjectionDefinitionBuilder = new CompiletimeInjectionDefinitionBuilder();
             var typeFactory = new TypeFactory(knownAnalysisTypes);
-            var injectionDeclarationVisitor = new InjectionDeclarationVisitor(new AnalysisContext(injectionDeclarationSemanticModel, knownAnalysisTypes, typeFactory, compiletimeInjectionDefinitionBuilder), cancellationToken);
+            var analysisContext = new AnalysisContext(injectionDeclarationSemanticModel, knownAnalysisTypes, typeFactory, compiletimeInjectionDefinitionBuilder);
+            var injectionDeclarationVisitor = new InjectionDeclarationVisitor(analysisContext, cancellationToken);
             injectionDeclarationVisitor.Visit(injectionDeclarationSemanticModel.SyntaxTree.GetRoot());
-            return compiletimeInjectionDefinitionBuilder.Build();
+            return compiletimeInjectionDefinitionBuilder.Build(analysisContext);
         }
         catch (OperationCanceledException)
         {

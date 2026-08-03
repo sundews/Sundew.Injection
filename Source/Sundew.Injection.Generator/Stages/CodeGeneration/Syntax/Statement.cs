@@ -14,16 +14,16 @@ using Sundew.Injection.Generator.TypeSystem;
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record Statement;
 
-internal sealed record ExpressionStatement(Expression Expression) : Statement;
+internal sealed partial record ExpressionStatement(Expression Expression) : Statement;
 
-internal sealed record ReturnStatement(Expression Expression) : Statement;
+internal sealed partial record ReturnStatement(Expression Expression) : Statement;
 
-internal sealed record YieldReturnStatement(Expression Expression) : Statement;
+internal sealed partial record YieldReturnStatement(Expression Expression) : Statement;
 
-internal sealed record LocalDeclarationStatement(string Name, Expression Initializer) : Statement;
+internal sealed partial record LocalDeclarationStatement(string Name, Expression Initializer) : Statement;
 
-internal sealed record CreateOptionalParameterIfStatement(Expression ConditionAccess, ImmutableList<Statement> TrueStatements, ImmutableList<Statement>? FalseStatements = null) : Statement;
+internal sealed partial record CreateOptionalParameterIfStatement(Expression ConditionAccess, ImmutableList<Statement> TrueStatements, ImmutableList<Statement>? FalseStatements = null) : Statement;
 
-internal sealed record LocalFunctionStatement(string Name, ValueList<ParameterDeclaration> Parameters, Type ReturnType, ImmutableList<Statement> Statements, bool IsStatic) : Statement;
+internal sealed partial record LocalFunctionStatement(string Name, ValueList<ParameterDeclaration> Parameters, Type ReturnType, ImmutableList<Statement> Statements, bool IsStatic) : Statement;
 
-internal sealed record Raw(string Source) : Statement;
+internal sealed partial record Raw(string Source) : Statement;

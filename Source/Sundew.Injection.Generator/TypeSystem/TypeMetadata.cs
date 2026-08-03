@@ -7,4 +7,6 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-internal readonly record struct TypeMetadata(EnumerableMetadata EnumerableMetadata, bool HasLifecycle);
+using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
+
+internal readonly record struct TypeMetadata(EnumerableMetadata EnumerableMetadata, Lifecycle Lifecycle);

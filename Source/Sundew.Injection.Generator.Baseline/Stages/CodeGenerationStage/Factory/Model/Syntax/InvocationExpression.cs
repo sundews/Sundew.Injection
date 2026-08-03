@@ -10,7 +10,7 @@ namespace Sundew.Injection.Generator.Stages.CodeGenerationStage.Factory.Model.Sy
 using System;
 using System.Collections.Generic;
 
-internal sealed record InvocationExpression(Expression Expression, IReadOnlyList<Expression> Arguments) : InvocationExpressionBase(Arguments)
+internal sealed partial record InvocationExpression(Expression Expression, IReadOnlyList<Expression> Arguments) : InvocationExpressionBase(Arguments)
 {
     public InvocationExpression(Expression expression)
     : this(expression, Array.Empty<Expression>())

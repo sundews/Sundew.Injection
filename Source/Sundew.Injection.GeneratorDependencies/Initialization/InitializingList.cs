@@ -104,9 +104,9 @@ namespace Sundew.Injection.Dependencies.Initialization
             }
             else
             {
-                foreach (var disposer in initializers)
+                foreach (var initializer in initializers)
                 {
-                    disposer.Initialize(this.initializationReporter);
+                    initializer.Initialize(this.initializationReporter);
                 }
             }
         }

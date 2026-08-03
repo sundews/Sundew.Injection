@@ -21,9 +21,9 @@ internal interface IParameterNode : IInjectionNode
 
     ParameterSource ParameterSource { get; }
 
-    bool PrefersNewInstance { get; }
-
     bool IsOptional { get; }
+
+    bool IsTargetOptional { get; }
 
     bool IsForConstructor { get; }
 }

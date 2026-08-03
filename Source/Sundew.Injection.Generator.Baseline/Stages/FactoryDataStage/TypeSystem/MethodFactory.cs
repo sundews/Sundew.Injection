@@ -85,7 +85,7 @@ public sealed class MethodFactory
                 };
             });
 
-        return methodParameters.With(
+        return methodParameters.Map(
             all => CreateMethod(genericMethod, all.Items.ToImmutableArray(), definiteBoundGenericType),
             failed => new CreateGenericMethodError(failed.Items.Select(x => (x.Item, x.Error)).ToImmutableArray()));
     }
@@ -103,7 +103,7 @@ public sealed class MethodFactory
                     : Item.Fail();
             });
 
-            return allOrFailed.With(
+            return allOrFailed.Map(
                 all => new DefiniteMethod(all.Items.ToImmutableArray(), overrideMethodName.IsNullOrEmpty() ? method.Name : overrideMethodName, result.Value, ImmutableArray<DefiniteTypeArgument>.Empty, method.IsConstructor),
                 failed => new CreateMethodError(default, failed.Items.Select(x => x.Item).ToImmutableArray()));
         }

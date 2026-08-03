@@ -117,6 +117,33 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string InvalidFactoryMethodBindingDescription {
+            get {
+                return ResourceManager.GetString("InvalidFactoryMethodBindingDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to InvalidFactoryMethodBinding &apos;{0}&apos;.
+        /// </summary>
+        internal static string InvalidFactoryMethodBindingMessageFormat {
+            get {
+                return ResourceManager.GetString("InvalidFactoryMethodBindingMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string InvalidFactoryMethodBindingTitle {
+            get {
+                return ResourceManager.GetString("InvalidFactoryMethodBindingTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Occurs when ImplementFactory is called with invalid type parameters.
         /// </summary>
         internal static string InvalidFactoryTypeDescription {
@@ -180,7 +207,7 @@ namespace Sundew.Injection.Generator {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Binding not found for type: &apos;{0}&apos; and type is not constructable.
+        ///   Looks up a localized string similar to Binding not found for type: &apos;{1}&apos; and type is not constructable for factory: {0}..
         /// </summary>
         internal static string NoBindingFoundForNonConstructableTypeErrorMessageFormat {
             get {
@@ -221,6 +248,33 @@ namespace Sundew.Injection.Generator {
         internal static string NoFactoryMethodFoundForTypeErrorTitle {
             get {
                 return ResourceManager.GetString("NoFactoryMethodFoundForTypeErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Occurs when binding a property that does not have a getter..
+        /// </summary>
+        internal static string NoPropertyGetMethodFoundDescription {
+            get {
+                return ResourceManager.GetString("NoPropertyGetMethodFoundDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No property get method found for: &apos;{0}&apos;.
+        /// </summary>
+        internal static string NoPropertyGetMethodFoundMessageFormat {
+            get {
+                return ResourceManager.GetString("NoPropertyGetMethodFoundMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot bind properties that do not have a get method..
+        /// </summary>
+        internal static string NoPropertyGetMethodFoundTitle {
+            get {
+                return ResourceManager.GetString("NoPropertyGetMethodFoundTitle", resourceCulture);
             }
         }
         
@@ -275,6 +329,33 @@ namespace Sundew.Injection.Generator {
         internal static string OnlyGenericTypeSupportedErrorTitle {
             get {
                 return ResourceManager.GetString("OnlyGenericTypeSupportedErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Occurs when parameter type could not be resolved..
+        /// </summary>
+        internal static string ParameterTypeResolutionFailedDescription {
+            get {
+                return ResourceManager.GetString("ParameterTypeResolutionFailedDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The parameter &apos;{0}&apos; could not be resolved. Context: {1}.
+        /// </summary>
+        internal static string ParameterTypeResolutionFailedMessageFormat {
+            get {
+                return ResourceManager.GetString("ParameterTypeResolutionFailedMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not resolve all parameters.
+        /// </summary>
+        internal static string ParameterTypeResolutionFailedTitle {
+            get {
+                return ResourceManager.GetString("ParameterTypeResolutionFailedTitle", resourceCulture);
             }
         }
         
@@ -518,6 +599,33 @@ namespace Sundew.Injection.Generator {
         internal static string UnsupportedInstanceMethodErrorTitle {
             get {
                 return ResourceManager.GetString("UnsupportedInstanceMethodErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Occurs when attempting to bind a factory to symbols that are not a method or a property..
+        /// </summary>
+        internal static string UnsupportedSymbolDescription {
+            get {
+                return ResourceManager.GetString("UnsupportedSymbolDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The symbol &apos;{0}&apos; is not supported. Only methods and properties can be used..
+        /// </summary>
+        internal static string UnsupportedSymbolMessageFormat {
+            get {
+                return ResourceManager.GetString("UnsupportedSymbolMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Attempted to bind unsupported symbol..
+        /// </summary>
+        internal static string UnsupportedSymbolTitle {
+            get {
+                return ResourceManager.GetString("UnsupportedSymbolTitle", resourceCulture);
             }
         }
     }

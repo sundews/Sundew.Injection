@@ -13,4 +13,10 @@ using Statement = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Statem
 
 internal readonly record struct Constructor(
     ImmutableList<ParameterDeclaration> Parameters,
-    ImmutableList<Statement> Statements);
+    ImmutableList<Statement> Statements)
+{
+    public Constructor(ImmutableList<ParameterDeclaration> parameters)
+        : this(parameters, ImmutableList<Statement>.Empty)
+    {
+    }
+}

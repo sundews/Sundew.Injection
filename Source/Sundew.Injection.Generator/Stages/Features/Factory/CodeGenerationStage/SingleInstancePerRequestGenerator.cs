@@ -13,6 +13,7 @@ using Sundew.Base;
 using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Nodes;
+using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
 using Expression = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Expression;
 using MethodImplementation = Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model.MethodImplementation;
 
@@ -53,13 +54,13 @@ internal class SingleInstancePerRequestGenerator
                         (factoryNode, nextCreationNode) =>
                         {
                             var factory = factoryNode.FactoryImplementation;
-                            var factoryMethod = factoryNode.CreateMethod;
+                            var factoryMethod = factoryNode.RootFactoryMethod;
                             var result =
                                 this.generatorFeatures.InjectionNodeExpressionGenerator.Generate(nextCreationNode, in factory, in factoryMethod);
                             return factoryNode with
                             {
                                 FactoryImplementation = result.FactoryImplementation,
-                                CreateMethod = result.CreateMethod,
+                                RootFactoryMethod = result.RootFactoryMethod,
                                 DependantArguments = factoryNode.DependantArguments.AddRange(result.DependantArguments),
                             };
                         });
@@ -74,8 +75,10 @@ internal class SingleInstancePerRequestGenerator
             (factoryNode, var creationExpression) = this.generatorFeatures.OptionalOverridableCreationGenerator.Generate(singleInstancePerRequestInjectionNode, this.generatorContext.KnownSyntax.SharedLifecycleHandler, factoryNode);
             if (singleInstancePerRequestInjectionNode.ParameterNodeOption.TryGetValue(out var parameterNode))
             {
-                (factoryNode, _, var parameter, var parameterArgument, _) = factoryNode.GetOrAddCreateMethodParameter(parameterNode, variableDeclaration.Name, this.generatorContext.CompilationData);
-                if (singleInstancePerRequestInjectionNode.NeedsLifecycleHandling)
+                var (parameterArgument, _) = ParameterHelper.VisitParameter(
+                    parameterNode,
+                    this.generatorContext.CompilationData);
+                if (singleInstancePerRequestInjectionNode.Lifecycle != Lifecycle.None)
                 {
                     creationExpression = new InvocationExpression(this.generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, [creationExpression]);
                 }
@@ -86,7 +89,7 @@ internal class SingleInstancePerRequestGenerator
             {
                 var assignmentStatement = new LocalDeclarationStatement(variableDeclaration.Name, creationExpression);
                 factoryNode = factoryNode.AddCreateMethodStatement(assignmentStatement);
-                if (singleInstancePerRequestInjectionNode.NeedsLifecycleHandling)
+                if (singleInstancePerRequestInjectionNode.Lifecycle != Lifecycle.None)
                 {
                     factoryNode = factoryNode.AddCreateMethodStatement(Statement.ExpressionStatement(Expression.InvocationExpression(this.generatorContext.KnownSyntax.ChildLifecycleHandler.TryAddMethod, [targetIdentifier])));
                 }

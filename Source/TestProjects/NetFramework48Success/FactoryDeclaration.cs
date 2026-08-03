@@ -10,12 +10,13 @@ public class FactoryDeclaration : IInjectionDeclaration
     {
         injectionBuilder.Bind<IAbstract, Concrete1>();
         injectionBuilder.Bind<IAbstract, Concrete2>();
-        injectionBuilder.ImplementFactory<MainFactory>(x => x.Add<Root>());
+        injectionBuilder.ImplementFactory<MainFactory>();
     }
 }
 
 public partial class MainFactory
 {
+    public partial Root Create();
 }
 
 public class Root

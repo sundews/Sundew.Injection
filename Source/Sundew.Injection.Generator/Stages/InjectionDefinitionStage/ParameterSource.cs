@@ -7,21 +7,23 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
-[Sundew.DiscriminatedUnions.DiscriminatedUnion]
-internal abstract partial record ParameterSource;
+using Sundew.Injection.Generator.TypeSystem;
 
-internal sealed record DirectParameter(Inject Inject) : ParameterSource
+[Sundew.DiscriminatedUnions.DiscriminatedUnion]
+internal abstract partial record ParameterSource(Type Type, string Name, bool IsMember, bool NeedsInvocation, bool IsOptional);
+
+internal sealed partial record DirectParameter(Type Type, string Name, bool IsMember, bool NeedsInvocation, ParameterNecessity ParameterNecessity, Inject Inject) : ParameterSource(Type, Name, IsMember, NeedsInvocation, ParameterNecessity.IsOptional)
 {
     public override string ToString()
     {
-        return $"Direct: {this.Inject}";
+        return $"Direct: Name: {this.Name}, IsOptional: {this.IsOptional}, ParameterNecessity: {this.ParameterNecessity.ToString()}";
     }
 }
 
-internal sealed record PropertyAccessorParameter(AccessorProperty AccessorProperty, bool NeedsInvocation) : ParameterSource
+internal sealed partial record PropertyAccessorParameter(Type Type, string Name, bool IsMember, AccessorProperty AccessorProperty, bool NeedsInvocation) : ParameterSource(Type, Name, IsMember, NeedsInvocation, AccessorProperty.IsParameterOptional | AccessorProperty.IsResultOptional)
 {
     public override string ToString()
     {
-        return $"Property: {this.AccessorProperty.ContainingType.FullName}.{this.AccessorProperty.Name}";
+        return $"Property: {this.AccessorProperty.ContainingType.FullName}.{this.AccessorProperty.Name}, IsParameterOptional: {this.AccessorProperty.IsParameterOptional}, IsResultOptional: {this.AccessorProperty.IsResultOptional}";
     }
 }

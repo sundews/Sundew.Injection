@@ -55,7 +55,7 @@ internal class BindGenericVisitor(
         var parameters = methodSymbol.Parameters;
         var i = 0;
         var scope = new ScopeContext((Scope?)parameters[i++].ExplicitDefaultValue ?? Scope._Auto, ScopeSelection.Implicit);
-        var method = R.SuccessOption((GenericMethod?)parameters[i++].ExplicitDefaultValue).Omits<SymbolErrorWithLocation>();
+        var method = R.SuccessOption((GenericMethod?)parameters[i++].ExplicitDefaultValue).Omits<ErrorWithLocation>();
         var argumentIndex = 0;
         foreach (var argumentSyntax in node.Arguments)
         {
@@ -89,7 +89,7 @@ internal class BindGenericVisitor(
 
         if (method.IsError)
         {
-            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, method.Error);
+            analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(method.Error);
             return;
         }
 
@@ -103,13 +103,12 @@ internal class BindGenericVisitor(
             }
 
             var genericMethodResult = analysisContext.TypeFactory.GetGenericMethod(lastNamedTypeSymbol.Constructors.GetDefaultMethodWithMostParameters());
-            if (genericMethodResult.IsError)
+            if (genericMethodResult.TryGetError(out var error, out actualMethod))
             {
-                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, last, genericMethodResult.Error.GetErrorText());
+                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(new ErrorWithLocation(error, last.Location));
                 return;
             }
 
-            actualMethod = genericMethodResult.Value;
             if (actualMethod == default)
             {
                 analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.NoViableConstructorFoundError, last);
@@ -125,8 +124,8 @@ internal class BindGenericVisitor(
         return ExpressionAnalysisHelper.GetScope(analysisContext.SemanticModel, argumentSyntax, analysisContext.TypeFactory, targetType);
     }
 
-    private R<GenericMethod?, SymbolErrorWithLocation> GetGenericMethod(ArgumentSyntax argumentSyntax)
+    private R<GenericMethod?, ErrorWithLocation> GetGenericMethod(ArgumentSyntax argumentSyntax)
     {
-        return ExpressionAnalysisHelper.GetGenericMethod(argumentSyntax, analysisContext.SemanticModel, analysisContext.TypeFactory).ToValueOptionResult();
+        return ExpressionAnalysisHelper.GetGenericMethod(argumentSyntax, analysisContext.SemanticModel, analysisContext.TypeFactory).MapToValueOptionResult();
     }
 }

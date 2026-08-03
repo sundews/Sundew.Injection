@@ -16,6 +16,7 @@ using Sundew.Base;
 
 public static class KnownTypesProvider
 {
+    public static readonly string DefaultValueName = typeof(DefaultValueAttribute).FullName!;
     public static readonly string BindableFactoryTargetName = typeof(BindableFactoryTargetAttribute).FullName!;
     public static readonly string IndirectFactoryTargetName = typeof(IndirectFactoryTargetAttribute).FullName!;
 
@@ -62,5 +63,25 @@ public static class KnownTypesProvider
     public static R<INamedTypeSymbol, string> GetIReadOnlyListOfT(this Compilation compilation)
     {
         return R.From(compilation.GetTypeByMetadataName(typeof(System.Collections.Generic.IReadOnlyList<>).FullName!), () => "IReadOnlyList<> was not found");
+    }
+
+    public static R<INamedTypeSymbol, string> GetLifecycleParameters(this Compilation compilation)
+    {
+        return R.From(compilation.GetTypeByMetadataName(typeof(LifecycleParameters).FullName!), () => "LifecycleParameters was not found");
+    }
+
+    public static R<INamedTypeSymbol, string> GetILifecycleParameters(this Compilation compilation)
+    {
+        return R.From(compilation.GetTypeByMetadataName(typeof(ILifecycleParameters).FullName!), () => "ILifecycleParameters was not found");
+    }
+
+    public static R<INamedTypeSymbol, string> GetIInitializationParameters(this Compilation compilation)
+    {
+        return R.From(compilation.GetTypeByMetadataName(typeof(IInitializationParameters).FullName!), () => "IInitializationParameters was not found");
+    }
+
+    public static R<INamedTypeSymbol, string> GetIDisposalParameters(this Compilation compilation)
+    {
+        return R.From(compilation.GetTypeByMetadataName(typeof(IDisposalParameters).FullName!), () => "IDisposalParameters was not found");
     }
 }

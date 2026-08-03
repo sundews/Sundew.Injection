@@ -12,10 +12,10 @@ using System.Collections.Immutable;
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record Statement;
 
-internal sealed record ExpressionStatement(Expression Expression) : Statement;
+internal sealed partial record ExpressionStatement(Expression Expression) : Statement;
 
-internal sealed record ReturnStatement(Expression Expression) : Statement;
+internal sealed partial record ReturnStatement(Expression Expression) : Statement;
 
-internal sealed record LocalDeclarationStatement(string Name, Expression Initializer) : Statement;
+internal sealed partial record LocalDeclarationStatement(string Name, Expression Initializer) : Statement;
 
-internal sealed record CreateOptionalParameterIfStatement(Expression ConditionAccess, ImmutableList<Statement> TrueStatements, ImmutableList<Statement>? FalseStatements = null) : Statement;
+internal sealed partial record CreateOptionalParameterIfStatement(Expression ConditionAccess, ImmutableList<Statement> TrueStatements, ImmutableList<Statement>? FalseStatements = null) : Statement;

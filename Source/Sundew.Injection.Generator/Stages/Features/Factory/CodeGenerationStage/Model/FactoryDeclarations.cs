@@ -12,12 +12,12 @@ using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 
 internal class FactoryDeclarations(
     ClassDeclaration classNamespaceDeclaration,
-    InterfaceDeclaration? interfaceNamespaceDeclaration,
+    ValueArray<InterfaceDeclaration> interfaceNamespaceDeclarations,
     ValueArray<FactoryTargetDeclaration> createMethods)
 {
     public ClassDeclaration ClassNamespaceDeclaration { get; } = classNamespaceDeclaration;
 
-    public InterfaceDeclaration? InterfaceNamespaceDeclaration { get; } = interfaceNamespaceDeclaration;
+    public ValueArray<InterfaceDeclaration> InterfaceNamespaceDeclarations { get; } = interfaceNamespaceDeclarations;
 
     public ValueArray<FactoryTargetDeclaration> CreateMethods { get; } = createMethods;
 }

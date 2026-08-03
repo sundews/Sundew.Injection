@@ -7,4 +7,4 @@
 
 namespace Sundew.Injection.Generator.TypeSystem;
 
-internal sealed record TypeParameter(string Name) : Symbol(Name);
+internal sealed partial record TypeParameter(string Name) : Symbol(Name);

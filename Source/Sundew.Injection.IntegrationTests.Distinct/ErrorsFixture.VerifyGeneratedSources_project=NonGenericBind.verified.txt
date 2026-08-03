@@ -1,0 +1,24 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: /*
+    {
+        injectionBuilder.BindGeneric<NonGenericType>();
+                                     ^^^^^^^^^^^^^^
+    }
+*/
+ {SolutionDirectory}TestProjects\DistinctErrors\NonGenericBind\Setup.cs: (8,37)-(8,51),
+      Message: Symbol: 'DistinctErrors.NonGenericBind.NonGenericType' is not a generic type,
+      Severity: Error,
+      Descriptor: {
+        Id: SI0006,
+        Title: TImplementationType must be generic.,
+        Description: Only generic types are supported,
+        MessageFormat: Symbol: '{0}' is not a generic type,
+        Category: CodeGeneration,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

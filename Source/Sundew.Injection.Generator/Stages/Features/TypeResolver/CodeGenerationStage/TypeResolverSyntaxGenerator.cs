@@ -32,8 +32,8 @@ internal static class TypeResolverSyntaxGenerator
             resolvedTypeResolverDefinition.ResolverType,
             true,
             [
-                Member._Field(new FieldDeclaration(compilationData.IntType, BucketSize, FieldModifier.Const, CreationExpression.Literal(GetBucketSize(registrationCount).ToString()))),
-                Member._Field(new FieldDeclaration(compilationData.ProvidedSundewInjectionCompilationData.ResolverItemArrayType, ResolverItems, FieldModifier.Instance)),
+                Member._Field(new FieldDeclaration(compilationData.IntType, BucketSize, false, FieldModifier.Const, CreationExpression.Literal(GetBucketSize(registrationCount).ToString()))),
+                Member._Field(new FieldDeclaration(compilationData.ProvidedSundewInjectionCompilationData.ResolverItemArrayType, ResolverItems, false, FieldModifier.Instance)),
                 constructor,
                 CreateResolveMethod(),
             ],
@@ -63,7 +63,7 @@ internal static class TypeResolverSyntaxGenerator
     private static (Member Constructor, int BucketSize) CreateConstructor(ResolvedTypeResolverDefinition resolvedTypeResolverDefinition, CompilationData compilationData)
     {
         var factoryRegistrationWithParameters = resolvedTypeResolverDefinition.FactoryRegistrations
-            .Select(x => (ParameterDeclaration: new ParameterDeclaration(x.FactoryType, x.FactoryType.Name.Uncapitalize()), FactoryRegistration: x)).ToArray();
+            .Select(x => (ParameterDeclaration: new ParameterDeclaration(x.FactoryType, x.FactoryType.Name.Uncapitalize(), ParameterNecessity._Required), FactoryRegistration: x)).ToArray();
         var supportedFactoryMethods = factoryRegistrationWithParameters
             .SelectMany(
                 x => x.FactoryRegistration.FactoryMethods,
@@ -77,6 +77,8 @@ internal static class TypeResolverSyntaxGenerator
         return (Member._MethodImplementation(
             new MethodDeclaration(
                 DeclaredAccessibility.Public,
+                false,
+                false,
                 false,
                 false,
                 resolvedTypeResolverDefinition.ResolverType.Name,

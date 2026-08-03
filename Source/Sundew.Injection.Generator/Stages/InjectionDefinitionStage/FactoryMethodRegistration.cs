@@ -7,6 +7,7 @@
 
 namespace Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 
+using Sundew.Base.Collections.Immutable;
 using Sundew.Injection.Generator.TypeSystem;
 
 internal readonly record struct FactoryMethodRegistration(
@@ -16,4 +17,6 @@ internal readonly record struct FactoryMethodRegistration(
     Method Method,
     Accessibility Accessibility,
     bool IsNewOverridable,
-    string? CreateMethodName);
+    string? CreateMethodName,
+    FactoryMethodTarget FactoryMethodTarget,
+    ValueDictionary<TypeId, ParameterSourceContexts> ParameterSources);

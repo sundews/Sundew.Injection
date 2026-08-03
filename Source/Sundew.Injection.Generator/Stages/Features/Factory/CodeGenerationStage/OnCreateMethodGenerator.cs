@@ -39,16 +39,16 @@ internal sealed class OnCreateMethodGenerator
             KnownSyntax.LifecycleHandlerSyntax lifecycleHandlerSyntax,
             FactoryNode factoryNode)
     {
-        var parameterDeclarations = parameters.Select(x => new ParameterDeclaration(x.Type, x.Name)).ToImmutableList();
+        var parameterDeclarations = parameters.Select(x => new ParameterDeclaration(x.Type, x.Name, x.ParameterNecessity)).ToImmutableList();
         parameterDeclarations = parameterDeclarations.Add(lifecycleHandlerSyntax.OnCreateMethodParameterDeclaration);
 
-        var declaration = new MethodDeclaration(DeclaredAccessibility.Protected, true, OnCreate + NameHelper.GetFactoryMethodName(targetType.Name), parameterDeclarations, new UsedType(targetType));
+        var declaration = new MethodDeclaration(DeclaredAccessibility.Protected, false, false, true, OnCreate + NameHelper.GetFactoryMethodName(targetType.Name), parameterDeclarations, new UsedType(targetType));
         var existingFactoryMethod = factoryMethods.FirstOrDefault(x => x.Declaration == declaration);
         var resultingFactoryNode = factoryNode;
         if (Equals(existingFactoryMethod.Declaration, default))
         {
             var creationExpressionPair = this.generatorFeatures.CreationExpressionGenerator.Generate(factoryNode, creationSource, parameters.Select(x => new Identifier(x.Name)).ToImmutableArray());
-            factoryMethods = factoryMethods.Add(new DeclaredMethodImplementation(declaration, new MethodImplementation(declaration.Parameters, ImmutableList<Declaration>.Empty, ImmutableList.Create<Statement>(new ReturnStatement(creationExpressionPair.CreationExpression)))));
+            factoryMethods = factoryMethods.Add(new DeclaredMethodImplementation(declaration, new MethodImplementation(ImmutableList<Declaration>.Empty, ImmutableList.Create<Statement>(new ReturnStatement(creationExpressionPair.CreationExpression)))));
             resultingFactoryNode = creationExpressionPair.FactoryNode;
         }
 

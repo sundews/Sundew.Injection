@@ -13,6 +13,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Sundew.Base;
 using Sundew.Base.Collections.Immutable;
+using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
 using Sundew.Injection.Generator.TypeSystem;
 using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
 
@@ -21,7 +22,7 @@ internal static class BindingHelper
     public static void BindFactory(
         this AnalysisContext analysisContext,
         FullType factoryType,
-        IEnumerable<(Method Method, TypeSymbolWithLocation ReturnType)> factoryMethods)
+        IEnumerable<(FactoryMethodTarget FactoryMethodTarget, TypeSymbolWithLocation ReturnType)> factoryMethodTargets)
     {
         if (!analysisContext.CompiletimeInjectionDefinitionBuilder.HasBinding(factoryType.Type) &&
             factoryType.DefaultConstructor.TryGetValue(out var defaultConstructor))
@@ -30,31 +31,31 @@ internal static class BindingHelper
             analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<Type>.Empty, factoryType, actualMethod, new ScopeContext(Scope._SingleInstancePerFactory(Location.None), ScopeSelection.Implicit), false, false);
         }
 
-        foreach (var methodAndReturnType in factoryMethods)
+        foreach (var methodAndReturnType in factoryMethodTargets)
         {
             var returnTypeResult = analysisContext.TypeFactory.GetFullType(methodAndReturnType.ReturnType);
-            if (returnTypeResult.IsError)
+            if (returnTypeResult.TryGetError(out var returnTypeError, out var returnType))
             {
-                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, returnTypeResult.Error);
+                analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(returnTypeError);
                 return;
             }
 
-            var returnType = returnTypeResult.Value with { Metadata = returnTypeResult.Value.Metadata with { HasLifecycle = false } };
-            analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<Type>.Empty, returnType, methodAndReturnType.Method, new ScopeContext(Scope._Auto, ScopeSelection.Implicit), false, false);
+            returnType = returnType with { Metadata = returnTypeResult.Value.Metadata with { Lifecycle = Lifecycle.None } };
+            analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(ImmutableArray<Type>.Empty, returnType, methodAndReturnType.FactoryMethodTarget.Method, new ScopeContext(Scope._Auto, ScopeSelection.Implicit), false, false);
 
             if (SymbolEqualityComparer.Default.Equals(methodAndReturnType.ReturnType.TypeSymbol.OriginalDefinition, analysisContext.KnownAnalysisTypes.ConstructedTypeSymbol))
             {
                 var typeSymbol = ((INamedTypeSymbol)methodAndReturnType.ReturnType.TypeSymbol).TypeArguments.Single();
-                var returnTypeFirstTypeParameterResult = analysisContext.TypeFactory.GetFullType(typeSymbol);
-                if (returnTypeFirstTypeParameterResult.IsError)
+                var returnTypeFromFirstTypeParameterResult = analysisContext.TypeFactory.GetFullType(typeSymbol);
+                if (returnTypeFromFirstTypeParameterResult.TryGetError(out var error, out var returnTypeFromFirstTypeParameter))
                 {
-                    analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, methodAndReturnType.ReturnType with { TypeSymbol = typeSymbol }, returnTypeFirstTypeParameterResult.Error.GetErrorText());
+                    analysisContext.CompiletimeInjectionDefinitionBuilder.AddDiagnostic(Diagnostics.InfiniteRecursionError, methodAndReturnType.ReturnType with { TypeSymbol = typeSymbol }, error);
                     return;
                 }
 
                 analysisContext.CompiletimeInjectionDefinitionBuilder.Bind(
                     ImmutableArray<Type>.Empty,
-                    returnTypeFirstTypeParameterResult.Value with { Metadata = returnTypeFirstTypeParameterResult.Value.Metadata with { HasLifecycle = false } },
+                    returnTypeFromFirstTypeParameter with { Metadata = returnTypeFromFirstTypeParameter.Metadata with { Lifecycle = Lifecycle.None } },
                     new Method(
                         returnType.Type,
                         nameof(Constructed<object>.Object),

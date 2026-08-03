@@ -76,17 +76,6 @@ public static class TypeConverter
             namedTypeSymbol.ContainingAssembly.Identity.ToString());
     }
 
-    public static Constructor? GetConstructor(IMethodSymbol? methodSymbol, IKnownInjectableTypes knownInjectableTypes)
-    {
-        if (methodSymbol != null && methodSymbol.ContainingType.IsInstantiable())
-        {
-            return new Constructor(
-                methodSymbol.Parameters.Select(x => GetParameter(x, knownInjectableTypes)).ToImmutableArray());
-        }
-
-        return default;
-    }
-
     public static Method? GetConstructor(IMethodSymbol? methodSymbol, Type? containingType, IKnownInjectableTypes knownInjectableTypes)
     {
         if (methodSymbol != null && containingType != null && methodSymbol.ContainingType.IsInstantiable())

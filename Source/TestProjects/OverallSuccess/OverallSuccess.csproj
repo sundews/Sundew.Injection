@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <OutputType>Exe</OutputType>
-    <LangVersion>11</LangVersion>
+    <LangVersion>preview</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Nullable>enable</Nullable>
     <Configurations>Debug;Release;DebugTests</Configurations>
@@ -12,7 +12,6 @@
   
   <ItemGroup>
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
-    <PackageReference Include="System.Collections.Immutable" GeneratePathProperty="true" PrivateAssets="all" />
     <PackageReference Include="Disposal.Interfaces" GeneratePathProperty="true" PrivateAssets="all" />
     <PackageReference Include="Initialization.Interfaces" GeneratePathProperty="true" PrivateAssets="all" />
   </ItemGroup>

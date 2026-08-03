@@ -23,7 +23,7 @@ public class InjectionGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var accessibleConstructorProvider = context.SyntaxProvider.SetupAccessibleConstructorStage();
+        var accessibleConstructorProvider = context.SyntaxProvider.SetupAccessibleTypeStage();
 
         var (successCompilationDataProvider, errorCompilationInfoProvider) = context.CompilationProvider.SetupCompilationDataStage().SegregateByResult();
 
@@ -49,7 +49,7 @@ public class InjectionGenerator : IIncrementalGenerator
         codeGeneratedFactorySuccessProvider.Select((x, _) => x.GeneratedFactoryOutputs).SetupOutputResultStage(context);
         context.RegisterSourceOutput(codeGeneratedFactoryErrorProvider, (productionContext, error) => error.ForEach(productionContext.ReportDiagnostic));
 
-        var resolverCreationDefinitionsProvider = injectionDefinitionSuccessProvider.Select((x, _) => x.ResolverCreationDefinitions);
+        var resolverCreationDefinitionsProvider = injectionDefinitionSuccessProvider.Select((x, _) => x.ServiceProviderImplementationDefinitions);
         var resolverCreationDefinitionAndFactoriesProvider = resolverCreationDefinitionsProvider
             .Combine(codeGeneratedFactorySuccessProvider.Select((x, _) => x.GeneratedTypeDeclaration).Collect()).Combine(successCompilationDataProvider)
             .Select((x, _) => (x.Left.Left, x.Left.Right, x.Right));

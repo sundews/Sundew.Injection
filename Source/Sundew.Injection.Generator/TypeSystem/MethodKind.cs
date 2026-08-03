@@ -10,9 +10,9 @@ namespace Sundew.Injection.Generator.TypeSystem;
 [DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record MethodKind
 {
-    public sealed record Constructor : MethodKind;
+    public sealed partial record Constructor : MethodKind;
 
-    public sealed record Static : MethodKind;
+    public sealed partial record Static : MethodKind;
 
-    public sealed record Instance(TypeMetadata ContainingTypeMetadata, bool IsProperty, Method? ContainingTypeDefaultConstructor) : MethodKind;
+    public sealed partial record Instance(TypeMetadata ContainingTypeMetadata, bool IsProperty, Method? ContainingTypeDefaultConstructor) : MethodKind;
 }

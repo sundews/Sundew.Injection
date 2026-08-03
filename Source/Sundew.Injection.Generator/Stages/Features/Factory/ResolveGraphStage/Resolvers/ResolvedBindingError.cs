@@ -14,8 +14,8 @@ using Sundew.Injection.Generator.TypeSystem;
 [Sundew.DiscriminatedUnions.DiscriminatedUnion]
 internal abstract partial record ResolvedBindingError : ResolvedBinding;
 
-internal sealed record ParameterError(Type Type, string ParameterName, ValueArray<ParameterSource> ParameterSources) : ResolvedBindingError;
+internal sealed partial record ParameterError(Type Type, string ParameterName, ValueArray<ParameterSource> ParameterSources) : ResolvedBindingError;
 
-internal sealed record ScopeError(Type CurrentType, Scope CurrentScope, Dependant Dependant) : ResolvedBindingError;
+internal sealed partial record ScopeError(Type CurrentType, Scope CurrentScope, Dependant Dependant) : ResolvedBindingError;
 
-internal sealed record CreateGenericMethodError(TypeSystem.CreateGenericMethodError Error) : ResolvedBindingError;
+internal sealed partial record CreateGenericMethodError(TypeSystem.CreateGenericMethodError Error) : ResolvedBindingError;

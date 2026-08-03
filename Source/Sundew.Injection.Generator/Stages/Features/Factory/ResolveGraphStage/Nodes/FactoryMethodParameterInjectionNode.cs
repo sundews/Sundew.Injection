@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="FactoryMethodParameterInjectionNode.cs" company="Sundews">
 // Copyright (c) Sundews. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -10,13 +10,13 @@ namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.N
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal sealed record FactoryMethodParameterInjectionNode(
+internal sealed partial record FactoryMethodParameterInjectionNode(
     Type Type,
     string Name,
     ParameterSource ParameterSource,
     TypeMetadata TypeMetadata,
-    bool PrefersNewInstance,
-    string DependantName) : InjectionNode(DependantName), IParameterNode
+    string DependantName,
+    bool IsTargetOptional = false) : InjectionNode(DependantName), IParameterNode
 {
     public override string Name { get; } = Name;
 

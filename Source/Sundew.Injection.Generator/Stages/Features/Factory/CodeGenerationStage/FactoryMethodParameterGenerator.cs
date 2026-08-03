@@ -29,18 +29,12 @@ internal class FactoryMethodParameterGenerator
         in FactoryImplementation factoryImplementation,
         in MethodImplementation method)
     {
-        var (parameters, _, _, argument, _) = ParameterHelper.VisitParameter(
+        var (argument, _) = ParameterHelper.VisitParameter(
             factoryMethodParameterInjectionNode,
-            null,
-            method.Parameters,
-            factoryImplementation.Constructor.Parameters,
             this.generatorContext.CompilationData);
         return new FactoryNode(
             factoryImplementation,
-            method with
-            {
-                Parameters = parameters,
-            },
+            method,
             ImmutableList.Create(argument));
     }
 }

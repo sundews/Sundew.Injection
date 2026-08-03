@@ -13,6 +13,8 @@ using Sundew.Base;
 using Sundew.Injection.Generator.Stages.CodeGeneration.Syntax;
 using Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model;
 using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Nodes;
+using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Resolvers;
+using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
 using Expression = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Expression;
 using MethodImplementation = Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.Model.MethodImplementation;
 using Statement = Sundew.Injection.Generator.Stages.CodeGeneration.Syntax.Statement;
@@ -31,12 +33,12 @@ internal class SingleInstancePerFactoryGenerator(
 
         var targetType = singleInstancePerFactoryInjectionNode.TargetType;
         var referencedType = singleInstancePerFactoryInjectionNode.ReferencedType;
-        var fieldType = singleInstancePerFactoryInjectionNode.ParameterNodeOption.GetValueOrDefault(x => x.Type, referencedType);
+        var (fieldType, fieldName) = singleInstancePerFactoryInjectionNode.ParameterNodeOption.GetValueOrDefault(x => (x.Type, NameHelper.GetIdentifierNameForType(targetType)), (referencedType, NameHelper.GetIdentifierNameForType(targetType)));
 
         (factoryNode, var wasAdded, var targetTypeFieldDeclaration) = factoryNode.GetOrAddField(
-            NameHelper.GetIdentifierNameForType(targetType),
+            fieldName,
             fieldType,
-            (fieldName) => new FieldDeclaration(fieldType, fieldName, FieldModifier.Instance),
+            (fieldName) => new FieldDeclaration(fieldType, fieldName, false, FieldModifier.Instance),
             (in FactoryNode factoryNode, bool willAdd, in FieldDeclaration _) =>
             {
                 if (willAdd)
@@ -46,13 +48,13 @@ internal class SingleInstancePerFactoryGenerator(
                         (nextFactoryNode, nextInjectionNode) =>
                         {
                             var factory = nextFactoryNode.FactoryImplementation;
-                            var factoryMethod = nextFactoryNode.CreateMethod;
+                            var factoryMethod = nextFactoryNode.RootFactoryMethod;
                             var result =
                                 generatorFeatures.InjectionNodeExpressionGenerator.Generate(nextInjectionNode, in factory, in factoryMethod);
                             return nextFactoryNode with
                             {
                                 FactoryImplementation = result.FactoryImplementation,
-                                CreateMethod = result.CreateMethod,
+                                RootFactoryMethod = result.RootFactoryMethod,
                                 DependantArguments =
                                 nextFactoryNode.DependantArguments.AddRange(result.DependantArguments),
                             };
@@ -69,27 +71,27 @@ internal class SingleInstancePerFactoryGenerator(
             (factoryNode, var creationExpression) = generatorFeatures.OptionalOverridableCreationGenerator.Generate(singleInstancePerFactoryInjectionNode, generatorContext.KnownSyntax.SharedLifecycleHandler, in factoryNode);
             if (singleInstancePerFactoryInjectionNode.ParameterNodeOption.TryGetValue(out var parameterNode))
             {
-                (factoryNode, _, var parameter, var parameterArgument, var needsFieldAssignment) = factoryNode.GetOrAddConstructorParameter(
+                var (parameterArgument, needsFieldAssignment) = ParameterHelper.VisitParameter(
                     parameterNode,
-                    NameHelper.GetIdentifierNameForType(parameterNode.Type),
-                    ImmutableList<ParameterDeclaration>.Empty,
                     generatorContext.CompilationData);
 
+                var isOptional = generatorContext.FactoryResolvedGraph.ReferencedTypesOptionality.TryGetValue(new RequestedParameter(parameterNode.ParameterSource.Type.Id, parameterNode.ParameterSource.Name), out var value) && value;
+
                 (factoryNode, _, var parameterField) = factoryNode.GetOrAddField(
-                    parameter.Name,
-                    parameter.Type,
-                    (fieldName) => new FieldDeclaration(parameter.Type, fieldName, FieldModifier.Instance));
+                    parameterNode.ParameterSource.Name,
+                    parameterNode.ParameterSource.Type,
+                    (fieldName) => new FieldDeclaration(parameterNode.ParameterSource.Type, fieldName, isOptional, FieldModifier.Instance));
 
                 if (needsFieldAssignment)
                 {
                     var optionalParameterFieldAssignment =
                         new ExpressionStatement(new AssignmentExpression(
                             new MemberAccessExpression(Identifier.This, parameterField.Name),
-                            new Identifier(parameter.Name)));
+                            new Identifier(parameterNode.ParameterSource.Name)));
                     factoryNode = factoryNode.AddConstructorStatement(optionalParameterFieldAssignment);
                 }
 
-                if (singleInstancePerFactoryInjectionNode.NeedsLifecycleHandling)
+                if (singleInstancePerFactoryInjectionNode.Lifecycle != Lifecycle.None)
                 {
                     creationExpression = new InvocationExpression(generatorContext.KnownSyntax.SharedLifecycleHandler.TryAddMethod, [creationExpression]);
                 }
@@ -103,7 +105,7 @@ internal class SingleInstancePerFactoryGenerator(
                     new ExpressionStatement(new AssignmentExpression(targetMemberAccessExpression, creationExpression));
                 factoryNode = factoryNode.AddConstructorStatement(assignmentStatement);
 
-                if (singleInstancePerFactoryInjectionNode.NeedsLifecycleHandling)
+                if (singleInstancePerFactoryInjectionNode.Lifecycle != Lifecycle.None)
                 {
                     factoryNode = factoryNode.AddConstructorStatement(new ExpressionStatement(new InvocationExpression(
                         generatorContext.KnownSyntax.SharedLifecycleHandler.TryAddMethod,

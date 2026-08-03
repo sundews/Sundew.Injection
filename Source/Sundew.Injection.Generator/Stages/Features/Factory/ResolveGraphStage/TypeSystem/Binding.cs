@@ -9,12 +9,12 @@ namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.T
 
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage;
 using Sundew.Injection.Generator.TypeSystem;
+using Type = Sundew.Injection.Generator.TypeSystem.Type;
 
 internal sealed record Binding(
     Type TargetType,
     Type ReferencedType,
     ScopeContext Scope,
     Method Method,
-    bool HasLifecycle,
-    bool IsInjectable,
+    Lifecycle Lifecycle,
     bool IsNewOverridable);

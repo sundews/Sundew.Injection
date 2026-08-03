@@ -46,7 +46,7 @@ internal sealed class InjectionTreeBuilder
         var factoryConstructorParameters = ImmutableList.CreateBuilder<FactoryConstructorParameterInjectionNode>();
 
         var injectionNodePair = this.GetInjectionNode(binding, null, Scope.NewInstance, null, factoryConstructorParameters, diagnostics, cancellationToken);
-        if (diagnostics.IsEmpty())
+        if (diagnostics.IsEmpty)
         {
             return R.Success(new InjectionTree(injectionNodePair.InjectionNode, injectionNodePair.ImplementDisposable, factoryConstructorParameters.ToImmutable()));
         }

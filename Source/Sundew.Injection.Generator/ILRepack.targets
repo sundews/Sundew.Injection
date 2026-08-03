@@ -12,6 +12,7 @@
             <RequiredFiles Include="$(OutputPath)**\Sundew.Injection.dll" />
             <DestinationFiles Include="@(RequiredFiles->'$(OutputPath)%(Filename)-Copy%(Extension)')"/>
 
+            <InputAssemblies Include="$(OutputPath)**\Microsoft.Bcl.HashCode.dll" />
             <InputAssemblies Include="$(OutputPath)**\Sundew*.dll" />
             <InputAssemblies Remove="@(RequiredFiles)" />
             <InputAssemblies Remove="$(OutputPath)**\*.m.dll" />

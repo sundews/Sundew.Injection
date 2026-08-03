@@ -1,0 +1,24 @@
+﻿{
+  Diagnostics: [
+    {
+      Location: /*
+    {
+        injectionBuilder.BindGeneric<NoViableConstructor<object>>();
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    }
+*/
+ {SolutionDirectory}TestProjects\DistinctErrors\NoViableConstructorFound\Setup.cs: (8,37)-(8,64),
+      Message: Symbol: 'DistinctErrors.NoViableConstructorFound.NoViableConstructor<object>' did not contain a viable constructor,
+      Severity: Error,
+      Descriptor: {
+        Id: SI0008,
+        Title: No viable constructor could be found,
+        Description: Types without a viable constructor are not supported,
+        MessageFormat: Symbol: '{0}' did not contain a viable constructor,
+        Category: CodeGeneration,
+        DefaultSeverity: Error,
+        IsEnabledByDefault: true
+      }
+    }
+  ]
+}

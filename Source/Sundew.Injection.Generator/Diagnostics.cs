@@ -7,13 +7,16 @@
 
 namespace Sundew.Injection.Generator;
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Sundew.Base;
 using Sundew.Base.Collections;
 using Sundew.Base.Collections.Immutable;
+using Sundew.Base.Text;
 using Sundew.Injection.Generator.Stages.InjectionDefinitionStage.SemanticModelAnalysis;
 using Sundew.Injection.Generator.TypeSystem;
 using ISymbol = Microsoft.CodeAnalysis.ISymbol;
@@ -167,12 +170,63 @@ internal sealed record Diagnostics(ValueList<Diagnostic> Items) : IEnumerable<Di
         true,
         Resources.ReferencedTypeMismatchDescription);
 
-    public static Diagnostics Create(DiagnosticDescriptor diagnosticDescriptor, SymbolErrorWithLocation symbolErrorWithLocation, params object[] additionalArguments)
+    public static DiagnosticDescriptor NoPropertyGetMethodFoundError { get; } = new(
+        "SI0014",
+        Resources.NoPropertyGetMethodFoundTitle,
+        Resources.NoPropertyGetMethodFoundMessageFormat,
+        CodeGeneration,
+        DiagnosticSeverity.Error,
+        true,
+        Resources.NoPropertyGetMethodFoundDescription);
+
+    public static DiagnosticDescriptor ParameterTypeResolutionFailedError { get; } = new(
+        "SI0015",
+        Resources.ParameterTypeResolutionFailedTitle,
+        Resources.ParameterTypeResolutionFailedMessageFormat,
+        CodeGeneration,
+        DiagnosticSeverity.Error,
+        true,
+        Resources.ParameterTypeResolutionFailedDescription);
+
+    public static DiagnosticDescriptor InvalidFactoryMethodBindingError { get; } = new(
+        "SI0016",
+        Resources.InvalidFactoryMethodBindingTitle,
+        Resources.InvalidFactoryMethodBindingMessageFormat,
+        CodeGeneration,
+        DiagnosticSeverity.Error,
+        true,
+        Resources.InvalidFactoryMethodBindingDescription);
+
+    public static DiagnosticDescriptor UnsupportedSymbolError { get; } = new(
+        "SI0017",
+        Resources.UnsupportedSymbolTitle,
+        Resources.UnsupportedSymbolMessageFormat,
+        CodeGeneration,
+        DiagnosticSeverity.Error,
+        true,
+        Resources.UnsupportedSymbolDescription);
+
+    public static IEnumerable<Diagnostic> Create(ErrorWithLocation errorWithLocation, object[] additionalArguments)
     {
-        var arguments = new object[] { symbolErrorWithLocation.SymbolError.Symbol.FullName, symbolErrorWithLocation.SymbolError.GetErrorText() }.Concat(additionalArguments).ToArray();
-        if (symbolErrorWithLocation.Location.HasValue())
+        var diagnosticDescriptor = errorWithLocation.Error.ErrorType switch
         {
-            return new Diagnostics(Diagnostic.Create(diagnosticDescriptor, symbolErrorWithLocation.Location, arguments));
+            ErrorType.InfiniteRecursions => Diagnostics.InfiniteRecursionError,
+            ErrorType.NoPropertyGetMethodFound => Diagnostics.NoPropertyGetMethodFoundError,
+            ErrorType.ParameterTypeResolutionFailed => Diagnostics.ParameterTypeResolutionFailedError,
+            ErrorType.InvalidFactoryMethodBinding => Diagnostics.InvalidFactoryMethodBindingError,
+            ErrorType.UnsupportedSymbol => Diagnostics.UnsupportedSymbolError,
+            _ => throw new ArgumentOutOfRangeException(),
+        };
+
+        return Create(diagnosticDescriptor, errorWithLocation, additionalArguments);
+    }
+
+    public static Diagnostics Create(DiagnosticDescriptor diagnosticDescriptor, ErrorWithLocation errorWithLocation, params object[] additionalArguments)
+    {
+        var arguments = new[] { errorWithLocation.Error.Symbol.FullName, GetErrorText(errorWithLocation.Error) }.Concat(additionalArguments).ToArray();
+        if (errorWithLocation.Location.HasValue)
+        {
+            return new Diagnostics(Diagnostic.Create(diagnosticDescriptor, errorWithLocation.Location, arguments));
         }
 
         return new Diagnostics(Diagnostic.Create(diagnosticDescriptor, Location.None, arguments));
@@ -186,7 +240,7 @@ internal sealed record Diagnostics(ValueList<Diagnostic> Items) : IEnumerable<Di
     public static Diagnostics Create(DiagnosticDescriptor diagnosticDescriptor, ISymbol symbol, Location? location = default, params object[] additionalArguments)
     {
         var arguments = symbol.ToDisplayString().ToEnumerable().Concat(additionalArguments).ToArray();
-        if (location.HasValue())
+        if (location.HasValue)
         {
             return new Diagnostics(Diagnostic.Create(diagnosticDescriptor, location, arguments));
         }
@@ -208,5 +262,34 @@ internal sealed record Diagnostics(ValueList<Diagnostic> Items) : IEnumerable<Di
     IEnumerator IEnumerable.GetEnumerator()
     {
         return this.GetEnumerator();
+    }
+
+    private static string GetErrorText(Error error)
+    {
+        return new StringBuilder(error.Symbol.FullName).AppendItems(error.InnerErrors, (builder, error) => GetErrorPath(builder, error, 1)).ToString();
+    }
+
+    private static StringBuilder GetErrorPath(StringBuilder stringBuilder, Error error, int indentation)
+    {
+        stringBuilder.AppendLine().Append('-', indentation).Append('>').Append(' ');
+        const string separator = " >>> ";
+        return stringBuilder
+            .Append(error.Symbol.FullName)
+            .Append(separator)
+            .Append(Get(error.ErrorType))
+            .AppendItems(error.InnerErrors, (builder, error) => GetErrorPath(builder, error, indentation + 1));
+
+        string Get(ErrorType errorType)
+        {
+            return errorType switch
+            {
+                ErrorType.InfiniteRecursions => Resources.InfiniteRecursionTitle,
+                ErrorType.NoPropertyGetMethodFound => Resources.NoPropertyGetMethodFoundTitle,
+                ErrorType.ParameterTypeResolutionFailed => Resources.ParameterTypeResolutionFailedTitle,
+                ErrorType.InvalidFactoryMethodBinding => Resources.InvalidFactoryMethodBindingTitle,
+                ErrorType.UnsupportedSymbol => Resources.UnsupportedSymbolTitle,
+                _ => throw new ArgumentOutOfRangeException(nameof(errorType), errorType, null),
+            };
+        }
     }
 }

@@ -8,12 +8,13 @@
 namespace Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.Nodes;
 
 using Sundew.Base.Collections.Immutable;
+using Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.TypeSystem;
 using Sundew.Injection.Generator.TypeSystem;
 
-internal sealed record SingleInstancePerRequestInjectionNode(
+internal sealed partial record SingleInstancePerRequestInjectionNode(
     Type TargetType,
     Type ReferencedType,
-    bool NeedsLifecycleHandling,
+    Lifecycle Lifecycle,
     IReadOnlyRecordList<InjectionNode> Parameters,
     CreationSource CreationSource,
     ParameterNode? ParameterNodeOption,
