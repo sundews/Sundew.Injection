@@ -9,7 +9,6 @@ using Sundew.Injection.Testing;
 using CompilationDataProvider = sig::Sundew.Injection.Generator.Stages.CompilationDataStage.CompilationDataProvider;
 using FactoryResolvedGraphProvider = sig::Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.FactoryResolvedGraphProvider;
 
-[TestFixture]
 public class FactoryDataEqualityFixture
 {
     [Test]

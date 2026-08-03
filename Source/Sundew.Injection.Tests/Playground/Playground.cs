@@ -9,10 +9,9 @@ using sbt::Sundew.Base.Text;
 using Sundew.Injection.Testing;
 using InjectionGenerator = sig::Sundew.Injection.Generator.InjectionGenerator;
 
-[TestFixture]
 public class Playground
 {
-    [Test, Ignore("Only when using playground")]
+    [Test, Skip("Only when using playground")]
     public void InjectionDefinitionStageTest()
     {
         var compilation = TestProjects.TestPlayground.FromCurrentDirectory.Value;

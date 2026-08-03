@@ -10,35 +10,34 @@ namespace Sundew.Injection.IntegrationTests.Distinct;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using NUnit.Framework;
 using Sundew.Injection.Generator;
 using Sundew.Injection.Testing;
-using VerifyNUnit;
+using VerifyTUnit;
 
-[TestFixture]
 public class SuccessFixture
 {
-    [TestCase(@"AllowingOverrideNew")]
-    [TestCase(@"DependencyFromBoundFactoryWithDisposable")]
-    [TestCase(@"DependencyFromBoundInterfaceFactory")]
-    [TestCase(@"DisposableDependency")]
-    [TestCase(@"DisposableFactoriesAllowingOverrideNew")]
-    [TestCase(@"InitializableDependency")]
-    [TestCase(@"IntermediateDependencyFromBoundFactoryWithInitializable")]
-    [TestCase(@"MultipleFactoryMethods")]
-    [TestCase(@"MultipleParameters")]
-    [TestCase(@"Parameters\ConstructorOptionalReferenceType")]
-    [TestCase(@"Parameters\OptionalInt")]
-    [TestCase(@"Parameters\OptionalIntToRequired")]
-    [TestCase(@"Parameters\OptionalLifecycle")]
-    [TestCase(@"Parameters\OptionalLifecycleWithDefaultValue")]
-    [TestCase(@"Parameters\OptionalLifecycleWithoutRegistration")]
-    [TestCase(@"Parameters\OptionalReferenceType")]
-    [TestCase(@"Parameters\OptionalString")]
-    [TestCase(@"PartialConstructor")]
-    [TestCase(@"PartialProperty")]
-    [TestCase(@"SelectedConstructor")]
-    [TestCase(@"SingletonFactory")]
+    [Test]
+    [Arguments(@"AllowingOverrideNew")]
+    [Arguments(@"DependencyFromBoundFactoryWithDisposable")]
+    [Arguments(@"DependencyFromBoundInterfaceFactory")]
+    [Arguments(@"DisposableDependency")]
+    [Arguments(@"DisposableFactoriesAllowingOverrideNew")]
+    [Arguments(@"InitializableDependency")]
+    [Arguments(@"IntermediateDependencyFromBoundFactoryWithInitializable")]
+    [Arguments(@"MultipleFactoryMethods")]
+    [Arguments(@"MultipleParameters")]
+    [Arguments(@"Parameters\ConstructorOptionalReferenceType")]
+    [Arguments(@"Parameters\OptionalInt")]
+    [Arguments(@"Parameters\OptionalIntToRequired")]
+    [Arguments(@"Parameters\OptionalLifecycle")]
+    [Arguments(@"Parameters\OptionalLifecycleWithDefaultValue")]
+    [Arguments(@"Parameters\OptionalLifecycleWithoutRegistration")]
+    [Arguments(@"Parameters\OptionalReferenceType")]
+    [Arguments(@"Parameters\OptionalString")]
+    [Arguments(@"PartialConstructor")]
+    [Arguments(@"PartialProperty")]
+    [Arguments(@"SelectedConstructor")]
+    [Arguments(@"SingletonFactory")]
     public Task VerifyGeneratedSources(string project)
     {
         var compilation = new TestProject($@"TestProjects\DistinctSuccess\{project}").FromCurrentDirectory.Value;

@@ -5,7 +5,6 @@ using FluentAssertions;
 using Sundew.Injection.Testing;
 using InjectionDefinitionProvider = sig::Sundew.Injection.Generator.Stages.InjectionDefinitionStage.InjectionDefinitionProvider;
 
-[TestFixture]
 public class InjectionDefinitionEqualityFixture
 {
     [Test]

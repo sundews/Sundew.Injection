@@ -10,24 +10,23 @@ namespace Sundew.Injection.IntegrationTests.Distinct;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using NUnit.Framework;
 using Sundew.Injection.Generator;
 using Sundew.Injection.Testing;
-using VerifyNUnit;
+using VerifyTUnit;
 
-[TestFixture]
 public class ErrorsFixture
 {
-    [TestCase(@"ImplementFactoryForNonNamedType")]
-    [TestCase(@"NoBindingForNonInstantiableType")]
-    [TestCase(@"NoExactParameterMatch")]
-    [TestCase(@"NoFactoryMethodForBind")]
-    [TestCase(@"NonGenericBind")]
-    [TestCase(@"NonInstantiableType")]
-    [TestCase(@"NoViableConstructorFound")]
-    [TestCase(@"Recursive")]
-    [TestCase(@"RequestedTypeVersusReferencedTypeMismatch")]
-    [TestCase(@"ScopeError")]
+    [Test]
+    [Arguments(@"ImplementFactoryForNonNamedType")]
+    [Arguments(@"NoBindingForNonInstantiableType")]
+    [Arguments(@"NoExactParameterMatch")]
+    [Arguments(@"NoFactoryMethodForBind")]
+    [Arguments(@"NonGenericBind")]
+    [Arguments(@"NonInstantiableType")]
+    [Arguments(@"NoViableConstructorFound")]
+    [Arguments(@"Recursive")]
+    [Arguments(@"RequestedTypeVersusReferencedTypeMismatch")]
+    [Arguments(@"ScopeError")]
     public Task VerifyGeneratedSources(string project)
     {
         var compilation = new TestProject($@"TestProjects\DistinctErrors\{project}").FromCurrentDirectory.Value;

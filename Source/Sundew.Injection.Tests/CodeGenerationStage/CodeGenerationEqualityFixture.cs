@@ -10,7 +10,6 @@ using CompilationDataProvider = sig::Sundew.Injection.Generator.Stages.Compilati
 using FactoryCodeGenerationProvider = sig::Sundew.Injection.Generator.Stages.Features.Factory.CodeGenerationStage.FactoryCodeGenerationProvider;
 using FactoryResolvedGraphProvider = sig::Sundew.Injection.Generator.Stages.Features.Factory.ResolveGraphStage.FactoryResolvedGraphProvider;
 
-[TestFixture]
 public class CodeGenerationEqualityFixture
 {
     [Test]

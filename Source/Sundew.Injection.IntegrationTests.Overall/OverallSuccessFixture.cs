@@ -10,12 +10,10 @@ namespace Sundew.Injection.IntegrationTests.Overall;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using NUnit.Framework;
 using Sundew.Injection.Generator;
 using Sundew.Injection.Testing;
-using VerifyNUnit;
+using VerifyTUnit;
 
-[TestFixture]
 public class OverallSuccessFixture
 {
     [Test]

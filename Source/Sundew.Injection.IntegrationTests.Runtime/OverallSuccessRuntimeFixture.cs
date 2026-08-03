@@ -8,14 +8,12 @@
 namespace Sundew.Injection.IntegrationTests.Overall;
 
 using System.Threading.Tasks;
-using NUnit.Framework;
 using OverallSuccess;
 using OverallSuccess.OptionalInterface;
 using OverallSuccess.RequiredInterface;
 using OverallSuccessDependency;
-using VerifyNUnit;
+using VerifyTUnit;
 
-[TestFixture]
 public class OverallSuccessRuntimeFixture
 {
     [Test]
