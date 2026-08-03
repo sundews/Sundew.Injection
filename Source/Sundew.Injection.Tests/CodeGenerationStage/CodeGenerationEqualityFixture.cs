@@ -2,8 +2,8 @@
 
 extern alias sbt;
 extern alias sig;
-using FluentAssertions;
-using FluentAssertions.Execution;
+using AwesomeAssertions;
+using AwesomeAssertions.Execution;
 using sbt::Sundew.Base.Text;
 using Sundew.Injection.Testing;
 using CompilationDataProvider = sig::Sundew.Injection.Generator.Stages.CompilationDataStage.CompilationDataProvider;

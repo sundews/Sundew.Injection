@@ -2,7 +2,7 @@
 
 extern alias sbt;
 extern alias sig;
-using FluentAssertions.Execution;
+using AwesomeAssertions.Execution;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using sbt::Sundew.Base.Text;
