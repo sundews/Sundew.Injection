@@ -159,7 +159,7 @@ namespace Sundew.Injection.Dependencies.Disposal
                 {
                     new CleanOperation(() =>
                     {
-                        var removedItems = this.disposables.Where(x => x.Key.TryGetTarget(out _)).ToArray();
+                        var removedItems = this.disposables.Where(x => !x.Key.TryGetTarget(out _)).ToArray();
                         this.ReplaceList(x => x.RemoveRange(removedItems));
                         Interlocked.Exchange(ref this.isCleaningScheduled, 0);
                     });
@@ -186,7 +186,7 @@ namespace Sundew.Injection.Dependencies.Disposal
             for (var index = 0; index < immutableList.Count; index++)
             {
                 var item = immutableList[index];
-                if (Equals(item.Key, key))
+                if (item.Key.TryGetTarget(out var target) && ReferenceEquals(target, key))
                 {
                     return (index, item);
                 }

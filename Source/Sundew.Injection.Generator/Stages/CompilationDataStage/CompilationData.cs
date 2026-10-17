@@ -23,7 +23,6 @@ internal sealed record CompilationData(
     NamedType TypeType,
     NamedType ObjectType,
     NamedType IntType,
-    NamedType ServiceProviderType,
     ClosedGenericType SpanOfObjectType,
     OpenGenericType IEnumerableOfTType,
     OpenGenericType IReadOnlyListOfTType,
@@ -34,12 +33,12 @@ internal sealed record CompilationData(
 
 internal sealed record SundewInjectionProvidedCompilationData(
     Binding LifecycleHandlerBinding,
-    Type ResolverItemsFactoryType,
+    Type ServiceResolverType,
     Type ResolverItemType,
-    ArrayType ResolverItemArrayType,
-    OpenGenericType ResolverItemOfTType);
+    Type ArgumentResolverType);
 
 internal sealed record SundewInjectionReferencedCompilationData(
     Type ILifecycleHandlerType,
     OpenGenericType ConstructedType,
-    NamedType IGeneratedFactoryType);
+    NamedType IGeneratedFactoryType,
+    NamedType IInjectionServiceProviderType);

@@ -17,11 +17,16 @@ namespace Sundew.Injection.Dependencies
         [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
         internal static ResolverItem[] Create(int bucketSize, params ResolverItem[] resolvers)
         {
+            if (resolvers.Length >= bucketSize)
+            {
+                throw new NotSupportedException("The bucket size must be larger than the number of resolvers.");
+            }
+
             var resolverItems = new ResolverItem[bucketSize];
             for (var i = 0; i < resolvers.Length; i++)
             {
                 var resolverItem = resolvers[i];
-                var index = RuntimeHelpers.GetHashCode(resolverItem.Type) % bucketSize;
+                var index = GetStartIndex(resolverItem.Type, bucketSize);
                 while (resolverItems[index].Type != default)
                 {
                     index++;
@@ -31,15 +36,16 @@ namespace Sundew.Injection.Dependencies
                     }
                 }
 
-                if (index >= resolverItems.Length)
-                {
-                    throw new NotSupportedException("The dictionary is full.");
-                }
-
                 resolverItems[index] = resolverItem;
             }
 
             return resolverItems;
+        }
+
+        [global::System.Runtime.CompilerServices.MethodImpl((global::System.Runtime.CompilerServices.MethodImplOptions)0x300)]
+        internal static int GetStartIndex(Type type, int bucketSize)
+        {
+            return (RuntimeHelpers.GetHashCode(type) & 0x7FFFFFFF) % bucketSize;
         }
     }
 }

@@ -14,11 +14,13 @@ using OverallSuccess.RequiredInterface;
 using OverallSuccessDependency;
 using VerifyTUnit;
 
+[NotInParallel(nameof(FactoryLifetime))]
 public class OverallSuccessRuntimeFixture
 {
     [Test]
     public Task FactoryLifetimeTest()
     {
+        FactoryLifetime.Reset();
         var injectedSeparately1 = new InjectedSeparately();
         var injectedSeparately2 = new InjectedSeparately();
         using (var resolveRootFactory = new ResolveRootFactory(

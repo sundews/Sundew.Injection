@@ -12,4 +12,6 @@ using Sundew.Injection.Generator.TypeSystem;
 
 internal readonly record struct FactoryRegistration(
     Type FactoryType,
-    ValueArray<FactoryMethodTarget> FactoryTargets);
+    ValueArray<FactoryMethodTarget> FactoryTargets,
+    ValueArray<Type> DisposeTypes,
+    ValueArray<Type> DisposeAsyncTypes);

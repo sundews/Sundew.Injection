@@ -228,6 +228,7 @@ internal class FactorySyntaxGenerator(
         var bindableFactoryTargets = ImmutableArray.CreateBuilder<string>();
 
         var factoryInput = new FactoryInput(rootFactoryMethodDeclaration, asyncRootFactoryMethodReturnType, targetTypeParameterName, isSingleton);
+        var disposeMethodCount = factoryDefinition.DisposeMethods.Count;
         factoryDefinition = resolvedRootFactoryMethod.RootLifecycle switch
         {
             Lifecycle.None => this.AddCreationWithoutLifecycle(resolvedRootFactoryMethod, factoryNode, factoryInput, factoryDefinition, bindableFactoryTargets),
@@ -236,6 +237,8 @@ internal class FactorySyntaxGenerator(
             Lifecycle.Both => this.AddCreationWithInitializationAndDisposal(resolvedRootFactoryMethod, factoryNode, factoryInput, factoryDefinition, bindableFactoryTargets),
             _ => throw new System.ArgumentOutOfRangeException(nameof(resolvedRootFactoryMethod), resolvedRootFactoryMethod.RootLifecycle, null),
         };
+
+        var hasDisposal = factoryDefinition.DisposeMethods.Count > disposeMethodCount;
 
         return (factoryNode.FactoryImplementation with
         {
@@ -246,7 +249,7 @@ internal class FactorySyntaxGenerator(
             RootInterfaceMembers = factoryDefinition.RootInterfaceMembers,
             DisposeMethodImplementations = factoryDefinition.DisposeMethods,
         },
-            new FactoryTargetDeclaration(rootFactoryMethodDeclaration.Name, rootFactoryMethodDeclaration.Parameters, resolvedRootFactoryMethod.Return.Type, resolvedRootFactoryMethod.IsProperty, bindableFactoryTargets.ToImmutable()),
+            new FactoryTargetDeclaration(rootFactoryMethodDeclaration.Name, rootFactoryMethodDeclaration.Parameters, resolvedRootFactoryMethod.Return.Type, resolvedRootFactoryMethod.IsProperty, bindableFactoryTargets.ToImmutable(), hasDisposal, hasDisposal),
             factoryDefinition.InterfaceMembers);
     }
 

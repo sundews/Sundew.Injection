@@ -7,6 +7,12 @@ public static class FactoryLifetime
     public static readonly StringBuilder Log = new StringBuilder();
     private static int lastAssignedId = 0;
 
+    public static void Reset()
+    {
+        Log.Clear();
+        lastAssignedId = 0;
+    }
+
     public static int Created(IIdentifiable @object)
     {
         Log.AppendLine("Created: " + @object.GetType().FullName + " - Id: " + lastAssignedId);

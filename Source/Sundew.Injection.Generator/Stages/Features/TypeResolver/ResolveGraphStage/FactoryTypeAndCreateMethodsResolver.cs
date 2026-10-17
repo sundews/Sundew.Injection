@@ -29,7 +29,9 @@ internal class FactoryTypeAndCreateMethodsResolver(
                         factoryTarget.Method.Parameters.Select(parameter => new ParameterDeclaration(parameter.Type, parameter.Name, parameter.ParameterNecessity)).ToValueList(),
                         factoryTarget.ReturnType,
                         factoryTarget.Method.Kind is MethodKind.Instance { IsProperty: true },
-                        ImmutableArray<string>.Empty);
+                        ImmutableArray<string>.Empty,
+                        factoryRegistration.DisposeTypes.Contains(factoryTarget.ReturnType),
+                        factoryRegistration.DisposeAsyncTypes.Contains(factoryTarget.ReturnType));
                 }).ToValueArray();
 
             return (factoryRegistration.FactoryType, factoryTargetResults);

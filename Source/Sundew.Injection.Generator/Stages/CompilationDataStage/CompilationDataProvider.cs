@@ -100,20 +100,19 @@ internal static class CompilationDataProvider
                 GetNamedType(typeof(Type)),
                 objectType,
                 intType,
-                GetNamedType(typeof(IServiceProvider)),
                 GetGenericType(typeof(Span<>), string.Empty).ToClosedGenericType(ImmutableArray.Create(new FullTypeArgument(objectType, new TypeMetadata(EnumerableMetadata.NonEnumerableMetadata, Lifecycle.None)))),
                 GenericTypeConverter.GetGenericType(iEnumerableOfTSymbol),
                 GenericTypeConverter.GetGenericType(iEnumerableOfTSymbol),
                 new SundewInjectionReferencedCompilationData(
                     GetNamedType(typeof(ILifecycleHandler)),
                     GetGenericType(typeof(Sundew.Injection.Constructed<>), string.Empty),
-                    GetNamedType(typeof(IGeneratedFactory))),
+                    GetNamedType(typeof(IGeneratedFactory)),
+                    GetNamedType(typeof(IInjectionServiceProvider))),
                 new SundewInjectionProvidedCompilationData(
                     lifecycleHandlerBinding,
-                    GetProvidedNamedType(typeof(ResolverItemsFactory), assemblyNamespace, assemblyName),
+                    GetProvidedNamedType(typeof(ServiceResolver), assemblyNamespace, assemblyName),
                     resolverItemType,
-                    new ArrayType(resolverItemType),
-                    GetGenericType(typeof(ResolverItem), assemblyNamespace, assemblyName)),
+                    GetProvidedNamedType(typeof(ArgumentResolver), assemblyNamespace, assemblyName)),
                 assemblyName,
                 assemblyNamespace));
         }

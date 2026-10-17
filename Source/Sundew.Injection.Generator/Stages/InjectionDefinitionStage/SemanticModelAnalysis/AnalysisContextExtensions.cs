@@ -23,6 +23,7 @@ using MethodKind = Sundew.Injection.Generator.TypeSystem.MethodKind;
 internal static class AnalysisContextExtensions
 {
     private const string Dispose = "Dispose";
+    private const string DisposeAsync = "DisposeAsync";
 
     public static void AddFactoryMethodFromTypeSymbol(
         this AnalysisContext analysisContext,
@@ -154,7 +155,11 @@ internal static class AnalysisContextExtensions
             return;
         }
 
-        factoryRegistrationBuilder.Add(factoryTypeResult.Value.Type, GetFactoryTargets(factoryTypeSymbolWithLocation, analysisContext));
+        factoryRegistrationBuilder.Add(
+            factoryTypeResult.Value.Type,
+            GetFactoryTargets(factoryTypeSymbolWithLocation, analysisContext),
+            GetDisposeParameterTypes(factoryTypeSymbolWithLocation.TypeSymbol, Dispose, x => x.ReturnsVoid, analysisContext),
+            GetDisposeParameterTypes(factoryTypeSymbolWithLocation.TypeSymbol, DisposeAsync, x => x.ReturnType is INamedTypeSymbol { Name: nameof(System.Threading.Tasks.ValueTask), IsGenericType: false }, analysisContext));
     }
 
     public static R<FactoryMethodTarget, Error>? GetFactoryMethodTarget(AnalysisContext analysisContext, IMethodSymbol methodSymbol)
@@ -203,6 +208,15 @@ internal static class AnalysisContextExtensions
         return symbol.GetAttributes().All(x =>
                    x.AttributeClass?.ToDisplayString() != KnownTypesProvider.IndirectFactoryTargetName)
                && !symbol.MetadataName.Contains(Dispose);
+    }
+
+    private static ValueArray<Type> GetDisposeParameterTypes(ITypeSymbol factoryTypeSymbol, string methodName, System.Func<IMethodSymbol, bool> hasReturnType, AnalysisContext analysisContext)
+    {
+        return factoryTypeSymbol.GetMembers(methodName)
+            .OfType<IMethodSymbol>()
+            .Where(x => x is { DeclaredAccessibility: Microsoft.CodeAnalysis.Accessibility.Public, IsStatic: false, Parameters.Length: 1 } && hasReturnType(x))
+            .Select(x => analysisContext.TypeFactory.GetType(x.Parameters[0].Type))
+            .ToValueArray();
     }
 
     private static ValueArray<FactoryMethodTarget> GetFactoryTargets(TypeSymbolWithLocation factoryTypeSymbol, AnalysisContext analysisContext)
